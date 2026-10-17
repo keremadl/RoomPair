@@ -1,0 +1,6 @@
+{
+  "locales": [
+    { "code": "en", "label": "English", "nativeName": "English", "dir": "ltr" },
+    { "code": "tr", "label": "Türkçe", "nativeName": "Türkçe", "dir": "ltr" }
+  ]
+}
