@@ -137,7 +137,7 @@ The data model, matching engine and interface text are already separated, so the
 
 ## 11. Business model
 
-The same canvas as the course deck [`business-model/RoomPair-Business-Model.pptx`](business-model/RoomPair-Business-Model.pptx) (Business Model Canvas by Osterwalder & Pigneur, plus a Value Proposition Canvas). All prices and targets are **assumptions to test**, not market data.
+Filled canvases (PNG and PDF): [Business Model Canvas](business-model/RoomPair-Business-Model-Canvas.png), [Value Proposition Canvas](business-model/RoomPair-Value-Proposition-Canvas.png), and [both on one page](business-model/RoomPair-Canvases-One-Page.pdf). All prices and targets are **assumptions to test**, not market data.
 
 ### Business Model Canvas
 
