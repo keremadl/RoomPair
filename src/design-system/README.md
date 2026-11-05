@@ -1,7 +1,8 @@
 # RoomPair design system
 
-One visual language for the whole app. Every screen is built from the tokens
-and components in this folder. Live reference: **http://localhost:3000/design-system**.
+One shared core and six design languages. Every screen is built from the
+tokens and components in this folder. Live reference:
+**/design-system** (add `?lang=collage`, `?lang=poster`… to see a language).
 
 ## Why this exists
 
@@ -14,26 +15,56 @@ makes the decisions once, so screens can only combine them.
 
 ```
 src/design-system/
-  tokens.css          ← all visual decisions (color, type, space, radius, shadow, motion)
-  index.ts            ← public API: import { Button } from "@/design-system"
-  cx.ts               ← className helper
-  components/
-    Button/           Button.tsx + Button.module.css
-    IconButton/
-    Badge/            non-interactive label / count / status
-    Chip/             selectable tag
-    Avatar/           + AvatarGroup
-    Card/
-    Field/            Input, Textarea (label, hint, error built in)
-    SegmentedControl/
-    Typography/       Heading, Text, Eyebrow
-    Stack/            flex layout with spacing-scale gaps
-  themes/             ← candidate design languages (Sohbet, Kolaj + palettes, Afiş, Gün, Ev Planı, Kart): token
-                        overrides scoped to [data-direction="…"]; compared at /directions
-src/app/design-system/ ← showcase page (tokens + every component)
-src/app/directions/   ← the Discover screen in each design language
-scripts/check-design.mjs ← guard: ratchet + contrast check
+  tokens.css            ← base tokens: primitives, semantic tokens, component tokens
+  index.ts              ← core API: import { Button, ProfileDetails } from "@/design-system"
+  components/           ← the core: same code in every language
+    Button/ IconButton/ Chip/ Badge/ Avatar/ Card/ Field/ SegmentedControl/
+    Typography/ Stack/
+    Tabs/               accessible tab list (arrow keys, Home/End)
+    SectionHeader/      icon + title (+ summary) for a profile group
+    FactGrid/           label/value facts as tiles or rows
+    CompareTable/       their habits, yours, and whether they work together
+    ScoreBars/          score bars + ReasonList
+    ProfileDetails/     Home → Person → Fit as blocks or tabs
+    SwipeCard/          draggable card (SwipeHero) + Reveal
+  languages/            ← the six design languages
+    index.ts            registry: metadata, screens, signature components
+    fonts.ts            Google fonts the languages use
+    chat/ collage/ poster/ day/ plan/ card/
+      theme.css         token values for [data-direction="<id>"]
+      components.tsx    signature components
+      DiscoverScreen.tsx
+      README.md         principles, rules, tokens, components
+  themes/wire.css       ← neutral wireframe theme for layout prototypes
+src/lib/discover/       ← deck state (useDeck) and the Home / Person / Fit content model
+src/app/design-system/  ← library environment: everything above, live, in any language
+src/app/directions/     ← the six Discover screens side by side, blocks or tabs
+scripts/check-design.mjs ← guard: ratchet + contrast check for every theme
 ```
+
+## Core and languages
+
+The core components never hard-code a look. They read **semantic tokens**
+(colour, type, radius, shadow) and **component tokens** (`--control-border-width`,
+`--control-border`, `--control-shadow`, `--control-press`, `--heading-weight`,
+`--surface-border`…). Each language sets those tokens in its `theme.css`, so
+the same `<Button>` is outlined with a hard shadow in Kolaj, square in Afiş and
+pressable in Kart. A language adds **signature components** only for what the
+core cannot express (chat bubbles, polaroids, floor plans, stat pips…).
+
+Every profile uses the same content model (`src/lib/discover/sections.ts`) and
+the same `ProfileDetails` arrangement: **Home → Person → Fit**, as blocks or
+tabs. Facts about the place never appear under Person, facts about the person
+never under Home.
+
+| Language     | Package             | Idea                                               |
+| ------------ | ------------------- | -------------------------------------------------- |
+| A · Sohbet   | `languages/chat`    | The profile as a first chat with a future flatmate |
+| B · Kolaj    | `languages/collage` | Polaroids and stickers; four palettes              |
+| C · Afiş     | `languages/poster`  | Flat colour bands and huge numbers                 |
+| D · Gün      | `languages/day`     | A day you would share, on a timeline               |
+| E · Ev Planı | `languages/plan`    | The home as an architect's drawing                 |
+| F · Kart     | `languages/card`    | Each person as a character card                    |
 
 ## Tokens: two layers
 
@@ -69,11 +100,25 @@ the showcase page updates instantly.
 
 ## Adding a component
 
-1. Create `components/Name/Name.tsx` + `Name.module.css` (tokens only).
+**Core** (needed by more than one language):
+
+1. Create `components/Name/Name.tsx` + `Name.module.css`. Tokens only; read
+   colour-valued component tokens with a fallback,
+   `var(--control-border, var(--color-border-strong))`.
 2. Export it from `index.ts`.
-3. Add a specimen to `src/app/design-system/showcase.tsx` showing every
-   variant and state.
-4. Run `npm run typecheck && npm run check:design`.
+3. Add a specimen to `src/app/design-system/showcase.tsx` and check it in all
+   six languages (`?lang=…`).
+
+**Signature** (one language only):
+
+1. Add it to `languages/<id>/components.tsx`, styled in `styles.module.css`.
+2. List it in `signatures` in `languages/index.ts` and in the language README.
+
+**A new language:** copy a language folder, set its tokens in `theme.css`,
+register it in `languages/index.ts` (metadata, screen, signatures) and add
+its fonts to `fonts.ts`.
+
+Always finish with `npm run typecheck && npm run check:design`.
 
 ## Migrating the existing screens
 

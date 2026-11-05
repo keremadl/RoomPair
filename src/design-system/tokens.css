@@ -183,6 +183,26 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-exit: cubic-bezier(0.3, 0, 1, 1);
 
+  /* ───────────── Component tokens ─────────────
+   * The structural character of controls and surfaces. Each design language
+   * overrides these so the same core components feel native to it.
+   * Tokens that point at a colour are read with a fallback inside the
+   * components (var(--control-border, var(--color-border-strong))) and are
+   * not set here: a var() set on :root resolves at :root and a theme could
+   * not change it.
+   *
+   *   --control-border          outline colour of secondary controls
+   *   --control-primary-border  outline colour of filled controls
+   *   --surface-border          outline colour of cards
+   */
+  --control-border-width: 1px;
+  --control-shadow: none; /* resting elevation of buttons */
+  --control-shadow-active: none; /* while pressed */
+  --control-press: scale(0.98); /* transform while pressed */
+  --control-weight: 500;
+  --heading-weight: 700;
+  --surface-border-width: 1px;
+
   /* ───────────── Layers ───────────── */
 
   --z-base: 0;

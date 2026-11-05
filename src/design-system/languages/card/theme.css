@@ -1,0 +1,75 @@
+/*
+ * Language F — Kart (Character card)
+ * Each person is a collectible character card: age is the level, habits are
+ * stats, tags are abilities, compatibility is XP and quests. Chunky, rounded,
+ * game-like, but set in a plain readable sans (Rubik) at full size.
+ */
+[data-direction="card"] {
+  --color-bg: #e7ebf3;
+  --color-surface: #fffdf8;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #d9dfeb;
+  --color-overlay: rgb(24 28 48 / 0.5);
+  --color-border: #c7cfdf;
+  --color-border-strong: #1d2240;
+
+  --color-text: #1d2240;
+  --color-text-muted: #4b5272;
+  --color-text-subtle: #767d9b;
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #5b3fd6;
+  --color-primary-hover: #4a30bb;
+  --color-primary-active: #3b2599;
+  --color-primary-soft: #ebe6ff;
+  --color-primary-soft-hover: #ddd4ff;
+  --color-on-primary: #ffffff;
+
+  --color-accent: #f5a524;
+  --color-accent-strong: #8a5600;
+  --color-accent-soft: #fff1d6;
+
+  --color-success: #17784d;
+  --color-success-soft: #ddf4e8;
+  --color-warning: #85570e;
+  --color-warning-soft: #fff1d6;
+  --color-danger: #b8322a;
+  --color-danger-soft: #fde8e6;
+  --color-focus-ring: #f5a524;
+
+  /* Card "types": the frame colour says what someone is looking for. */
+  --type-host: #17784d;
+  --type-host-soft: #ddf4e8;
+  --type-explorer: #2d62c9;
+  --type-explorer-soft: #e2ebfc;
+  --stat-on: #5b3fd6;
+  --stat-off: #d9dfeb;
+  --xp: #f5a524;
+  --press-depth: 4px;
+  --press-shadow: 0 4px 0 #1d2240;
+
+  --font-heading: var(--font-rubik), "Rubik", system-ui, sans-serif;
+  --font-body: var(--font-rubik), "Rubik", system-ui, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --shadow-sm: 0 2px 0 #1d2240;
+  --shadow-md: 0 4px 0 #1d2240;
+  --shadow-lg: 0 18px 40px rgb(29 34 64 / 0.22);
+  --focus-ring: 0 0 0 3px #e7ebf3, 0 0 0 6px #f5a524;
+
+  /* Component tokens: chunky, pressable game buttons. */
+  --control-border-width: 2px;
+  --control-border: var(--color-border-strong);
+  --control-primary-border: var(--color-border-strong);
+  --control-shadow: var(--press-shadow);
+  --control-shadow-active: none;
+  --control-press: translateY(var(--press-depth));
+  --control-weight: 700;
+  --heading-weight: 800;
+  --surface-border: var(--color-border-strong);
+  --surface-border-width: 2px;
+}

@@ -44,3 +44,37 @@ export {
   type TextProps,
 } from "./components/Typography/Typography";
 export { Stack, type StackProps } from "./components/Stack/Stack";
+
+/* Profile detail building blocks (shared by every design language) */
+export { Tabs, type TabsProps, type TabItem } from "./components/Tabs/Tabs";
+export {
+  SectionHeader,
+  type SectionHeaderProps,
+} from "./components/SectionHeader/SectionHeader";
+export {
+  FactGrid,
+  type FactGridProps,
+  type Fact,
+} from "./components/FactGrid/FactGrid";
+export {
+  CompareTable,
+  type CompareTableProps,
+  type CompareRow,
+} from "./components/CompareTable/CompareTable";
+export {
+  ScoreBars,
+  ReasonList,
+  type ScoreItem,
+} from "./components/ScoreBars/ScoreBars";
+export {
+  ProfileDetails,
+  type ProfileDetailsProps,
+  type DetailsLayout,
+  type DetailsClasses,
+  type GroupId,
+} from "./components/ProfileDetails/ProfileDetails";
+export {
+  SwipeHero,
+  Reveal,
+  type Decision,
+} from "./components/SwipeCard/SwipeCard";

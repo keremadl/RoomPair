@@ -2,12 +2,10 @@
 import type { ReactNode } from "react";
 import {
   Bell,
-  Check,
   Handshake,
   Heart,
   Home,
   MessageCircle,
-  Minus,
   RotateCcw,
   Smile,
   Compass,
@@ -19,7 +17,13 @@ import type {
   FitSection,
   HomeSection,
   PersonSection,
-} from "../directions/shared/sections";
+} from "@/lib/discover/sections";
+import {
+  CompareTable,
+  FactGrid as CoreFactGrid,
+  ReasonList,
+  ScoreBars,
+} from "@/design-system";
 import s from "./blocks.module.css";
 
 export type Group = "home" | "person" | "fit";
@@ -125,17 +129,9 @@ export function GroupHeader({
 
 export function FactGrid({ facts, group }: { facts: Fact[]; group: Group }) {
   return (
-    <dl className={s.facts} data-group={group}>
-      {facts.map((f) => (
-        <div key={f.label}>
-          <dt>{f.label}</dt>
-          <dd>
-            {f.value}
-            {f.note && <small>{f.note}</small>}
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <div data-group={group} className={s.facts}>
+      <CoreFactGrid facts={facts} />
+    </div>
   );
 }
 
@@ -186,37 +182,7 @@ export function HabitTable({
   rows: PersonSection["habits"];
   name: string;
 }) {
-  return (
-    <table className={s.habits}>
-      <thead>
-        <tr>
-          <th scope="col">
-            <span className={s.visuallyHidden}>Habit</span>
-          </th>
-          <th scope="col">{name}</th>
-          <th scope="col">You</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr key={r.label}>
-            <th scope="row">{r.label}</th>
-            <td>{r.them}</td>
-            <td>
-              <span className={s.mark} data-ok={r.same}>
-                {r.same ? (
-                  <Check aria-label="fits" />
-                ) : (
-                  <Minus aria-label="differs" />
-                )}
-              </span>
-              {r.you}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+  return <CompareTable rows={rows} name={name} />;
 }
 
 export function FitBody({ fit }: { fit: FitSection }) {
@@ -225,41 +191,8 @@ export function FitBody({ fit }: { fit: FitSection }) {
       <p className={s.score}>
         {fit.score}%<span> everyday fit</span>
       </p>
-      <ul className={s.reasons}>
-        {fit.reasons.map((r) => (
-          <li key={r}>
-            <Check aria-hidden="true" /> {r}
-          </li>
-        ))}
-      </ul>
-      {fit.discuss.length > 0 && (
-        <div className={s.discuss}>
-          <strong>Worth talking about</strong>
-          <ul>
-            {fit.discuss.map((d) => (
-              <li key={d}>{d}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-      <table className={s.breakdown}>
-        <tbody>
-          {fit.breakdown.map((b) => (
-            <tr key={b.label}>
-              <th scope="row">
-                {b.label}
-                <small>{b.detail}</small>
-              </th>
-              <td>
-                <span className={s.bar}>
-                  <span style={{ width: `${b.score}%` }} />
-                </span>
-              </td>
-              <td>{b.score}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <ReasonList reasons={fit.reasons} discuss={fit.discuss} />
+      <ScoreBars items={fit.breakdown} />
       <p className={s.note}>Compares what you both said. Not a prediction.</p>
     </div>
   );

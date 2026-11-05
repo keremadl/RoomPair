@@ -11,15 +11,10 @@ import {
 import {
   directionFontVariables,
   directions,
+  screens,
   type DirectionId,
-} from "@/design-system/themes";
-import { ChatScreen } from "./languages/chat";
-import { CollageScreen } from "./languages/collage";
-import { PosterScreen } from "./languages/poster";
-import { DayScreen } from "./languages/day";
-import { PlanScreen } from "./languages/plan";
-import { CardScreen } from "./languages/card";
-import type { DetailsLayout } from "./shared/details";
+} from "@/design-system/languages";
+import type { DetailsLayout } from "@/design-system/components/ProfileDetails/ProfileDetails";
 import styles from "./directions.module.css";
 
 function Swatch({ token }: { token: string }) {
@@ -36,18 +31,6 @@ function Swatch({ token }: { token: string }) {
     />
   );
 }
-
-const screens: Record<
-  DirectionId,
-  (props: { layout: DetailsLayout }) => React.ReactNode
-> = {
-  chat: ChatScreen,
-  collage: CollageScreen,
-  poster: PosterScreen,
-  day: DayScreen,
-  plan: PlanScreen,
-  card: CardScreen,
-};
 
 export function Directions() {
   const [selected, setSelected] = useState<DirectionId>("chat");

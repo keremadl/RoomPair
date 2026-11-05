@@ -1,5 +1,11 @@
 "use client";
-import { useEffect, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   ArrowUpRight,
   Building2,
@@ -10,6 +16,9 @@ import {
   RotateCcw,
   Sparkles,
   Sun,
+  Handshake,
+  Home,
+  UserRound,
   Users,
   X,
 } from "lucide-react";
@@ -28,8 +37,38 @@ import {
   Stack,
   Text,
   Textarea,
+  SectionHeader,
+  FactGrid,
+  CompareTable,
+  ScoreBars,
+  ReasonList,
+  Tabs,
 } from "@/design-system";
+import {
+  directionFontVariables,
+  directions,
+  screens,
+  signatures,
+  type DirectionId,
+} from "@/design-system/languages";
+import { profiles, defaultPreferences } from "@/lib/data";
+import { getCompatibility } from "@/lib/matching";
+import {
+  fitSection,
+  homeSection,
+  personSection,
+} from "@/lib/discover/sections";
 import styles from "./showcase.module.css";
+
+type LangId = "base" | DirectionId;
+
+/** Sample content for the detail-block specimens: the first demo profile. */
+const sample = profiles[0];
+const sampleHome = homeSection(sample);
+const samplePerson = personSection(sample);
+const sampleFit = fitSection(
+  getCompatibility(sample, { ...defaultPreferences, intent: "either" }),
+);
 
 const colorGroups: { title: string; tokens: string[] }[] = [
   {
@@ -89,23 +128,22 @@ const sections = [
   ["labels", "Badges & chips"],
   ["forms", "Forms"],
   ["display", "Avatars & cards"],
+  ["details", "Detail blocks"],
+  ["signature", "Signature components"],
+  ["screens", "Discover screen"],
   ["pattern", "Composition"],
 ] as const;
 
-function useTokenValue(token: string) {
+/** Reads a token's value where it is rendered, so language themes show their own values. */
+function Swatch({ token, scope }: { token: string; scope: string }) {
+  const ref = useRef<HTMLDivElement>(null);
   const [value, setValue] = useState("");
-  useEffect(() => {
-    setValue(
-      getComputedStyle(document.documentElement).getPropertyValue(token).trim(),
-    );
-  }, [token]);
-  return value;
-}
-
-function Swatch({ token }: { token: string }) {
-  const value = useTokenValue(token);
+  useLayoutEffect(() => {
+    if (ref.current)
+      setValue(getComputedStyle(ref.current).getPropertyValue(token).trim());
+  }, [token, scope]);
   return (
-    <div className={styles.swatch}>
+    <div className={styles.swatch} ref={ref}>
       <span
         className={styles.swatchColor}
         style={{ background: `var(${token})` }}
@@ -166,9 +204,39 @@ export function Showcase() {
         ? current.filter((h) => h !== habit)
         : [...current, habit],
     );
+  const [lang, setLang] = useState<LangId>("base");
+  const [palette, setPalette] = useState<string | undefined>(undefined);
+  const [detailTab, setDetailTab] = useState<"home" | "person" | "fit">("home");
+
+  // ?lang=collage&palette=night opens a language directly.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const l = q.get("lang");
+    if (l && directions.some((d) => d.id === l)) setLang(l as DirectionId);
+    if (q.get("palette")) setPalette(q.get("palette") ?? undefined);
+  }, []);
+  const choose = (next: LangId, nextPalette?: string) => {
+    setLang(next);
+    setPalette(nextPalette);
+    const q = new URLSearchParams();
+    if (next !== "base") q.set("lang", next);
+    if (nextPalette) q.set("palette", nextPalette);
+    history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${q.size ? `?${q}` : ""}${window.location.hash}`,
+    );
+  };
+  const direction = directions.find((d) => d.id === lang);
+  const Screen = lang === "base" ? null : screens[lang];
+  const scope = `${lang}-${palette ?? ""}`;
 
   return (
-    <div className={styles.page}>
+    <div
+      className={`${styles.page} ${directionFontVariables}`}
+      data-direction={lang === "base" ? undefined : lang}
+      data-palette={palette ?? direction?.palettes?.[0].id}
+    >
       <aside className={styles.nav}>
         <Stack gap={1}>
           <Text weight="semibold">RoomPair</Text>
@@ -176,6 +244,51 @@ export function Showcase() {
             Design system
           </Text>
         </Stack>
+        <div
+          className={styles.langs}
+          role="radiogroup"
+          aria-label="Design language"
+        >
+          {(
+            [{ id: "base", name: "Base tokens" }, ...directions] as {
+              id: LangId;
+              name: string;
+            }[]
+          ).map((d) => (
+            <button
+              key={d.id}
+              type="button"
+              role="radio"
+              aria-checked={lang === d.id}
+              className={styles.lang}
+              onClick={() => choose(d.id)}
+            >
+              {d.name}
+            </button>
+          ))}
+        </div>
+        {direction?.palettes && (
+          <div className={styles.langs} role="radiogroup" aria-label="Palette">
+            {direction.palettes.map((pal, i) => {
+              const current =
+                (palette ?? direction.palettes?.[0].id) === pal.id;
+              return (
+                <button
+                  key={pal.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={current}
+                  className={styles.lang}
+                  onClick={() =>
+                    choose(direction.id, i === 0 ? undefined : pal.id)
+                  }
+                >
+                  {pal.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
         <nav aria-label="Sections">
           {sections.map(([id, label]) => (
             <a key={id} href={`#${id}`}>
@@ -190,62 +303,82 @@ export function Showcase() {
 
       <main className={styles.main}>
         <header className={styles.hero}>
-          <Eyebrow>Design system · v0.1</Eyebrow>
+          <Eyebrow>
+            {direction
+              ? `Design language · ${direction.name}`
+              : "Design system · base tokens"}
+          </Eyebrow>
           <Heading level={1} size="4xl">
-            One language for RoomPair.
+            {direction ? direction.idea : "One system, six languages."}
           </Heading>
           <Text size="lg" tone="muted" className={styles.lead}>
-            Tokens and components every screen is built from. If something you
-            need is missing, add it here first — never style it inline in a
-            screen.
+            {direction
+              ? "Every token and component below is rendered in this language. The core components are the same code in all six; the language's theme tokens give them their character."
+              : "Tokens and components every screen is built from. Pick a design language on the left to see the whole library in it."}
           </Text>
+          {direction && (
+            <dl className={styles.principles}>
+              {direction.principles.map((pr) => (
+                <div key={pr.label}>
+                  <dt>{pr.label}</dt>
+                  <dd>{pr.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
         </header>
 
         <Section
           id="colors"
           title="Color"
-          intro="Screens use semantic tokens (left). Primitive ramps (below) exist only to feed them."
+          intro="Screens use semantic tokens. The base ramps feed the default theme; each language sets its own values."
         >
           <div className={styles.colorGroups}>
             {colorGroups.map((group) => (
               <Stack key={group.title} gap={3}>
                 <Eyebrow>{group.title}</Eyebrow>
                 {group.tokens.map((token) => (
-                  <Swatch key={token} token={token} />
+                  <Swatch key={token} token={token} scope={scope} />
                 ))}
               </Stack>
             ))}
           </div>
-          <Stack gap={3}>
-            {ramps.map((ramp) => (
-              <div key={ramp} className={styles.ramp}>
-                <Text
-                  as="span"
-                  size="sm"
-                  weight="medium"
-                  className={styles.rampName}
-                >
-                  {ramp}
-                </Text>
-                {rampSteps[ramp].map((step) => (
-                  <span
-                    key={step}
-                    className={styles.rampStep}
-                    style={{ background: `var(--rp-${ramp}-${step})` }}
-                    title={`--rp-${ramp}-${step}`}
+          {lang === "base" && (
+            <Stack gap={3}>
+              {ramps.map((ramp) => (
+                <div key={ramp} className={styles.ramp}>
+                  <Text
+                    as="span"
+                    size="sm"
+                    weight="medium"
+                    className={styles.rampName}
                   >
-                    {step}
-                  </span>
-                ))}
-              </div>
-            ))}
-          </Stack>
+                    {ramp}
+                  </Text>
+                  {rampSteps[ramp].map((step) => (
+                    <span
+                      key={step}
+                      className={styles.rampStep}
+                      style={{ background: `var(--rp-${ramp}-${step})` }}
+                      title={`--rp-${ramp}-${step}`}
+                    >
+                      {step}
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </Stack>
+          )}
         </Section>
 
         <Section
           id="type"
           title="Typography"
-          intro="Manrope for headings, DM Sans for everything else. Eight sizes; 12px is the floor."
+          intro={
+            direction
+              ? `${direction.principles.find((pr) => pr.label === "Tipografi")?.value ?? ""} Eight sizes; 12px is the floor.`
+              : "Manrope for headings, DM Sans for everything else. Eight sizes; 12px is the floor."
+          }
         >
           <Stack gap={4}>
             {typeScale.map((size) => (
@@ -490,6 +623,178 @@ export function Showcase() {
               </Stack>
             </Card>
           </div>
+        </Section>
+
+        <Section
+          id="details"
+          title="Detail blocks"
+          intro="Core components for a profile's three groups: Home, Person, Fit. Same code in every language."
+        >
+          <Specimen label="SectionHeader">
+            <div className={styles.stackWide}>
+              <SectionHeader
+                group="home"
+                icon={<Home />}
+                title={sampleHome.heading}
+              />
+              <SectionHeader
+                group="person"
+                icon={<UserRound />}
+                title={samplePerson.heading}
+                summary={samplePerson.summary}
+              />
+              <SectionHeader
+                group="fit"
+                icon={<Handshake />}
+                title="How you fit"
+                summary={sampleFit.summary}
+              />
+            </div>
+          </Specimen>
+          <Specimen label="FactGrid — tiles / rows">
+            <div className={styles.twoUp}>
+              <FactGrid facts={sampleHome.facts} />
+              <FactGrid facts={sampleHome.facts} variant="rows" />
+            </div>
+          </Specimen>
+          <Specimen label="CompareTable">
+            <div className={styles.stackWide}>
+              <CompareTable rows={samplePerson.habits} name={sample.name} />
+            </div>
+          </Specimen>
+          <Specimen label="ReasonList + ScoreBars">
+            <div className={styles.twoUp}>
+              <ReasonList
+                reasons={sampleFit.reasons}
+                discuss={["Guests on weeknights"]}
+              />
+              <ScoreBars items={sampleFit.breakdown} />
+            </div>
+          </Specimen>
+          <Specimen label="Tabs">
+            <div className={styles.stackWide}>
+              <Tabs
+                label="Profile sections"
+                idPrefix="demo-tab"
+                controls="demo-panel"
+                value={detailTab}
+                onChange={setDetailTab}
+                items={[
+                  {
+                    id: "home",
+                    label: (
+                      <>
+                        <Home /> Room
+                      </>
+                    ),
+                  },
+                  {
+                    id: "person",
+                    label: (
+                      <>
+                        <UserRound /> {sample.name}
+                      </>
+                    ),
+                  },
+                  {
+                    id: "fit",
+                    label: (
+                      <>
+                        <Handshake /> Fit {sampleFit.score}%
+                      </>
+                    ),
+                  },
+                ]}
+              />
+              <div
+                role="tabpanel"
+                id="demo-panel"
+                aria-labelledby={`demo-tab-${detailTab}`}
+                className={styles.demoPanel}
+              >
+                {detailTab === "home" && <FactGrid facts={sampleHome.facts} />}
+                {detailTab === "person" && <Text>{samplePerson.bio}</Text>}
+                {detailTab === "fit" && (
+                  <ReasonList reasons={sampleFit.reasons} />
+                )}
+              </div>
+            </div>
+          </Specimen>
+        </Section>
+
+        <Section
+          id="signature"
+          title="Signature components"
+          intro={
+            direction
+              ? `What ${direction.name} adds on top of the core. Import them from @/design-system/languages/${direction.id}.`
+              : "Each language adds its own components on top of the core. Pick a language to see them."
+          }
+        >
+          {direction ? (
+            <table className={styles.sigTable}>
+              <thead>
+                <tr>
+                  <th scope="col">Component</th>
+                  <th scope="col">Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                {signatures[direction.id].map((c) => (
+                  <tr key={c.name}>
+                    <th scope="row">
+                      <code>{c.name}</code>
+                    </th>
+                    <td>{c.purpose}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className={styles.langGrid}>
+              {directions.map((d) => (
+                <button
+                  key={d.id}
+                  type="button"
+                  className={styles.langCard}
+                  onClick={() => choose(d.id)}
+                >
+                  <strong>{d.name}</strong>
+                  <span>{d.idea}</span>
+                  <small>
+                    {signatures[d.id].map((c) => c.name).join(" · ")}
+                  </small>
+                </button>
+              ))}
+            </div>
+          )}
+        </Section>
+
+        <Section
+          id="screens"
+          title="Discover screen"
+          intro="The language's screen in both detail layouts. Drag the card or use the buttons; scroll inside the phone for the details."
+        >
+          {Screen ? (
+            <div className={styles.phones}>
+              <figure className={styles.phoneFigure}>
+                <figcaption>1 · Blocks</figcaption>
+                <div className={styles.phone}>
+                  <Screen key={`${scope}-blocks`} layout="blocks" />
+                </div>
+              </figure>
+              <figure className={styles.phoneFigure}>
+                <figcaption>2 · Tabs</figcaption>
+                <div className={styles.phone}>
+                  <Screen key={`${scope}-tabs`} layout="tabs" />
+                </div>
+              </figure>
+            </div>
+          ) : (
+            <Text tone="muted">
+              Pick a design language on the left to see its Discover screen.
+            </Text>
+          )}
         </Section>
 
         <Section

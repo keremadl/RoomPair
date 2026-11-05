@@ -24,6 +24,13 @@ const root = new URL("..", import.meta.url).pathname;
 const tokensFile = "src/design-system/tokens.css";
 /** Theme files override semantic tokens; they are token files too. */
 const themesDir = "src/design-system/themes";
+const languagesDir = "src/design-system/languages";
+/** themes/*.css and each language's theme.css / palette-*.css */
+const isTokenFile = (rel) =>
+  rel === tokensFile ||
+  rel.startsWith(themesDir + "/") ||
+  (rel.startsWith(languagesDir + "/") &&
+    /\/(theme|palette-[\w-]+)\.css$/.test(rel));
 const baselineFile = join(root, "design-baseline.json");
 const update = process.argv.includes("--update");
 
@@ -47,7 +54,7 @@ function walk(dir) {
 const counts = {};
 for (const file of walk(join(root, "src"))) {
   const rel = relative(root, file);
-  if (rel === tokensFile || rel.startsWith(themesDir + "/")) continue;
+  if (isTokenFile(rel)) continue;
   const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
   const entry = {};
   for (const [rule, re] of Object.entries(rules))
@@ -107,15 +114,25 @@ const parseVars = (css) =>
   );
 const base = parseVars(readFileSync(join(root, tokensFile), "utf8"));
 const themes = [["tokens.css", base]];
-if (existsSync(join(root, themesDir))) {
-  for (const name of readdirSync(join(root, themesDir))
-    .filter((n) => n.endsWith(".css"))
-    .sort()) {
-    const overrides = parseVars(
-      readFileSync(join(root, themesDir, name), "utf8"),
-    );
-    themes.push([`themes/${name}`, { ...base, ...overrides }]);
-  }
+const themeFiles = walk(join(root, "src/design-system"))
+  .map((f) => relative(root, f))
+  .filter((rel) => rel !== tokensFile && isTokenFile(rel))
+  .sort();
+for (const rel of themeFiles) {
+  const overrides = parseVars(readFileSync(join(root, rel), "utf8"));
+  // A palette overrides colours on top of its language theme.
+  const parent = rel.includes("/palette-")
+    ? parseVars(
+        readFileSync(
+          join(root, rel.replace(/palette-[\w-]+\.css$/, "theme.css")),
+          "utf8",
+        ),
+      )
+    : {};
+  themes.push([
+    rel.replace("src/design-system/", ""),
+    { ...base, ...parent, ...overrides },
+  ]);
 }
 const resolveIn = (tokens) => {
   const resolve = (value, depth = 0) => {

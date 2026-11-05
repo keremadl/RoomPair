@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Eyebrow, Heading, Text } from "@/design-system";
-import "@/design-system/themes";
+import "@/design-system/themes/wire.css";
 import { groupIcon, type Group } from "./blocks";
 import { BlocksPrototype, TabsPrototype } from "./prototypes";
 import styles from "./layouts.module.css";

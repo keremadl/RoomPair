@@ -5,7 +5,8 @@
   overflow: hidden;
 }
 .outline {
-  border: var(--border-width) solid var(--color-border);
+  border: var(--surface-border-width) solid
+    var(--surface-border, var(--color-border));
 }
 .raised {
   background: var(--color-surface-raised);

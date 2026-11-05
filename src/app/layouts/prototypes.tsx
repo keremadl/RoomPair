@@ -1,13 +1,16 @@
 "use client";
 import { useRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
-import { SwipeHero, Reveal } from "../directions/shared/swipe-hero";
-import { useDeck, type Decision } from "../directions/shared/deck";
+import {
+  SwipeHero,
+  Reveal,
+} from "@/design-system/components/SwipeCard/SwipeCard";
+import { useDeck, type Decision } from "@/lib/discover/deck";
 import {
   fitSection,
   homeSection,
   personSection,
-} from "../directions/shared/sections";
+} from "@/lib/discover/sections";
 import {
   ActionBar,
   FactGrid,

@@ -1,0 +1,80 @@
+/*
+ * Language B — Kolaj (Collage)
+ * A dorm fridge door: polaroids, stickers, tape. Personality first.
+ * Ink outlines, hard offset shadows, saturated sticker colors, bouncy motion.
+ */
+[data-direction="collage"] {
+  /* Palette: Lavanta (default). Other palettes live in collage-*.css. */
+  --color-bg: #eef0fb;
+  --color-surface: #f8f9ff;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #e1e4f5;
+  --color-overlay: rgb(23 20 43 / 0.5);
+  --color-border: #c9cde6;
+  --color-border-strong: #17142b;
+  --color-ink: #17142b;
+
+  --color-text: #17142b;
+  --color-text-muted: #4b4867;
+  --color-text-subtle: #77748f;
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #3346e0;
+  --color-primary-hover: #2636c2;
+  --color-primary-active: #1d2b9e;
+  --color-primary-soft: #e3e7ff;
+  --color-primary-soft-hover: #d3daff;
+  --color-on-primary: #ffffff;
+
+  --color-accent: #ff7a5c;
+  --color-accent-strong: #b23d22;
+  --color-accent-soft: #ffe9e3;
+
+  --color-success: #1f7a4a;
+  --color-success-soft: #e2f6ea;
+  --color-warning: #85570e;
+  --color-warning-soft: #fff3d6;
+  --color-danger: #c0362c;
+  --color-danger-hover: #9c2a22;
+  --color-danger-soft: #fde9e7;
+  --color-focus-ring: #ff7a5c;
+
+  --sticker-lime: #d4f57a;
+  --sticker-pink: #ffc2dd;
+  --sticker-blue: #b9c6ff;
+  --sticker-coral: #ff9c84;
+  --sticker-mint: #a8ecd0;
+  --color-on-sticker: #17142b;
+
+  --stroke: 2px;
+  --shadow-hard: 4px 4px 0 #17142b;
+  --shadow-hard-sm: 2px 2px 0 #17142b;
+
+  --font-heading:
+    var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: var(--font-figtree), "Figtree", system-ui, sans-serif;
+  --text-5xl: 3.25rem;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 26px;
+
+  --shadow-sm: 2px 2px 0 #17142b;
+  --shadow-md: 4px 4px 0 #17142b;
+  --shadow-lg: 6px 6px 0 #17142b;
+  --shadow-overlay: 8px 8px 0 #17142b;
+  --focus-ring: 0 0 0 3px #eef0fb, 0 0 0 5px #ff7a5c;
+
+  /* Component tokens: ink outlines and hard offset shadows on every control. */
+  --control-border-width: var(--stroke);
+  --control-border: var(--color-ink);
+  --control-primary-border: var(--color-ink);
+  --control-shadow: var(--shadow-hard-sm);
+  --control-shadow-active: none;
+  --control-press: translate(2px, 2px);
+  --control-weight: 700;
+  --heading-weight: 800;
+  --surface-border: var(--color-ink);
+  --surface-border-width: var(--stroke);
+}

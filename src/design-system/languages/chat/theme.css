@@ -1,0 +1,65 @@
+/*
+ * Language A — Sohbet (Conversation)
+ * The profile reads like a first chat with a future flatmate. Built for easy
+ * reading: Atkinson Hyperlegible, 17px body, generous line height, no italics,
+ * no all-caps, left-aligned bubbles.
+ */
+[data-direction="chat"] {
+  --color-bg: #f7f6f3;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #eceae5;
+  --color-overlay: rgb(30 35 40 / 0.45);
+  --color-border: #e0ddd6;
+  --color-border-strong: #c9c5bc;
+
+  --color-text: #1e2328;
+  --color-text-muted: #51585f;
+  --color-text-subtle: #7b8188;
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #0f6b66;
+  --color-primary-hover: #0b5652;
+  --color-primary-active: #08423f;
+  --color-primary-soft: #e1f2f0;
+  --color-primary-soft-hover: #cde9e6;
+  --color-on-primary: #ffffff;
+
+  --color-accent: #f0795a;
+  --color-accent-strong: #b0472c;
+  --color-accent-soft: #fde9e2;
+
+  --color-success: #1f7a4a;
+  --color-success-soft: #e2f4ea;
+  --color-warning: #85570e;
+  --color-warning-soft: #fbf1dc;
+  --color-danger: #b3392b;
+  --color-danger-soft: #fbe9e6;
+  --color-focus-ring: #0f6b66;
+
+  --bubble-them: #ffffff;
+  --bubble-you: #d9efec;
+  --bubble-note: #eceae5;
+
+  --font-heading:
+    var(--font-atkinson), "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-body:
+    var(--font-atkinson), "Atkinson Hyperlegible", system-ui, sans-serif;
+  --text-md: 1.0625rem;
+  --leading-normal: 1.6;
+  --tracking-tight: -0.01em;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+
+  --shadow-sm: 0 1px 2px rgb(30 35 40 / 0.06);
+  --shadow-md: 0 4px 14px rgb(30 35 40 / 0.08);
+  --shadow-lg: 0 14px 36px rgb(30 35 40 / 0.14);
+  --focus-ring: 0 0 0 3px #f7f6f3, 0 0 0 5px #0f6b66;
+
+  /* Component tokens: soft and friendly, bold labels. */
+  --control-weight: 700;
+  --heading-weight: 700;
+}
