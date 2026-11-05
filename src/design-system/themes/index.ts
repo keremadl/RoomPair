@@ -7,6 +7,7 @@ import "./poster.css";
 import "./day.css";
 import "./plan.css";
 import "./card.css";
+import "./wire.css";
 
 export { directionFontVariables } from "./fonts";
 

@@ -1,0 +1,201 @@
+/* Layout-specific parts of the wireframe prototypes. Tokens from themes/wire.css. */
+.stage {
+  position: relative;
+  height: 380px;
+}
+.card {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-sunken);
+  cursor: grab;
+  user-select: none;
+}
+
+/* 1 — Tabs */
+.tabs {
+  position: sticky;
+  top: calc(var(--space-3) * -1);
+  z-index: var(--z-sticky);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-1);
+  margin: var(--space-3) calc(var(--space-3) * -1) 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: var(--control-md);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+.tab svg {
+  width: 16px;
+  height: 16px;
+}
+.tab[aria-selected="true"][data-group="home"] {
+  background: var(--group-home);
+  border-color: var(--group-home-ink);
+  color: var(--group-home-ink);
+}
+.tab[aria-selected="true"][data-group="person"] {
+  background: var(--group-person);
+  border-color: var(--group-person-ink);
+  color: var(--group-person-ink);
+}
+.tab[aria-selected="true"][data-group="fit"] {
+  background: var(--group-fit);
+  border-color: var(--group-fit-ink);
+  color: var(--group-fit-ink);
+}
+.tab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.tabPanel {
+  padding-top: var(--space-3);
+}
+
+/* 2 & 4 — Stacked blocks */
+.blocks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  margin-top: var(--space-4);
+}
+.block {
+  padding-bottom: var(--space-2);
+}
+.plain {
+  margin: var(--space-3) 0 0;
+}
+
+/* 3 — Glance + accordion */
+.glance {
+  margin-top: var(--space-3);
+}
+.glanceTitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+}
+.glanceGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-1);
+}
+.glanceGrid div {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  min-width: 0;
+}
+.glanceGrid div[data-group="home"] {
+  background: var(--group-home);
+  color: var(--group-home-ink);
+}
+.glanceGrid div[data-group="fit"] {
+  background: var(--group-fit);
+  color: var(--group-fit-ink);
+}
+.glanceGrid span {
+  font-size: var(--text-xs);
+}
+.glanceGrid strong {
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--color-text);
+}
+.accordions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+.accordion {
+  border-radius: var(--radius-md);
+}
+.accordion summary {
+  position: relative;
+  list-style: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+}
+.accordion summary::-webkit-details-marker {
+  display: none;
+}
+.accordion summary:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.chevron {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+.accordion[open] .chevron {
+  transform: rotate(180deg);
+}
+.accordionBody {
+  padding: 0 var(--space-1) var(--space-4);
+}
+
+/* 4 — Room-first card */
+.roomCardPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.roomCardLabel {
+  position: absolute;
+  left: var(--space-2);
+  right: var(--space-2);
+  bottom: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.roomCardPrice {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+}
+.roomCardPrice span {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
+}
+.host {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: var(--border-width) solid var(--color-border);
+  font-size: var(--text-sm);
+}
+.host img {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
