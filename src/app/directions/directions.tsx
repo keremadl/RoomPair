@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
-  Badge,
   Eyebrow,
   Heading,
   SegmentedControl,
@@ -13,9 +12,9 @@ import {
   directions,
   type DirectionId,
 } from "@/design-system/themes";
+import { ChatScreen } from "./languages/chat";
 import { CollageScreen } from "./languages/collage";
-import { ImmersiveScreen } from "./languages/immersive";
-import { ListingScreen } from "./languages/listing";
+import { PosterScreen } from "./languages/poster";
 import styles from "./directions.module.css";
 
 function Swatch({ token }: { token: string }) {
@@ -34,13 +33,16 @@ function Swatch({ token }: { token: string }) {
 }
 
 const screens: Record<DirectionId, () => React.ReactNode> = {
-  listing: ListingScreen,
+  chat: ChatScreen,
   collage: CollageScreen,
-  immersive: ImmersiveScreen,
+  poster: PosterScreen,
 };
 
 export function Directions() {
-  const [selected, setSelected] = useState<DirectionId>("listing");
+  const [selected, setSelected] = useState<DirectionId>("chat");
+  const [palettes, setPalettes] = useState<
+    Partial<Record<DirectionId, string>>
+  >({});
 
   useEffect(() => {
     const sync = () => {
@@ -87,6 +89,9 @@ export function Directions() {
               key={direction.id}
               id={direction.id}
               data-direction={direction.id}
+              data-palette={
+                palettes[direction.id] ?? direction.palettes?.[0].id
+              }
               data-selected={direction.id === selected}
               className={styles.direction}
               aria-label={direction.name}
@@ -104,11 +109,52 @@ export function Directions() {
                     </div>
                   ))}
                 </dl>
-                <span className={styles.swatches} aria-hidden="true">
-                  {direction.swatches.map((t) => (
-                    <Swatch key={t} token={t} />
-                  ))}
-                </span>
+                {direction.palettes ? (
+                  <div
+                    className={styles.palettes}
+                    role="radiogroup"
+                    aria-label={`${direction.name} renk paleti`}
+                  >
+                    {direction.palettes.map((palette) => {
+                      const current =
+                        (palettes[direction.id] ??
+                          direction.palettes?.[0].id) === palette.id;
+                      return (
+                        <button
+                          key={palette.id}
+                          type="button"
+                          role="radio"
+                          aria-checked={current}
+                          className={styles.palette}
+                          onClick={() =>
+                            setPalettes((p) => ({
+                              ...p,
+                              [direction.id]: palette.id,
+                            }))
+                          }
+                        >
+                          <span
+                            className={styles.swatches}
+                            data-direction={direction.id}
+                            data-palette={palette.id}
+                            aria-hidden="true"
+                          >
+                            {direction.swatches.map((t) => (
+                              <Swatch key={t} token={t} />
+                            ))}
+                          </span>
+                          {palette.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <span className={styles.swatches} aria-hidden="true">
+                    {direction.swatches.map((t) => (
+                      <Swatch key={t} token={t} />
+                    ))}
+                  </span>
+                )}
               </Stack>
               <div className={styles.phone}>
                 <Screen />

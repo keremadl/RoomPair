@@ -4,6 +4,7 @@
  * Ink outlines, hard offset shadows, saturated sticker colors, bouncy motion.
  */
 [data-direction="collage"] {
+  /* Palette: Lavanta (default). Other palettes live in collage-*.css. */
   --color-bg: #eef0fb;
   --color-surface: #f8f9ff;
   --color-surface-raised: #ffffff;
@@ -43,6 +44,7 @@
   --sticker-blue: #b9c6ff;
   --sticker-coral: #ff9c84;
   --sticker-mint: #a8ecd0;
+  --color-on-sticker: #17142b;
 
   --stroke: 2px;
   --shadow-hard: 4px 4px 0 #17142b;

@@ -28,7 +28,7 @@ src/design-system/
     SegmentedControl/
     Typography/       Heading, Text, Eyebrow
     Stack/            flex layout with spacing-scale gaps
-  themes/             ← candidate design languages (İlan, Kolaj, Akış): token
+  themes/             ← candidate design languages (Sohbet, Kolaj + palettes, Afiş): token
                         overrides scoped to [data-direction="…"]; compared at /directions
 src/app/design-system/ ← showcase page (tokens + every component)
 src/app/directions/   ← the Discover screen in each design language

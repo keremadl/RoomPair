@@ -1,10 +1,16 @@
-import "./listing.css";
+import "./chat.css";
 import "./collage.css";
-import "./immersive.css";
+import "./collage-forest.css";
+import "./collage-sunset.css";
+import "./collage-night.css";
+import "./poster.css";
 
 export { directionFontVariables } from "./fonts";
 
-export type DirectionId = "listing" | "collage" | "immersive";
+export type DirectionId = "chat" | "collage" | "poster";
+
+/** Swatches are read from the palette's own token file, so colours live in CSS only. */
+export type Palette = { id: string; name: string };
 
 export type Direction = {
   id: DirectionId;
@@ -13,44 +19,46 @@ export type Direction = {
   /** What makes this a different design language, not just a palette. */
   principles: { label: string; value: string }[];
   swatches: string[];
+  /** Optional colour palettes for the same language. The first is the default. */
+  palettes?: Palette[];
 };
 
 export const directions: Direction[] = [
   {
-    id: "listing",
-    name: "A · İlan",
-    idea: "Özenle dizilmiş, basılı bir oda ilanı gibi: önce oku, sonra beğen.",
+    id: "chat",
+    name: "A · Sohbet",
+    idea: "Profili, müstakbel ev arkadaşınla ilk mesajlaşman gibi okursun.",
     principles: [
       {
         label: "Yerleşim",
         value:
-          "Belge akışı. Fotoğraf çerçeveli bir levha; bilgiler etiket–değer tablolarında, ince çizgilerle ayrılmış.",
+          "Fotoğraf kartı, altında soru–cevap baloncukları: kira, taşınma, oda, alışkanlıklar.",
       },
       {
         label: "Tipografi",
         value:
-          "Serif başlıklar (Newsreader), sade gövde (Public Sans), etiketlerde mono (IBM Plex Mono).",
+          "Atkinson Hyperlegible: okuma güçlüğü için tasarlanmış font. 17px gövde, geniş satır aralığı.",
       },
       {
         label: "Biçim",
         value:
-          "Neredeyse köşesiz, gölgesiz. Hiyerarşiyi kutular değil çizgiler ve boşluk kurar.",
+          "Yumuşak köşeler, sola hizalı baloncuklar; italik ve büyük harf yok.",
       },
       {
         label: "Hareket",
-        value: "Sayfa çevirir gibi yana kayma; dönme yok, sakin.",
+        value: "Yeni profilde mesajlar sırayla belirir, kart hafifçe döner.",
       },
       {
         label: "Detaylar",
         value:
-          "Alışkanlıklar 'o / sen' tablosu; uyum puanı ağırlıklarıyla birlikte bir defter gibi.",
+          "Alışkanlıklar cevap içinde, her satırda 'senle aynı' ya da senin tercihin.",
       },
     ],
     swatches: [
       "--color-bg",
-      "--color-text",
+      "--color-primary",
+      "--bubble-you",
       "--color-accent",
-      "--color-border-strong",
     ],
   },
   {
@@ -71,7 +79,7 @@ export const directions: Direction[] = [
       {
         label: "Biçim",
         value:
-          "2px mürekkep kontur, sert ofset gölge, cömert yuvarlaklık, doygun çıkartma renkleri.",
+          "2px kontur, sert ofset gölge, cömert yuvarlaklık, doygun çıkartma renkleri.",
       },
       {
         label: "Hareket",
@@ -90,41 +98,41 @@ export const directions: Direction[] = [
       "--sticker-lime",
       "--sticker-pink",
     ],
+    palettes: [
+      { id: "lavender", name: "Lavanta" },
+      { id: "forest", name: "Orman" },
+      { id: "sunset", name: "Gün batımı" },
+      { id: "night", name: "Gece" },
+    ],
   },
   {
-    id: "immersive",
-    name: "C · Akış",
-    idea: "Akşamüstü birinin evine adım atmak: fotoğraf tam ekran, arayüz geri çekilir.",
+    id: "poster",
+    name: "C · Afiş",
+    idea: "Bir konser afişi kadar net: düz renk bantları, dev rakamlar, tek bakışta okunur.",
     principles: [
       {
         label: "Yerleşim",
         value:
-          "Tam ekran fotoğraf ve hikâye çubukları. Aşağı kaydırınca bulanık fotoğrafın üstünde cam paneller.",
+          "Kare fotoğraf, altında tam genişlik renk bantları ve 2×2 dev rakam ızgarası.",
       },
       {
         label: "Tipografi",
-        value:
-          "İnce, geniş geometrik başlıklar (Sora Light) ve Hanken Grotesk.",
+        value: "Archivo Black başlıklar ve büyük rakamlar, Archivo gövde.",
       },
       {
         label: "Biçim",
-        value: "Koyu zemin, buzlu cam yüzeyler, yüzen aksiyon kapsülü.",
+        value: "Köşesiz, gölgesiz, konturusuz; sadece düz renk alanları.",
       },
       {
         label: "Hareket",
-        value: "Sinematik, yumuşak geçişler; içerik kaydırdıkça belirir.",
+        value: "Hızlı ve net: dönme yok, kart bir anda kayıp gider.",
       },
       {
         label: "Detaylar",
         value:
-          "Alışkanlıklar iki noktalı ritim çizgilerinde (sen / o); pratik bilgiler ikon satırlarında.",
+          "Alışkanlıklar dev rakamlarla yan yana (o / sen); altta ekranı ikiye bölen Pass / Like.",
       },
     ],
-    swatches: [
-      "--color-bg",
-      "--color-primary",
-      "--color-accent",
-      "--color-text",
-    ],
+    swatches: ["--band-red", "--band-sky", "--band-mint", "--band-ink"],
   },
 ];

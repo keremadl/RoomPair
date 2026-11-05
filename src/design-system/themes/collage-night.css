@@ -1,0 +1,52 @@
+/*
+ * Kolaj palette — Gece (Night): dark violet ground, cream outlines, the same
+ * pastel stickers with dark text on them, a violet hard shadow.
+ */
+[data-direction="collage"][data-palette="night"] {
+  color-scheme: dark;
+  --color-bg: #1b1830;
+  --color-surface: #221e3b;
+  --color-surface-raised: #2b2649;
+  --color-surface-sunken: #14122a;
+  --color-border: #3b3560;
+  --color-border-strong: #f2eee6;
+  --color-ink: #f2eee6;
+
+  --color-text: #f2eee6;
+  --color-text-muted: #bdb7d3;
+  --color-text-subtle: #8f89ab;
+  --color-text-inverse: #1b1830;
+
+  --color-primary: #a596ff;
+  --color-primary-hover: #b8acff;
+  --color-primary-active: #9282f5;
+  --color-primary-soft: #2d2852;
+  --color-primary-soft-hover: #3a3466;
+  --color-on-primary: #160f3d;
+
+  --color-accent: #ff9c84;
+  --color-accent-strong: #ffb09c;
+  --color-accent-soft: #3a2430;
+
+  --color-success: #8fe0b0;
+  --color-success-soft: #1d3328;
+  --color-warning: #f2c46b;
+  --color-warning-soft: #3a2f17;
+  --color-danger: #ff8f80;
+  --color-danger-soft: #3d1f22;
+  --color-focus-ring: #ff9c84;
+
+  --sticker-lime: #d4f57a;
+  --sticker-pink: #ffc2dd;
+  --sticker-blue: #b9c6ff;
+  --sticker-coral: #ff9c84;
+  --sticker-mint: #a8ecd0;
+  --color-on-sticker: #17142b;
+
+  --shadow-hard: 4px 4px 0 #a596ff;
+  --shadow-hard-sm: 2px 2px 0 #a596ff;
+  --shadow-sm: 2px 2px 0 #a596ff;
+  --shadow-md: 4px 4px 0 #a596ff;
+  --shadow-lg: 6px 6px 0 #a596ff;
+  --focus-ring: 0 0 0 3px #1b1830, 0 0 0 5px #ff9c84;
+}

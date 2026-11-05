@@ -19,6 +19,7 @@
   border: var(--stroke) solid var(--color-ink);
   border-radius: var(--radius-full);
   background: var(--sticker-lime);
+  color: var(--color-on-sticker);
   box-shadow: var(--shadow-hard-sm);
   font-family: var(--font-heading);
   font-size: var(--text-lg);
@@ -131,6 +132,7 @@
   height: 24px;
   margin-left: -48px;
   background: var(--sticker-blue);
+  color: var(--color-on-sticker);
   border: var(--stroke) solid var(--color-ink);
   transform: rotate(-4deg);
   opacity: 0.9;
@@ -147,6 +149,7 @@
   border: var(--stroke) solid var(--color-ink);
   border-radius: var(--radius-full);
   background: var(--sticker-coral);
+  color: var(--color-on-sticker);
   box-shadow: var(--shadow-hard-sm);
   font-family: var(--font-heading);
   font-size: var(--text-xs);
@@ -168,6 +171,7 @@
   border: var(--stroke) solid var(--color-ink);
   border-radius: var(--radius-full);
   background: var(--sticker-mint);
+  color: var(--color-on-sticker);
   font-family: var(--font-heading);
   font-size: var(--text-sm);
   font-weight: 700;
@@ -189,11 +193,13 @@
 .stampLike {
   left: var(--space-6);
   background: var(--sticker-lime);
+  color: var(--color-on-sticker);
   transform: rotate(-12deg);
 }
 .stampPass {
   right: var(--space-6);
   background: var(--sticker-pink);
+  color: var(--color-on-sticker);
   transform: rotate(12deg);
 }
 
@@ -244,6 +250,7 @@
 }
 .actionPass svg {
   background: var(--sticker-pink);
+  color: var(--color-on-sticker);
 }
 .actionLike svg {
   background: var(--color-primary);
@@ -287,15 +294,19 @@
 }
 .sticker[data-color="lime"] {
   background: var(--sticker-lime);
+  color: var(--color-on-sticker);
 }
 .sticker[data-color="pink"] {
   background: var(--sticker-pink);
+  color: var(--color-on-sticker);
 }
 .sticker[data-color="blue"] {
   background: var(--sticker-blue);
+  color: var(--color-on-sticker);
 }
 .sticker[data-color="mint"] {
   background: var(--sticker-mint);
+  color: var(--color-on-sticker);
 }
 .bio {
   margin: var(--space-5) 0 0;
@@ -387,6 +398,7 @@
 }
 .legend span[data-who="them"]::before {
   background: var(--sticker-coral);
+  color: var(--color-on-sticker);
 }
 .legend span[data-who="you"]::before {
   background: var(--color-primary);
@@ -419,6 +431,7 @@
 }
 .blocks[data-who="them"] span[data-on="true"] {
   background: var(--sticker-coral);
+  color: var(--color-on-sticker);
 }
 .blocks[data-who="you"] span[data-on="true"] {
   background: var(--color-primary);
@@ -489,6 +502,7 @@
   border: var(--stroke) solid var(--color-ink);
   border-radius: var(--radius-full);
   background: var(--sticker-lime);
+  color: var(--color-on-sticker);
   font-family: var(--font-heading);
   font-size: var(--text-xl);
   font-weight: 800;
@@ -528,12 +542,15 @@
 }
 .barFill[data-level="high"] {
   background: var(--sticker-lime);
+  color: var(--color-on-sticker);
 }
 .barFill[data-level="mid"] {
   background: var(--sticker-blue);
+  color: var(--color-on-sticker);
 }
 .barFill[data-level="low"] {
   background: var(--sticker-pink);
+  color: var(--color-on-sticker);
 }
 .talk {
   margin-top: var(--space-4);
@@ -598,4 +615,5 @@
 }
 .navItem[aria-current="page"] {
   background: var(--sticker-lime);
+  color: var(--color-on-sticker);
 }

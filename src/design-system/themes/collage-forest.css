@@ -1,0 +1,45 @@
+/* Kolaj palette — Orman (Forest): green ink, apricot and sky stickers. */
+[data-direction="collage"][data-palette="forest"] {
+  --color-bg: #edf3ec;
+  --color-surface: #f7faf6;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #dfe9de;
+  --color-border: #c3d3c1;
+  --color-border-strong: #13261b;
+  --color-ink: #13261b;
+
+  --color-text: #13261b;
+  --color-text-muted: #44574a;
+  --color-text-subtle: #6f8274;
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #1d6b45;
+  --color-primary-hover: #155536;
+  --color-primary-active: #0f4229;
+  --color-primary-soft: #dcefe3;
+  --color-primary-soft-hover: #c9e5d3;
+  --color-on-primary: #ffffff;
+
+  --color-accent: #ff8a5b;
+  --color-accent-strong: #a8401c;
+  --color-accent-soft: #ffeadf;
+
+  --color-success: #1d6b45;
+  --color-success-soft: #dcefe3;
+  --color-warning: #85570e;
+  --color-warning-soft: #fff3d6;
+  --color-danger: #b3392b;
+  --color-danger-soft: #fbe9e6;
+  --color-focus-ring: #ff8a5b;
+
+  --sticker-lime: #c9f0a8;
+  --sticker-pink: #f7c6e0;
+  --sticker-blue: #bfe0ff;
+  --sticker-coral: #ffb38f;
+  --sticker-mint: #ffe39a;
+  --color-on-sticker: #13261b;
+
+  --shadow-hard: 4px 4px 0 #13261b;
+  --shadow-hard-sm: 2px 2px 0 #13261b;
+  --focus-ring: 0 0 0 3px #edf3ec, 0 0 0 5px #ff8a5b;
+}
