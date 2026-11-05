@@ -7,6 +7,9 @@
 .app {
   --shell-bar-height: 64px;
   min-height: 100dvh;
+  /* A card flying off-screen must not widen the page: on phones a moment of
+     horizontal overflow makes the browser zoom out and stay zoomed. */
+  overflow-x: clip;
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);
@@ -394,6 +397,11 @@
   }
   .brandName {
     font-size: var(--text-lg);
+  }
+}
+@media (max-width: 379px) {
+  .brandName {
+    display: none;
   }
 }
 
