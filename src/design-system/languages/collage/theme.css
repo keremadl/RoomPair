@@ -77,4 +77,11 @@
   --heading-weight: 800;
   --surface-border: var(--color-ink);
   --surface-border-width: var(--stroke);
+
+  /* Shell: the wordmark is a sticker. */
+  --logo-bg: var(--sticker-lime);
+  --logo-fg: var(--color-on-sticker);
+  --logo-border: var(--stroke) solid var(--color-ink);
+  --logo-shadow: var(--shadow-hard-sm);
+  --logo-rotate: -3deg;
 }

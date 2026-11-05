@@ -257,6 +257,19 @@ export const screens: Record<
   card: card.DiscoverScreen,
 };
 
+/**
+ * Each language's controlled Discover parts, for apps that own the deck:
+ * Card (swipe + actions) and Details (Home → Person → Fit).
+ */
+export const discoverParts = {
+  chat: { Card: chat.DiscoverCard, Details: chat.DiscoverDetails },
+  collage: { Card: collage.DiscoverCard, Details: collage.DiscoverDetails },
+  poster: { Card: poster.DiscoverCard, Details: poster.DiscoverDetails },
+  day: { Card: day.DiscoverCard, Details: day.DiscoverDetails },
+  plan: { Card: plan.DiscoverCard, Details: plan.DiscoverDetails },
+  card: { Card: card.DiscoverCard, Details: card.DiscoverDetails },
+} satisfies Record<DirectionId, { Card: unknown; Details: unknown }>;
+
 /** Signature components: what each language adds on top of the shared core. */
 export const signatures: Record<
   DirectionId,

@@ -11,7 +11,7 @@
 }
 .tabs {
   position: sticky;
-  top: 0;
+  top: calc(var(--sticky-offset, 0px) + 0);
   z-index: var(--z-sticky);
 }
 .panel {

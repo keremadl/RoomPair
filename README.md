@@ -22,6 +22,7 @@ npm start
 
 ## A three-minute jury walkthrough
 
+0. **Design (top right):** pick one of the six design languages, a Kolaj palette and the profile layout (Blocks or Tabs). The choice is remembered.
 1. **Discover:** show Ella's photo, housing intent, rent and move-in date. Open **See why you fit** to explain the calculated 96% lifestyle fit.
 2. **Filters:** change the budget or choose a city outside the Riga demo. The app respects the requirements and shows an honest empty state.
 3. **Like Ella:** swipe right, use the heart, or press the right arrow. Ella already likes the demo user, so a mutual-match screen appears.
@@ -51,19 +52,20 @@ Eligible profiles receive a weighted comparison: budget 25%, tidiness 20%, sleep
 
 ## Editing guide
 
-| File                                               | Purpose                                                                        |
-| -------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `src/components/roompair.tsx`                      | App navigation, discovery, likes, messages, planning, profile and dialogs      |
-| `src/components/swipe-surface.tsx`                 | Independent card motion and swipe thresholds                                   |
-| `src/components/onboarding.tsx` / `onboarding.css` | Four-step setup and custom SVG room illustration                               |
-| `src/design-system/`                               | Design tokens and component library — see its README; live at `/design-system` |
-| `src/components/ui.tsx`                            | Brand, shared illustration, modal and empty-state components                   |
-| `src/app/globals.css`                              | Colors, type, component styling and responsive breakpoints                     |
-| `src/lib/data.ts` / `types.ts`                     | Fictional people, homes, messages and data types                               |
-| `src/lib/matching.ts`                              | Eligibility and transparent compatibility weights                              |
-| `src/lib/store.ts`                                 | Browser-local demo state                                                       |
-| `src/lib/locales/en.json` / `tr.json`              | Interface copy                                                                 |
-| `public/images` / `public/fonts`                   | Local assets                                                                   |
+| File                                                     | Purpose                                                                                         |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `src/components/app/RoomPairApp.tsx`                     | App state, navigation, discovery logic, dialogs                                                 |
+| `src/components/app/AppShell.tsx` / `AppearanceMenu.tsx` | Top bar, navigation and the top-right design menu                                               |
+| `src/components/app/appearance.ts`                       | Chosen design language, palette and layout (saved in the browser)                               |
+| `src/components/app/views/`                              | Discover, Likes, Messages, My space and Profile screens                                         |
+| `src/components/app/dialogs/` / `Onboarding.tsx`         | Filters, profile, match, room, report, settings and four-step setup                             |
+| `src/design-system/`                                     | Tokens, core components and the six design languages — see its README; live at `/design-system` |
+| `src/lib/discover/`                                      | Home / Person / Fit content model shared by every language                                      |
+| `src/lib/data.ts` / `types.ts`                           | Fictional people, homes, messages and data types                                                |
+| `src/lib/matching.ts`                                    | Eligibility and transparent compatibility weights                                               |
+| `src/lib/store.ts`                                       | Browser-local demo state                                                                        |
+| `src/lib/locales/en.json` / `tr.json`                    | Interface copy                                                                                  |
+| `public/images` / `public/fonts`                         | Local assets                                                                                    |
 
 ## Languages and n8n
 

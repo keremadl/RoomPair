@@ -14,6 +14,10 @@ type FieldProps = {
 
 export type InputProps = FieldProps & Omit<ComponentProps<"input">, "prefix">;
 export type TextareaProps = FieldProps & ComponentProps<"textarea">;
+export type SelectProps = Omit<FieldProps, "prefix"> &
+  Omit<ComponentProps<"select">, "prefix"> & {
+    options: { value: string; label: string }[];
+  };
 
 function useFieldIds(id?: string) {
   const generated = useId();
@@ -122,6 +126,45 @@ export function Textarea({
           aria-describedby={describedBy(hint, error, ids)}
           {...rest}
         />
+      </div>
+    </FieldShell>
+  );
+}
+
+/** Labelled native select. */
+export function Select({
+  label,
+  hint,
+  error,
+  className,
+  id,
+  options,
+  ...rest
+}: SelectProps) {
+  const ids = useFieldIds(id);
+  return (
+    <FieldShell
+      label={label}
+      hint={hint}
+      error={error}
+      ids={ids}
+      className={className}
+    >
+      <div
+        className={cx(styles.control, styles.select, error && styles.invalid)}
+      >
+        <select
+          id={ids.inputId}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy(hint, error, ids)}
+          {...rest}
+        >
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
       </div>
     </FieldShell>
   );

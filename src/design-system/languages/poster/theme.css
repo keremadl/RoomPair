@@ -71,4 +71,10 @@
   --heading-weight: 400; /* Archivo Black has a single, heavy weight */
   --surface-border: var(--band-ink);
   --surface-border-width: 2px;
+
+  /* Shell: an ink band across the top. */
+  --shell-bar-bg: var(--band-ink);
+  --shell-bar-fg: var(--color-text-inverse);
+  --shell-bar-border: var(--band-ink);
+  --logo-fg: var(--color-text-inverse);
 }

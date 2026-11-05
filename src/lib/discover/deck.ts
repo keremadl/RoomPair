@@ -62,6 +62,23 @@ export function useDeck() {
 }
 
 export type Deck = ReturnType<typeof useDeck>;
+
+/**
+ * What a language's DiscoverCard needs from a deck. The demo `useDeck` and the
+ * real app's store both provide it.
+ */
+export type DiscoverDeck = {
+  profile: Profile;
+  match: MatchResult;
+  /** Changes whenever a different card is on top (drives the exit animation). */
+  cardKey: string;
+  exitDirection: number;
+  canUndo: boolean;
+  decide: (d: Decision) => void;
+  undo: () => void;
+  index: number;
+  total: number;
+};
 export type { MatchResult, Profile };
 
 /* ── Labels shared by every language ── */

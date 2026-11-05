@@ -120,17 +120,8 @@ its fonts to `fonts.ts`.
 
 Always finish with `npm run typecheck && npm run check:design`.
 
-## Migrating the existing screens
+## The app
 
-`globals.css` and `onboarding.css` still contain the old hardcoded styles.
-Their legacy variables (`--green`, `--ink`, …) are already aliased to the new
-tokens, so the app is connected to the system today. Migrate screen by screen:
-
-1. Replace hand-rolled elements (`.button.primary`, `.icon-button`,
-   `.segmented`, `.ob-input`…) with design-system components.
-2. Replace remaining literals with tokens.
-3. Delete CSS that is no longer used.
-4. `npm run check:design -- --update` to lock in the lower count.
-
-Suggested order: shared primitives (`ui.tsx` Modal/EmptyState) → onboarding →
-messages → likes → my space → discovery card.
+The main app (`src/components/app/`) is built only from this folder. The
+top-right **Design** menu sets `data-direction` / `data-palette` on the app
+root and picks the profile layout, so every screen switches language at once.

@@ -70,4 +70,7 @@
   --heading-weight: 700;
   --surface-border: var(--plan-line);
   --surface-border-width: var(--plan-stroke);
+
+  /* Shell: the drawing's border line. */
+  --shell-bar-border: var(--plan-line);
 }

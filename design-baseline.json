@@ -1,12 +1,1 @@
-{
-  "src/app/globals.css": {
-    "color": 334,
-    "fontSize": 269,
-    "radius": 60
-  },
-  "src/components/onboarding.css": {
-    "color": 94,
-    "fontSize": 57,
-    "radius": 12
-  }
-}
+{}

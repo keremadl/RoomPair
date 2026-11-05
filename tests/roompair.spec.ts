@@ -1,351 +1,155 @@
 import { test, expect, type Page } from "@playwright/test";
 
-const desktopNav = (page: Page) =>
-  page.getByRole("navigation", { name: "Main navigation", exact: true });
-const currentCard = (page: Page) => page.locator(".swipe-card");
+/**
+ * End-to-end flows for the RoomPair demo. Selectors use roles and names, so
+ * the tests hold in every design language.
+ */
 
-async function openApp(page: Page) {
+const card = (page: Page) => page.getByRole("heading", { level: 2, name: /^(Ella|Leo|Ines|Maya|Noah|Felix|Sofia|Anna|Oliver)/ }).first();
+
+async function openApp(page: Page, language?: string, layout: "blocks" | "tabs" = "blocks") {
+  if (language)
+    await page.addInitScript(
+      ([l, lay]) => localStorage.setItem("roompair-appearance-v1", JSON.stringify({ language: l, layout: lay })),
+      [language, layout],
+    );
   await page.goto("/");
-  await expect(
-    page.getByRole("heading", {
-      name: "Good people. Better living.",
-      exact: true,
-    }),
-  ).toBeVisible();
-  await expect(
-    currentCard(page).getByRole("heading", { name: "Ella, 23" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Good people. Better living.", level: 1 })).toBeVisible();
 }
 
-test("discovery renders real assets, explains fit, and supports pass and undo", async ({
-  page,
-}, testInfo) => {
+test("discover shows the card and grouped details; arrows pass, undo restores", async ({ page }) => {
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("pageerror", (e) => errors.push(e.message));
   await openApp(page);
-  const portrait = currentCard(page).getByRole("img", {
-    name: "Ella, Design student",
-  });
-  await expect(portrait).toBeVisible();
-  await expect
-    .poll(() =>
-      portrait.evaluate((image) => (image as HTMLImageElement).naturalWidth),
-    )
-    .toBeGreaterThan(100);
-  await page.getByRole("button", { name: "Why you fit", exact: true }).click();
-  const compatibility = page.getByRole("dialog", {
-    name: "Why you fit",
-    exact: true,
-  });
-  await expect(compatibility.locator(".large-fit-score")).toContainText("96");
-  await expect(
-    compatibility.getByText("Budget", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    compatibility.getByText(/not a prediction or a guarantee/),
-  ).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(compatibility).toBeHidden();
+  await expect(card(page)).toHaveText(/Ella, 23/);
+  const portrait = page.getByRole("img", { name: "Ella" }).first();
+  await expect.poll(() => portrait.evaluate((img) => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(100);
+  // Home → Person → Fit, each its own section
+  await expect(page.getByRole("region", { name: "The room" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "About Ella" })).toBeVisible();
+  await expect(page.getByRole("region", { name: /Why 96%/ })).toBeVisible();
+
   await page.keyboard.press("ArrowLeft");
-  await expect(currentCard(page)).toHaveCount(1);
-  await expect(
-    currentCard(page).getByRole("heading", { name: "Leo, 24" }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: /Undo/, exact: false }).click();
-  await expect(
-    currentCard(page).getByRole("heading", { name: "Ella, 23" }),
-  ).toBeVisible();
-  await page.screenshot({
-    path: testInfo.outputPath("desktop-discovery.png"),
-    fullPage: true,
-  });
+  await expect(card(page)).toHaveText(/Leo, 24/);
+  await expect(page.getByRole("status")).toContainText("Passed");
+  await page.getByRole("button", { name: "Undo" }).first().click();
+  await expect(card(page)).toHaveText(/Ella, 23/);
   expect(errors).toEqual([]);
 });
 
-test("mutual like creates a match, opens chat, simulates a reply and persists after reload", async ({
-  page,
-}) => {
+test("a mutual like opens a match, then a conversation with a simulated reply", async ({ page }) => {
   await openApp(page);
-  await page.getByRole("button", { name: "Like", exact: true }).click();
-  const match = page.getByRole("dialog", {
-    name: "It’s a RoomPair!",
-    exact: true,
-  });
+  await page.keyboard.press("ArrowRight");
+  const match = page.getByRole("dialog", { name: "It’s a RoomPair!" });
   await expect(match).toBeVisible();
-  await expect(match).toContainText("Ella");
-  await match
-    .getByRole("button", { name: "Say a little hello", exact: true })
-    .click();
-  await expect(page.locator(".conversation-header")).toContainText("Ella");
-  await page
-    .getByRole("textbox", { name: "Say something nice…", exact: true })
-    .fill("Would you like to meet for coffee?");
-  await page.getByRole("button", { name: "Send", exact: true }).click();
-  await expect(
-    page
-      .locator(".message-stream")
-      .getByText("Would you like to meet for coffee?", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    page
-      .locator(".message-stream")
-      .getByText(/Coffee sounds lovely! How about Saturday at 11/),
-  ).toBeVisible();
-  await page.reload();
-  await desktopNav(page)
-    .getByRole("button", { name: /^Messages/ })
-    .click();
-  await page.locator(".conversation-item").filter({ hasText: "Ella" }).click();
-  await expect(
-    page
-      .locator(".message-stream")
-      .getByText("Would you like to meet for coffee?", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    page
-      .locator(".message-stream")
-      .getByText(/Coffee sounds lovely! How about Saturday at 11/),
-  ).toBeVisible();
+  await match.getByRole("button", { name: "Say a little hello" }).click();
+  await expect(page.getByRole("heading", { name: "From hello to home.", level: 1 })).toBeVisible();
+  await page.getByRole("button", { name: "What’s your ideal Sunday at home?" }).click();
+  await expect(page.getByText("What’s your ideal Sunday at home?").last()).toBeVisible();
+  const conversation = page.getByRole("region", { name: "Ella" });
+  await expect(conversation.getByText(/respect each other’s space/)).toBeVisible({ timeout: 6000 });
 });
 
-test("an impossible city produces an honest empty feed and restoring Riga restores people", async ({
-  page,
-}) => {
+test("the top-right menu switches all six design languages and remembers the choice", async ({ page }) => {
   await openApp(page);
-  await page.getByRole("button", { name: /^Filters/ }).click();
-  let filters = page.getByRole("dialog", { name: "Filters", exact: true });
-  await filters
-    .getByRole("textbox", { name: "City", exact: true })
-    .fill("Tallinn");
-  await filters
-    .getByRole("button", { name: "Show my people", exact: true })
-    .click();
-  await expect(
-    page.getByRole("heading", { name: "You’re all caught up.", exact: true }),
-  ).toBeVisible();
-  await expect(currentCard(page)).toHaveCount(0);
-  await expect(
-    page.getByRole("button", { name: "Like", exact: true }),
-  ).toBeDisabled();
-  await page
-    .getByRole("button", { name: "Adjust my search", exact: true })
-    .click();
-  filters = page.getByRole("dialog", { name: "Filters", exact: true });
-  await filters
-    .getByRole("textbox", { name: "City", exact: true })
-    .fill("Riga");
-  await filters
-    .getByRole("button", { name: "Show my people", exact: true })
-    .click();
-  await expect(
-    currentCard(page).getByRole("heading", { name: "Ella, 23" }),
-  ).toBeVisible();
-});
-
-test("saved rooms, checklist and notes persist; reset restores the original demo", async ({
-  page,
-}) => {
-  await openApp(page);
-  await page.getByRole("button", { name: "Find a room", exact: true }).click();
-  const room = page
-    .locator(".room-card")
-    .filter({ hasText: "A peaceful corner in Avoti" });
-  await room.getByRole("button", { name: "Save room", exact: true }).click();
-  await expect(
-    room.getByRole("button", { name: "Unsave room", exact: true }),
-  ).toBeVisible();
-  await desktopNav(page)
-    .getByRole("button", { name: "My space", exact: true })
-    .click();
-  await expect(
-    page
-      .locator(".saved-rooms")
-      .getByRole("heading", {
-        name: "A peaceful corner in Avoti",
-        exact: true,
-      }),
-  ).toBeVisible();
-  const cleaning = page.getByRole("button", {
-    name: /Find your cleaning rhythm/,
-  });
-  await cleaning.click();
-  await expect(cleaning).toHaveClass(/checked/);
-  await page
-    .getByRole("textbox", { name: "Shared notes", exact: true })
-    .fill("Ask about bike storage at the viewing.");
-  await page.reload();
-  await desktopNav(page)
-    .getByRole("button", { name: "My space", exact: true })
-    .click();
-  await expect(
-    page.getByRole("textbox", { name: "Shared notes", exact: true }),
-  ).toHaveValue("Ask about bike storage at the viewing.");
-  await expect(
-    page.getByRole("button", { name: /Find your cleaning rhythm/ }),
-  ).toHaveClass(/checked/);
-  await expect(
-    page
-      .locator(".saved-rooms")
-      .getByRole("heading", {
-        name: "A peaceful corner in Avoti",
-        exact: true,
-      }),
-  ).toBeVisible();
-  await page
-    .getByRole("button", { name: "View your profile", exact: true })
-    .click();
-  await page
-    .getByRole("button", { name: "Demo settings & data", exact: true })
-    .click();
-  await page
-    .getByRole("dialog")
-    .getByRole("button", { name: "Reset demo data", exact: true })
-    .click();
-  await expect(
-    currentCard(page).getByRole("heading", { name: "Ella, 23" }),
-  ).toBeVisible();
-  await desktopNav(page)
-    .getByRole("button", { name: "My space", exact: true })
-    .click();
-  await expect(
-    page.getByRole("textbox", { name: "Shared notes", exact: true }),
-  ).toHaveValue("");
-  await expect(
-    page.getByRole("button", { name: /Find your cleaning rhythm/ }),
-  ).not.toHaveClass(/checked/);
-  await expect(
-    page
-      .locator(".saved-rooms")
-      .getByRole("heading", {
-        name: "A peaceful corner in Avoti",
-        exact: true,
-      }),
-  ).toHaveCount(0);
-  await expect(page.locator(".saved-rooms .room-card")).toHaveCount(1);
-});
-
-test("four-step onboarding saves the user and a room host sees people looking for a room", async ({
-  page,
-}) => {
-  await openApp(page);
-  await page
-    .getByRole("button", { name: "Find your living style", exact: true })
-    .click();
-  const onboarding = page.locator(".ob-shell");
-  await onboarding
-    .getByRole("textbox", { name: "What should we call you?", exact: true })
-    .fill("Jordan");
-  await onboarding
-    .locator(".ob-intent")
-    .filter({ hasText: "I have a room to share" })
-    .click();
-  await onboarding
-    .getByRole("button", { name: "Continue", exact: true })
-    .click();
-  await expect(
-    onboarding.getByRole("heading", {
-      name: "Make room for what matters",
-      exact: true,
-    }),
-  ).toBeVisible();
-  await onboarding
-    .getByRole("button", { name: "Continue", exact: true })
-    .click();
-  await expect(
-    onboarding.getByRole("heading", {
-      name: "Your kind of everyday",
-      exact: true,
-    }),
-  ).toBeVisible();
-  await onboarding
-    .getByRole("button", { name: "Continue", exact: true })
-    .click();
-  await expect(
-    onboarding.getByRole("heading", {
-      name: "Your search, thoughtfully set",
-      exact: true,
-    }),
-  ).toBeVisible();
-  await expect(onboarding.locator(".ob-review")).toContainText("Jordan");
-  await onboarding
-    .getByRole("button", { name: "Find my people", exact: true })
-    .click();
-  await expect(onboarding).toBeHidden();
-  await expect(currentCard(page)).toHaveCount(1);
-  await expect(currentCard(page).locator(".available-pill")).toHaveText([
-    "Looking for a room",
-  ]);
-  await expect(
-    currentCard(page).getByRole("heading", { name: "Ella, 23" }),
-  ).toHaveCount(0);
-  await page.reload();
-  await expect(currentCard(page).locator(".available-pill")).toHaveText([
-    "Looking for a room",
-  ]);
-  await page
-    .getByRole("button", { name: "View your profile", exact: true })
-    .click();
-  await expect(
-    page
-      .locator(".my-profile-card")
-      .getByRole("heading", { name: "Jordan", exact: true }),
-  ).toBeVisible();
-  await expect(page.locator(".profile-intent")).toHaveText(
-    "I have a room to share",
-  );
-});
-
-test("mobile navigation and conversation work without horizontal overflow", async ({
-  page,
-}, testInfo) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await openApp(page);
-  const nav = page.getByRole("navigation", {
-    name: "Mobile navigation",
-    exact: true,
-  });
-  await expect(nav).toBeVisible();
-  await expect(nav.getByRole("button")).toHaveCount(5);
-  async function fitsViewport() {
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth + 1,
-      ),
-    ).toBe(true);
+  const app = page.locator("[data-direction]").first();
+  const languages: [string, string][] = [
+    ["A · Sohbet", "chat"],
+    ["B · Kolaj", "collage"],
+    ["C · Afiş", "poster"],
+    ["D · Gün", "day"],
+    ["E · Ev Planı", "plan"],
+    ["F · Kart", "card"],
+  ];
+  for (const [name, id] of languages) {
+    await page.getByRole("button", { name: /Design/ }).click();
+    await page.getByRole("radio", { name: new RegExp(`^${name}`) }).click();
+    await expect(app).toHaveAttribute("data-direction", id);
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("heading", { level: 2, name: /Ella/ }).first()).toBeVisible();
   }
-  await fitsViewport();
-  await page.screenshot({
-    path: testInfo.outputPath("mobile-discovery.png"),
-    fullPage: true,
-  });
-  await nav.getByRole("button", { name: "Likes", exact: true }).click();
-  await expect(
-    page.getByRole("heading", {
-      name: "A good feeling, returned.",
-      exact: true,
-    }),
-  ).toBeVisible();
-  await fitsViewport();
-  await nav.getByRole("button", { name: "Messages", exact: true }).click();
-  await page.locator(".conversation-item").filter({ hasText: "Maya" }).click();
-  await expect(
-    page.getByRole("textbox", { name: "Say something nice…", exact: true }),
-  ).toBeVisible();
-  await fitsViewport();
-  await page
-    .getByRole("button", { name: "Back to conversations", exact: true })
-    .click();
-  await expect(
-    page.getByRole("textbox", { name: "Search conversations", exact: true }),
-  ).toBeVisible();
-  await nav.getByRole("button", { name: "My space", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "Before you move in", exact: true }),
-  ).toBeVisible();
-  await fitsViewport();
-  await nav.getByRole("button", { name: "My profile", exact: true }).click();
-  await expect(
-    page.getByRole("button", { name: "Edit my profile", exact: true }),
-  ).toBeVisible();
-  await fitsViewport();
+  // Kolaj palettes and the tabs layout
+  await page.getByRole("button", { name: /Design/ }).click();
+  await page.getByRole("radio", { name: /^B · Kolaj/ }).click();
+  await page.getByRole("radio", { name: "Gece" }).click();
+  await expect(app).toHaveAttribute("data-palette", "night");
+  await page.getByRole("radio", { name: "Tabs" }).click();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("tablist", { name: "Profile sections" })).toBeVisible();
+  await page.getByRole("tab", { name: "Ella" }).click();
+  await expect(page.getByRole("tabpanel")).toContainText("About Ella");
+
+  await page.reload();
+  await expect(app).toHaveAttribute("data-direction", "collage");
+  await expect(app).toHaveAttribute("data-palette", "night");
+  await expect(page.getByRole("tablist", { name: "Profile sections" })).toBeVisible();
+});
+
+test("likes, rooms, the shared space and the moving checklist", async ({ page }) => {
+  await openApp(page, "plan");
+  const nav = page.getByRole("navigation", { name: "Main navigation" });
+  await nav.getByRole("button", { name: /Likes/ }).click();
+  await expect(page.getByRole("tab", { name: /Liked you/ })).toHaveAttribute("aria-selected", "true");
+  await page.getByRole("button", { name: "Like back" }).first().click();
+  await expect(page.getByRole("dialog", { name: "It’s a RoomPair!" })).toBeVisible();
+  await page.getByRole("button", { name: "Keep exploring" }).click();
+
+  await nav.getByRole("button", { name: "Discover" }).click();
+  await page.getByRole("radio", { name: "Find a room" }).click();
+  await page.getByRole("button", { name: "Save room", exact: true }).first().click();
+  await expect(page.getByRole("status")).toContainText("Saved");
+
+  await nav.getByRole("button", { name: "My space" }).click();
+  await expect(page.getByRole("heading", { name: /Places worth a look · 2/ })).toBeVisible();
+  const task = page.getByRole("button", { name: /Find your cleaning rhythm/ });
+  await task.click();
+  await expect(task).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("textbox", { name: "Shared notes" }).fill("Ask about the balcony");
+  await page.reload();
+  await nav.getByRole("button", { name: "My space" }).click();
+  await expect(page.getByRole("textbox", { name: "Shared notes" })).toHaveValue("Ask about the balcony");
+});
+
+test("filters validate, onboarding updates the profile, report and block work", async ({ page }) => {
+  await openApp(page, "day");
+  await page.getByRole("button", { name: "Filters" }).click();
+  const filters = page.getByRole("dialog", { name: "Filters" });
+  await filters.getByRole("spinbutton", { name: "Monthly budget, from" }).fill("900");
+  await expect(filters.getByRole("alert")).toContainText("maximum budget");
+  await filters.getByRole("spinbutton", { name: "Monthly budget, from" }).fill("350");
+  await filters.getByRole("button", { name: "Show my people" }).click();
+  await expect(filters).toBeHidden();
+
+  await page.getByRole("button", { name: "Find your living style" }).click();
+  const setup = page.getByRole("dialog", { name: "A little about you" });
+  await setup.getByRole("textbox", { name: "What should we call you?" }).fill("");
+  await setup.getByRole("button", { name: "Continue" }).click();
+  await expect(setup.getByRole("alert")).toContainText("Please enter your name");
+  await setup.getByRole("textbox", { name: "What should we call you?" }).fill("Deniz");
+  for (let i = 0; i < 3; i++) await setup.getByRole("button", { name: "Continue" }).click();
+  await setup.getByRole("button", { name: "Find my people" }).click();
+  await expect(page.getByRole("status")).toContainText("Deniz");
+  await expect(page.getByRole("button", { name: "View your profile" })).toHaveText("D");
+
+  await page.getByRole("button", { name: "Report" }).first().click();
+  const options = page.getByRole("dialog", { name: "Profile options" });
+  await options.getByRole("button", { name: /^Block Ella/ }).click();
+  await expect(page.getByRole("status")).toContainText("blocked");
+  await expect(card(page)).not.toHaveText(/Ella/);
+});
+
+test("Turkish interface and a phone-sized layout", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openApp(page, "poster");
+  const mobileNav = page.getByRole("navigation", { name: "Mobile navigation" });
+  await expect(mobileNav).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.getByRole("button", { name: /Design/ }).click();
+  await page.getByRole("radio", { name: "Türkçe" }).click();
+  await page.keyboard.press("Escape");
+  const turkishNav = page.getByRole("navigation", { name: "Mobil gezinme" });
+  await expect(turkishNav.getByRole("button", { name: /Keşfet/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Tasarım/ })).toBeVisible();
+  await turkishNav.getByRole("button", { name: /Mesajlar/ }).click();
+  await expect(page.getByRole("heading", { level: 1 })).not.toHaveText("From hello to home.");
 });

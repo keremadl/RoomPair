@@ -9,6 +9,11 @@ const channel = existsSync(
     ? "msedge"
     : undefined;
 
+/** Cloud sandboxes ship a single preinstalled Chromium; use it when present. */
+const sandboxChromium = "/opt/pw-browsers/chromium";
+const launchOptions =
+  !channel && existsSync(sandboxChromium) ? { executablePath: sandboxChromium } : undefined;
+
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: true,
@@ -19,6 +24,7 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000",
     channel,
+    launchOptions,
     viewport: { width: 1440, height: 1050 },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",

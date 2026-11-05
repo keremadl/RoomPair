@@ -72,4 +72,10 @@
   --heading-weight: 800;
   --surface-border: var(--color-border-strong);
   --surface-border-width: 2px;
+
+  /* Shell: the wordmark is a pressed badge. */
+  --logo-bg: var(--color-surface-raised);
+  --logo-fg: var(--color-primary);
+  --logo-border: 2px solid var(--color-border-strong);
+  --logo-shadow: var(--press-shadow);
 }

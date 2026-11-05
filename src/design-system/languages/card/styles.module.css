@@ -600,7 +600,7 @@
 }
 .tabs {
   position: sticky;
-  top: calc(var(--space-4) * -1);
+  top: calc(var(--sticky-offset, 0px) + calc(var(--space-4) * -1));
   z-index: var(--z-sticky);
   display: grid;
   grid-template-columns: repeat(3, 1fr);

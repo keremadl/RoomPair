@@ -1,4 +1,5 @@
 "use client";
+import type { DiscoverDeck, MatchResult, Profile } from "@/lib/discover/deck";
 import { useRef } from "react";
 import { AnimatePresence } from "motion/react";
 import {
@@ -34,6 +35,143 @@ import {
   FitBars,
 } from "./components";
 
+/** The swipeable card and its actions. Controlled: pass a deck. */
+export function DiscoverCard({ deck }: { deck: DiscoverDeck }) {
+  const { profile: p, match: m } = deck;
+  const decide = deck.decide;
+  const home = homeSection(p);
+  const person = personSection(p);
+  const fit = fitSection(m);
+  return (
+    <>
+      <div className={s.stage}>
+        <AnimatePresence initial={false} custom={deck.exitDirection}>
+          <SwipeHero
+            key={deck.cardKey}
+            className={s.polaroid}
+            onDecision={decide}
+            tilt={22}
+            spring={{ stiffness: 360, damping: 18 }}
+            exit={(dir) => ({
+              x: dir * 480,
+              y: -40,
+              rotate: dir * 30,
+              opacity: 0,
+              transition: { duration: 0.35 },
+            })}
+            stamps={{
+              like: {
+                className: `${s.stamp} ${s.stampLike}`,
+                label: "Yes please!",
+              },
+              pass: { className: `${s.stamp} ${s.stampPass}`, label: "Nope" },
+            }}
+          >
+            <span className={s.tape} aria-hidden="true" />
+            <img
+              src={p.photo}
+              alt={p.name}
+              draggable={false}
+              className={s.photo}
+            />
+            <h2 className={s.polaroidCaption}>
+              {p.name}, {p.age}
+            </h2>
+            <span className={s.matchSticker}>
+              <strong>{m.score}%</strong>
+              match
+            </span>
+            <span className={s.intentSticker}>{intentLabel(p)}</span>
+          </SwipeHero>
+        </AnimatePresence>
+      </div>
+
+      <div className={s.actions}>
+        <button
+          type="button"
+          className={`${s.action} ${s.actionSmall}`}
+          onClick={deck.undo}
+          disabled={!deck.canUndo}
+        >
+          <RotateCcw />
+          <span>Undo</span>
+        </button>
+        <button
+          type="button"
+          className={`${s.action} ${s.actionPass}`}
+          onClick={() => decide("pass")}
+        >
+          <X />
+          <span>Nope</span>
+        </button>
+        <button
+          type="button"
+          className={`${s.action} ${s.actionLike}`}
+          onClick={() => decide("like")}
+        >
+          <Heart />
+          <span>Like</span>
+        </button>
+      </div>
+    </>
+  );
+}
+
+/** Home → Person → Fit for one profile, in blocks or tabs. */
+export function DiscoverDetails({
+  profile: p,
+  match: m,
+  layout = "blocks",
+  onReport,
+}: {
+  profile: Profile;
+  match: MatchResult;
+  layout?: DetailsLayout;
+  /** Opens report/block options; without it the links are inert (demos). */
+  onReport?: () => void;
+}) {
+  const home = homeSection(p);
+  const person = personSection(p);
+  const fit = fitSection(m);
+  return (
+    <Reveal id={p.id} className={s.details}>
+      <ProfileDetails
+        layout={layout}
+        classes={{
+          blocks: s.sections,
+          block: s.section,
+          tabs: s.tabs,
+          tab: s.tab,
+          panel: s.panel,
+        }}
+        headers={{
+          home: <GroupTitle group="home" title={home.heading} />,
+          person: <GroupTitle group="person" title={person.heading} />,
+          fit: <GroupTitle group="fit" title={`Why ${fit.score}%?`} />,
+        }}
+        tabLabels={{
+          home: home.kind === "listing" ? "Room" : "Home",
+          person: p.name,
+          fit: `Fit ${fit.score}%`,
+        }}
+        sections={{
+          home: <HomeStickers home={home} />,
+          person: <PersonStickers person={person} profile={p} />,
+          fit: <FitBars fit={fit} />,
+        }}
+      />
+      <p className={s.report}>
+        <button type="button" onClick={onReport}>
+          Report
+        </button>{" "}
+        <button type="button" onClick={onReport}>
+          Block
+        </button>
+      </p>
+    </Reveal>
+  );
+}
+
 /** Language B — a fridge door of polaroids and stickers. */
 export function CollageScreen({
   layout = "blocks",
@@ -42,15 +180,11 @@ export function CollageScreen({
 }) {
   const deck = useDeck();
   const { profile: p, match: m } = deck;
-  const home = homeSection(p);
-  const person = personSection(p);
-  const fit = fitSection(m);
   const scroller = useRef<HTMLDivElement>(null);
   const decide = (d: "like" | "pass") => {
     deck.decide(d);
     scroller.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
-
   return (
     <div className={s.screen}>
       <header className={s.top}>
@@ -79,107 +213,8 @@ export function CollageScreen({
           ))}
         </div>
 
-        <div className={s.stage}>
-          <AnimatePresence initial={false} custom={deck.exitDirection}>
-            <SwipeHero
-              key={deck.cardKey}
-              className={s.polaroid}
-              onDecision={decide}
-              tilt={22}
-              spring={{ stiffness: 360, damping: 18 }}
-              exit={(dir) => ({
-                x: dir * 480,
-                y: -40,
-                rotate: dir * 30,
-                opacity: 0,
-                transition: { duration: 0.35 },
-              })}
-              stamps={{
-                like: {
-                  className: `${s.stamp} ${s.stampLike}`,
-                  label: "Yes please!",
-                },
-                pass: { className: `${s.stamp} ${s.stampPass}`, label: "Nope" },
-              }}
-            >
-              <span className={s.tape} aria-hidden="true" />
-              <img
-                src={p.photo}
-                alt={p.name}
-                draggable={false}
-                className={s.photo}
-              />
-              <h2 className={s.polaroidCaption}>
-                {p.name}, {p.age}
-              </h2>
-              <span className={s.matchSticker}>
-                <strong>{m.score}%</strong>
-                match
-              </span>
-              <span className={s.intentSticker}>{intentLabel(p)}</span>
-            </SwipeHero>
-          </AnimatePresence>
-        </div>
-
-        <div className={s.actions}>
-          <button
-            type="button"
-            className={`${s.action} ${s.actionSmall}`}
-            onClick={deck.undo}
-            disabled={!deck.canUndo}
-          >
-            <RotateCcw />
-            <span>Undo</span>
-          </button>
-          <button
-            type="button"
-            className={`${s.action} ${s.actionPass}`}
-            onClick={() => decide("pass")}
-          >
-            <X />
-            <span>Nope</span>
-          </button>
-          <button
-            type="button"
-            className={`${s.action} ${s.actionLike}`}
-            onClick={() => decide("like")}
-          >
-            <Heart />
-            <span>Like</span>
-          </button>
-        </div>
-
-        <Reveal id={deck.cardKey} className={s.details}>
-          <ProfileDetails
-            layout={layout}
-            classes={{
-              blocks: s.sections,
-              block: s.section,
-              tabs: s.tabs,
-              tab: s.tab,
-              panel: s.panel,
-            }}
-            headers={{
-              home: <GroupTitle group="home" title={home.heading} />,
-              person: <GroupTitle group="person" title={person.heading} />,
-              fit: <GroupTitle group="fit" title={`Why ${fit.score}%?`} />,
-            }}
-            tabLabels={{
-              home: home.kind === "listing" ? "Room" : "Home",
-              person: p.name,
-              fit: `Fit ${fit.score}%`,
-            }}
-            sections={{
-              home: <HomeStickers home={home} />,
-              person: <PersonStickers person={person} profile={p} />,
-              fit: <FitBars fit={fit} />,
-            }}
-          />
-          <p className={s.report}>
-            <button type="button">Report</button>{" "}
-            <button type="button">Block</button>
-          </p>
-        </Reveal>
+        <DiscoverCard deck={{ ...deck, decide }} />
+        <DiscoverDetails profile={p} match={m} layout={layout} />
       </div>
 
       <nav className={s.nav} aria-label="Main">
