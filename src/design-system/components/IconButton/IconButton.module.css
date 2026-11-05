@@ -1,4 +1,5 @@
 .iconButton {
+  font-family: var(--font-body);
   display: inline-grid;
   place-items: center;
   flex-shrink: 0;
