@@ -22,6 +22,8 @@ import { join, relative } from "node:path";
 
 const root = new URL("..", import.meta.url).pathname;
 const tokensFile = "src/design-system/tokens.css";
+/** Theme files override semantic tokens; they are token files too. */
+const themesDir = "src/design-system/themes";
 const baselineFile = join(root, "design-baseline.json");
 const update = process.argv.includes("--update");
 
@@ -45,7 +47,7 @@ function walk(dir) {
 const counts = {};
 for (const file of walk(join(root, "src"))) {
   const rel = relative(root, file);
-  if (rel === tokensFile) continue;
+  if (rel === tokensFile || rel.startsWith(themesDir + "/")) continue;
   const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
   const entry = {};
   for (const [rule, re] of Object.entries(rules))
@@ -94,17 +96,33 @@ if (update || !existsSync(baselineFile)) {
   );
 }
 
-/* ── Contrast ── */
-const tokens = Object.fromEntries(
-  [
-    ...readFileSync(join(root, tokensFile), "utf8").matchAll(
-      /(--[\w-]+):\s*([^;]+);/g,
-    ),
-  ].map((m) => [m[1], m[2].trim()]),
-);
-const resolve = (value, depth = 0) => {
-  const ref = value.match(/^var\((--[\w-]+)\)$/);
-  return ref && depth < 10 ? resolve(tokens[ref[1]] ?? "", depth + 1) : value;
+/* ── Contrast: base tokens, then each theme's overrides on top ── */
+const parseVars = (css) =>
+  Object.fromEntries(
+    [
+      ...css
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .matchAll(/(--[\w-]+):\s*([^;]+);/g),
+    ].map((m) => [m[1], m[2].trim()]),
+  );
+const base = parseVars(readFileSync(join(root, tokensFile), "utf8"));
+const themes = [["tokens.css", base]];
+if (existsSync(join(root, themesDir))) {
+  for (const name of readdirSync(join(root, themesDir))
+    .filter((n) => n.endsWith(".css"))
+    .sort()) {
+    const overrides = parseVars(
+      readFileSync(join(root, themesDir, name), "utf8"),
+    );
+    themes.push([`themes/${name}`, { ...base, ...overrides }]);
+  }
+}
+const resolveIn = (tokens) => {
+  const resolve = (value, depth = 0) => {
+    const ref = value.match(/^var\((--[\w-]+)\)$/);
+    return ref && depth < 10 ? resolve(tokens[ref[1]] ?? "", depth + 1) : value;
+  };
+  return resolve;
 };
 const luminance = (hex) => {
   const n = hex.replace("#", "");
@@ -125,28 +143,34 @@ const ratio = (a, b) => {
 const pairs = [
   ["--color-text", "--color-bg", 4.5],
   ["--color-text", "--color-surface-sunken", 4.5],
+  ["--color-text", "--color-surface-raised", 4.5],
   ["--color-text-muted", "--color-bg", 4.5],
   ["--color-text-muted", "--color-surface-sunken", 4.5],
+  ["--color-text-muted", "--color-surface-raised", 4.5],
   ["--color-text-subtle", "--color-bg", 3],
   ["--color-on-primary", "--color-primary", 4.5],
   ["--color-primary", "--color-bg", 4.5],
+  ["--color-primary", "--color-primary-soft", 4.5],
   ["--color-accent-strong", "--color-accent-soft", 4.5],
   ["--color-danger", "--color-danger-soft", 4.5],
   ["--color-success", "--color-success-soft", 4.5],
   ["--color-warning", "--color-warning-soft", 4.5],
 ];
-for (const [fg, bg, min] of pairs) {
-  const r = ratio(resolve(tokens[fg]), resolve(tokens[bg]));
-  if (r < min) {
-    failed = true;
-    console.error(
-      `✗ Contrast ${fg} on ${bg}: ${r.toFixed(2)}:1 (needs ${min}:1)`,
-    );
+for (const [label, tokens] of themes) {
+  const resolve = resolveIn(tokens);
+  for (const [fg, bg, min] of pairs) {
+    const r = ratio(resolve(tokens[fg]), resolve(tokens[bg]));
+    if (r < min) {
+      failed = true;
+      console.error(
+        `✗ [${label}] Contrast ${fg} on ${bg}: ${r.toFixed(2)}:1 (needs ${min}:1)`,
+      );
+    }
   }
 }
 console.log(
   failed
     ? "Design check failed."
-    : `✓ Design check passed (${pairs.length} contrast pairs OK).`,
+    : `✓ Design check passed (${pairs.length} contrast pairs × ${themes.length} themes OK).`,
 );
 process.exit(failed ? 1 : 0);
