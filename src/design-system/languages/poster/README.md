@@ -1,18 +1,18 @@
-# C · Afiş
+# C · Poster
 
-Bir konser afişi kadar net: düz renk bantları, dev rakamlar, tek bakışta okunur.
+As clear as a gig poster: flat colour bands, huge numbers, readable at a glance.
 
 Live reference: `/design-system?lang=poster`. Discover screen in both layouts: `/directions#poster-blocks`, `/directions#poster-tabs`.
 
 ## Principles
 
-|               |                                                                                        |
-| ------------- | -------------------------------------------------------------------------------------- |
-| **Yerleşim**  | Kare fotoğraf, altında tam genişlik renk bantları ve 2×2 dev rakam ızgarası.           |
-| **Tipografi** | Archivo Black başlıklar ve büyük rakamlar, Archivo gövde.                              |
-| **Biçim**     | Köşesiz, gölgesiz, konturusuz; sadece düz renk alanları.                               |
-| **Hareket**   | Hızlı ve net: dönme yok, kart bir anda kayıp gider.                                    |
-| **Detaylar**  | Alışkanlıklar dev rakamlarla yan yana (o / sen); altta ekranı ikiye bölen Pass / Like. |
+|             |                                                                                                 |
+| ----------- | ----------------------------------------------------------------------------------------------- |
+| **Layout**  | A square photo, full-width colour bands below and a 2×2 grid of huge numbers.                   |
+| **Type**    | Archivo Black for headings and big numbers, Archivo for body text.                              |
+| **Shape**   | No corners, no shadows, no outlines; only flat fields of colour.                                |
+| **Motion**  | Fast and crisp: no tilt, the card slides away at once.                                          |
+| **Details** | Habits side by side in huge numbers (them / you); Pass and Like split the screen at the bottom. |
 
 ## Rules
 

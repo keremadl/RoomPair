@@ -1,18 +1,18 @@
-# A · Sohbet
+# A · Chat
 
-Profili, müstakbel ev arkadaşınla ilk mesajlaşman gibi okursun.
+You read the profile like a first chat with a future flatmate.
 
 Live reference: `/design-system?lang=chat`. Discover screen in both layouts: `/directions#chat-blocks`, `/directions#chat-tabs`.
 
 ## Principles
 
-|               |                                                                                              |
-| ------------- | -------------------------------------------------------------------------------------------- |
-| **Yerleşim**  | Fotoğraf kartı, altında soru–cevap baloncukları: kira, taşınma, oda, alışkanlıklar.          |
-| **Tipografi** | Atkinson Hyperlegible: okuma güçlüğü için tasarlanmış font. 17px gövde, geniş satır aralığı. |
-| **Biçim**     | Yumuşak köşeler, sola hizalı baloncuklar; italik ve büyük harf yok.                          |
-| **Hareket**   | Yeni profilde mesajlar sırayla belirir, kart hafifçe döner.                                  |
-| **Detaylar**  | Alışkanlıklar cevap içinde, her satırda 'senle aynı' ya da senin tercihin.                   |
+|             |                                                                                                     |
+| ----------- | --------------------------------------------------------------------------------------------------- |
+| **Layout**  | A photo card with question-and-answer bubbles below: rent, move-in, room, habits.                   |
+| **Type**    | Atkinson Hyperlegible, a typeface designed for low-vision readers. 17px body, generous line height. |
+| **Shape**   | Soft corners, left-aligned bubbles; no italics, no all caps.                                        |
+| **Motion**  | On a new profile the messages appear one by one and the card tilts gently.                          |
+| **Details** | Habits sit inside the answers; every line says 'same as you' or shows your preference.              |
 
 ## Rules
 

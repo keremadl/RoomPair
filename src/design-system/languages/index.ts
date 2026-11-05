@@ -34,32 +34,32 @@ export type Direction = {
 export const directions: Direction[] = [
   {
     id: "chat",
-    name: "A · Sohbet",
-    idea: "Profili, müstakbel ev arkadaşınla ilk mesajlaşman gibi okursun.",
+    name: "A · Chat",
+    idea: "You read the profile like a first chat with a future flatmate.",
     principles: [
       {
-        label: "Yerleşim",
+        label: "Layout",
         value:
-          "Fotoğraf kartı, altında soru–cevap baloncukları: kira, taşınma, oda, alışkanlıklar.",
+          "A photo card with question-and-answer bubbles below: rent, move-in, room, habits.",
       },
       {
-        label: "Tipografi",
+        label: "Type",
         value:
-          "Atkinson Hyperlegible: okuma güçlüğü için tasarlanmış font. 17px gövde, geniş satır aralığı.",
+          "Atkinson Hyperlegible, a typeface designed for low-vision readers. 17px body, generous line height.",
       },
       {
-        label: "Biçim",
-        value:
-          "Yumuşak köşeler, sola hizalı baloncuklar; italik ve büyük harf yok.",
+        label: "Shape",
+        value: "Soft corners, left-aligned bubbles; no italics, no all caps.",
       },
       {
-        label: "Hareket",
-        value: "Yeni profilde mesajlar sırayla belirir, kart hafifçe döner.",
+        label: "Motion",
+        value:
+          "On a new profile the messages appear one by one and the card tilts gently.",
       },
       {
-        label: "Detaylar",
+        label: "Details",
         value:
-          "Alışkanlıklar cevap içinde, her satırda 'senle aynı' ya da senin tercihin.",
+          "Habits sit inside the answers; every line says 'same as you' or shows your preference.",
       },
     ],
     swatches: [
@@ -71,33 +71,32 @@ export const directions: Direction[] = [
   },
   {
     id: "collage",
-    name: "B · Kolaj",
-    idea: "Yurt odasındaki buzdolabı kapağı: polaroidler, çıkartmalar, kişilik önde.",
+    name: "B · Collage",
+    idea: "A dorm fridge door: polaroids, stickers, personality first.",
     principles: [
       {
-        label: "Yerleşim",
+        label: "Layout",
         value:
-          "Hafif eğik polaroid ve üstüne yapışmış çıkartmalar. Detaylar konuşma balonu ve renkli bloklarla.",
+          "A slightly tilted polaroid with stickers on top. Details in speech bubbles and colour blocks.",
       },
       {
-        label: "Tipografi",
+        label: "Type",
         value:
-          "Kalın, karakterli grotesk (Bricolage Grotesque 800) ve Figtree.",
+          "A bold grotesque with character (Bricolage Grotesque 800) and Figtree.",
       },
       {
-        label: "Biçim",
+        label: "Shape",
         value:
-          "2px kontur, sert ofset gölge, cömert yuvarlaklık, doygun çıkartma renkleri.",
+          "2px outlines, hard offset shadows, generous rounding, saturated sticker colours.",
       },
       {
-        label: "Hareket",
-        value:
-          "Esnek, zıplayan yay. Kart sürüklenirken belirgin şekilde döner.",
+        label: "Motion",
+        value: "A bouncy spring. The card tilts clearly while dragged.",
       },
       {
-        label: "Detaylar",
+        label: "Details",
         value:
-          "Alışkanlıklar blok metrelerle 'o ve sen'; uyum kalın renkli barlarla.",
+          "Habits as block meters, them and you; fit as thick coloured bars.",
       },
     ],
     swatches: [
@@ -107,70 +106,73 @@ export const directions: Direction[] = [
       "--sticker-pink",
     ],
     palettes: [
-      { id: "lavender", name: "Lavanta" },
-      { id: "forest", name: "Orman" },
-      { id: "sunset", name: "Gün batımı" },
-      { id: "night", name: "Gece" },
+      { id: "lavender", name: "Lavender" },
+      { id: "forest", name: "Forest" },
+      { id: "sunset", name: "Sunset" },
+      { id: "night", name: "Night" },
     ],
   },
   {
     id: "poster",
-    name: "C · Afiş",
-    idea: "Bir konser afişi kadar net: düz renk bantları, dev rakamlar, tek bakışta okunur.",
+    name: "C · Poster",
+    idea: "As clear as a gig poster: flat colour bands, huge numbers, readable at a glance.",
     principles: [
       {
-        label: "Yerleşim",
+        label: "Layout",
         value:
-          "Kare fotoğraf, altında tam genişlik renk bantları ve 2×2 dev rakam ızgarası.",
+          "A square photo, full-width colour bands below and a 2×2 grid of huge numbers.",
       },
       {
-        label: "Tipografi",
-        value: "Archivo Black başlıklar ve büyük rakamlar, Archivo gövde.",
-      },
-      {
-        label: "Biçim",
-        value: "Köşesiz, gölgesiz, konturusuz; sadece düz renk alanları.",
-      },
-      {
-        label: "Hareket",
-        value: "Hızlı ve net: dönme yok, kart bir anda kayıp gider.",
-      },
-      {
-        label: "Detaylar",
+        label: "Type",
         value:
-          "Alışkanlıklar dev rakamlarla yan yana (o / sen); altta ekranı ikiye bölen Pass / Like.",
+          "Archivo Black for headings and big numbers, Archivo for body text.",
+      },
+      {
+        label: "Shape",
+        value:
+          "No corners, no shadows, no outlines; only flat fields of colour.",
+      },
+      {
+        label: "Motion",
+        value: "Fast and crisp: no tilt, the card slides away at once.",
+      },
+      {
+        label: "Details",
+        value:
+          "Habits side by side in huge numbers (them / you); Pass and Like split the screen at the bottom.",
       },
     ],
     swatches: ["--band-red", "--band-sky", "--band-mint", "--band-ink"],
   },
   {
     id: "day",
-    name: "D · Gün",
-    idea: "Profili, onunla paylaşacağın sıradan bir gün olarak okursun.",
+    name: "D · Day",
+    idea: "You read the profile as an ordinary day you would share with them.",
     principles: [
       {
-        label: "Yerleşim",
+        label: "Layout",
         value:
-          "Fotoğraf kartı, altında sabahtan geceye bir zaman çizelgesi; takvim ve bütçe çubuğu.",
+          "A photo card with a morning-to-night timeline below, plus a calendar and a budget bar.",
       },
       {
-        label: "Tipografi",
+        label: "Type",
         value:
-          "Lexend: okuma akıcılığı için tasarlanmış font. Sakin, geniş aralıklı.",
+          "Lexend, a typeface designed for reading fluency. Calm and widely spaced.",
       },
       {
-        label: "Biçim",
+        label: "Shape",
         value:
-          "Yumuşak kartlar; renkler anlam taşır: sabah, öğlen, akşam, gece.",
+          "Soft cards; colours carry meaning: morning, noon, evening, night.",
       },
       {
-        label: "Hareket",
-        value: "Yumuşak; kart hafifçe döner, çizelge yeni profille yenilenir.",
+        label: "Motion",
+        value:
+          "Gentle; the card tilts slightly and the timeline refreshes with each profile.",
       },
       {
-        label: "Detaylar",
+        label: "Details",
         value:
-          "Uyanma, akşamlar, düzen ve sessiz saatler senin gününle yan yana: 'aynı' ya da 'biraz farklı'.",
+          "Waking up, evenings, tidiness and quiet hours next to your day: 'same' or 'a little different'.",
       },
     ],
     swatches: [
@@ -182,62 +184,61 @@ export const directions: Direction[] = [
   },
   {
     id: "plan",
-    name: "E · Ev Planı",
-    idea: "Paylaşacağınız ev bir mimari çizim; bilgiler teknik bir şartname kadar net.",
+    name: "E · Floor plan",
+    idea: "The home you would share as an architect's drawing; facts as clear as a spec sheet.",
     principles: [
       {
-        label: "Yerleşim",
+        label: "Layout",
         value:
-          "Etiket sekmeli fotoğraf; detaylar numaralı çizim paftaları gibi: 01 Ev, 02 Kişi, 03 Uyum.",
+          "A photo with a label tab; details as numbered drawing sheets: 01 Home, 02 Person, 03 Fit.",
       },
       {
-        label: "Tipografi",
-        value: "Schibsted Grotesk: net, teknik ama sıcak bir grotesk.",
+        label: "Type",
+        value: "Schibsted Grotesk: a clear, technical yet warm grotesque.",
       },
       {
-        label: "Biçim",
+        label: "Shape",
         value:
-          "Lacivert çizgiler, çizim kağıdı ızgarası, tek mercan vurgu: senin odan.",
+          "Navy lines, a drafting-paper grid and one coral highlight: your room.",
       },
       {
-        label: "Hareket",
-        value: "Az ve net; odalar arası geçiş kısa bir solma.",
+        label: "Motion",
+        value: "Minimal and precise; moving between rooms is a short fade.",
       },
       {
-        label: "Detaylar",
+        label: "Details",
         value:
-          "Ev paftasında kat planı ve senin odan vurgulu; kişi ve alışkanlıklar ayrı bir şartname tablosunda.",
+          "The home sheet shows the floor plan with your room highlighted; the person and habits sit in a separate spec table.",
       },
     ],
     swatches: ["--color-bg", "--plan-line", "--color-accent", "--plan-yours"],
   },
   {
     id: "card",
-    name: "F · Kart",
-    idea: "Herkes bir oyun karakter kartı: seviye, statlar, yetenekler, görevler.",
+    name: "F · Card",
+    idea: "Everyone as a game character card: level, stats, skills, quests.",
     principles: [
       {
-        label: "Yerleşim",
+        label: "Layout",
         value:
-          "Tür rengine göre çerçeveli kart; altında 'sen vs o' statları, eşya kartı olarak oda.",
+          "A card framed in its type colour; you-vs-them stats below and the room as an item card.",
       },
       {
-        label: "Tipografi",
-        value: "Rubik: yuvarlak hatlı, kalın ama tam boyda okunaklı.",
+        label: "Type",
+        value: "Rubik: rounded and bold, yet readable at full size.",
       },
       {
-        label: "Biçim",
+        label: "Shape",
+        value: "Thick outlines, pressable 3D buttons, stat pips and an XP bar.",
+      },
+      {
+        label: "Motion",
+        value: "Playful and bouncy; buttons sink when pressed.",
+      },
+      {
+        label: "Details",
         value:
-          "Kalın kontur, basılabilir 3B butonlar, stat pipleri, XP çubuğu.",
-      },
-      {
-        label: "Hareket",
-        value: "Oyunsu ve zıplayan; butonlar basınca çöker.",
-      },
-      {
-        label: "Detaylar",
-        value:
-          "Uyum = XP; eşleşme gerekçeleri tamamlanmış, konuşulacaklar açık görevler.",
+          "Fit is XP; match reasons are completed quests, things to discuss are open ones.",
       },
     ],
     swatches: ["--type-host", "--type-explorer", "--color-primary", "--xp"],

@@ -91,12 +91,12 @@ test("the top-right menu switches all six design languages and remembers the cho
   await openApp(page);
   const app = page.locator("[data-direction]").first();
   const languages: [string, string][] = [
-    ["A · Sohbet", "chat"],
-    ["B · Kolaj", "collage"],
-    ["C · Afiş", "poster"],
-    ["D · Gün", "day"],
-    ["E · Ev Planı", "plan"],
-    ["F · Kart", "card"],
+    ["A · Chat", "chat"],
+    ["B · Collage", "collage"],
+    ["C · Poster", "poster"],
+    ["D · Day", "day"],
+    ["E · Floor plan", "plan"],
+    ["F · Card", "card"],
   ];
   for (const [name, id] of languages) {
     await page.getByRole("button", { name: /Design/ }).click();
@@ -107,10 +107,10 @@ test("the top-right menu switches all six design languages and remembers the cho
       page.getByRole("heading", { level: 2, name: /Ella/ }).first(),
     ).toBeVisible();
   }
-  // Kolaj palettes and the tabs layout
+  // Collage palettes and the tabs layout
   await page.getByRole("button", { name: /Design/ }).click();
-  await page.getByRole("radio", { name: /^B · Kolaj/ }).click();
-  await page.getByRole("radio", { name: "Gece" }).click();
+  await page.getByRole("radio", { name: /^B · Collage/ }).click();
+  await page.getByRole("radio", { name: "Night" }).click();
   await expect(app).toHaveAttribute("data-palette", "night");
   await page.getByRole("radio", { name: "Tabs" }).click();
   await page.keyboard.press("Escape");
@@ -259,6 +259,17 @@ test.describe("on a phone", () => {
       );
       expect({ language, width }).toEqual({ language, width: 360 });
     }
+    // The design menu fits on the screen.
+    await page.getByRole("button", { name: /Design/ }).click();
+    const panel = await page
+      .getByRole("dialog", { name: "Design language" })
+      .or(page.locator('[aria-label="Design language"]').first())
+      .first()
+      .boundingBox();
+    expect(panel!.x).toBeGreaterThanOrEqual(0);
+    expect(panel!.x + panel!.width).toBeLessThanOrEqual(360);
+    await page.screenshot({ path: "test-results/phone-menu.png" });
+    await page.keyboard.press("Escape");
     // A card flying out of view or a sticker past the edge must stay clipped.
     await page.evaluate(() => {
       const probe = document.createElement("div");

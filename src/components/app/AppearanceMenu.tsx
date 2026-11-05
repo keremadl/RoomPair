@@ -59,13 +59,13 @@ export function AppearanceMenu({
         className={s.menuButton}
         aria-expanded={open}
         aria-controls={panelId}
-        aria-label={`${t("Design")}: ${current.name}`}
+        aria-label={`${t("Design")}: ${t(current.name)}`}
         onClick={() => setOpen((o) => !o)}
       >
         <Palette aria-hidden="true" />
         <span className={s.menuButtonText}>
           <span className={s.menuButtonLabel}>{t("Design")}</span>
-          {current.name}
+          {t(current.name)}
         </span>
         <ChevronDown aria-hidden="true" />
       </button>
@@ -92,7 +92,7 @@ export function AppearanceMenu({
                 onClick={() => onChange({ language: d.id })}
               >
                 <span className={s.menuItemText}>
-                  <strong>{d.name}</strong>
+                  <strong>{t(d.name)}</strong>
                   <small>{t(d.idea)}</small>
                 </span>
                 {appearance.language === d.id && <Check aria-hidden="true" />}
@@ -127,7 +127,7 @@ export function AppearanceMenu({
                         data-palette={pal.id}
                         aria-hidden="true"
                       />
-                      {pal.name}
+                      {t(pal.name)}
                     </button>
                   );
                 })}

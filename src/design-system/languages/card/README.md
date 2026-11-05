@@ -1,18 +1,18 @@
-# F · Kart
+# F · Card
 
-Herkes bir oyun karakter kartı: seviye, statlar, yetenekler, görevler.
+Everyone as a game character card: level, stats, skills, quests.
 
 Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/directions#card-blocks`, `/directions#card-tabs`.
 
 ## Principles
 
-|               |                                                                                      |
-| ------------- | ------------------------------------------------------------------------------------ |
-| **Yerleşim**  | Tür rengine göre çerçeveli kart; altında 'sen vs o' statları, eşya kartı olarak oda. |
-| **Tipografi** | Rubik: yuvarlak hatlı, kalın ama tam boyda okunaklı.                                 |
-| **Biçim**     | Kalın kontur, basılabilir 3B butonlar, stat pipleri, XP çubuğu.                      |
-| **Hareket**   | Oyunsu ve zıplayan; butonlar basınca çöker.                                          |
-| **Detaylar**  | Uyum = XP; eşleşme gerekçeleri tamamlanmış, konuşulacaklar açık görevler.            |
+|             |                                                                                         |
+| ----------- | --------------------------------------------------------------------------------------- |
+| **Layout**  | A card framed in its type colour; you-vs-them stats below and the room as an item card. |
+| **Type**    | Rubik: rounded and bold, yet readable at full size.                                     |
+| **Shape**   | Thick outlines, pressable 3D buttons, stat pips and an XP bar.                          |
+| **Motion**  | Playful and bouncy; buttons sink when pressed.                                          |
+| **Details** | Fit is XP; match reasons are completed quests, things to discuss are open ones.         |
 
 ## Rules
 

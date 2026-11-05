@@ -14,37 +14,37 @@ const model: {
 }[] = [
   {
     group: "home",
-    name: "Ev",
-    question: "Ev nasıl?",
+    name: "Home",
+    question: "What is the place like?",
     fields: [
-      "Kira (faturalar dahil) ya da arama bütçesi",
-      "Müsait olduğu tarih / taşınma",
-      "Minimum kalış süresi",
-      "Semt",
-      "Odanın fotoğrafı, başlığı, açıklaması",
+      "Rent (bills included) or search budget",
+      "Available from / move-in",
+      "Minimum stay",
+      "Neighbourhood",
+      "Photo, title and description of the room",
     ],
   },
   {
     group: "person",
-    name: "Kişi",
-    question: "Kiminle yaşayacağım?",
+    name: "Person",
+    question: "Who would I live with?",
     fields: [
-      "Okul / bölüm, yaş, doğrulama",
-      "Kendini anlatışı (bio)",
-      "İlgi alanları",
-      "Profil sorusu ve cevabı",
-      "Alışkanlıklar: düzen, sosyallik, uyku, sigara, evcil hayvan (seninle karşılaştırmalı)",
+      "School / programme, age, verification",
+      "How they describe themselves (bio)",
+      "Interests",
+      "Profile prompt and answer",
+      "Habits: tidiness, social energy, sleep, smoking, pets (compared with yours)",
     ],
   },
   {
     group: "fit",
-    name: "Uyum",
-    question: "Anlaşır mıyız?",
+    name: "Fit",
+    question: "Would we get along?",
     fields: [
-      "Uyum puanı",
-      "Uyan noktalar",
-      "Konuşulması gerekenler",
-      "Puanın dökümü",
+      "Fit score",
+      "What matches",
+      "Things to talk about",
+      "Score breakdown",
     ],
   },
 ];
@@ -52,28 +52,28 @@ const model: {
 const prototypes = [
   {
     id: "blocks",
-    name: "1 · Bloklar",
-    idea: "Ev → Kişi → Uyum, her biri kendi başlığı ve rengiyle alt alta. Her blok kendi başlığı ve temel bilgi kutularıyla başlar.",
+    name: "1 · Blocks",
+    idea: "Home → Person → Fit, stacked, each with its own heading and colour. Every block starts with its heading and key fact tiles.",
     pros: [
-      "Her şey görünür, hiçbir şey gizli değil",
-      "Sıra hep aynı: göz nereye bakacağını öğrenir",
-      "Altı tasarım diline en kolay uyan düzen",
+      "Everything is visible, nothing is hidden",
+      "The order never changes, so the eye learns where to look",
+      "The easiest layout to fit into all six design languages",
     ],
-    cons: ["Sayfa uzun; Uyum'a ulaşmak için kaydırmak gerekir"],
+    cons: ["The page is long; you scroll to reach Fit"],
     recommended: true,
     Screen: BlocksPrototype,
   },
   {
     id: "tabs",
-    name: "2 · Sekmeler",
-    idea: "Kartın altında Oda / Kişi / Uyum sekmeleri. Aynı anda tek grup görünür.",
+    name: "2 · Tabs",
+    idea: "Room / Person / Fit tabs below the card. One group is visible at a time.",
     pros: [
-      "En sakin görünüm; karışıklık imkânsız",
-      "İstediğin gruba tek dokunuşla gidersin",
+      "The calmest view; nothing can get mixed up",
+      "One tap takes you to any group",
     ],
     cons: [
-      "Diğer sekmeleri hiç açmayan kişi bilgileri kaçırır",
-      "Karşılaştırmak için sekmeler arası gidip gelmek gerekir",
+      "Someone who never opens the other tabs misses information",
+      "Comparing means switching back and forth between tabs",
     ],
     Screen: TabsPrototype,
   },
@@ -94,21 +94,21 @@ export function Layouts() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <Eyebrow>RoomPair · Düzen prototipleri</Eyebrow>
+        <Eyebrow>RoomPair · Layout prototypes</Eyebrow>
         <Heading level={1} size="3xl">
-          Profil bilgileri nasıl dizilsin?
+          How should profile details be arranged?
         </Heading>
         <Text tone="muted" className={styles.lead}>
-          RoomPair bir flört uygulaması değil: kullanıcı iki ayrı soruya cevap
-          arıyor. Önce her bilgiyi tek bir gruba yerleştirdik, sonra bu
-          grupların ekranda dizilişini dört farklı şekilde denedik. Prototipler
-          bilerek renksiz; tartışma tasarım diline değil düzene odaklansın.
+          RoomPair is not a dating app: people are answering two separate
+          questions. First every fact was given exactly one group, then we tried
+          different ways of arranging those groups on screen. The prototypes are
+          colourless on purpose, so the discussion stays on layout, not style.
         </Text>
       </header>
 
       <section className={styles.model} aria-labelledby="model-title">
         <h2 id="model-title" className={styles.sectionTitle}>
-          İçerik modeli: her bilgi tek bir grupta
+          Content model: every fact in exactly one group
         </h2>
         <div className={styles.modelGrid} data-direction="wire">
           {model.map((g) => (
@@ -131,13 +131,13 @@ export function Layouts() {
           ))}
         </div>
         <p className={styles.rule}>
-          Kural: evle ilgili hiçbir bilgi Kişi grubunda, kişiyle ilgili hiçbir
-          bilgi Ev grubunda durmaz. Odası olmayan biri için Ev grubu
-          &ldquo;aradığı ev&rdquo;i gösterir: bütçe, semt, tarih, süre.
+          Rule: nothing about the place goes under Person and nothing about the
+          person goes under Home. For someone without a room, Home shows the
+          home they are looking for: budget, neighbourhood, dates, stay.
         </p>
       </section>
 
-      <div className={styles.picker} role="radiogroup" aria-label="Prototip">
+      <div className={styles.picker} role="radiogroup" aria-label="Prototype">
         {prototypes.map((p) => (
           <button
             key={p.id}
@@ -169,13 +169,13 @@ export function Layouts() {
                 <h2 className={styles.protoName}>
                   {name}
                   {recommended && (
-                    <span className={styles.badge}>Önerimiz</span>
+                    <span className={styles.badge}>Our pick</span>
                   )}
                 </h2>
                 <p className={styles.idea}>{idea}</p>
                 <div className={styles.lists}>
                   <div>
-                    <p className={styles.listTitle}>Artıları</p>
+                    <p className={styles.listTitle}>Pros</p>
                     <ul>
                       {pros.map((x) => (
                         <li key={x}>{x}</li>
@@ -183,7 +183,7 @@ export function Layouts() {
                     </ul>
                   </div>
                   <div>
-                    <p className={styles.listTitle}>Eksileri</p>
+                    <p className={styles.listTitle}>Cons</p>
                     <ul>
                       {cons.map((x) => (
                         <li key={x}>{x}</li>

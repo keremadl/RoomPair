@@ -194,6 +194,22 @@
   color: var(--color-text);
   box-shadow: var(--shadow-overlay);
 }
+/* On phones the button is not at the screen edge: pin the panel to the
+   viewport so it never runs off the left side. */
+@media (max-width: 559px) {
+  .menuPanel {
+    position: fixed;
+    top: calc(var(--shell-bar-height) + var(--space-2));
+    right: var(--space-4);
+    left: var(--space-4);
+    width: auto;
+    /* stop above the tab bar */
+    max-height: calc(
+      100dvh - var(--shell-bar-height) - var(--space-16) - var(--space-6) -
+        env(safe-area-inset-bottom, 0px)
+    );
+  }
+}
 .menuTitle {
   margin: var(--space-4) 0 var(--space-2);
   font-size: var(--text-xs);

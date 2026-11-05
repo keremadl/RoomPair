@@ -22,7 +22,7 @@ npm start
 
 ## A three-minute jury walkthrough
 
-0. **Design (top right):** pick one of the six design languages, a Kolaj palette and the profile layout (Blocks or Tabs). The choice is remembered.
+0. **Design (top right):** pick one of the six design languages, a Collage palette and the profile layout (Blocks or Tabs). The choice is remembered.
 1. **Discover:** show Ella's photo, housing intent, rent and move-in date. Open **See why you fit** to explain the calculated 96% lifestyle fit.
 2. **Filters:** change the budget or choose a city outside the Riga demo. The app respects the requirements and shows an honest empty state.
 3. **Like Ella:** swipe right, use the heart, or press the right arrow. Ella already likes the demo user, so a mutual-match screen appears.

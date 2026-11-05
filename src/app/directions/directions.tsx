@@ -56,20 +56,20 @@ export function Directions() {
   return (
     <div className={`${styles.page} ${directionFontVariables}`}>
       <header className={styles.header}>
-        <Eyebrow>RoomPair · Tasarım dilleri</Eyebrow>
+        <Eyebrow>RoomPair · Design languages</Eyebrow>
         <Heading level={1} size="3xl">
-          Keşfet ekranı, {directions.length} farklı dilde
+          The Discover screen in {directions.length} design languages
         </Heading>
         <Text tone="muted" className={styles.lead}>
-          Aynı içerik, aynı eşleşme verisi. Detaylar her dilde aynı üç grupta:
-          Ev, Kişi, Uyum. Aşağıdaki anahtarla altı dilin hepsini Bloklar ya da
-          Sekmeler düzenine geçirin. Kartı sağa/sola sürükleyin ya da butonları
-          kullanın; detaylar için ekranın içinde aşağı kaydırın.
+          Same content, same match data. In every language the details sit in
+          the same three groups: Home, Person, Fit. Use the switch below to put
+          all six into the Blocks or Tabs layout. Drag the card left or right or
+          use the buttons; scroll inside a screen for the details.
         </Text>
         <div
           className={styles.picker}
           role="radiogroup"
-          aria-label="Tasarım dili"
+          aria-label="Design language"
         >
           {directions.map((d) => (
             <button
@@ -88,17 +88,17 @@ export function Directions() {
           ))}
         </div>
         <div className={styles.layoutSwitch}>
-          <span aria-hidden="true">Detay düzeni</span>
+          <span aria-hidden="true">Details layout</span>
           <SegmentedControl
-            label="Detay düzeni"
+            label="Details layout"
             value={layout}
             onChange={(next) => {
               setLayout(next);
               history.replaceState(null, "", `#${selected}-${next}`);
             }}
             options={[
-              { value: "blocks", label: "1 · Bloklar", icon: <Rows3 /> },
-              { value: "tabs", label: "2 · Sekmeler", icon: <PanelTop /> },
+              { value: "blocks", label: "1 · Blocks", icon: <Rows3 /> },
+              { value: "tabs", label: "2 · Tabs", icon: <PanelTop /> },
             ]}
           />
         </div>
@@ -136,7 +136,7 @@ export function Directions() {
                   <div
                     className={styles.palettes}
                     role="radiogroup"
-                    aria-label={`${direction.name} renk paleti`}
+                    aria-label={`${direction.name} colour palette`}
                   >
                     {direction.palettes.map((palette) => {
                       const current =

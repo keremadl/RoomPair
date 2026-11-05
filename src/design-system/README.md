@@ -48,8 +48,8 @@ The core components never hard-code a look. They read **semantic tokens**
 (colour, type, radius, shadow) and **component tokens** (`--control-border-width`,
 `--control-border`, `--control-shadow`, `--control-press`, `--heading-weight`,
 `--surface-border`…). Each language sets those tokens in its `theme.css`, so
-the same `<Button>` is outlined with a hard shadow in Kolaj, square in Afiş and
-pressable in Kart. A language adds **signature components** only for what the
+the same `<Button>` is outlined with a hard shadow in Collage, square in Poster and
+pressable in Card. A language adds **signature components** only for what the
 core cannot express (chat bubbles, polaroids, floor plans, stat pips…).
 
 Every profile uses the same content model (`src/lib/discover/sections.ts`) and
@@ -57,14 +57,14 @@ the same `ProfileDetails` arrangement: **Home → Person → Fit**, as blocks or
 tabs. Facts about the place never appear under Person, facts about the person
 never under Home.
 
-| Language     | Package             | Idea                                               |
-| ------------ | ------------------- | -------------------------------------------------- |
-| A · Sohbet   | `languages/chat`    | The profile as a first chat with a future flatmate |
-| B · Kolaj    | `languages/collage` | Polaroids and stickers; four palettes              |
-| C · Afiş     | `languages/poster`  | Flat colour bands and huge numbers                 |
-| D · Gün      | `languages/day`     | A day you would share, on a timeline               |
-| E · Ev Planı | `languages/plan`    | The home as an architect's drawing                 |
-| F · Kart     | `languages/card`    | Each person as a character card                    |
+| Language       | Package             | Idea                                               |
+| -------------- | ------------------- | -------------------------------------------------- |
+| A · Chat       | `languages/chat`    | The profile as a first chat with a future flatmate |
+| B · Collage    | `languages/collage` | Polaroids and stickers; four palettes              |
+| C · Poster     | `languages/poster`  | Flat colour bands and huge numbers                 |
+| D · Day        | `languages/day`     | A day you would share, on a timeline               |
+| E · Floor plan | `languages/plan`    | The home as an architect's drawing                 |
+| F · Card       | `languages/card`    | Each person as a character card                    |
 
 ## Tokens: two layers
 

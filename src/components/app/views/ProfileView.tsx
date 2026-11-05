@@ -129,7 +129,10 @@ export function ProfileView({
                   language: e.target.value as Appearance["language"],
                 })
               }
-              options={directions.map((d) => ({ value: d.id, label: d.name }))}
+              options={directions.map((d) => ({
+                value: d.id,
+                label: t(d.name),
+              }))}
               className={v.spaced}
             />
             <div className={v.spaced}>

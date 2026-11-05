@@ -1,18 +1,18 @@
-# D · Gün
+# D · Day
 
-Profili, onunla paylaşacağın sıradan bir gün olarak okursun.
+You read the profile as an ordinary day you would share with them.
 
 Live reference: `/design-system?lang=day`. Discover screen in both layouts: `/directions#day-blocks`, `/directions#day-tabs`.
 
 ## Principles
 
-|               |                                                                                                |
-| ------------- | ---------------------------------------------------------------------------------------------- |
-| **Yerleşim**  | Fotoğraf kartı, altında sabahtan geceye bir zaman çizelgesi; takvim ve bütçe çubuğu.           |
-| **Tipografi** | Lexend: okuma akıcılığı için tasarlanmış font. Sakin, geniş aralıklı.                          |
-| **Biçim**     | Yumuşak kartlar; renkler anlam taşır: sabah, öğlen, akşam, gece.                               |
-| **Hareket**   | Yumuşak; kart hafifçe döner, çizelge yeni profille yenilenir.                                  |
-| **Detaylar**  | Uyanma, akşamlar, düzen ve sessiz saatler senin gününle yan yana: 'aynı' ya da 'biraz farklı'. |
+|             |                                                                                                 |
+| ----------- | ----------------------------------------------------------------------------------------------- |
+| **Layout**  | A photo card with a morning-to-night timeline below, plus a calendar and a budget bar.          |
+| **Type**    | Lexend, a typeface designed for reading fluency. Calm and widely spaced.                        |
+| **Shape**   | Soft cards; colours carry meaning: morning, noon, evening, night.                               |
+| **Motion**  | Gentle; the card tilts slightly and the timeline refreshes with each profile.                   |
+| **Details** | Waking up, evenings, tidiness and quiet hours next to your day: 'same' or 'a little different'. |
 
 ## Rules
 

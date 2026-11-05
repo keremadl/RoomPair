@@ -1,18 +1,18 @@
-# E · Ev Planı
+# E · Floor plan
 
-Paylaşacağınız ev bir mimari çizim; bilgiler teknik bir şartname kadar net.
+The home you would share as an architect's drawing; facts as clear as a spec sheet.
 
 Live reference: `/design-system?lang=plan`. Discover screen in both layouts: `/directions#plan-blocks`, `/directions#plan-tabs`.
 
 ## Principles
 
-|               |                                                                                                    |
-| ------------- | -------------------------------------------------------------------------------------------------- |
-| **Yerleşim**  | Etiket sekmeli fotoğraf; detaylar numaralı çizim paftaları gibi: 01 Ev, 02 Kişi, 03 Uyum.          |
-| **Tipografi** | Schibsted Grotesk: net, teknik ama sıcak bir grotesk.                                              |
-| **Biçim**     | Lacivert çizgiler, çizim kağıdı ızgarası, tek mercan vurgu: senin odan.                            |
-| **Hareket**   | Az ve net; odalar arası geçiş kısa bir solma.                                                      |
-| **Detaylar**  | Ev paftasında kat planı ve senin odan vurgulu; kişi ve alışkanlıklar ayrı bir şartname tablosunda. |
+|             |                                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Layout**  | A photo with a label tab; details as numbered drawing sheets: 01 Home, 02 Person, 03 Fit.                           |
+| **Type**    | Schibsted Grotesk: a clear, technical yet warm grotesque.                                                           |
+| **Shape**   | Navy lines, a drafting-paper grid and one coral highlight: your room.                                               |
+| **Motion**  | Minimal and precise; moving between rooms is a short fade.                                                          |
+| **Details** | The home sheet shows the floor plan with your room highlighted; the person and habits sit in a separate spec table. |
 
 ## Rules
 

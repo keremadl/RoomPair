@@ -1,25 +1,25 @@
-# B · Kolaj
+# B · Collage
 
-Yurt odasındaki buzdolabı kapağı: polaroidler, çıkartmalar, kişilik önde.
+A dorm fridge door: polaroids, stickers, personality first.
 
 Live reference: `/design-system?lang=collage`. Discover screen in both layouts: `/directions#collage-blocks`, `/directions#collage-tabs`.
 
 ## Principles
 
-|               |                                                                                                  |
-| ------------- | ------------------------------------------------------------------------------------------------ |
-| **Yerleşim**  | Hafif eğik polaroid ve üstüne yapışmış çıkartmalar. Detaylar konuşma balonu ve renkli bloklarla. |
-| **Tipografi** | Kalın, karakterli grotesk (Bricolage Grotesque 800) ve Figtree.                                  |
-| **Biçim**     | 2px kontur, sert ofset gölge, cömert yuvarlaklık, doygun çıkartma renkleri.                      |
-| **Hareket**   | Esnek, zıplayan yay. Kart sürüklenirken belirgin şekilde döner.                                  |
-| **Detaylar**  | Alışkanlıklar blok metrelerle 'o ve sen'; uyum kalın renkli barlarla.                            |
+|             |                                                                                               |
+| ----------- | --------------------------------------------------------------------------------------------- |
+| **Layout**  | A slightly tilted polaroid with stickers on top. Details in speech bubbles and colour blocks. |
+| **Type**    | A bold grotesque with character (Bricolage Grotesque 800) and Figtree.                        |
+| **Shape**   | 2px outlines, hard offset shadows, generous rounding, saturated sticker colours.              |
+| **Motion**  | A bouncy spring. The card tilts clearly while dragged.                                        |
+| **Details** | Habits as block meters, them and you; fit as thick coloured bars.                             |
 
 ## Rules
 
 - Every control has a 2px ink outline and a hard offset shadow (`--shadow-hard`, `--shadow-hard-sm`); never a blurred shadow.
-- Text on a sticker always uses `--color-on-sticker`, so it stays dark on pastel stickers in every palette, including Gece.
+- Text on a sticker always uses `--color-on-sticker`, so it stays dark on pastel stickers in every palette, including Night.
 - Tilt stickers by at most 3–5°; tilt the photo polaroid not at all at rest, only while dragging.
-- Pick one palette per screen: Lavanta (default), Orman, Gün batımı or Gece (`data-palette`).
+- Pick one palette per screen: Lavender (default), Forest, Sunset or Night (`data-palette`).
 - Profile details always follow the shared content model in the order Home → Person → Fit (`ProfileDetails`, `@/lib/discover/sections`). Nothing about the place appears under Person, nothing about the person under Home.
 
 ## Files
@@ -27,7 +27,7 @@ Live reference: `/design-system?lang=collage`. Discover screen in both layouts: 
 | File                 | What                                                                  |
 | -------------------- | --------------------------------------------------------------------- |
 | `theme.css`          | Semantic and component token values for `[data-direction="collage"]`  |
-| `palette-*.css`      | Colour palettes: Orman, Gün batımı, Gece (`data-palette`)             |
+| `palette-*.css`      | Colour palettes: Forest, Sunset, Night (`data-palette`)               |
 | `styles.module.css`  | Styles for the signature components and screen (tokens only)          |
 | `components.tsx`     | Signature components                                                  |
 | `DiscoverScreen.tsx` | The Discover screen, `layout="blocks" \| "tabs"`                      |
