@@ -1,6 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Eyebrow, Heading, Stack, Text } from "@/design-system";
+import { PanelTop, Rows3 } from "lucide-react";
+import {
+  Eyebrow,
+  Heading,
+  SegmentedControl,
+  Stack,
+  Text,
+} from "@/design-system";
 import {
   directionFontVariables,
   directions,
@@ -12,6 +19,7 @@ import { PosterScreen } from "./languages/poster";
 import { DayScreen } from "./languages/day";
 import { PlanScreen } from "./languages/plan";
 import { CardScreen } from "./languages/card";
+import type { DetailsLayout } from "./shared/details";
 import styles from "./directions.module.css";
 
 function Swatch({ token }: { token: string }) {
@@ -29,7 +37,10 @@ function Swatch({ token }: { token: string }) {
   );
 }
 
-const screens: Record<DirectionId, () => React.ReactNode> = {
+const screens: Record<
+  DirectionId,
+  (props: { layout: DetailsLayout }) => React.ReactNode
+> = {
   chat: ChatScreen,
   collage: CollageScreen,
   poster: PosterScreen,
@@ -40,15 +51,19 @@ const screens: Record<DirectionId, () => React.ReactNode> = {
 
 export function Directions() {
   const [selected, setSelected] = useState<DirectionId>("chat");
+  const [layout, setLayout] = useState<DetailsLayout>("blocks");
   const [palettes, setPalettes] = useState<
     Partial<Record<DirectionId, string>>
   >({});
 
   useEffect(() => {
+    // #chat, #tabs or #chat-tabs
     const sync = () => {
-      const fromHash = window.location.hash.slice(1);
-      if (directions.some((d) => d.id === fromHash))
-        setSelected(fromHash as DirectionId);
+      for (const part of window.location.hash.slice(1).split("-")) {
+        if (directions.some((d) => d.id === part))
+          setSelected(part as DirectionId);
+        if (part === "blocks" || part === "tabs") setLayout(part);
+      }
     };
     sync();
     window.addEventListener("hashchange", sync);
@@ -63,10 +78,10 @@ export function Directions() {
           Keşfet ekranı, {directions.length} farklı dilde
         </Heading>
         <Text tone="muted" className={styles.lead}>
-          Aynı içerik ve aynı eşleşme verisi; ama yerleşim, tipografi, biçim,
-          hareket ve detayların anlatımı her birinde farklı. Kartı sağa/sola
-          sürükleyin ya da butonları kullanın; detaylar için ekranın içinde
-          aşağı kaydırın.
+          Aynı içerik, aynı eşleşme verisi. Detaylar her dilde aynı üç grupta:
+          Ev, Kişi, Uyum. Aşağıdaki anahtarla altı dilin hepsini Bloklar ya da
+          Sekmeler düzenine geçirin. Kartı sağa/sola sürükleyin ya da butonları
+          kullanın; detaylar için ekranın içinde aşağı kaydırın.
         </Text>
         <div
           className={styles.picker}
@@ -82,12 +97,27 @@ export function Directions() {
               className={styles.pick}
               onClick={() => {
                 setSelected(d.id);
-                history.replaceState(null, "", `#${d.id}`);
+                history.replaceState(null, "", `#${d.id}-${layout}`);
               }}
             >
               {d.name}
             </button>
           ))}
+        </div>
+        <div className={styles.layoutSwitch}>
+          <span aria-hidden="true">Detay düzeni</span>
+          <SegmentedControl
+            label="Detay düzeni"
+            value={layout}
+            onChange={(next) => {
+              setLayout(next);
+              history.replaceState(null, "", `#${selected}-${next}`);
+            }}
+            options={[
+              { value: "blocks", label: "1 · Bloklar", icon: <Rows3 /> },
+              { value: "tabs", label: "2 · Sekmeler", icon: <PanelTop /> },
+            ]}
+          />
         </div>
       </header>
 
@@ -167,7 +197,7 @@ export function Directions() {
                 )}
               </Stack>
               <div className={styles.phone}>
-                <Screen />
+                <Screen layout={layout} />
               </div>
             </section>
           );

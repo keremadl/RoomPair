@@ -3,12 +3,7 @@ import { useEffect, useState } from "react";
 import { Eyebrow, Heading, Text } from "@/design-system";
 import "@/design-system/themes";
 import { groupIcon, type Group } from "./blocks";
-import {
-  BlocksPrototype,
-  GlancePrototype,
-  RoomFirstPrototype,
-  TabsPrototype,
-} from "./prototypes";
+import { BlocksPrototype, TabsPrototype } from "./prototypes";
 import styles from "./layouts.module.css";
 
 const model: {
@@ -81,31 +76,6 @@ const prototypes = [
       "Karşılaştırmak için sekmeler arası gidip gelmek gerekir",
     ],
     Screen: TabsPrototype,
-  },
-  {
-    id: "glance",
-    name: "3 · Özet + Akordeon",
-    idea: "Önce 'Bir bakışta' şeridi: kira, tarih, süre, uyum. Altında açılır-kapanır Ev / Kişi / Uyum bölümleri.",
-    pros: [
-      "Karar için gereken 4 bilgi en üstte",
-      "Detay isteyen açar, istemeyen geçer",
-    ],
-    cons: ["Kapalı bölümler fark edilmeyebilir", "Bir dokunuş daha gerektirir"],
-    Screen: GlancePrototype,
-  },
-  {
-    id: "room-first",
-    name: "4 · Oda önde",
-    idea: "Odası olan kişide kartın ana görseli odanın kendisi; kişi küçük bir 'burada yaşıyor' etiketiyle. Detaylar yine Ev → Kişi → Uyum.",
-    pros: [
-      "Oda arayan için en doğrudan cevap",
-      "Uygulamanın bir flört uygulaması olmadığını en net gösteren düzen",
-    ],
-    cons: [
-      "'Find people' modunda kişinin yüzü geri planda kalır",
-      "Odası olmayan profillerde kart kişiye döner, iki tür kart olur",
-    ],
-    Screen: RoomFirstPrototype,
   },
 ];
 

@@ -3,7 +3,6 @@ import { useRef } from "react";
 import { AnimatePresence } from "motion/react";
 import {
   Bell,
-  CalendarDays,
   Check,
   Circle,
   Compass,
@@ -17,24 +16,31 @@ import {
   Smile,
   Sparkles,
   Star,
-  Timer,
+  Trophy,
   X,
 } from "lucide-react";
 import { Reveal, SwipeHero } from "../shared/swipe-hero";
+import { sleepLabel, useDeck, you, type Mode } from "../shared/deck";
 import {
-  shortDate,
-  sleepLabel,
-  useDeck,
-  you,
-  type Mode,
-  type Profile,
-} from "../shared/deck";
+  ProfileDetails,
+  type DetailsLayout,
+  type GroupId,
+} from "../shared/details";
+import {
+  fitSection,
+  homeSection,
+  personSection,
+  type HomeSection,
+} from "../shared/sections";
 import s from "./card.module.css";
 
 /** Language F — every person is a collectible character card. */
-export function CardScreen() {
+export function CardScreen({ layout = "blocks" }: { layout?: DetailsLayout }) {
   const deck = useDeck();
   const { profile: p, match: m } = deck;
+  const home = homeSection(p);
+  const person = personSection(p);
+  const fit = fitSection(m);
   const scroller = useRef<HTMLDivElement>(null);
   const decide = (d: "like" | "pass") => {
     deck.decide(d);
@@ -126,20 +132,6 @@ export function CardScreen() {
                     <Moon aria-hidden="true" /> {sleepLabel[p.habits.sleep]}
                   </p>
                 </div>
-                <div className={s.coins}>
-                  <span>
-                    <strong>
-                      {p.room ? `€${p.room.price}` : `€${p.budget[1]}`}
-                    </strong>
-                    {p.room ? "/mo" : " max"}
-                  </span>
-                  <span>
-                    <CalendarDays aria-hidden="true" /> {shortDate(p.moveDate)}
-                  </span>
-                  <span>
-                    <Timer aria-hidden="true" /> {p.stayMonths} mo
-                  </span>
-                </div>
               </div>
             </SwipeHero>
           </AnimatePresence>
@@ -172,100 +164,131 @@ export function CardScreen() {
         </div>
 
         <Reveal id={deck.cardKey} className={s.details}>
-          <section className={s.box}>
-            <h3 className={s.title}>Bio</h3>
-            <p>{p.bio}</p>
-            <h3 className={s.subTitle}>Abilities</h3>
-            <ul className={s.abilities}>
-              {p.tags.map((t) => (
-                <li key={t}>
-                  <Sparkles aria-hidden="true" /> {t}
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className={s.box}>
-            <h3 className={s.title}>{p.prompt.question}</h3>
-            <p className={s.quote}>{p.prompt.answer}</p>
-          </section>
-
-          <section className={s.box}>
-            <h3 className={s.title}>Stats vs. you</h3>
-            <Versus
-              label="Tidiness"
-              them={p.habits.cleanliness}
-              mine={you.cleanliness}
-              name={p.name}
-            />
-            <Versus
-              label="Social energy"
-              them={p.habits.social}
-              mine={you.social}
-              name={p.name}
-            />
-            <ul className={s.traits}>
-              <Trait
-                ok={p.habits.sleep === you.sleep}
-                text={`Sleep: ${sleepLabel[p.habits.sleep]} (you: ${sleepLabel[you.sleep]})`}
-              />
-              <Trait
-                ok={!p.habits.smoking}
-                text={p.habits.smoking ? "Smokes" : "Smoke-free"}
-              />
-              <Trait
-                ok
-                text={
-                  p.habits.pets ? "Has a pet (you welcome pets)" : "No pets"
-                }
-              />
-            </ul>
-          </section>
-
-          {p.room && <RoomItem profile={p} />}
-
-          <section className={s.box}>
-            <div className={s.xpHead}>
-              <h3 className={s.title}>Team fit</h3>
-              <strong>{m.score} XP</strong>
-            </div>
-            <div
-              className={s.xp}
-              role="img"
-              aria-label={`${m.score} out of 100`}
-            >
-              <span style={{ width: `${m.score}%` }} />
-            </div>
-            <h3 className={s.subTitle}>Quests</h3>
-            <ul className={s.quests}>
-              {m.reasons.map((r) => (
-                <li key={r} data-done="true">
-                  <Check aria-hidden="true" /> {r}
-                </li>
-              ))}
-              {m.considerations.map((c) => (
-                <li key={c} data-done="false">
-                  <Circle aria-hidden="true" /> Talk about: {c}
-                </li>
-              ))}
-              <li data-done="false">
-                <Circle aria-hidden="true" /> Agree on house rules together
-              </li>
-            </ul>
-            <h3 className={s.subTitle}>Score sheet</h3>
-            <dl className={s.sheet}>
-              {m.breakdown.map((b) => (
-                <div key={b.label}>
-                  <dt>{b.label}</dt>
-                  <dd>{b.score}</dd>
-                </div>
-              ))}
-            </dl>
-            <p className={s.note}>
-              XP compares what you both said. It is not a prediction.
-            </p>
-          </section>
-
+          <ProfileDetails
+            layout={layout}
+            classes={{
+              blocks: s.sections,
+              block: s.section,
+              tabs: s.tabs,
+              tab: s.tab,
+              panel: s.tabPanel,
+            }}
+            headers={{
+              home: (
+                <Banner
+                  group="home"
+                  title={
+                    home.kind === "listing"
+                      ? "Item: the room"
+                      : "Quest: find a home"
+                  }
+                />
+              ),
+              person: <Banner group="person" title={`${p.name}'s character`} />,
+              fit: <Banner group="fit" title="Team fit" />,
+            }}
+            tabLabels={{
+              home: home.kind === "listing" ? "Room" : "Home",
+              person: p.name,
+              fit: `${fit.score} XP`,
+            }}
+            sections={{
+              home: <HomeItem home={home} />,
+              person: (
+                <>
+                  <section className={s.box}>
+                    <p className={s.meta}>
+                      {person.facts[0].value} · {person.facts[0].note}
+                      {person.facts[1].value === "Student email"
+                        ? " · email checked (demo)"
+                        : ""}
+                    </p>
+                    <p>{person.bio}</p>
+                    <h4 className={s.subTitle}>Abilities</h4>
+                    <ul className={s.abilities}>
+                      {person.interests.map((t) => (
+                        <li key={t}>
+                          <Sparkles aria-hidden="true" /> {t}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                  <section className={s.box}>
+                    <h4 className={s.title}>{person.prompt.question}</h4>
+                    <p className={s.quote}>{person.prompt.answer}</p>
+                  </section>
+                  <section className={s.box}>
+                    <h4 className={s.title}>Stats vs. you</h4>
+                    <Versus
+                      label="Tidiness"
+                      them={p.habits.cleanliness}
+                      mine={you.cleanliness}
+                      name={p.name}
+                    />
+                    <Versus
+                      label="Social energy"
+                      them={p.habits.social}
+                      mine={you.social}
+                      name={p.name}
+                    />
+                    <ul className={s.traits}>
+                      {person.habits.slice(2).map((h) => (
+                        <Trait
+                          key={h.label}
+                          ok={h.same}
+                          text={`${h.label}: ${h.them} (you: ${h.you})`}
+                        />
+                      ))}
+                    </ul>
+                  </section>
+                </>
+              ),
+              fit: (
+                <section className={s.box}>
+                  <div className={s.xpHead}>
+                    <h4 className={s.title}>Experience</h4>
+                    <strong>{fit.score} XP</strong>
+                  </div>
+                  <div
+                    className={s.xp}
+                    role="img"
+                    aria-label={`${fit.score} out of 100`}
+                  >
+                    <span style={{ width: `${fit.score}%` }} />
+                  </div>
+                  <h4 className={s.subTitle}>Quests</h4>
+                  <ul className={s.quests}>
+                    {fit.reasons.map((r) => (
+                      <li key={r} data-done="true">
+                        <Check aria-hidden="true" /> {r}
+                      </li>
+                    ))}
+                    {fit.discuss.map((c) => (
+                      <li key={c} data-done="false">
+                        <Circle aria-hidden="true" /> Talk about: {c}
+                      </li>
+                    ))}
+                    <li data-done="false">
+                      <Circle aria-hidden="true" /> Agree on house rules
+                      together
+                    </li>
+                  </ul>
+                  <h4 className={s.subTitle}>Score sheet</h4>
+                  <dl className={s.sheet}>
+                    {fit.breakdown.map((b) => (
+                      <div key={b.label}>
+                        <dt>{b.label}</dt>
+                        <dd>{b.score}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <p className={s.note}>
+                    XP compares what you both said. It is not a prediction.
+                  </p>
+                </section>
+              ),
+            }}
+          />
           <p className={s.report}>
             <button type="button">Report</button> ·{" "}
             <button type="button">Block</button>
@@ -353,18 +376,40 @@ function Trait({ ok, text }: { ok: boolean; text: string }) {
   );
 }
 
-function RoomItem({ profile: p }: { profile: Profile }) {
-  if (!p.room) return null;
+const groupIcon = { home: KeyRound, person: Star, fit: Trophy } as const;
+
+function Banner({ group, title }: { group: GroupId; title: string }) {
+  const Icon = groupIcon[group];
+  return (
+    <h3 className={s.banner} data-group={group}>
+      <span>
+        <Icon aria-hidden="true" />
+      </span>
+      {title}
+    </h3>
+  );
+}
+
+function HomeItem({ home }: { home: HomeSection }) {
   return (
     <section className={s.item}>
-      <img src={p.room.photo} alt={p.room.title} />
+      {home.photo && <img src={home.photo} alt={home.title ?? ""} />}
       <div>
-        <p className={s.itemKind}>
-          <KeyRound aria-hidden="true" /> Item: room
-        </p>
-        <h3 className={s.title}>{p.room.title}</h3>
-        <p className={s.itemPrice}>€{p.room.price} / month</p>
-        <p>{p.room.description}</p>
+        {home.title && <h4 className={s.title}>{home.title}</h4>}
+        <dl className={s.coins}>
+          {home.facts.map((f) => (
+            <div key={f.label}>
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+        {home.facts[0].note && (
+          <p className={s.note}>
+            {home.facts[0].label}: {home.facts[0].note}
+          </p>
+        )}
+        <p>{home.description}</p>
       </div>
     </section>
   );

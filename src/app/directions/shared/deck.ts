@@ -73,14 +73,6 @@ export const dateLabel = (iso: string) =>
     year: "numeric",
   });
 
-export const shortDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-
-export const priceLabel = (p: Profile) =>
-  p.room ? `€${p.room.price}` : `€${p.budget[0]}–${p.budget[1]}`;
-
-export const priceUnit = (p: Profile) => (p.room ? "per month" : "budget");
-
 export const intentLabel = (p: Profile) =>
   p.intent === "have-room" ? "Has a room" : "Looking together";
 
@@ -107,12 +99,6 @@ export const socialLabel = [
   "Very social",
 ];
 
-export const pronoun = (p: Profile) => p.name;
-
-/** "25% weight" → 25 */
-export const weightOf = (detail: string) =>
-  Number(/(\d+)% weight/.exec(detail)?.[1] ?? 0);
-
 /** Habit rows comparing the profile with you. */
 export function habitRows(p: Profile) {
   return [
@@ -127,26 +113,6 @@ export function habitRows(p: Profile) {
       them: p.habits.social,
       you: you.social,
       scale: socialLabel,
-    },
-  ];
-}
-
-export function lifestyleFacts(p: Profile) {
-  return [
-    {
-      label: "Sleep",
-      them: sleepLabel[p.habits.sleep],
-      you: sleepLabel[you.sleep],
-    },
-    {
-      label: "Smoking",
-      them: p.habits.smoking ? "Smokes" : "Smoke-free",
-      you: you.smokeFree ? "Smoke-free" : "Either",
-    },
-    {
-      label: "Pets",
-      them: p.habits.pets ? "Has a pet" : "No pets",
-      you: you.petsOkay ? "Pets welcome" : "No pets",
     },
   ];
 }

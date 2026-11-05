@@ -180,12 +180,12 @@ export const directions: Direction[] = [
   {
     id: "plan",
     name: "E · Ev Planı",
-    idea: "Paylaşacağınız ev bir kat planı; odalara dokunarak profili gezersin.",
+    idea: "Paylaşacağınız ev bir mimari çizim; bilgiler teknik bir şartname kadar net.",
     principles: [
       {
         label: "Yerleşim",
         value:
-          "Etiket sekmeli fotoğraf, altında tıklanabilir kat planı ve seçili odanın paneli.",
+          "Etiket sekmeli fotoğraf; detaylar numaralı çizim paftaları gibi: 01 Ev, 02 Kişi, 03 Uyum.",
       },
       {
         label: "Tipografi",
@@ -203,7 +203,7 @@ export const directions: Direction[] = [
       {
         label: "Detaylar",
         value:
-          "Mutfak = profil sorusu, salon = sosyallik, banyo = düzen, kapı = taşınma, senin odan = kira.",
+          "Ev paftasında kat planı ve senin odan vurgulu; kişi ve alışkanlıklar ayrı bir şartname tablosunda.",
       },
     ],
     swatches: ["--color-bg", "--plan-line", "--color-accent", "--plan-yours"],

@@ -261,6 +261,9 @@
 .details {
   margin-top: var(--space-8);
 }
+.details > .report {
+  margin-top: var(--space-10);
+}
 .stickers {
   display: flex;
   flex-wrap: wrap;
@@ -616,4 +619,90 @@
 .navItem[aria-current="page"] {
   background: var(--sticker-lime);
   color: var(--color-on-sticker);
+}
+
+/* Details: Home / Person / Fit */
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+.groupTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-5);
+  padding: var(--space-1) var(--space-4) var(--space-1) var(--space-3);
+  border: var(--stroke) solid var(--color-ink);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-hard-sm);
+  color: var(--color-on-sticker);
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  letter-spacing: var(--tracking-tight);
+  transform: rotate(-2deg);
+}
+.groupTitle svg {
+  width: 22px;
+  height: 22px;
+}
+.groupTitle[data-group="home"] {
+  background: var(--sticker-lime);
+}
+.groupTitle[data-group="person"] {
+  background: var(--sticker-pink);
+  transform: rotate(1.5deg);
+}
+.groupTitle[data-group="fit"] {
+  background: var(--sticker-blue);
+}
+.tabs {
+  position: sticky;
+  top: calc(var(--space-2) * -1);
+  z-index: var(--z-sticky);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin: 0 calc(var(--space-4) * -1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg);
+}
+.tab {
+  min-height: var(--control-md);
+  border: var(--stroke) solid var(--color-ink);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+.tab[aria-selected="true"] {
+  background: var(--color-ink);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-hard-sm);
+}
+.tab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.panel {
+  padding-top: var(--space-5);
+}
+.sticker small {
+  margin-right: var(--space-1);
+}
+.searchNote {
+  margin: var(--space-5) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border: var(--stroke) dashed var(--color-ink);
+  border-radius: var(--radius-md);
+}
+.subTitle {
+  margin: var(--space-8) 0 var(--space-3);
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 800;
 }

@@ -1,36 +1,42 @@
 "use client";
-import { useRef, useState, type ReactNode } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { useRef } from "react";
+import { AnimatePresence } from "motion/react";
 import {
-  ArrowRight,
   Bell,
   Check,
+  Handshake,
   Heart,
+  Home,
   MapPin,
   RotateCcw,
+  UserRound,
   X,
 } from "lucide-react";
 import { Reveal, SwipeHero } from "../shared/swipe-hero";
 import {
-  dateLabel,
   intentLabel,
-  priceLabel,
-  priceUnit,
-  sleepLabel,
-  socialLabel,
-  tidinessLabel,
   useDeck,
-  you,
   type MatchResult,
   type Mode,
   type Profile,
 } from "../shared/deck";
+import {
+  ProfileDetails,
+  type DetailsLayout,
+  type GroupId,
+} from "../shared/details";
+import {
+  homeSection,
+  personSection,
+  type HomeSection,
+  type PersonSection,
+} from "../shared/sections";
 import s from "./plan.module.css";
 
 type RoomId = "yours" | "theirs" | "kitchen" | "living" | "bath" | "hall";
 type Rect = [number, number, number, number];
 
-const layout: { id: RoomId; rect: Rect }[] = [
+const rooms: { id: RoomId; rect: Rect }[] = [
   { id: "yours", rect: [10, 10, 120, 110] },
   { id: "bath", rect: [130, 10, 70, 70] },
   { id: "hall", rect: [130, 80, 70, 40] },
@@ -38,19 +44,13 @@ const layout: { id: RoomId; rect: Rect }[] = [
   { id: "kitchen", rect: [10, 120, 140, 120] },
   { id: "living", rect: [150, 120, 180, 120] },
 ];
-const tourOrder: RoomId[] = [
-  "yours",
-  "theirs",
-  "kitchen",
-  "living",
-  "bath",
-  "hall",
-];
 
 /** Language E — the home you would share, drawn as a floor plan. */
-export function PlanScreen() {
+export function PlanScreen({ layout = "blocks" }: { layout?: DetailsLayout }) {
   const deck = useDeck();
   const { profile: p, match: m } = deck;
+  const home = homeSection(p);
+  const person = personSection(p);
   const scroller = useRef<HTMLDivElement>(null);
   const decide = (d: "like" | "pass") => {
     deck.decide(d);
@@ -155,9 +155,36 @@ export function PlanScreen() {
           </button>
         </div>
 
-        <Reveal id={deck.cardKey}>
-          <FloorPlan profile={p} />
-          <Fit match={m} />
+        <Reveal id={deck.cardKey} className={s.details}>
+          <ProfileDetails
+            layout={layout}
+            classes={{
+              blocks: s.sections,
+              block: s.section,
+              tabs: s.tabs,
+              tab: s.tab,
+              panel: s.tabPanel,
+            }}
+            headers={{
+              home: (
+                <SheetTitle group="home" number="01" title={home.heading} />
+              ),
+              person: (
+                <SheetTitle group="person" number="02" title={person.heading} />
+              ),
+              fit: <SheetTitle group="fit" number="03" title="House fit" />,
+            }}
+            tabLabels={{
+              home: home.kind === "listing" ? "Room" : "Home",
+              person: p.name,
+              fit: `Fit ${m.score}%`,
+            }}
+            sections={{
+              home: <HomeSpec home={home} profile={p} />,
+              person: <PersonSpec person={person} name={p.name} />,
+              fit: <Fit match={m} />,
+            }}
+          />
           <p className={s.report}>
             <button type="button">Report</button> ·{" "}
             <button type="button">Block</button>
@@ -182,8 +209,30 @@ export function PlanScreen() {
   );
 }
 
-function FloorPlan({ profile: p }: { profile: Profile }) {
-  const [selected, setSelected] = useState<RoomId>("yours");
+const groupIcon = { home: Home, person: UserRound, fit: Handshake } as const;
+
+/** Drawing-sheet title: a sheet number and the group name. */
+function SheetTitle({
+  group,
+  number,
+  title,
+}: {
+  group: GroupId;
+  number: string;
+  title: string;
+}) {
+  const Icon = groupIcon[group];
+  return (
+    <h3 className={s.sheetTitle} data-group={group}>
+      <span className={s.sheetNo}>{number}</span>
+      <Icon aria-hidden="true" />
+      {title}
+    </h3>
+  );
+}
+
+/** The flat as an architect's plan. Only the home lives here. */
+function FlatDrawing({ profile: p }: { profile: Profile }) {
   const names: Record<RoomId, string> = {
     yours: p.room ? "Your room" : "Room 1 · you",
     theirs: p.room ? `${p.name}'s room` : `Room 2 · ${p.name}`,
@@ -192,226 +241,125 @@ function FloorPlan({ profile: p }: { profile: Profile }) {
     bath: "Bath",
     hall: "Hall",
   };
-  const next = tourOrder[(tourOrder.indexOf(selected) + 1) % tourOrder.length];
-
   return (
-    <section className={s.planSection}>
-      <h3 className={s.title}>
-        {p.room ? `${p.name}'s flat` : `The flat you'd find together`}
-      </h3>
-      <p className={s.lead}>
-        Tap a room to read that part of {p.name}&rsquo;s profile.
-      </p>
-
-      <svg
-        viewBox="0 0 340 250"
-        className={s.plan}
-        role="group"
-        aria-label="Floor plan"
-      >
-        <defs>
-          <pattern
-            id="plan-grid"
-            width="10"
-            height="10"
-            patternUnits="userSpaceOnUse"
-          >
-            <path d="M10 0H0V10" className={s.gridLine} />
-          </pattern>
-        </defs>
-        <rect x="0" y="0" width="340" height="250" fill="url(#plan-grid)" />
-        {layout.map(({ id, rect: [x, y, w, h] }) => (
-          <g
-            key={id}
-            role="button"
-            tabIndex={0}
-            aria-pressed={selected === id}
-            aria-label={names[id]}
-            className={s.room}
-            data-room={id}
-            data-selected={selected === id}
-            onClick={() => setSelected(id)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setSelected(id);
-              }
-            }}
-          >
-            <rect x={x} y={y} width={w} height={h} className={s.roomShape} />
-            <Furniture id={id} rect={[x, y, w, h]} />
-            <text x={x + 8} y={y + 18} className={s.roomLabel}>
-              {names[id]}
-            </text>
-            {id === "yours" && p.room && (
-              <text x={x + 8} y={y + 36} className={s.roomPrice}>
-                €{p.room.price}
-              </text>
-            )}
-          </g>
-        ))}
-        {/* Doors: a gap in the wall and the swing of the door. */}
-        <path
-          d="M200 100 v18 M200 100 a18 18 0 0 0 -18 18"
-          className={s.door}
-        />
-        <path d="M130 100 v18 M130 100 a18 18 0 0 1 18 18" className={s.door} />
-        <path d="M180 120 h20 M180 120 a20 20 0 0 0 20 20" className={s.door} />
-        <path
-          d="M230 240 h30 M230 240 a30 30 0 0 1 30 -30"
-          className={s.door}
-        />
-        <text x="232" y="235" className={s.entry}>
-          Entry
-        </text>
-      </svg>
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={selected}
-          className={s.panel}
-          data-room={selected}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.18 }}
+    <svg
+      viewBox="0 0 340 250"
+      className={s.plan}
+      role="img"
+      aria-label={`Floor plan. ${names.yours} is highlighted.`}
+    >
+      <defs>
+        <pattern
+          id="plan-grid"
+          width="10"
+          height="10"
+          patternUnits="userSpaceOnUse"
         >
-          <p className={s.panelKicker}>{names[selected]}</p>
-          <RoomDetail id={selected} profile={p} />
-          <button
-            type="button"
-            className={s.next}
-            onClick={() => setSelected(next)}
-          >
-            Next: {names[next]} <ArrowRight aria-hidden="true" />
-          </button>
-        </motion.div>
-      </AnimatePresence>
-    </section>
+          <path d="M10 0H0V10" className={s.gridLine} />
+        </pattern>
+      </defs>
+      <rect x="0" y="0" width="340" height="250" fill="url(#plan-grid)" />
+      {rooms.map(({ id, rect: [x, y, w, h] }) => (
+        <g key={id} className={s.room} data-room={id}>
+          <rect x={x} y={y} width={w} height={h} className={s.roomShape} />
+          <Furniture id={id} rect={[x, y, w, h]} />
+          <text x={x + 8} y={y + 18} className={s.roomLabel}>
+            {names[id]}
+          </text>
+          {id === "yours" && p.room && (
+            <text x={x + 8} y={y + 36} className={s.roomPrice}>
+              €{p.room.price}
+            </text>
+          )}
+        </g>
+      ))}
+      <path d="M200 100 v18 M200 100 a18 18 0 0 0 -18 18" className={s.door} />
+      <path d="M130 100 v18 M130 100 a18 18 0 0 1 18 18" className={s.door} />
+      <path d="M180 120 h20 M180 120 a20 20 0 0 0 20 20" className={s.door} />
+      <path d="M230 240 h30 M230 240 a30 30 0 0 1 30 -30" className={s.door} />
+      <text x="232" y="235" className={s.entry}>
+        Entry
+      </text>
+    </svg>
   );
 }
 
-function RoomDetail({ id, profile: p }: { id: RoomId; profile: Profile }) {
-  const compare = (
-    label: string,
-    them: string,
-    mine: string,
-    same: boolean,
-  ) => (
-    <div className={s.compare}>
-      <span>{label}</span>
-      <strong>{them}</strong>
-      <em data-same={same}>
-        {same ? (
-          <>
-            <Check aria-hidden="true" /> Same as you
-          </>
-        ) : (
-          `You: ${mine}`
-        )}
-      </em>
-    </div>
-  );
-  const sections: Record<RoomId, ReactNode> = {
-    yours: p.room ? (
-      <>
-        <img src={p.room.photo} alt={p.room.title} className={s.roomPhoto} />
-        <h4 className={s.panelTitle}>{p.room.title}</h4>
-        <p>{p.room.description}</p>
-      </>
-    ) : (
-      <>
-        <h4 className={s.panelTitle}>
-          No room yet. You&rsquo;d look together.
-        </h4>
-        <p>
-          {p.name}&rsquo;s budget is {priceLabel(p)} {priceUnit(p)}. Yours is €
-          {you.budgetMin}–€{you.budgetMax}.
-        </p>
-      </>
-    ),
-    theirs: (
-      <>
-        <h4 className={s.panelTitle}>{p.occupation}</h4>
-        <p>{p.bio}</p>
-        {compare(
-          "Sleep",
-          sleepLabel[p.habits.sleep],
-          sleepLabel[you.sleep],
-          p.habits.sleep === you.sleep,
-        )}
-        <p className={s.small}>{p.university}</p>
-      </>
-    ),
-    kitchen: (
-      <>
-        <h4 className={s.panelTitle}>{p.prompt.question}</h4>
-        <p className={s.answer}>{p.prompt.answer}</p>
-      </>
-    ),
-    living: (
-      <>
-        {compare(
-          "Social energy",
-          socialLabel[p.habits.social],
-          socialLabel[you.social],
-          p.habits.social === you.social,
-        )}
-        <div className={s.tags}>
-          {p.tags.map((t) => (
-            <span key={t}>{t}</span>
-          ))}
+function SpecTable({
+  rows,
+}: {
+  rows: { label: string; value: string; note?: string }[];
+}) {
+  return (
+    <dl className={s.facts}>
+      {rows.map((r) => (
+        <div key={r.label}>
+          <dt>{r.label}</dt>
+          <dd>
+            {r.value}
+            {r.note && <small>{r.note}</small>}
+          </dd>
         </div>
-      </>
-    ),
-    bath: (
-      <>
-        {compare(
-          "Tidiness",
-          tidinessLabel[p.habits.cleanliness],
-          tidinessLabel[you.cleanliness],
-          p.habits.cleanliness === you.cleanliness,
-        )}
-        {compare(
-          "Smoking",
-          p.habits.smoking ? "Smokes" : "Smoke-free",
-          "Smoke-free",
-          !p.habits.smoking,
-        )}
-        {compare(
-          "Pets",
-          p.habits.pets ? "Has a pet" : "No pets",
-          "Pets welcome",
-          true,
-        )}
-      </>
-    ),
-    hall: (
-      <>
-        <dl className={s.facts}>
-          <div>
-            <dt>Moving in</dt>
-            <dd>{dateLabel(p.moveDate)}</dd>
-          </div>
-          <div>
-            <dt>Staying</dt>
-            <dd>{p.stayMonths} months</dd>
-          </div>
-          <div>
-            <dt>Area</dt>
-            <dd>
-              {p.neighborhood}, {p.city}
-            </dd>
-          </div>
-          <div>
-            <dt>Checked</dt>
-            <dd>{p.verified ? "Student email (demo)" : "Not yet"}</dd>
-          </div>
-        </dl>
-      </>
-    ),
-  };
-  return <div className={s.detail}>{sections[id]}</div>;
+      ))}
+    </dl>
+  );
+}
+
+function HomeSpec({
+  home,
+  profile: p,
+}: {
+  home: HomeSection;
+  profile: Profile;
+}) {
+  return (
+    <>
+      <FlatDrawing profile={p} />
+      <SpecTable rows={home.facts} />
+      {home.photo && (
+        <img src={home.photo} alt={home.title ?? ""} className={s.roomPhoto} />
+      )}
+      {home.title && <h4 className={s.panelTitle}>{home.title}</h4>}
+      <p className={s.text}>{home.description}</p>
+    </>
+  );
+}
+
+function PersonSpec({ person, name }: { person: PersonSection; name: string }) {
+  return (
+    <>
+      <SpecTable rows={person.facts} />
+      <p className={s.text}>{person.bio}</p>
+      <div className={s.tags}>
+        {person.interests.map((t) => (
+          <span key={t}>{t}</span>
+        ))}
+      </div>
+      <div className={s.note}>
+        <p className={s.panelKicker}>{person.prompt.question}</p>
+        <p className={s.answer}>{person.prompt.answer}</p>
+      </div>
+      <table className={s.habits}>
+        <thead>
+          <tr>
+            <th scope="col">Habit</th>
+            <th scope="col">{name}</th>
+            <th scope="col">You</th>
+          </tr>
+        </thead>
+        <tbody>
+          {person.habits.map((h) => (
+            <tr key={h.label}>
+              <th scope="row">{h.label}</th>
+              <td>{h.them}</td>
+              <td data-same={h.same}>
+                {h.same && <Check aria-label="works with you" />} {h.you}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
 }
 
 function Furniture({ id, rect: [x, y, w, h] }: { id: RoomId; rect: Rect }) {
@@ -452,10 +400,9 @@ function Furniture({ id, rect: [x, y, w, h] }: { id: RoomId; rect: Rect }) {
 function Fit({ match: m }: { match: MatchResult }) {
   return (
     <section className={s.fitSection}>
-      <div className={s.fitHead}>
-        <h3 className={s.title}>House fit</h3>
-        <p className={s.score}>{m.score}%</p>
-      </div>
+      <p className={s.score}>
+        {m.score}%<span> everyday fit</span>
+      </p>
       <table className={s.table}>
         <tbody>
           {m.breakdown.map((b) => (

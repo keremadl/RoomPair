@@ -155,7 +155,7 @@
 .tile {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   min-height: 128px;
   padding: var(--space-4);
   min-width: 0;
@@ -443,4 +443,85 @@
 .nav button[aria-current="page"] {
   border-top-color: var(--band-red);
   opacity: 1;
+}
+
+/* Details: Home / Person / Fit */
+.sections {
+  display: flex;
+  flex-direction: column;
+}
+.groupBand {
+  margin: 0;
+  padding: var(--space-4);
+  border-top: 3px solid var(--band-ink);
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-regular);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.groupBand[data-group="home"] {
+  background: var(--band-sky);
+}
+.groupBand[data-group="person"] {
+  background: var(--band-lilac);
+}
+.groupBand[data-group="fit"] {
+  background: var(--band-mint);
+}
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 3px solid var(--band-ink);
+  border-bottom: 3px solid var(--band-ink);
+  background: var(--band-paper);
+}
+.tab {
+  min-height: 52px;
+  border: 0;
+  border-right: var(--border-width) solid var(--band-ink);
+  background: var(--band-paper);
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  cursor: pointer;
+}
+.tab:last-child {
+  border-right: 0;
+}
+.tab[aria-selected="true"][data-group="home"] {
+  background: var(--band-sky);
+}
+.tab[aria-selected="true"][data-group="person"] {
+  background: var(--band-lilac);
+}
+.tab[aria-selected="true"][data-group="fit"] {
+  background: var(--band-mint);
+}
+.tab:focus-visible {
+  outline: none;
+  box-shadow: inset var(--focus-ring);
+}
+.panel > .groupBand {
+  border-top: 0;
+}
+.tileLabel {
+  margin: 0 0 var(--space-1) !important;
+  font-size: var(--text-sm) !important;
+}
+.tile[data-band="paper"] {
+  background: var(--color-surface);
+}
+.tile strong {
+  font-size: var(--text-3xl);
+}
+.band[data-band="mint"] {
+  background: var(--band-mint);
+}
+.tile[data-long="true"] strong {
+  font-size: var(--text-xl);
+  line-height: var(--leading-snug);
 }

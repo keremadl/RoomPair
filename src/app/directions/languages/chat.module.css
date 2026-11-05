@@ -55,18 +55,6 @@
   object-fit: cover;
   pointer-events: none;
 }
-.fit {
-  position: absolute;
-  top: var(--space-4);
-  right: var(--space-4);
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-full);
-  background: var(--color-surface-raised);
-  color: var(--color-primary);
-  font-weight: var(--weight-bold);
-  font-size: var(--text-sm);
-  box-shadow: var(--shadow-md);
-}
 .label {
   position: absolute;
   left: var(--space-3);
@@ -118,28 +106,6 @@
 }
 
 /* Thread */
-.thread {
-  margin-top: var(--space-4);
-}
-.threadHead {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding-bottom: var(--space-4);
-  border-bottom: var(--border-width) solid var(--color-border);
-}
-.threadTitle {
-  margin: 0;
-  font-family: var(--font-heading);
-  font-size: var(--text-xl);
-  font-weight: var(--weight-bold);
-  line-height: var(--leading-snug);
-}
-.threadSub {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
 .messages {
   display: flex;
   flex-direction: column;
@@ -222,7 +188,7 @@
 }
 
 .summary {
-  margin-top: var(--space-6);
+  margin-top: 0;
   padding: var(--space-5);
   border-radius: var(--radius-lg);
   background: var(--color-primary-soft);
@@ -353,4 +319,136 @@
 }
 .bubble:has(.habits) {
   width: 85%;
+}
+
+/* Details: Home / Person / Fit */
+.blocks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin-top: var(--space-4);
+}
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: var(--border-width);
+  background: var(--color-border);
+}
+.divider span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+}
+.divider svg {
+  width: 18px;
+  height: 18px;
+}
+.divider[data-group="home"] span {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+.divider[data-group="fit"] span {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+.tabs {
+  position: sticky;
+  top: calc(var(--space-2) * -1);
+  z-index: var(--z-sticky);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-1);
+  margin: var(--space-4) calc(var(--space-4) * -1) 0;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-bg);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: var(--control-md);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+}
+.tab svg {
+  width: 16px;
+  height: 16px;
+}
+.tab[aria-selected="true"] {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.tab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.panel {
+  padding-top: var(--space-5);
+}
+.factCard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3) var(--space-4);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+}
+.factCard dt {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+.factCard dd {
+  margin: 0;
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+}
+.factCard small {
+  display: block;
+  font-weight: var(--weight-regular);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+.meta {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.chips span {
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  font-size: var(--text-sm);
+}
+.threadNote {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
 }

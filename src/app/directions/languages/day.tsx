@@ -9,13 +9,16 @@ import {
   Coffee,
   Compass,
   Heart,
+  Handshake,
   Home,
+  MapPin,
   MessageCircle,
   Moon,
   RotateCcw,
   Smile,
   Sun,
   Sunset,
+  UserRound,
   Users,
   X,
 } from "lucide-react";
@@ -30,14 +33,23 @@ import {
   useDeck,
   you,
 } from "../shared/deck";
+import {
+  ProfileDetails,
+  type DetailsLayout,
+  type GroupId,
+} from "../shared/details";
+import { fitSection, homeSection, personSection } from "../shared/sections";
 import s from "./day.module.css";
 
 type Time = "morning" | "day" | "evening" | "night";
 
 /** Language D — the profile told as a day you would share. */
-export function DayScreen() {
+export function DayScreen({ layout = "blocks" }: { layout?: DetailsLayout }) {
   const deck = useDeck();
   const { profile: p, match: m } = deck;
+  const home = homeSection(p);
+  const person = personSection(p);
+  const fit = fitSection(m);
   const scroller = useRef<HTMLDivElement>(null);
   const decide = (d: "like" | "pass") => {
     deck.decide(d);
@@ -156,142 +168,187 @@ export function DayScreen() {
         </div>
 
         <Reveal id={deck.cardKey} className={s.details}>
-          <p className={s.bio}>{p.bio}</p>
-
-          <section>
-            <h3 className={s.title}>A day with {p.name}</h3>
-            <p className={s.lead}>
-              How your days would fit together under one roof.
-            </p>
-            <ol className={s.timeline}>
-              <Moment
-                time="morning"
-                clock={them.wake}
-                icon={<Sun />}
-                title="Waking up"
-                same={them.wake === mine.wake}
-              >
-                {p.name} is up around {them.wake}. You: around {mine.wake}.
-              </Moment>
-              <Moment
-                time="day"
-                clock="10:00"
-                icon={<BookOpen />}
-                title="During the day"
-              >
-                {p.occupation} at {p.university}.
-              </Moment>
-              <Moment
-                time="day"
-                clock="13:00"
-                icon={<Coffee />}
-                title="In the kitchen"
-              >
-                <span className={s.quote}>
-                  <strong>{p.prompt.question}:</strong> {p.prompt.answer}
-                </span>
-              </Moment>
-              <Moment
-                time="evening"
-                clock="19:00"
-                icon={<Sunset />}
-                title="Evenings"
-                same={p.habits.social === you.social}
-              >
-                {socialEvening[p.habits.social]} (
-                {socialLabel[p.habits.social].toLowerCase()}). You:{" "}
-                {socialLabel[you.social].toLowerCase()}.
-              </Moment>
-              <Moment
-                time="evening"
-                clock="21:00"
-                icon={<Home />}
-                title="Keeping the place tidy"
-                same={p.habits.cleanliness === you.cleanliness}
-              >
-                {tidinessLabel[p.habits.cleanliness]} ({p.habits.cleanliness}
-                /5). You: {tidinessLabel[you.cleanliness].toLowerCase()} (
-                {you.cleanliness}/5).{" "}
-                {p.habits.smoking ? "Smokes." : "Smoke-free."}{" "}
-                {p.habits.pets ? "Has a pet." : "No pets."}
-              </Moment>
-              <Moment
-                time="night"
-                clock={them.bed}
-                icon={<Moon />}
-                title="Quiet hours"
-                same={them.bed === mine.bed}
-              >
-                Lights out around {them.bed}. You: around {mine.bed}.
-              </Moment>
-            </ol>
-          </section>
-
-          <section className={s.panel}>
-            <h3 className={s.title}>Moving in</h3>
-            <MoveCalendar theirs={p.moveDate} yours={you.moveDate} />
-            <p className={s.stay}>
-              {p.name} wants to stay <strong>{p.stayMonths} months</strong>. You
-              said {you.stayMonths}.
-            </p>
-          </section>
-
-          <section className={s.panel}>
-            <h3 className={s.title}>Money</h3>
-            <BudgetBar
-              min={you.budgetMin}
-              max={you.budgetMax}
-              price={p.room?.price}
-              range={p.budget}
-            />
-          </section>
-
-          {p.room && (
-            <section className={s.panel}>
-              <img
-                src={p.room.photo}
-                alt={p.room.title}
-                className={s.roomPhoto}
-              />
-              <h3 className={s.roomTitle}>{p.room.title}</h3>
-              <p className={s.muted}>{p.room.description}</p>
-            </section>
-          )}
-
-          <section className={s.fit}>
-            <p className={s.score}>
-              {m.score}%<span> of your days line up</span>
-            </p>
-            <ul className={s.reasons}>
-              {m.reasons.map((r) => (
-                <li key={r}>
-                  <Check aria-hidden="true" /> {r}
-                </li>
-              ))}
-            </ul>
-            {m.considerations.length > 0 && (
-              <p className={s.talk}>
-                Talk about: {m.considerations.join(", ")}
-              </p>
-            )}
-            <dl className={s.breakdown}>
-              {m.breakdown.map((b) => (
-                <div key={b.label}>
-                  <dt>{b.label}</dt>
-                  <dd>
-                    <span className={s.meter}>
-                      <span style={{ width: `${b.score}%` }} />
-                    </span>
-                    {b.score}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-            <p className={s.muted}>
-              Based on what you both said. Not a prediction.
-            </p>
-          </section>
-
+          <ProfileDetails
+            layout={layout}
+            classes={{
+              blocks: s.sections,
+              block: s.section,
+              tabs: s.tabs,
+              tab: s.tab,
+              panel: s.tabPanel,
+            }}
+            headers={{
+              home: <GroupTitle group="home" title={home.heading} />,
+              person: (
+                <GroupTitle group="person" title={`A day with ${p.name}`} />
+              ),
+              fit: <GroupTitle group="fit" title="How your days line up" />,
+            }}
+            tabLabels={{
+              home: home.kind === "listing" ? "Room" : "Home",
+              person: p.name,
+              fit: `Fit ${fit.score}%`,
+            }}
+            sections={{
+              home: (
+                <>
+                  <section className={s.panel}>
+                    <h4 className={s.title}>Moving in</h4>
+                    <MoveCalendar theirs={p.moveDate} yours={you.moveDate} />
+                    <p className={s.stay}>
+                      {home.kind === "listing"
+                        ? "Minimum stay"
+                        : `${p.name} wants to stay`}{" "}
+                      <strong>{p.stayMonths} months</strong>. You said{" "}
+                      {you.stayMonths}.
+                    </p>
+                  </section>
+                  <section className={s.panel}>
+                    <h4 className={s.title}>
+                      {home.kind === "listing" ? "Rent" : "Budget"}
+                    </h4>
+                    <BudgetBar
+                      min={you.budgetMin}
+                      max={you.budgetMax}
+                      price={p.room?.price}
+                      range={p.budget}
+                    />
+                  </section>
+                  <section className={s.panel}>
+                    {home.photo && (
+                      <img
+                        src={home.photo}
+                        alt={home.title ?? ""}
+                        className={s.roomPhoto}
+                      />
+                    )}
+                    <h4 className={s.roomTitle}>
+                      {home.title ?? home.heading}
+                    </h4>
+                    <p className={s.muted}>{home.description}</p>
+                    <p className={s.area}>
+                      <MapPin aria-hidden="true" /> {home.facts[3].value}
+                    </p>
+                  </section>
+                </>
+              ),
+              person: (
+                <>
+                  <p className={s.bio}>{person.bio}</p>
+                  <p className={s.muted}>
+                    {person.facts[0].value} at {person.facts[0].note}
+                    {person.facts[1].value === "Student email"
+                      ? " · student email checked (demo)"
+                      : ""}
+                  </p>
+                  <div className={s.chips}>
+                    {person.interests.map((t) => (
+                      <span key={t}>{t}</span>
+                    ))}
+                  </div>
+                  <ol className={s.timeline}>
+                    <Moment
+                      time="morning"
+                      clock={them.wake}
+                      icon={<Sun />}
+                      title="Waking up"
+                      same={them.wake === mine.wake}
+                    >
+                      {p.name} is up around {them.wake}. You: around {mine.wake}
+                      .
+                    </Moment>
+                    <Moment
+                      time="day"
+                      clock="10:00"
+                      icon={<BookOpen />}
+                      title="During the day"
+                    >
+                      {p.occupation} at {p.university}.
+                    </Moment>
+                    <Moment
+                      time="day"
+                      clock="13:00"
+                      icon={<Coffee />}
+                      title="In the kitchen"
+                    >
+                      <span className={s.quote}>
+                        <strong>{p.prompt.question}:</strong> {p.prompt.answer}
+                      </span>
+                    </Moment>
+                    <Moment
+                      time="evening"
+                      clock="19:00"
+                      icon={<Sunset />}
+                      title="Evenings"
+                      same={p.habits.social === you.social}
+                    >
+                      {socialEvening[p.habits.social]} (
+                      {socialLabel[p.habits.social].toLowerCase()}). You:{" "}
+                      {socialLabel[you.social].toLowerCase()}.
+                    </Moment>
+                    <Moment
+                      time="evening"
+                      clock="21:00"
+                      icon={<Home />}
+                      title="Keeping the place tidy"
+                      same={p.habits.cleanliness === you.cleanliness}
+                    >
+                      {tidinessLabel[p.habits.cleanliness]} (
+                      {p.habits.cleanliness}
+                      /5). You: {tidinessLabel[you.cleanliness].toLowerCase()} (
+                      {you.cleanliness}/5).{" "}
+                      {p.habits.smoking ? "Smokes." : "Smoke-free."}{" "}
+                      {p.habits.pets ? "Has a pet." : "No pets."}
+                    </Moment>
+                    <Moment
+                      time="night"
+                      clock={them.bed}
+                      icon={<Moon />}
+                      title="Quiet hours"
+                      same={them.bed === mine.bed}
+                    >
+                      Lights out around {them.bed}. You: around {mine.bed}.
+                    </Moment>
+                  </ol>
+                </>
+              ),
+              fit: (
+                <section className={s.fit}>
+                  <p className={s.score}>
+                    {fit.score}%<span> of your days line up</span>
+                  </p>
+                  <ul className={s.reasons}>
+                    {fit.reasons.map((r) => (
+                      <li key={r}>
+                        <Check aria-hidden="true" /> {r}
+                      </li>
+                    ))}
+                  </ul>
+                  {fit.discuss.length > 0 && (
+                    <p className={s.talk}>
+                      Talk about: {fit.discuss.join(", ")}
+                    </p>
+                  )}
+                  <dl className={s.breakdown}>
+                    {fit.breakdown.map((b) => (
+                      <div key={b.label}>
+                        <dt>{b.label}</dt>
+                        <dd>
+                          <span className={s.meter}>
+                            <span style={{ width: `${b.score}%` }} />
+                          </span>
+                          {b.score}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <p className={s.muted}>
+                    Based on what you both said. Not a prediction.
+                  </p>
+                </section>
+              ),
+            }}
+          />
           <p className={s.report}>
             <button type="button">Report</button> ·{" "}
             <button type="button">Block</button>
@@ -449,5 +506,19 @@ function BudgetBar({
         )}
       </p>
     </div>
+  );
+}
+
+const groupIcon = { home: Home, person: UserRound, fit: Handshake } as const;
+
+function GroupTitle({ group, title }: { group: GroupId; title: string }) {
+  const Icon = groupIcon[group];
+  return (
+    <h3 className={s.groupTitle} data-group={group}>
+      <span>
+        <Icon aria-hidden="true" />
+      </span>
+      {title}
+    </h3>
   );
 }

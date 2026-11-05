@@ -3,9 +3,9 @@ import { useRef } from "react";
 import { AnimatePresence } from "motion/react";
 import {
   Bell,
-  CalendarDays,
   Cigarette,
   Compass,
+  Handshake,
   Heart,
   Home,
   MapPin,
@@ -14,33 +14,43 @@ import {
   PawPrint,
   RotateCcw,
   Smile,
-  Timer,
-  Wallet,
+  UserRound,
   X,
 } from "lucide-react";
 import { Reveal, SwipeHero } from "../shared/swipe-hero";
 import {
   habitRows,
   intentLabel,
-  lifestyleFacts,
-  priceLabel,
-  priceUnit,
-  shortDate,
   useDeck,
   type Mode,
+  type Profile,
 } from "../shared/deck";
+import {
+  ProfileDetails,
+  type DetailsLayout,
+  type GroupId,
+} from "../shared/details";
+import {
+  fitSection,
+  homeSection,
+  personSection,
+  type FitSection,
+  type HomeSection,
+  type PersonSection,
+} from "../shared/sections";
 import s from "./collage.module.css";
 
-const lifestyleIcon = {
-  Sleep: Moon,
-  Smoking: Cigarette,
-  Pets: PawPrint,
-} as const;
-
 /** Language B — a fridge door of polaroids and stickers. */
-export function CollageScreen() {
+export function CollageScreen({
+  layout = "blocks",
+}: {
+  layout?: DetailsLayout;
+}) {
   const deck = useDeck();
   const { profile: p, match: m } = deck;
+  const home = homeSection(p);
+  const person = personSection(p);
+  const fit = fitSection(m);
   const scroller = useRef<HTMLDivElement>(null);
   const decide = (d: "like" | "pass") => {
     deck.decide(d);
@@ -146,123 +156,31 @@ export function CollageScreen() {
         </div>
 
         <Reveal id={deck.cardKey} className={s.details}>
-          <div className={s.stickers}>
-            <span className={s.sticker} data-color="lime">
-              <Wallet /> {priceLabel(p)} <small>{priceUnit(p)}</small>
-            </span>
-            <span className={s.sticker} data-color="pink">
-              <CalendarDays /> {shortDate(p.moveDate)}
-            </span>
-            <span className={s.sticker} data-color="blue">
-              <Timer /> {p.stayMonths} mo
-            </span>
-            <span className={s.sticker} data-color="mint">
-              <MapPin /> {p.neighborhood}
-            </span>
-          </div>
-
-          <p className={s.bio}>{p.bio}</p>
-          <p className={s.meta}>
-            {p.occupation} · {p.university}
-            {p.verified ? " · ✓ student email (demo)" : ""}
-          </p>
-
-          <div className={s.tags}>
-            {p.tags.map((t) => (
-              <span key={t} className={s.tag}>
-                {t}
-              </span>
-            ))}
-          </div>
-
-          <div className={s.bubble}>
-            <p className={s.bubbleQ}>{p.prompt.question}</p>
-            <p className={s.bubbleA}>{p.prompt.answer}</p>
-          </div>
-
-          <section className={s.block}>
-            <h3 className={s.blockTitle}>Your vibes, side by side</h3>
-            <div className={s.legend}>
-              <span data-who="them">{p.name}</span>
-              <span data-who="you">You</span>
-            </div>
-            {habitRows(p).map((row) => (
-              <div key={row.label} className={s.meter}>
-                <p className={s.meterLabel}>
-                  {row.label}
-                  <small>
-                    {row.scale[row.them]} / {row.scale[row.you]}
-                  </small>
-                </p>
-                <Blocks value={row.them} who="them" />
-                <Blocks value={row.you} who="you" />
-              </div>
-            ))}
-            <div className={s.lifestyle}>
-              {lifestyleFacts(p).map((f) => {
-                const Icon =
-                  lifestyleIcon[f.label as keyof typeof lifestyleIcon];
-                return (
-                  <div key={f.label} className={s.lifestyleItem}>
-                    <Icon aria-hidden="true" />
-                    <p>{f.label}</p>
-                    <strong>{f.them}</strong>
-                    <small>You: {f.you}</small>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {p.room && (
-            <section className={s.block}>
-              <h3 className={s.blockTitle}>The room</h3>
-              <figure className={s.roomPolaroid}>
-                <span className={s.tape} aria-hidden="true" />
-                <img src={p.room.photo} alt={p.room.title} />
-                <figcaption>{p.room.title}</figcaption>
-                <span className={s.priceSticker}>€{p.room.price}</span>
-              </figure>
-              <p className={s.roomText}>{p.room.description}</p>
-            </section>
-          )}
-
-          <section className={s.block}>
-            <h3 className={s.blockTitle}>Why {m.score}%?</h3>
-            <div className={s.bars}>
-              {m.breakdown.map((row) => (
-                <div key={row.label} className={s.barRow}>
-                  <p>
-                    {row.label}
-                    <strong>{row.score}</strong>
-                  </p>
-                  <span className={s.barTrack}>
-                    <span
-                      className={s.barFill}
-                      data-level={
-                        row.score >= 90
-                          ? "high"
-                          : row.score >= 60
-                            ? "mid"
-                            : "low"
-                      }
-                      style={{ width: `${row.score}%` }}
-                    />
-                  </span>
-                </div>
-              ))}
-            </div>
-            {m.considerations.length > 0 && (
-              <div className={s.talk}>
-                <strong>Talk about:</strong> {m.considerations.join(" · ")}
-              </div>
-            )}
-            <p className={s.small}>
-              Based on what you both said. It&rsquo;s a vibe check, not a
-              promise.
-            </p>
-          </section>
-
+          <ProfileDetails
+            layout={layout}
+            classes={{
+              blocks: s.sections,
+              block: s.section,
+              tabs: s.tabs,
+              tab: s.tab,
+              panel: s.panel,
+            }}
+            headers={{
+              home: <GroupTitle group="home" title={home.heading} />,
+              person: <GroupTitle group="person" title={person.heading} />,
+              fit: <GroupTitle group="fit" title={`Why ${fit.score}%?`} />,
+            }}
+            tabLabels={{
+              home: home.kind === "listing" ? "Room" : "Home",
+              person: p.name,
+              fit: `Fit ${fit.score}%`,
+            }}
+            sections={{
+              home: <HomeStickers home={home} />,
+              person: <PersonStickers person={person} profile={p} />,
+              fit: <FitBars fit={fit} />,
+            }}
+          />
           <p className={s.report}>
             <button type="button">Report</button>{" "}
             <button type="button">Block</button>
@@ -304,5 +222,147 @@ function Blocks({ value, who }: { value: number; who: "them" | "you" }) {
         <span key={n} data-on={n <= value} />
       ))}
     </span>
+  );
+}
+
+const groupIcon = { home: Home, person: UserRound, fit: Handshake } as const;
+
+function GroupTitle({ group, title }: { group: GroupId; title: string }) {
+  const Icon = groupIcon[group];
+  return (
+    <h3 className={s.groupTitle} data-group={group}>
+      <Icon aria-hidden="true" /> {title}
+    </h3>
+  );
+}
+
+const factColors = ["lime", "pink", "blue", "mint"];
+
+function HomeStickers({ home }: { home: HomeSection }) {
+  return (
+    <>
+      <div className={s.stickers}>
+        {home.facts.map((f, i) => (
+          <span key={f.label} className={s.sticker} data-color={factColors[i]}>
+            <small>{f.label}</small> {f.value}
+          </span>
+        ))}
+      </div>
+      {home.facts[0].note && (
+        <p className={s.small}>
+          {home.facts[0].label}: {home.facts[0].note}
+        </p>
+      )}
+      {home.photo ? (
+        <figure className={s.roomPolaroid}>
+          <span className={s.tape} aria-hidden="true" />
+          <img src={home.photo} alt={home.title ?? ""} />
+          <figcaption>{home.title}</figcaption>
+        </figure>
+      ) : null}
+      <p className={home.photo ? s.roomText : s.searchNote}>
+        {home.description}
+      </p>
+    </>
+  );
+}
+
+const lifestyleIcon: Record<string, typeof Moon> = {
+  Sleep: Moon,
+  Smoking: Cigarette,
+  Pets: PawPrint,
+};
+
+function PersonStickers({
+  person,
+  profile: p,
+}: {
+  person: PersonSection;
+  profile: Profile;
+}) {
+  const [studies, checked] = person.facts;
+  return (
+    <>
+      <p className={s.meta}>
+        {studies.value} · {studies.note}
+        {checked.value === "Student email" ? " · ✓ student email (demo)" : ""}
+      </p>
+      <p className={s.bio}>{person.bio}</p>
+      <div className={s.tags}>
+        {person.interests.map((t) => (
+          <span key={t} className={s.tag}>
+            {t}
+          </span>
+        ))}
+      </div>
+      <div className={s.bubble}>
+        <p className={s.bubbleQ}>{person.prompt.question}</p>
+        <p className={s.bubbleA}>{person.prompt.answer}</p>
+      </div>
+      <p className={s.subTitle}>Your vibes, side by side</p>
+      <div className={s.legend}>
+        <span data-who="them">{p.name}</span>
+        <span data-who="you">You</span>
+      </div>
+      {habitRows(p).map((row) => (
+        <div key={row.label} className={s.meter}>
+          <p className={s.meterLabel}>
+            {row.label}
+            <small>
+              {row.scale[row.them]} / {row.scale[row.you]}
+            </small>
+          </p>
+          <Blocks value={row.them} who="them" />
+          <Blocks value={row.you} who="you" />
+        </div>
+      ))}
+      <div className={s.lifestyle}>
+        {person.habits.slice(2).map((h) => {
+          const Icon = lifestyleIcon[h.label];
+          return (
+            <div key={h.label} className={s.lifestyleItem}>
+              <Icon aria-hidden="true" />
+              <p>{h.label}</p>
+              <strong>{h.them}</strong>
+              <small>You: {h.you}</small>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function FitBars({ fit }: { fit: FitSection }) {
+  return (
+    <>
+      <div className={s.bars}>
+        {fit.breakdown.map((row) => (
+          <div key={row.label} className={s.barRow}>
+            <p>
+              {row.label}
+              <strong>{row.score}</strong>
+            </p>
+            <span className={s.barTrack}>
+              <span
+                className={s.barFill}
+                data-level={
+                  row.score >= 90 ? "high" : row.score >= 60 ? "mid" : "low"
+                }
+                style={{ width: `${row.score}%` }}
+              />
+            </span>
+          </div>
+        ))}
+      </div>
+      {fit.discuss.length > 0 && (
+        <div className={s.talk}>
+          <strong>Talk about:</strong> {fit.discuss.join(" · ")}
+        </div>
+      )}
+      <p className={s.small}>
+        Based on what you both said. It&rsquo;s a vibe check, not a promise.
+      </p>
+    </>
   );
 }
