@@ -2,6 +2,9 @@
 
 **Good people. Better living.** A local, presentation-ready roommate matching app built with Next.js, React and TypeScript. Designed around students moving to Riga, with a responsive desktop workspace and a touch-friendly mobile experience.
 
+- **Live demo:** https://roompair.vercel.app
+- **What RoomPair is and why:** [product concept](docs/product-concept.md)
+
 ## Run it
 
 Use Node.js 22 or newer. From this folder:
@@ -28,7 +31,7 @@ npm start
 3. **Like Ella:** swipe right, use the heart, or press the right arrow. Ella already likes the demo user, so a mutual-match screen appears.
 4. **Say a little hello:** send a message or choose a conversation starter. The demo generates a clearly labeled simulated reply.
 5. **Find a room → Save:** open an interior, save it, then open **My space**. Compare saved homes, tick household discussion points, write a note, and schedule a viewing.
-6. **My profile:** edit your living style with the four-step onboarding. Select **I have a room** to discover people seeking one. Switch to Turkish from the language picker.
+6. **My profile:** edit your living style with the four-step onboarding. Select **I have a room** to discover people seeking one. Switch to Turkish from the top-right Design menu or the profile page.
 7. **Demo settings & data → Reset:** return to the original presentation state.
 
 The app opens directly in discovery for a strong first impression. Onboarding is available from **Find your living style** and **Edit my profile**. A completed profile remains on this browser after refresh.
@@ -93,6 +96,6 @@ The E2E configuration uses installed Chrome/Edge on Windows. On another machine,
 
 The design study covers Tinder, Bumble, Hinge, Feeld, happn, RoomSync, Diggz and Badi using official pages and public app screenshots. See [research and design decisions](docs/interface-research.md) and [asset sources](docs/assets.md).
 
-All people, properties, chat replies and student verification statuses are fictional presentation data. Stock photos do not depict actual users or available Riga rentals. No authentication, real-time multi-user messaging, identity verification, property verification, moderation delivery, rental booking or shared cloud storage is connected. Reports, notes, likes and messages stay in this browser's local storage. The shared-space design demonstrates the product flow; it does not synchronize between users. No site has been published.
+All people, properties, chat replies and student verification statuses are fictional presentation data. Stock photos do not depict actual users or available Riga rentals. No authentication, real-time multi-user messaging, identity verification, property verification, moderation delivery, rental booking or shared cloud storage is connected. Reports, notes, likes and messages stay in this browser's local storage. The shared-space design demonstrates the product flow; it does not synchronize between users.
 
 For a real pilot, the next architectural step is authenticated server persistence and real-time messaging, followed by moderation and verification providers. The typed data model, matching engine and UI catalogs are separated so those services can replace the demo layer without redesigning the interface.

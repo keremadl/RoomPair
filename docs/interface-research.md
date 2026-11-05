@@ -17,6 +17,8 @@ Reviewed 17 October 2026. This is a design study of public first-party pages and
 
 ## Proposed visual direction
 
+> **Superseded.** The colours below were the first direction. The app now ships six design languages built on one design system; see [the product concept](product-concept.md#8-design) and `src/design-system/README.md`. The interaction and content principles below still apply.
+
 - Warm paper background, deep green ink and a muted terracotta accent. Use neutral surfaces more often than colored panels.
 - Human editorial photography is the main visual material. Strong crops and generous breathing room matter more than decorative gradients.
 - Compact navigation; one clear job per screen. Discovery is a card; messages are a conversation list; planning is a practical shared checklist.
