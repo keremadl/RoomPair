@@ -40,7 +40,27 @@
   font-family: var(--font-body);
 }
 .about {
-  min-height: 170px;
+  min-height: 430px;
+}
+.principles {
+  margin: 0;
+  border-top: var(--border-width) solid var(--color-border);
+}
+.principles div {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: var(--border-width) solid var(--color-border);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}
+.principles dt {
+  font-weight: var(--weight-semibold);
+}
+.principles dd {
+  margin: 0;
+  color: var(--color-text-muted);
 }
 .swatches {
   display: inline-flex;

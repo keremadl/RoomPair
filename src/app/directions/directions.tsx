@@ -13,7 +13,9 @@ import {
   directions,
   type DirectionId,
 } from "@/design-system/themes";
-import { SwipeScreen } from "./swipe-screen";
+import { CollageScreen } from "./languages/collage";
+import { ImmersiveScreen } from "./languages/immersive";
+import { ListingScreen } from "./languages/listing";
 import styles from "./directions.module.css";
 
 function Swatch({ token }: { token: string }) {
@@ -31,8 +33,14 @@ function Swatch({ token }: { token: string }) {
   );
 }
 
+const screens: Record<DirectionId, () => React.ReactNode> = {
+  listing: ListingScreen,
+  collage: CollageScreen,
+  immersive: ImmersiveScreen,
+};
+
 export function Directions() {
-  const [selected, setSelected] = useState<DirectionId>("courtyard");
+  const [selected, setSelected] = useState<DirectionId>("listing");
 
   useEffect(() => {
     const sync = () => {
@@ -48,14 +56,15 @@ export function Directions() {
   return (
     <div className={`${styles.page} ${directionFontVariables}`}>
       <header className={styles.header}>
-        <Eyebrow>RoomPair · Design directions</Eyebrow>
+        <Eyebrow>RoomPair · Tasarım dilleri</Eyebrow>
         <Heading level={1} size="3xl">
-          Pick a look for RoomPair
+          Keşfet ekranı, üç farklı dilde
         </Heading>
         <Text tone="muted" className={styles.lead}>
-          Same Discover screen, same components, same code. Only the design
-          tokens change between the three. Drag a card left or right, or use the
-          buttons.
+          Aynı içerik ve aynı eşleşme verisi; ama yerleşim, tipografi, biçim,
+          hareket ve detayların anlatımı her birinde farklı. Kartı sağa/sola
+          sürükleyin ya da butonları kullanın; detaylar için ekranın içinde
+          aşağı kaydırın.
         </Text>
         <SegmentedControl
           label="Direction"
@@ -71,43 +80,42 @@ export function Directions() {
       </header>
 
       <div className={styles.grid}>
-        {directions.map((direction) => (
-          <section
-            key={direction.id}
-            id={direction.id}
-            data-direction={direction.id}
-            data-selected={direction.id === selected}
-            className={styles.direction}
-            aria-label={direction.name}
-          >
-            <Stack gap={3} className={styles.about}>
-              <Heading level={2} size="xl">
-                {direction.name}
-              </Heading>
-              <Text size="sm" tone="muted">
-                {direction.tagline}
-              </Text>
-              <Stack direction="row" gap={2} wrap>
-                {direction.mood.map((m) => (
-                  <Badge key={m}>{m}</Badge>
-                ))}
-              </Stack>
-              <Stack direction="row" gap={3} align="center">
-                <span className={styles.swatches}>
+        {directions.map((direction) => {
+          const Screen = screens[direction.id];
+          return (
+            <section
+              key={direction.id}
+              id={direction.id}
+              data-direction={direction.id}
+              data-selected={direction.id === selected}
+              className={styles.direction}
+              aria-label={direction.name}
+            >
+              <Stack gap={3} className={styles.about}>
+                <Heading level={2} size="xl">
+                  {direction.name}
+                </Heading>
+                <Text size="sm">{direction.idea}</Text>
+                <dl className={styles.principles}>
+                  {direction.principles.map((pr) => (
+                    <div key={pr.label}>
+                      <dt>{pr.label}</dt>
+                      <dd>{pr.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <span className={styles.swatches} aria-hidden="true">
                   {direction.swatches.map((t) => (
                     <Swatch key={t} token={t} />
                   ))}
                 </span>
-                <Text size="xs" tone="muted">
-                  {direction.fonts.heading} / {direction.fonts.body}
-                </Text>
               </Stack>
-            </Stack>
-            <div className={styles.phone}>
-              <SwipeScreen />
-            </div>
-          </section>
-        ))}
+              <div className={styles.phone}>
+                <Screen />
+              </div>
+            </section>
+          );
+        })}
       </div>
     </div>
   );

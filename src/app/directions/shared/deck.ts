@@ -1,0 +1,152 @@
+"use client";
+import { useMemo, useState } from "react";
+import { defaultPreferences, profiles } from "@/lib/data";
+import { rankProfiles } from "@/lib/matching";
+import type {
+  MatchResult,
+  Preferences,
+  Profile,
+  SleepSchedule,
+} from "@/lib/types";
+
+export type Decision = "like" | "pass";
+export type Mode = "people" | "rooms";
+
+/** The demo user ("you") the profiles are compared with. */
+export const you: Preferences = { ...defaultPreferences, intent: "either" };
+const ranked = rankProfiles(profiles, you);
+
+/** Deck state shared by every design language: position, undo, search mode. */
+export function useDeck() {
+  const [mode, setMode] = useState<Mode>("people");
+  const [position, setPosition] = useState(0);
+  const [history, setHistory] = useState<Decision[]>([]);
+  const [exitDirection, setExitDirection] = useState(1);
+
+  const deck = useMemo(
+    () =>
+      ranked.filter(({ profile }) =>
+        mode === "rooms" ? profile.intent === "have-room" : true,
+      ),
+    [mode],
+  );
+  const index = ((position % deck.length) + deck.length) % deck.length;
+  const { profile, match } = deck[index];
+
+  return {
+    mode,
+    profile,
+    match,
+    index,
+    total: deck.length,
+    cardKey: `${mode}-${position}`,
+    exitDirection,
+    canUndo: history.length > 0,
+    changeMode(next: Mode) {
+      setMode(next);
+      setPosition(0);
+      setHistory([]);
+    },
+    decide(decision: Decision) {
+      setExitDirection(decision === "like" ? 1 : -1);
+      setHistory((h) => [...h, decision]);
+      setPosition((p) => p + 1);
+    },
+    undo() {
+      if (!history.length) return;
+      setExitDirection(-1);
+      setHistory((h) => h.slice(0, -1));
+      setPosition((p) => p - 1);
+    },
+  };
+}
+
+export type Deck = ReturnType<typeof useDeck>;
+export type { MatchResult, Profile };
+
+/* ── Labels shared by every language ── */
+
+export const dateLabel = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+export const shortDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+
+export const priceLabel = (p: Profile) =>
+  p.room ? `€${p.room.price}` : `€${p.budget[0]}–${p.budget[1]}`;
+
+export const priceUnit = (p: Profile) => (p.room ? "per month" : "budget");
+
+export const intentLabel = (p: Profile) =>
+  p.intent === "have-room" ? "Has a room" : "Looking together";
+
+export const sleepLabel: Record<SleepSchedule, string> = {
+  early: "Early riser",
+  flexible: "Flexible",
+  late: "Night owl",
+};
+
+export const tidinessLabel = [
+  "",
+  "Relaxed",
+  "Easy-going",
+  "Tidy",
+  "Very tidy",
+  "Spotless",
+];
+export const socialLabel = [
+  "",
+  "Quiet",
+  "Low-key",
+  "Balanced",
+  "Social",
+  "Very social",
+];
+
+export const pronoun = (p: Profile) => p.name;
+
+/** "25% weight" → 25 */
+export const weightOf = (detail: string) =>
+  Number(/(\d+)% weight/.exec(detail)?.[1] ?? 0);
+
+/** Habit rows comparing the profile with you. */
+export function habitRows(p: Profile) {
+  return [
+    {
+      label: "Tidiness",
+      them: p.habits.cleanliness,
+      you: you.cleanliness,
+      scale: tidinessLabel,
+    },
+    {
+      label: "Social energy",
+      them: p.habits.social,
+      you: you.social,
+      scale: socialLabel,
+    },
+  ];
+}
+
+export function lifestyleFacts(p: Profile) {
+  return [
+    {
+      label: "Sleep",
+      them: sleepLabel[p.habits.sleep],
+      you: sleepLabel[you.sleep],
+    },
+    {
+      label: "Smoking",
+      them: p.habits.smoking ? "Smokes" : "Smoke-free",
+      you: you.smokeFree ? "Smoke-free" : "Either",
+    },
+    {
+      label: "Pets",
+      them: p.habits.pets ? "Has a pet" : "No pets",
+      you: you.petsOkay ? "Pets welcome" : "No pets",
+    },
+  ];
+}

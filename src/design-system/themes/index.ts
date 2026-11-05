@@ -1,57 +1,125 @@
-import "./courtyard.css";
-import "./cobalt.css";
-import "./dusk.css";
+import "./listing.css";
+import "./collage.css";
+import "./immersive.css";
 
 export { directionFontVariables } from "./fonts";
 
-export type DirectionId = "courtyard" | "cobalt" | "dusk";
+export type DirectionId = "listing" | "collage" | "immersive";
 
 export type Direction = {
   id: DirectionId;
   name: string;
-  tagline: string;
-  mood: string[];
-  fonts: { heading: string; body: string };
-  /** Semantic tokens shown as swatches. */
+  idea: string;
+  /** What makes this a different design language, not just a palette. */
+  principles: { label: string; value: string }[];
   swatches: string[];
 };
 
 export const directions: Direction[] = [
   {
-    id: "courtyard",
-    name: "A · Avlu",
-    tagline:
-      "Paper, forest green and a little clay. Calm and trustworthy, like a well-kept shared flat.",
-    mood: ["Calm", "Trustworthy", "Natural"],
-    fonts: { heading: "Manrope", body: "DM Sans" },
+    id: "listing",
+    name: "A · İlan",
+    idea: "Özenle dizilmiş, basılı bir oda ilanı gibi: önce oku, sonra beğen.",
+    principles: [
+      {
+        label: "Yerleşim",
+        value:
+          "Belge akışı. Fotoğraf çerçeveli bir levha; bilgiler etiket–değer tablolarında, ince çizgilerle ayrılmış.",
+      },
+      {
+        label: "Tipografi",
+        value:
+          "Serif başlıklar (Newsreader), sade gövde (Public Sans), etiketlerde mono (IBM Plex Mono).",
+      },
+      {
+        label: "Biçim",
+        value:
+          "Neredeyse köşesiz, gölgesiz. Hiyerarşiyi kutular değil çizgiler ve boşluk kurar.",
+      },
+      {
+        label: "Hareket",
+        value: "Sayfa çevirir gibi yana kayma; dönme yok, sakin.",
+      },
+      {
+        label: "Detaylar",
+        value:
+          "Alışkanlıklar 'o / sen' tablosu; uyum puanı ağırlıklarıyla birlikte bir defter gibi.",
+      },
+    ],
     swatches: [
       "--color-bg",
-      "--color-primary",
-      "--color-accent",
       "--color-text",
+      "--color-accent",
+      "--color-border-strong",
     ],
   },
   {
-    id: "cobalt",
-    name: "B · Kobalt",
-    tagline:
-      "Cool white, cobalt blue and a coral spark. Rounder shapes and bolder type for the move to a new city.",
-    mood: ["Energetic", "Young", "Confident"],
-    fonts: { heading: "Bricolage Grotesque", body: "Figtree" },
+    id: "collage",
+    name: "B · Kolaj",
+    idea: "Yurt odasındaki buzdolabı kapağı: polaroidler, çıkartmalar, kişilik önde.",
+    principles: [
+      {
+        label: "Yerleşim",
+        value:
+          "Hafif eğik polaroid ve üstüne yapışmış çıkartmalar. Detaylar konuşma balonu ve renkli bloklarla.",
+      },
+      {
+        label: "Tipografi",
+        value:
+          "Kalın, karakterli grotesk (Bricolage Grotesque 800) ve Figtree.",
+      },
+      {
+        label: "Biçim",
+        value:
+          "2px mürekkep kontur, sert ofset gölge, cömert yuvarlaklık, doygun çıkartma renkleri.",
+      },
+      {
+        label: "Hareket",
+        value:
+          "Esnek, zıplayan yay. Kart sürüklenirken belirgin şekilde döner.",
+      },
+      {
+        label: "Detaylar",
+        value:
+          "Alışkanlıklar blok metrelerle 'o ve sen'; uyum kalın renkli barlarla.",
+      },
+    ],
     swatches: [
       "--color-bg",
       "--color-primary",
-      "--color-accent",
-      "--color-text",
+      "--sticker-lime",
+      "--sticker-pink",
     ],
   },
   {
-    id: "dusk",
-    name: "C · Akşam",
-    tagline:
-      "Dark-first. Warm charcoal, apricot lamplight and a soft serif. Cosy, and photos glow against it.",
-    mood: ["Cosy", "Intimate", "Photo-first"],
-    fonts: { heading: "Fraunces", body: "Hanken Grotesk" },
+    id: "immersive",
+    name: "C · Akış",
+    idea: "Akşamüstü birinin evine adım atmak: fotoğraf tam ekran, arayüz geri çekilir.",
+    principles: [
+      {
+        label: "Yerleşim",
+        value:
+          "Tam ekran fotoğraf ve hikâye çubukları. Aşağı kaydırınca bulanık fotoğrafın üstünde cam paneller.",
+      },
+      {
+        label: "Tipografi",
+        value:
+          "İnce, geniş geometrik başlıklar (Sora Light) ve Hanken Grotesk.",
+      },
+      {
+        label: "Biçim",
+        value: "Koyu zemin, buzlu cam yüzeyler, yüzen aksiyon kapsülü.",
+      },
+      {
+        label: "Hareket",
+        value: "Sinematik, yumuşak geçişler; içerik kaydırdıkça belirir.",
+      },
+      {
+        label: "Detaylar",
+        value:
+          "Alışkanlıklar iki noktalı ritim çizgilerinde (sen / o); pratik bilgiler ikon satırlarında.",
+      },
+    ],
     swatches: [
       "--color-bg",
       "--color-primary",

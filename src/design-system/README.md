@@ -28,10 +28,10 @@ src/design-system/
     SegmentedControl/
     Typography/       Heading, Text, Eyebrow
     Stack/            flex layout with spacing-scale gaps
-  themes/             ← candidate directions (Avlu, Kobalt, Akşam): semantic-token
+  themes/             ← candidate design languages (İlan, Kolaj, Akış): token
                         overrides scoped to [data-direction="…"]; compared at /directions
 src/app/design-system/ ← showcase page (tokens + every component)
-src/app/directions/   ← the Discover screen rendered in every direction
+src/app/directions/   ← the Discover screen in each design language
 scripts/check-design.mjs ← guard: ratchet + contrast check
 ```
 
