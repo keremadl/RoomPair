@@ -4,6 +4,9 @@ import {
   Atkinson_Hyperlegible,
   Bricolage_Grotesque,
   Figtree,
+  Lexend,
+  Rubik,
+  Schibsted_Grotesk,
 } from "next/font/google";
 
 /** Fonts used by the candidate design languages. Each exposes a CSS variable the theme files read. */
@@ -32,6 +35,22 @@ const archivoBlack = Archivo_Black({
   subsets: ["latin", "latin-ext"],
   weight: "400",
   variable: "--font-archivo-black",
+  display: "swap",
+});
+
+const lexend = Lexend({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-lexend",
+  display: "swap",
+});
+const schibsted = Schibsted_Grotesk({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-schibsted",
+  display: "swap",
+});
+const rubik = Rubik({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-rubik",
   display: "swap",
 });
 

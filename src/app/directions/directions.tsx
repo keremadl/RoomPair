@@ -1,12 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  Eyebrow,
-  Heading,
-  SegmentedControl,
-  Stack,
-  Text,
-} from "@/design-system";
+import { Eyebrow, Heading, Stack, Text } from "@/design-system";
 import {
   directionFontVariables,
   directions,
@@ -15,6 +9,9 @@ import {
 import { ChatScreen } from "./languages/chat";
 import { CollageScreen } from "./languages/collage";
 import { PosterScreen } from "./languages/poster";
+import { DayScreen } from "./languages/day";
+import { PlanScreen } from "./languages/plan";
+import { CardScreen } from "./languages/card";
 import styles from "./directions.module.css";
 
 function Swatch({ token }: { token: string }) {
@@ -36,6 +33,9 @@ const screens: Record<DirectionId, () => React.ReactNode> = {
   chat: ChatScreen,
   collage: CollageScreen,
   poster: PosterScreen,
+  day: DayScreen,
+  plan: PlanScreen,
+  card: CardScreen,
 };
 
 export function Directions() {
@@ -60,7 +60,7 @@ export function Directions() {
       <header className={styles.header}>
         <Eyebrow>RoomPair · Tasarım dilleri</Eyebrow>
         <Heading level={1} size="3xl">
-          Keşfet ekranı, üç farklı dilde
+          Keşfet ekranı, {directions.length} farklı dilde
         </Heading>
         <Text tone="muted" className={styles.lead}>
           Aynı içerik ve aynı eşleşme verisi; ama yerleşim, tipografi, biçim,
@@ -68,17 +68,27 @@ export function Directions() {
           sürükleyin ya da butonları kullanın; detaylar için ekranın içinde
           aşağı kaydırın.
         </Text>
-        <SegmentedControl
-          label="Direction"
+        <div
           className={styles.picker}
-          fullWidth
-          value={selected}
-          onChange={(id) => {
-            setSelected(id);
-            history.replaceState(null, "", `#${id}`);
-          }}
-          options={directions.map((d) => ({ value: d.id, label: d.name }))}
-        />
+          role="radiogroup"
+          aria-label="Tasarım dili"
+        >
+          {directions.map((d) => (
+            <button
+              key={d.id}
+              type="button"
+              role="radio"
+              aria-checked={selected === d.id}
+              className={styles.pick}
+              onClick={() => {
+                setSelected(d.id);
+                history.replaceState(null, "", `#${d.id}`);
+              }}
+            >
+              {d.name}
+            </button>
+          ))}
+        </div>
       </header>
 
       <div className={styles.grid}>

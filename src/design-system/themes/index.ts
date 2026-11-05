@@ -4,10 +4,14 @@ import "./collage-forest.css";
 import "./collage-sunset.css";
 import "./collage-night.css";
 import "./poster.css";
+import "./day.css";
+import "./plan.css";
+import "./card.css";
 
 export { directionFontVariables } from "./fonts";
 
-export type DirectionId = "chat" | "collage" | "poster";
+export type DirectionId =
+  "chat" | "collage" | "poster" | "day" | "plan" | "card";
 
 /** Swatches are read from the palette's own token file, so colours live in CSS only. */
 export type Palette = { id: string; name: string };
@@ -134,5 +138,104 @@ export const directions: Direction[] = [
       },
     ],
     swatches: ["--band-red", "--band-sky", "--band-mint", "--band-ink"],
+  },
+  {
+    id: "day",
+    name: "D · Gün",
+    idea: "Profili, onunla paylaşacağın sıradan bir gün olarak okursun.",
+    principles: [
+      {
+        label: "Yerleşim",
+        value:
+          "Fotoğraf kartı, altında sabahtan geceye bir zaman çizelgesi; takvim ve bütçe çubuğu.",
+      },
+      {
+        label: "Tipografi",
+        value:
+          "Lexend: okuma akıcılığı için tasarlanmış font. Sakin, geniş aralıklı.",
+      },
+      {
+        label: "Biçim",
+        value:
+          "Yumuşak kartlar; renkler anlam taşır: sabah, öğlen, akşam, gece.",
+      },
+      {
+        label: "Hareket",
+        value: "Yumuşak; kart hafifçe döner, çizelge yeni profille yenilenir.",
+      },
+      {
+        label: "Detaylar",
+        value:
+          "Uyanma, akşamlar, düzen ve sessiz saatler senin gününle yan yana: 'aynı' ya da 'biraz farklı'.",
+      },
+    ],
+    swatches: [
+      "--color-bg",
+      "--time-morning",
+      "--time-evening",
+      "--time-night",
+    ],
+  },
+  {
+    id: "plan",
+    name: "E · Ev Planı",
+    idea: "Paylaşacağınız ev bir kat planı; odalara dokunarak profili gezersin.",
+    principles: [
+      {
+        label: "Yerleşim",
+        value:
+          "Etiket sekmeli fotoğraf, altında tıklanabilir kat planı ve seçili odanın paneli.",
+      },
+      {
+        label: "Tipografi",
+        value: "Schibsted Grotesk: net, teknik ama sıcak bir grotesk.",
+      },
+      {
+        label: "Biçim",
+        value:
+          "Lacivert çizgiler, çizim kağıdı ızgarası, tek mercan vurgu: senin odan.",
+      },
+      {
+        label: "Hareket",
+        value: "Az ve net; odalar arası geçiş kısa bir solma.",
+      },
+      {
+        label: "Detaylar",
+        value:
+          "Mutfak = profil sorusu, salon = sosyallik, banyo = düzen, kapı = taşınma, senin odan = kira.",
+      },
+    ],
+    swatches: ["--color-bg", "--plan-line", "--color-accent", "--plan-yours"],
+  },
+  {
+    id: "card",
+    name: "F · Kart",
+    idea: "Herkes bir oyun karakter kartı: seviye, statlar, yetenekler, görevler.",
+    principles: [
+      {
+        label: "Yerleşim",
+        value:
+          "Tür rengine göre çerçeveli kart; altında 'sen vs o' statları, eşya kartı olarak oda.",
+      },
+      {
+        label: "Tipografi",
+        value: "Rubik: yuvarlak hatlı, kalın ama tam boyda okunaklı.",
+      },
+      {
+        label: "Biçim",
+        value:
+          "Kalın kontur, basılabilir 3B butonlar, stat pipleri, XP çubuğu.",
+      },
+      {
+        label: "Hareket",
+        value: "Oyunsu ve zıplayan; butonlar basınca çöker.",
+      },
+      {
+        label: "Detaylar",
+        value:
+          "Uyum = XP; eşleşme gerekçeleri tamamlanmış, konuşulacaklar açık görevler.",
+      },
+    ],
+    swatches: ["--type-host", "--type-explorer", "--color-primary", "--xp"],
   },
 ];
