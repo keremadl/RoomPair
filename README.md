@@ -51,18 +51,19 @@ Eligible profiles receive a weighted comparison: budget 25%, tidiness 20%, sleep
 
 ## Editing guide
 
-| File                                               | Purpose                                                                   |
-| -------------------------------------------------- | ------------------------------------------------------------------------- |
-| `src/components/roompair.tsx`                      | App navigation, discovery, likes, messages, planning, profile and dialogs |
-| `src/components/swipe-surface.tsx`                 | Independent card motion and swipe thresholds                              |
-| `src/components/onboarding.tsx` / `onboarding.css` | Four-step setup and custom SVG room illustration                          |
-| `src/components/ui.tsx`                            | Brand, shared illustration, modal and empty-state components              |
-| `src/app/globals.css`                              | Colors, type, component styling and responsive breakpoints                |
-| `src/lib/data.ts` / `types.ts`                     | Fictional people, homes, messages and data types                          |
-| `src/lib/matching.ts`                              | Eligibility and transparent compatibility weights                         |
-| `src/lib/store.ts`                                 | Browser-local demo state                                                  |
-| `src/lib/locales/en.json` / `tr.json`              | Interface copy                                                            |
-| `public/images` / `public/fonts`                   | Local assets                                                              |
+| File                                               | Purpose                                                                        |
+| -------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `src/components/roompair.tsx`                      | App navigation, discovery, likes, messages, planning, profile and dialogs      |
+| `src/components/swipe-surface.tsx`                 | Independent card motion and swipe thresholds                                   |
+| `src/components/onboarding.tsx` / `onboarding.css` | Four-step setup and custom SVG room illustration                               |
+| `src/design-system/`                               | Design tokens and component library — see its README; live at `/design-system` |
+| `src/components/ui.tsx`                            | Brand, shared illustration, modal and empty-state components                   |
+| `src/app/globals.css`                              | Colors, type, component styling and responsive breakpoints                     |
+| `src/lib/data.ts` / `types.ts`                     | Fictional people, homes, messages and data types                               |
+| `src/lib/matching.ts`                              | Eligibility and transparent compatibility weights                              |
+| `src/lib/store.ts`                                 | Browser-local demo state                                                       |
+| `src/lib/locales/en.json` / `tr.json`              | Interface copy                                                                 |
+| `public/images` / `public/fonts`                   | Local assets                                                                   |
 
 ## Languages and n8n
 
@@ -78,6 +79,7 @@ The CLI validates the result and adds a static language pack. Switching language
 
 ```powershell
 npm run typecheck
+npm run check:design
 npm test
 npm run test:e2e
 npm run build

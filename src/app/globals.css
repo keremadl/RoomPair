@@ -26,18 +26,19 @@
   font-weight: 400 500;
   font-display: swap;
 }
+/* Legacy aliases — kept so existing screens keep working while they migrate
+   to the design system. New code uses the semantic tokens in
+   src/design-system/tokens.css directly. Delete an alias once unused. */
 :root {
-  --paper: #f7f8f4;
-  --white: #fff;
-  --ink: #243f36;
-  --green: #285648;
-  --green-dark: #204b3e;
-  --muted: #838a81;
-  --line: #e5e8df;
-  --soft: #edf2e8;
-  --coral: #e59875;
-  --font-body: "DM Sans", sans-serif;
-  --font-heading: "Manrope", sans-serif;
+  --paper: var(--color-bg);
+  --white: var(--color-surface-raised);
+  --ink: var(--color-text);
+  --green: var(--color-primary);
+  --green-dark: var(--color-primary-hover);
+  --muted: var(--color-text-subtle);
+  --line: var(--color-border);
+  --soft: var(--color-primary-soft);
+  --coral: var(--color-accent);
 }
 .app-loading {
   min-height: 100dvh;

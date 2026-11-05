@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import "@/design-system/tokens.css";
 import "./globals.css";
 export const metadata: Metadata = {
   title: "RoomPair — Good people. Better living.",

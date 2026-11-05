@@ -1,0 +1,201 @@
+/*
+ * RoomPair design tokens — the single source of truth for visual decisions.
+ *
+ * Two layers:
+ *   1. Primitives  (--rp-green-700, --rp-space-4 …)  raw values. Only this file reads them.
+ *   2. Semantic    (--color-primary, --text-md …)    what components and screens use.
+ *
+ * Rule: outside this file, never write a hex/rgb color, a px font-size or a
+ * px radius. Reach for a semantic token. If none fits, add one here first.
+ * `npm run check:design` enforces this with a ratchet.
+ */
+
+:root {
+  /* ───────────── 1. Primitives ───────────── */
+
+  /* Brand green — derived from the original ink #285648 */
+  --rp-green-50: #f1f5ef;
+  --rp-green-100: #e3ebdf;
+  --rp-green-200: #c8d8c4;
+  --rp-green-300: #9fbba0;
+  --rp-green-400: #6f9579;
+  --rp-green-500: #4a7563;
+  --rp-green-600: #356353;
+  --rp-green-700: #285648;
+  --rp-green-800: #204b3e;
+  --rp-green-900: #183a30;
+  --rp-green-950: #10261f;
+
+  /* Warm neutrals with a faint green cast — paper, lines, secondary text */
+  --rp-neutral-0: #ffffff;
+  --rp-neutral-25: #fcfdf9;
+  --rp-neutral-50: #f7f8f4;
+  --rp-neutral-100: #eff1ea;
+  --rp-neutral-200: #e5e8df;
+  --rp-neutral-300: #d3d8cc;
+  --rp-neutral-400: #aab1a5;
+  --rp-neutral-500: #838a81;
+  --rp-neutral-600: #626b61;
+  --rp-neutral-700: #4a5249;
+  --rp-neutral-800: #33403a;
+  --rp-neutral-900: #243f36;
+
+  /* Terracotta accent — derived from the original #e59875. Use sparingly. */
+  --rp-coral-50: #fdf3ee;
+  --rp-coral-100: #fae3d7;
+  --rp-coral-200: #f4c6ae;
+  --rp-coral-300: #eda889;
+  --rp-coral-400: #e59875;
+  --rp-coral-500: #d47b55;
+  --rp-coral-600: #b8603d;
+  --rp-coral-700: #934a2f;
+
+  /* Status */
+  --rp-red-50: #fcefec;
+  --rp-red-600: #b4432f;
+  --rp-red-700: #923524;
+  --rp-amber-50: #fdf6e7;
+  --rp-amber-700: #85570e;
+
+  /* ───────────── 2. Semantic: color ───────────── */
+
+  /* Surfaces */
+  --color-bg: var(--rp-neutral-50);
+  --color-surface: var(--rp-neutral-25);
+  --color-surface-raised: var(--rp-neutral-0);
+  --color-surface-sunken: var(--rp-neutral-100);
+  --color-overlay: rgb(16 38 31 / 0.42);
+
+  /* Borders */
+  --color-border: var(--rp-neutral-200);
+  --color-border-strong: var(--rp-neutral-300);
+
+  /* Text — every pair below passes WCAG AA (4.5:1) on --color-bg */
+  --color-text: var(--rp-neutral-900);
+  --color-text-muted: var(--rp-neutral-600);
+  --color-text-subtle: var(--rp-neutral-500); /* large text / icons only */
+  --color-text-inverse: var(--rp-neutral-0);
+
+  /* Brand */
+  --color-primary: var(--rp-green-700);
+  --color-primary-hover: var(--rp-green-800);
+  --color-primary-active: var(--rp-green-900);
+  --color-primary-soft: var(--rp-green-50);
+  --color-primary-soft-hover: var(--rp-green-100);
+  --color-on-primary: var(--rp-neutral-0);
+
+  --color-accent: var(--rp-coral-400);
+  --color-accent-strong: var(--rp-coral-700); /* accent as text */
+  --color-accent-soft: var(--rp-coral-50);
+
+  /* Status */
+  --color-success: var(--rp-green-600);
+  --color-success-soft: var(--rp-green-50);
+  --color-warning: var(--rp-amber-700);
+  --color-warning-soft: var(--rp-amber-50);
+  --color-danger: var(--rp-red-600);
+  --color-danger-hover: var(--rp-red-700);
+  --color-danger-soft: var(--rp-red-50);
+
+  --color-focus-ring: var(--rp-coral-500);
+
+  /* Content placed on top of photos */
+  --color-on-image-surface: rgb(255 255 255 / 0.14);
+  --color-on-image-border: rgb(255 255 255 / 0.35);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.7);
+  --color-image-scrim: linear-gradient(
+    to top,
+    rgb(16 38 31 / 0.85),
+    rgb(16 38 31 / 0)
+  );
+
+  /* ───────────── Typography ───────────── */
+
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-heading: "Manrope", system-ui, sans-serif;
+
+  /* Scale (1.25 ratio, rounded). 12px is the floor — nothing smaller. */
+  --text-xs: 0.75rem; /*  12 — captions, eyebrows */
+  --text-sm: 0.875rem; /* 14 — secondary UI, buttons */
+  --text-md: 1rem; /*     16 — body */
+  --text-lg: 1.125rem; /* 18 — lead paragraph */
+  --text-xl: 1.375rem; /* 22 — card title */
+  --text-2xl: 1.75rem; /* 28 — section title */
+  --text-3xl: 2.25rem; /* 36 — page title */
+  --text-4xl: 3rem; /*    48 — hero */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.08em; /* uppercase eyebrows */
+
+  /* ───────────── Space (4px grid) ───────────── */
+
+  --space-0: 0;
+  --space-1: 0.25rem; /*  4 */
+  --space-2: 0.5rem; /*   8 */
+  --space-3: 0.75rem; /* 12 */
+  --space-4: 1rem; /*    16 */
+  --space-5: 1.25rem; /* 20 */
+  --space-6: 1.5rem; /*  24 */
+  --space-8: 2rem; /*    32 */
+  --space-10: 2.5rem; /* 40 */
+  --space-12: 3rem; /*  48 */
+  --space-16: 4rem; /*  64 */
+
+  /* ───────────── Shape ───────────── */
+
+  --radius-sm: 6px; /*  chips inside things, small badges */
+  --radius-md: 10px; /* buttons, inputs */
+  --radius-lg: 16px; /* cards */
+  --radius-xl: 24px; /* modals, swipe card */
+  --radius-full: 999px;
+
+  --border-width: 1px;
+
+  /* ───────────── Elevation ───────────── */
+
+  --shadow-sm: 0 1px 2px rgb(24 58 48 / 0.06);
+  --shadow-md: 0 4px 14px rgb(24 58 48 / 0.08);
+  --shadow-lg: 0 16px 40px rgb(24 58 48 / 0.12);
+  --shadow-overlay: 0 30px 90px rgb(24 58 48 / 0.2);
+  --focus-ring: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-focus-ring);
+
+  /* ───────────── Sizing ───────────── */
+
+  --control-sm: 32px;
+  --control-md: 44px; /* minimum touch target */
+  --control-lg: 52px;
+
+  /* ───────────── Motion ───────────── */
+
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+
+  /* ───────────── Layers ───────────── */
+
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 50;
+  --z-overlay: 100;
+  --z-toast: 200;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}
