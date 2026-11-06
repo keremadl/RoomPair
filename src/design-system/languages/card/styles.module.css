@@ -462,8 +462,8 @@
 /* More room photos under the main one: a row of square thumbnails. */
 .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(0, 1fr));
-  grid-auto-flow: column;
+  /* Up to four thumbnails a row; one or two stay square, not stretched. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-2);
   margin: 0;
   padding: var(--space-2);
@@ -472,7 +472,9 @@
 }
 .gallery img {
   display: block;
+  width: 100%;
   aspect-ratio: 1;
+  object-fit: cover;
   border: 2px solid var(--color-border-strong);
   border-radius: var(--radius-md);
 }
