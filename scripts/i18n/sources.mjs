@@ -43,6 +43,16 @@ export const hints = {
   "src/components/app/profile/ProfileDialogs.tsx": {
     i: ["src/lib/profile.ts#interestOptions"],
   },
+  // Demo data (profile.languages / tags / prompts) only carries these values
+  // when they come from the editor; free-form demo content stays as written.
+  "src/lib/discover/sections.ts": {
+    l: ["src/lib/profile.ts#languageOptions"],
+    tag: ["src/lib/profile.ts#interestOptions"],
+    "pr.question": [
+      "src/lib/profile.ts#promptQuestions",
+      "src/lib/profile.ts#hostPromptQuestions",
+    ],
+  },
   "src/components/app/views/DiscoverView.tsx": {
     "step.label": ["src/lib/profile.ts#profileSteps.label"],
   },

@@ -283,11 +283,13 @@ export function DiscoverDetails({
   /** Opens report/block options; without it the links are inert (demos). */
   onReport?: () => void;
 }) {
-  const host = p.intent === "have-room";
-  const home = homeSection(p);
-  const person = personSection(p, viewer);
-  const speaks = person.facts.find((f) => f.label === "Speaks");
-  const fit = fitSection(m);
+  const t = useText();
+  const home = homeSection(p, t);
+  const person = personSection(p, viewer, t);
+  const work = person.facts.find((f) => f.id === "work");
+  const checked = p.verified;
+  const speaks = person.facts.find((f) => f.id === "speaks");
+  const fit = fitSection(m, t);
   return (
     <Reveal id={p.id} className={s.details}>
       <ProfileDetails
@@ -305,18 +307,23 @@ export function DiscoverDetails({
               group="home"
               title={
                 home.kind === "listing"
-                  ? "Item: the room"
-                  : "Quest: find a home"
+                  ? t("Item: the room")
+                  : t("Quest: find a home")
               }
             />
           ),
-          person: <Banner group="person" title={`${p.name}'s character`} />,
-          fit: <Banner group="fit" title="Team fit" />,
+          person: (
+            <Banner
+              group="person"
+              title={t("{name}'s character", { name: p.name })}
+            />
+          ),
+          fit: <Banner group="fit" title={t("Team fit")} />,
         }}
         tabLabels={{
-          home: home.kind === "listing" ? "Room" : "Home",
+          home: home.kind === "listing" ? t("Room") : t("Home"),
           person: p.name,
-          fit: `${fit.score}% fit`,
+          fit: `${fit.score}% ${t("fit")}`,
         }}
         sections={{
           home: <HomeItem home={home} />,
@@ -324,18 +331,20 @@ export function DiscoverDetails({
             <>
               <section className={s.box}>
                 <p className={s.meta}>
-                  {person.facts[0].value} · {person.facts[0].note}
-                  {person.facts[1].value === "Student email"
-                    ? " · email checked (demo)"
-                    : ""}
+                  {work?.value} · {work?.note}
+                  {checked ? ` · ${t("email checked (demo)")}` : ""}
                 </p>
-                {speaks && <p className={s.meta}>Speaks {speaks.value}</p>}
+                {speaks && (
+                  <p className={s.meta}>
+                    {speaks.label} {speaks.value}
+                  </p>
+                )}
                 <p>{person.bio}</p>
-                <h4 className={s.subTitle}>Abilities</h4>
+                <h4 className={s.subTitle}>{t("Abilities")}</h4>
                 <ul className={s.abilities}>
-                  {person.interests.map((t) => (
-                    <li key={t}>
-                      <Sparkles aria-hidden="true" /> {t}
+                  {person.interests.map((tag) => (
+                    <li key={tag}>
+                      <Sparkles aria-hidden="true" /> {tag}
                     </li>
                   ))}
                 </ul>
@@ -347,15 +356,15 @@ export function DiscoverDetails({
                 </section>
               ))}
               <section className={s.box}>
-                <h4 className={s.title}>Stats vs. you</h4>
+                <h4 className={s.title}>{t("Stats vs. you")}</h4>
                 <Versus
-                  label="Tidiness"
+                  label={t("Tidiness")}
                   them={p.habits.cleanliness}
                   mine={viewer.cleanliness}
                   name={p.name}
                 />
                 <Versus
-                  label="Social energy"
+                  label={t("Social energy")}
                   them={p.habits.social}
                   mine={viewer.social}
                   name={p.name}
@@ -365,7 +374,11 @@ export function DiscoverDetails({
                     <Trait
                       key={h.label}
                       ok={h.same}
-                      text={`${h.label}: ${h.them} (you: ${h.you})`}
+                      text={t("{label}: {them} (you: {you})", {
+                        label: h.label,
+                        them: h.them,
+                        you: h.you,
+                      })}
                     />
                   ))}
                 </ul>
@@ -375,17 +388,17 @@ export function DiscoverDetails({
           fit: (
             <section className={s.box}>
               <div className={s.xpHead}>
-                <h4 className={s.title}>Fit</h4>
+                <h4 className={s.title}>{t("Fit")}</h4>
                 <strong>{fit.score}%</strong>
               </div>
               <div
                 className={s.xp}
                 role="img"
-                aria-label={`${fit.score} out of 100`}
+                aria-label={t("{score} out of 100", { score: fit.score })}
               >
                 <span style={{ width: `${fit.score}%` }} />
               </div>
-              <h4 className={s.subTitle}>Quests</h4>
+              <h4 className={s.subTitle}>{t("Quests")}</h4>
               <ul className={s.quests}>
                 {fit.reasons.map((r) => (
                   <li key={r} data-done="true">
@@ -394,14 +407,15 @@ export function DiscoverDetails({
                 ))}
                 {fit.discuss.map((c) => (
                   <li key={c} data-done="false">
-                    <Circle aria-hidden="true" /> Talk about: {c}
+                    <Circle aria-hidden="true" /> {t("Talk about:")} {c}
                   </li>
                 ))}
                 <li data-done="false">
-                  <Circle aria-hidden="true" /> Agree on house rules together
+                  <Circle aria-hidden="true" />{" "}
+                  {t("Agree on house rules together")}
                 </li>
               </ul>
-              <h4 className={s.subTitle}>Score sheet</h4>
+              <h4 className={s.subTitle}>{t("Score sheet")}</h4>
               <dl className={s.sheet}>
                 {fit.breakdown.map((b) => (
                   <div key={b.label}>
@@ -411,7 +425,9 @@ export function DiscoverDetails({
                 ))}
               </dl>
               <p className={s.note}>
-                The score compares what you both said. It is not a prediction.
+                {t(
+                  "The score compares what you both said. It is not a prediction.",
+                )}
               </p>
             </section>
           ),
@@ -419,11 +435,11 @@ export function DiscoverDetails({
       />
       <p className={s.report}>
         <button type="button" onClick={onReport}>
-          Report
+          {t("Report")}
         </button>{" "}
         ·{" "}
         <button type="button" onClick={onReport}>
-          Block
+          {t("Block")}
         </button>
       </p>
     </Reveal>

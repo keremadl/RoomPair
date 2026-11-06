@@ -644,6 +644,16 @@ class Resolver {
 function translateNames(sf) {
   const names = new Set();
   const visit = (n) => {
+    // Pure code takes the translate function as a parameter typed
+    // `Translate` (src/lib/translate.ts), e.g. getCompatibility(…, t).
+    if (
+      ts.isParameter(n) &&
+      ts.isIdentifier(n.name) &&
+      n.type &&
+      ts.isTypeReferenceNode(n.type) &&
+      n.type.typeName.getText() === "Translate"
+    )
+      names.add(n.name.text);
     if (ts.isVariableDeclaration(n) && n.initializer) {
       const init = unwrap(n.initializer);
       if (ts.isCallExpression(init) && ts.isIdentifier(init.expression)) {

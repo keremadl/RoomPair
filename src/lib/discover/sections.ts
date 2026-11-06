@@ -12,6 +12,7 @@
  * appears under Home.
  */
 import type { Preferences, Prompt } from "@/lib/types";
+import { english, type Translate } from "@/lib/translate";
 import {
   dateLabel,
   guestsLabel,
@@ -26,7 +27,8 @@ import {
   type Profile,
 } from "./deck";
 
-export type Fact = { label: string; value: string; note?: string };
+/** `id` lets a layout find a fact without matching its (translated) label. */
+export type Fact = { id?: string; label: string; value: string; note?: string };
 
 export type HomeSection = {
   kind: "listing" | "search";
@@ -70,70 +72,85 @@ export type FitSection = {
 const withoutPrice = (text: string) =>
   text.replace(/\s*€\d+\/month[^.]*\.\s*$/, "").trim();
 
-export function homeSection(p: Profile): HomeSection {
+export function homeSection(p: Profile, t: Translate = english): HomeSection {
+  const months = (n: number) => t("{count} months", { count: n });
   if (p.room) {
     const r = p.room;
     return {
       kind: "listing",
-      heading: "The room",
-      summary: `€${p.room.price} a month in ${p.neighborhood}, from ${dateLabel(p.moveDate)}`,
+      heading: t("The room"),
+      summary: t("€{price} a month in {area}, from {date}", {
+        price: r.price,
+        area: p.neighborhood,
+        date: dateLabel(p.moveDate),
+      }),
       facts: [
         {
-          label: "Rent",
+          label: t("Rent"),
           value: `€${r.price}`,
           note: r.billsIncluded
-            ? "per month, bills included"
-            : "per month, bills extra",
+            ? t("per month, bills included")
+            : t("per month, bills extra"),
         },
-        { label: "Deposit", value: `€${r.deposit}` },
-        { label: "Available", value: dateLabel(p.moveDate) },
-        { label: "Minimum stay", value: `${p.stayMonths} months` },
-        { label: "Area", value: `${p.neighborhood}, ${p.city}` },
+        { label: t("Deposit"), value: `€${r.deposit}` },
+        { label: t("Available"), value: dateLabel(p.moveDate) },
+        { label: t("Minimum stay"), value: months(p.stayMonths) },
+        { label: t("Area"), value: `${p.neighborhood}, ${p.city}` },
         ...(r.transport
-          ? [{ label: "Getting there", value: r.transport }]
+          ? [{ label: t("Getting there"), value: r.transport }]
           : []),
         {
-          label: "Bathroom",
-          value: r.privateBathroom ? "Your own" : "Shared",
+          label: t("Bathroom"),
+          value: r.privateBathroom ? t("Your own") : t("Shared"),
         },
         {
-          label: "Furniture",
-          value: r.furnished ? "Furnished" : "Unfurnished",
+          label: t("Furniture"),
+          value: r.furnished ? t("Furnished") : t("Unfurnished"),
         },
         {
-          label: "Living there now",
+          label: t("Living there now"),
           value:
             r.flatmates === 0
-              ? "Nobody yet"
+              ? t("Nobody yet")
               : r.flatmates === 1
-                ? "1 person"
-                : `${r.flatmates} people`,
+                ? t("1 person")
+                : t("{count} people", { count: r.flatmates }),
         },
         ...(r.houseRules
-          ? [{ label: "House rules", value: r.houseRules }]
+          ? [{ label: t("House rules"), value: r.houseRules }]
           : []),
       ],
-      photo: p.room.photo,
-      photos: p.room.photos?.length ? p.room.photos : [p.room.photo],
-      title: p.room.title,
-      description: withoutPrice(p.room.description),
+      photo: r.photo,
+      photos: r.photos?.length ? r.photos : [r.photo],
+      title: r.title,
+      description: withoutPrice(r.description),
     };
   }
   return {
     kind: "search",
-    heading: "The home they want",
-    summary: `No room yet. Searching for €${p.budget[0]}–${p.budget[1]} around ${p.neighborhood}`,
+    heading: t("The home they want"),
+    summary: t("No room yet. Searching for €{min}–{max} around {area}", {
+      min: p.budget[0],
+      max: p.budget[1],
+      area: p.neighborhood,
+    }),
     facts: [
       {
-        label: "Budget",
+        label: t("Budget"),
         value: `€${p.budget[0]}–${p.budget[1]}`,
-        note: "per month",
+        note: t("per month"),
       },
-      { label: "Move-in", value: dateLabel(p.moveDate) },
-      { label: "Stay", value: `${p.stayMonths} months` },
-      { label: "Area", value: `${p.neighborhood} or nearby` },
+      { label: t("Move-in"), value: dateLabel(p.moveDate) },
+      { label: t("Stay"), value: months(p.stayMonths) },
+      {
+        label: t("Area"),
+        value: t("{area} or nearby", { area: p.neighborhood }),
+      },
     ],
-    description: `${p.name} doesn't have a room yet and would like to find a place together with a flatmate.`,
+    description: t(
+      "{name} doesn't have a room yet and would like to find a place together with a flatmate.",
+      { name: p.name },
+    ),
   };
 }
 
@@ -141,94 +158,114 @@ export function homeSection(p: Profile): HomeSection {
 export function personSection(
   p: Profile,
   viewer: Preferences = you,
+  t: Translate = english,
 ): PersonSection {
   const v = viewer;
+  // Callers pass translated text, so the extractor sees every t() argument.
+  const row = (label: string, them: string, mine: string, same: boolean) => ({
+    label,
+    them,
+    you: mine,
+    same,
+  });
   return {
-    heading: `About ${p.name}`,
+    heading: t("About {name}", { name: p.name }),
     summary: `${p.occupation}, ${p.age}`,
     facts: [
       {
-        label: p.status === "working" ? "Works" : "Studies",
+        id: "work",
+        label: p.status === "working" ? t("Works") : t("Studies"),
         value: p.occupation,
         note: p.university,
       },
       {
-        label: "Checked",
-        value: p.verified ? "Student email" : "Not yet",
-        note: p.verified ? "demo" : undefined,
+        id: "checked",
+        label: t("Checked"),
+        value: p.verified ? t("Student email") : t("Not yet"),
+        note: p.verified ? t("demo") : undefined,
       },
       ...(p.languages.length
-        ? [{ label: "Speaks", value: p.languages.join(", ") }]
+        ? [
+            {
+              id: "speaks",
+              label: t("Speaks"),
+              value: p.languages.map((l) => t(l)).join(", "),
+            },
+          ]
         : []),
     ],
     bio: p.bio,
-    interests: p.tags,
-    prompts: p.prompts,
+    interests: p.tags.map((tag) => t(tag)),
+    prompts: p.prompts.map((pr) => ({ ...pr, question: t(pr.question) })),
     habits: [
-      {
-        label: "Tidiness",
-        them: tidinessLabel[p.habits.cleanliness],
-        you: tidinessLabel[v.cleanliness],
-        same: p.habits.cleanliness === v.cleanliness,
-      },
-      {
-        label: "Social energy",
-        them: socialLabel[p.habits.social],
-        you: socialLabel[v.social],
-        same: p.habits.social === v.social,
-      },
-      {
-        label: "Sleep",
-        them: sleepLabel[p.habits.sleep],
-        you: sleepLabel[v.sleep],
-        same: p.habits.sleep === v.sleep,
-      },
-      {
-        label: "Smoking",
-        them: p.habits.smoking ? "Smokes" : "Smoke-free",
-        you: v.smokeFree ? "Smoke-free" : "Either is fine",
-        same: !(p.habits.smoking && v.smokeFree),
-      },
-      {
-        label: "Pets",
-        them: p.habits.pets ? "Has a pet" : "No pets",
-        you: v.petsOkay ? "Pets welcome" : "No pets",
-        same: !(p.habits.pets && !v.petsOkay),
-      },
-      {
-        label: "Guests",
-        them: guestsLabel[p.habits.guests],
-        you: guestsLabel[v.guests],
-        same: p.habits.guests === v.guests,
-      },
-      {
-        label: "In the day",
-        them: homeDaysLabel[p.habits.homeDays],
-        you: homeDaysLabel[v.homeDays],
-        same: p.habits.homeDays === v.homeDays,
-      },
-      {
-        label: "Noise",
-        them: noiseLabel[p.habits.noise],
-        you: noiseLabel[v.noise],
-        same: p.habits.noise === v.noise,
-      },
-      {
-        label: "Sharing",
-        them: sharingLabel[p.habits.sharing],
-        you: sharingLabel[v.sharing],
-        same: p.habits.sharing === v.sharing,
-      },
+      row(
+        t("Tidiness"),
+        t(tidinessLabel[p.habits.cleanliness]),
+        t(tidinessLabel[v.cleanliness]),
+        p.habits.cleanliness === v.cleanliness,
+      ),
+      row(
+        t("Social energy"),
+        t(socialLabel[p.habits.social]),
+        t(socialLabel[v.social]),
+        p.habits.social === v.social,
+      ),
+      row(
+        t("Sleep"),
+        t(sleepLabel[p.habits.sleep]),
+        t(sleepLabel[v.sleep]),
+        p.habits.sleep === v.sleep,
+      ),
+      row(
+        t("Smoking"),
+        t(p.habits.smoking ? "Smokes" : "Smoke-free"),
+        t(v.smokeFree ? "Smoke-free" : "Either is fine"),
+        !(p.habits.smoking && v.smokeFree),
+      ),
+      row(
+        t("Pets"),
+        t(p.habits.pets ? "Has a pet" : "No pets"),
+        t(v.petsOkay ? "Pets welcome" : "No pets"),
+        !(p.habits.pets && !v.petsOkay),
+      ),
+      row(
+        t("Guests"),
+        t(guestsLabel[p.habits.guests]),
+        t(guestsLabel[v.guests]),
+        p.habits.guests === v.guests,
+      ),
+      row(
+        t("In the day"),
+        t(homeDaysLabel[p.habits.homeDays]),
+        t(homeDaysLabel[v.homeDays]),
+        p.habits.homeDays === v.homeDays,
+      ),
+      row(
+        t("Noise"),
+        t(noiseLabel[p.habits.noise]),
+        t(noiseLabel[v.noise]),
+        p.habits.noise === v.noise,
+      ),
+      row(
+        t("Sharing"),
+        t(sharingLabel[p.habits.sharing]),
+        t(sharingLabel[v.sharing]),
+        p.habits.sharing === v.sharing,
+      ),
     ],
   };
 }
 
-export function fitSection(m: MatchResult): FitSection {
+/** Pass the same `t` as to getCompatibility; reasons arrive translated. */
+export function fitSection(m: MatchResult, t: Translate = english): FitSection {
   return {
     score: m.score,
     summary: m.considerations.length
-      ? `${m.reasons.length} things line up, ${m.considerations.length} to talk about`
-      : `${m.reasons.length} things line up`,
+      ? t("{lineUp} things line up, {discuss} to talk about", {
+          lineUp: m.reasons.length,
+          discuss: m.considerations.length,
+        })
+      : t("{lineUp} things line up", { lineUp: m.reasons.length }),
     reasons: m.reasons,
     discuss: m.considerations,
     breakdown: m.breakdown.map((b) => ({

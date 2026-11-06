@@ -1,15 +1,17 @@
 "use client";
 import { Check, Circle, KeyRound, Star, Trophy } from "../../icons";
 import { you } from "@/lib/discover/deck";
+import { useText } from "@/design-system/text/TextProvider";
 import { type GroupId } from "@/design-system/components/ProfileDetails/ProfileDetails";
 import { type HomeSection } from "@/lib/discover/sections";
 import s from "./styles.module.css";
 
 export function Stat({ label, value }: { label: string; value: number }) {
+  const t = useText();
   return (
     <div className={s.stat}>
       <span>{label}</span>
-      <span className={s.pips} aria-label={`${value} of 5`}>
+      <span className={s.pips} aria-label={t("{value} of 5", { value })}>
         {[1, 2, 3, 4, 5].map((n) => (
           <i key={n} data-on={n <= value} />
         ))}
@@ -29,11 +31,12 @@ export function Versus({
   mine: number;
   name: string;
 }) {
+  const t = useText();
   return (
     <div className={s.versus}>
       <p>
         {label}
-        {them === mine && <span className={s.match}>Match</span>}
+        {them === mine && <span className={s.match}>{t("Match")}</span>}
       </p>
       <div className={s.vsRow}>
         <span>{name}</span>
@@ -44,7 +47,7 @@ export function Versus({
         </span>
       </div>
       <div className={s.vsRow}>
-        <span>You</span>
+        <span>{t("You")}</span>
         <span className={s.pips} data-who="you">
           {[1, 2, 3, 4, 5].map((n) => (
             <i key={n} data-on={n <= mine} />
@@ -78,14 +81,21 @@ export function Banner({ group, title }: { group: GroupId; title: string }) {
 }
 
 export function HomeItem({ home }: { home: HomeSection }) {
+  const t = useText();
   return (
     <section className={s.item}>
       {home.photo && <img src={home.photo} alt={home.title ?? ""} />}
       {home.photos && home.photos.length > 1 && (
-        <ul className={s.gallery} aria-label="More photos of the place">
+        <ul className={s.gallery} aria-label={t("More photos of the place")}>
           {home.photos.slice(1).map((src, i) => (
             <li key={src}>
-              <img src={src} alt={`${home.title ?? "Room"}, photo ${i + 2}`} />
+              <img
+                src={src}
+                alt={t("{title}, photo {n}", {
+                  title: home.title ?? t("Room"),
+                  n: i + 2,
+                })}
+              />
             </li>
           ))}
         </ul>

@@ -1,4 +1,5 @@
 import type { MatchResult, Preferences, Profile } from "./types";
+import { english, type Translate } from "./translate";
 
 const DAY = 86_400_000;
 const clamp = (value: number, min = 0, max = 100) =>
@@ -29,6 +30,8 @@ function parseDate(value: string): number {
 export function getCompatibility(
   profile: Profile,
   prefs: Preferences,
+  /** Translates reasons, things to talk about and factor names. */
+  t: Translate = english,
 ): MatchResult {
   const dealbreakers: string[] = [];
   const reasons: string[] = [];
@@ -52,12 +55,14 @@ export function getCompatibility(
     (Number.isFinite(roomPrice) &&
       roomPrice >= prefs.budgetMin &&
       roomPrice <= prefs.budgetMax);
-  if (!validBudget) dealbreakers.push("A valid monthly budget is needed.");
+  if (!validBudget) dealbreakers.push(t("A valid monthly budget is needed."));
   else if (!budgetOverlap)
-    dealbreakers.push("Your monthly budgets do not overlap.");
+    dealbreakers.push(t("Your monthly budgets do not overlap."));
   else if (!roomInBudget)
     dealbreakers.push(
-      `The room at ${euros(roomPrice!)} per month is outside your budget.`,
+      t("The room at {price} per month is outside your budget.", {
+        price: euros(roomPrice!),
+      }),
     );
 
   if (
@@ -65,41 +70,49 @@ export function getCompatibility(
     normalize(profile.city) !== normalize(prefs.city)
   )
     dealbreakers.push(
-      `Looking in ${profile.city}, outside your selected city.`,
+      t("Looking in {city}, outside your selected city.", {
+        city: profile.city,
+      }),
     );
   // Room seekers meet people with a room; people with a room meet seekers.
   if (prefs.intent === "have-room" && profile.intent === "have-room")
-    dealbreakers.push("You both have a room; neither is looking to move in.");
+    dealbreakers.push(
+      t("You both have a room; neither is looking to move in."),
+    );
   if (prefs.intent === "find-room" && profile.intent === "find-room")
     dealbreakers.push(
-      "You are both looking for a room; neither has one to share.",
+      t("You are both looking for a room; neither has one to share."),
     );
   if (!profile.active)
-    dealbreakers.push("This person has paused their search.");
+    dealbreakers.push(t("This person has paused their search."));
   if (prefs.smokeFree && profile.habits.smoking)
-    dealbreakers.push("You selected a smoke-free home.");
+    dealbreakers.push(t("You selected a smoke-free home."));
   if (!prefs.petsOkay && profile.habits.pets)
-    dealbreakers.push("You selected a home without pets.");
+    dealbreakers.push(t("You selected a home without pets."));
   if (
     (prefs.livingWith === "women" && profile.gender !== "woman") ||
     (prefs.livingWith === "men" && profile.gender !== "man")
   )
     dealbreakers.push(
       prefs.livingWith === "women"
-        ? "You chose to live with women only."
-        : "You chose to live with men only.",
+        ? t("You chose to live with women only.")
+        : t("You chose to live with men only."),
     );
   if (prefs.verifiedOnly && !profile.verified)
-    dealbreakers.push("This profile does not have a demo verification badge.");
+    dealbreakers.push(
+      t("This profile does not have a demo verification badge."),
+    );
 
   const daysApart =
     Math.abs(parseDate(profile.moveDate) - parseDate(prefs.moveDate)) / DAY;
   const validDates = Number.isFinite(daysApart);
   if (!validDates)
-    dealbreakers.push("Valid move-in dates are needed to compare timing.");
+    dealbreakers.push(t("Valid move-in dates are needed to compare timing."));
   else if (daysApart > 45)
     dealbreakers.push(
-      `Your move-in dates are ${daysApart} days apart (maximum 45).`,
+      t("Your move-in dates are {days} days apart (maximum 45).", {
+        days: daysApart,
+      }),
     );
 
   // Ranges sharing one exact boundary are still valid, with a small overlap score.
@@ -142,7 +155,7 @@ export function getCompatibility(
         Math.max(profile.stayMonths, prefs.stayMonths)) *
       100
     : 0;
-  if (!validStay) dealbreakers.push("A valid length of stay is needed.");
+  if (!validStay) dealbreakers.push(t("A valid length of stay is needed."));
   if (
     !Number.isFinite(prefs.cleanliness) ||
     prefs.cleanliness < 1 ||
@@ -151,54 +164,66 @@ export function getCompatibility(
     prefs.social < 1 ||
     prefs.social > 5
   ) {
-    dealbreakers.push("Lifestyle preferences must be between 1 and 5.");
+    dealbreakers.push(t("Lifestyle preferences must be between 1 and 5."));
   }
 
   if (budgetOverlap && roomInBudget)
     reasons.push(
       roomPrice !== undefined
-        ? `Room at ${euros(roomPrice)} fits your budget`
-        : `Shared budget of ${euros(overlapMin)}–${euros(overlapMax)}`,
+        ? t("Room at {price} fits your budget", { price: euros(roomPrice) })
+        : t("Shared budget of {min}–{max}", {
+            min: euros(overlapMin),
+            max: euros(overlapMax),
+          }),
     );
-  if (cleanDiff === 0) reasons.push("You like the same level of tidiness");
+  if (cleanDiff === 0) reasons.push(t("You like the same level of tidiness"));
   else if (cleanDiff >= 2)
     considerations.push(
       profile.habits.cleanliness > prefs.cleanliness
-        ? "They prefer a tidier home; agree on cleaning expectations."
-        : "You prefer a tidier home; agree on cleaning expectations.",
+        ? t("They prefer a tidier home; agree on cleaning expectations.")
+        : t("You prefer a tidier home; agree on cleaning expectations."),
     );
   if (profile.habits.sleep === prefs.sleep)
-    reasons.push("Your daily rhythms line up");
+    reasons.push(t("Your daily rhythms line up"));
   else if (sleepScore === 35)
     considerations.push(
-      "You keep different sleep schedules; talk about quiet hours.",
+      t("You keep different sleep schedules; talk about quiet hours."),
     );
   else
     considerations.push(
-      "One of you has a flexible sleep schedule; compare your usual quiet hours.",
+      t(
+        "One of you has a flexible sleep schedule; compare your usual quiet hours.",
+      ),
     );
   if (socialDiff >= 2)
     considerations.push(
       profile.habits.social > prefs.social
-        ? "They enjoy a more social home; talk about guests and downtime."
-        : "They prefer a quieter home; talk about guests and downtime.",
+        ? t("They enjoy a more social home; talk about guests and downtime.")
+        : t("They prefer a quieter home; talk about guests and downtime."),
     );
   if (validDates && daysApart <= 7)
     reasons.push(
       daysApart === 0
-        ? "Same planned move-in date"
-        : "You plan to move in the same week",
+        ? t("Same planned move-in date")
+        : t("You plan to move in the same week"),
     );
   else if (validDates && daysApart <= 45)
     considerations.push(
-      `Move-in dates differ by ${daysApart} days; check flexibility.`,
+      t("Move-in dates differ by {days} days; check flexibility.", {
+        days: daysApart,
+      }),
     );
   if (validStay && profile.stayMonths !== prefs.stayMonths)
     considerations.push(
-      `They want a ${profile.stayMonths}-month stay; you selected ${prefs.stayMonths} months.`,
+      t("They want a {theirs}-month stay; you selected {yours} months.", {
+        theirs: profile.stayMonths,
+        yours: prefs.stayMonths,
+      }),
     );
   if (profile.habits.pets && prefs.petsOkay)
-    considerations.push("They have a pet; meet it and discuss shared spaces.");
+    considerations.push(
+      t("They have a pet; meet it and discuss shared spaces."),
+    );
   // The living-together answers below do not change the score; a big gap
   // becomes something to talk about.
   const freq = { rarely: 0, sometimes: 1, often: 2 } as const;
@@ -210,8 +235,8 @@ export function getCompatibility(
   )
     considerations.push(
       h.guests === "often"
-        ? "They often have guests over; agree on how often is fine."
-        : "You often have guests over; agree on how often is fine.",
+        ? t("They often have guests over; agree on how often is fine.")
+        : t("You often have guests over; agree on how often is fine."),
     );
   if (
     h.noise &&
@@ -221,8 +246,8 @@ export function getCompatibility(
   )
     considerations.push(
       h.noise === "low"
-        ? "They need a quiet home; talk about music and calls."
-        : "You need a quiet home; talk about music and calls.",
+        ? t("They need a quiet home; talk about music and calls.")
+        : t("You need a quiet home; talk about music and calls."),
     );
   if (
     h.sharing &&
@@ -231,16 +256,18 @@ export function getCompatibility(
     (h.sharing === "separate" || prefs.sharing === "separate")
   )
     considerations.push(
-      "You see sharing food and things differently; agree on what is shared.",
+      t(
+        "You see sharing food and things differently; agree on what is shared.",
+      ),
     );
   if (h.homeDays === "often" && prefs.homeDays === "often")
     considerations.push(
-      "You are both home most days; talk about space to study or work.",
+      t("You are both home most days; talk about space to study or work."),
     );
 
   const breakdown: MatchResult["breakdown"] = [
     {
-      label: "Budget",
+      label: t("Budget"),
       score: Math.round(budgetScore),
       detail:
         roomPrice !== undefined
@@ -248,29 +275,29 @@ export function getCompatibility(
           : `${euros(profile.budget[0])}–${euros(profile.budget[1])}/month · 25% weight`,
     },
     {
-      label: "Tidiness",
+      label: t("Tidiness"),
       score: Math.round(cleanScore),
       detail: `You ${prefs.cleanliness}/5 · ${profile.name} ${profile.habits.cleanliness}/5 · 20% weight`,
     },
     {
-      label: "Sleep schedule",
+      label: t("Sleep schedule"),
       score: sleepScore,
       detail: `You: ${prefs.sleep} · ${profile.name}: ${profile.habits.sleep} · 15% weight`,
     },
     {
-      label: "Social energy",
+      label: t("Social energy"),
       score: Math.round(socialScore),
       detail: `You ${prefs.social}/5 · ${profile.name} ${profile.habits.social}/5 · 15% weight`,
     },
     {
-      label: "Move-in timing",
+      label: t("Move-in timing"),
       score: Math.round(dateScore),
       detail: validDates
         ? `${daysApart} days apart · 15% weight`
         : "Dates unavailable · 15% weight",
     },
     {
-      label: "Length of stay",
+      label: t("Length of stay"),
       score: Math.round(stayScore),
       detail: `You ${prefs.stayMonths} months · ${profile.name} ${profile.stayMonths} months · 10% weight`,
     },
@@ -297,9 +324,10 @@ export function getCompatibility(
 export function rankProfiles(
   profiles: Profile[],
   prefs: Preferences,
+  t: Translate = english,
 ): { profile: Profile; match: MatchResult }[] {
   return profiles
-    .map((profile) => ({ profile, match: getCompatibility(profile, prefs) }))
+    .map((profile) => ({ profile, match: getCompatibility(profile, prefs, t) }))
     .filter(({ match }) => match.eligible)
     .sort((a, b) => b.match.score - a.match.score);
 }

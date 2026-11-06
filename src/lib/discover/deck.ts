@@ -86,12 +86,15 @@ export type { MatchResult, Profile };
 
 /* ── Labels shared by every language ── */
 
-export const dateLabel = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+/** "1 Feb 2027", in the app's language (read from <html lang>, set by i18n). */
+export const dateLabel = (iso: string) => {
+  const lang =
+    typeof document !== "undefined" ? document.documentElement.lang : "";
+  return new Date(iso).toLocaleDateString(
+    lang && lang !== "en" ? lang : "en-GB",
+    { day: "numeric", month: "short", year: "numeric" },
+  );
+};
 
 export const intentLabel = (p: Profile) =>
   p.intent === "have-room" ? "Has a room" : "Looking together";

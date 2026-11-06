@@ -95,7 +95,7 @@ function RoomPairApp() {
     motion: "fade",
   });
 
-  const ranked = rankProfiles(profiles, state.preferences).filter(
+  const ranked = rankProfiles(profiles, state.preferences, t).filter(
     ({ profile }) => !state.blocked.includes(profile.id),
   );
   const decided = (id: string) => state.decisions.some((d) => d.id === id);
@@ -507,7 +507,7 @@ function RoomPairApp() {
             key={likePerson.id}
             deck={{
               profile: likePerson,
-              match: getCompatibility(likePerson, state.preferences),
+              match: getCompatibility(likePerson, state.preferences, t),
               cardKey: likePerson.id,
               exitDirection: direction,
               canUndo: false,
@@ -638,7 +638,7 @@ function RoomPairApp() {
           <ProfileDialog
             key="profile"
             profile={detail}
-            match={getCompatibility(detail, state.preferences)}
+            match={getCompatibility(detail, state.preferences, t)}
             viewer={state.preferences}
             liked={state.decisions.some(
               (d) => d.id === detail.id && d.action === "like",
@@ -658,7 +658,7 @@ function RoomPairApp() {
               name: state.preferences.name,
               photo: state.me.photos[0] ?? "",
             }}
-            fit={getCompatibility(detail, state.preferences).score}
+            fit={getCompatibility(detail, state.preferences, t).score}
             roomFirst={state.preferences.intent !== "have-room"}
             onClose={() => setDialog(null)}
             onSend={(text) => {
