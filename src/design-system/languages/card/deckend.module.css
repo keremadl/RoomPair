@@ -1,0 +1,102 @@
+/* DeckEnd: the empty card slot where the swipe card was. Tokens only. */
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  /* Same footprint as the swipe card (.stage in swipe.module.css) */
+  min-height: clamp(22rem, calc(100dvh - 14.75rem), 44rem);
+  padding: var(--space-8) var(--space-6) var(--space-12);
+  border: var(--surface-border-width) dashed var(--color-border-strong);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
+  text-align: center;
+}
+
+/* The last faces, fanned like a hand of cards */
+.hand {
+  position: relative;
+  width: 11rem;
+  height: 8.5rem;
+  margin-bottom: var(--space-3);
+}
+.hand img,
+.blank {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 5.25rem;
+  aspect-ratio: 3 / 4;
+  margin-left: -2.625rem;
+  object-fit: cover;
+  border: 3px solid var(--color-surface-raised);
+  border-radius: var(--radius-md);
+  box-shadow: var(--press-shadow, var(--shadow-md));
+  transform-origin: 50% 100%;
+}
+.hand[data-count="3"] img[data-i="0"] {
+  transform: translateX(-2.6rem) rotate(-14deg);
+}
+.hand[data-count="3"] img[data-i="1"] {
+  z-index: 1;
+  transform: translateY(-0.4rem);
+}
+.hand[data-count="3"] img[data-i="2"] {
+  transform: translateX(2.6rem) rotate(14deg);
+}
+.hand[data-count="2"] img[data-i="0"] {
+  transform: translateX(-1.5rem) rotate(-9deg);
+}
+.hand[data-count="2"] img[data-i="1"] {
+  transform: translateX(1.5rem) rotate(9deg);
+}
+/* No faces (nobody fits): one empty, dashed card */
+.blank {
+  border: var(--surface-border-width) dashed var(--color-border-strong);
+  background: var(--color-surface);
+  box-shadow: none;
+  transform: rotate(-6deg);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+.body {
+  max-width: 20rem;
+  margin: 0;
+  color: var(--color-text-muted);
+}
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.stats li {
+  padding: 0 var(--space-3);
+  border: var(--control-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-raised);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  line-height: 1.8;
+}
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 16rem;
+  margin-top: var(--space-4);
+}

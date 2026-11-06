@@ -26,14 +26,15 @@ Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/d
 
 ## Files
 
-| File                 | What                                                                                                                                                                                       |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `theme.css`          | Semantic and component token values for `[data-direction="card"]`                                                                                                                          |
-| `styles.module.css`  | Styles for the signature components and screen (tokens only)                                                                                                                               |
-| `components.tsx`     | Signature components                                                                                                                                                                       |
-| `MatchScreen.tsx`    | Full-screen “Team up!” after a mutual like: two cards lock together, a heart and the stamp title pop, then a first message. Use inside `Dialog size="full"`. Styles in `match.module.css`. |
-| `DiscoverScreen.tsx` | The Discover screen, `layout="blocks" \| "tabs"`                                                                                                                                           |
-| `index.ts`           | Public API: theme side effect, `DiscoverScreen`, signature components                                                                                                                      |
+| File                 | What                                                                                                                                                                                                           |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `theme.css`          | Semantic and component token values for `[data-direction="card"]`                                                                                                                                              |
+| `styles.module.css`  | Styles for the signature components and screen (tokens only)                                                                                                                                                   |
+| `components.tsx`     | Signature components                                                                                                                                                                                           |
+| `MatchScreen.tsx`    | Full-screen “Team up!” after a mutual like: two cards lock together, a heart and the stamp title pop, then a first message. Use inside `Dialog size="full"`. Styles in `match.module.css`.                     |
+| `DeckEnd.tsx`        | Where the swipe card was once the deck is empty: a dashed card slot with the last faces fanned like a hand of cards, real counts and the actions; undo keeps its round button. Styles in `deckend.module.css`. |
+| `DiscoverScreen.tsx` | The Discover screen, `layout="blocks" \| "tabs"`                                                                                                                                                               |
+| `index.ts`           | Public API: theme side effect, `DiscoverScreen`, signature components                                                                                                                                          |
 
 ## Language tokens
 

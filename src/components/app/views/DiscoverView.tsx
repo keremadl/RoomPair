@@ -1,7 +1,8 @@
 "use client";
 import { useRef, type ReactNode } from "react";
-import { Circle, RotateCcw, Sparkles, UserPen } from "@/design-system/icons";
+import { Circle, UserPen } from "@/design-system/icons";
 import { Button, EmptyState, Stagger } from "@/design-system";
+import { DeckEnd } from "@/design-system/languages/card/DeckEnd";
 import {
   defaultLanguage,
   defaultLayout,
@@ -25,6 +26,7 @@ export function DiscoverView({
   canUndo,
   rankedCount,
   canBrowseAgain = true,
+  seen = { liked: 0, skipped: 0, faces: [] },
   onFilters,
   onBrowseAgain,
   onUndo,
@@ -41,6 +43,8 @@ export function DiscoverView({
   rankedCount: number;
   /** Someone you have not matched with could come back into the deck. */
   canBrowseAgain?: boolean;
+  /** What you did with this deck: counts and the last faces you saw. */
+  seen?: { liked: number; skipped: number; faces: string[] };
   onFilters: () => void;
   onBrowseAgain: () => void;
   onUndo: () => void;
@@ -93,41 +97,50 @@ export function DiscoverView({
           </div>
         </>
       ) : rankedCount === 0 ? (
-        <EmptyState
-          icon={<Sparkles />}
+        <DeckEnd
           title={t("Nobody fits these filters")}
           body={t(
             "Widen your budget, move-in date or must-haves to see more people.",
           )}
-          action={{ label: t("Change filters"), onClick: onFilters }}
-        />
+          onUndo={canUndo ? onUndo : undefined}
+        >
+          <Button onClick={onFilters} fullWidth>
+            {t("Change filters")}
+          </Button>
+        </DeckEnd>
       ) : (
-        <EmptyState
-          icon={<Sparkles />}
-          title={t("You have seen everyone")}
+        <DeckEnd
+          title={t("That's everyone for now")}
           body={
             canBrowseAgain
-              ? t(
-                  "Change your filters, or go through everyone you have not matched with again.",
-                )
+              ? t("{count} people in {city} fit your filters.", {
+                  count: rankedCount,
+                  city: viewer.city,
+                })
               : t(
                   "You have matched with everyone who fits. Change your filters to meet more people.",
                 )
           }
-          action={{ label: t("Change filters"), onClick: onFilters }}
-          secondary={
-            canBrowseAgain
-              ? { label: t("Browse everyone again"), onClick: onBrowseAgain }
-              : undefined
-          }
-        />
-      )}
-      {!deck && canUndo && (
-        <div className={v.centered}>
-          <Button variant="ghost" leadingIcon={<RotateCcw />} onClick={onUndo}>
-            {t("discover.undo")}
+          faces={seen.faces}
+          stats={[
+            t("{count} liked", { count: seen.liked }),
+            t("{count} skipped", { count: seen.skipped }),
+          ]}
+          onUndo={canUndo ? onUndo : undefined}
+        >
+          {canBrowseAgain && (
+            <Button onClick={onBrowseAgain} fullWidth>
+              {t("Go through them again")}
+            </Button>
+          )}
+          <Button
+            variant={canBrowseAgain ? "secondary" : "primary"}
+            onClick={onFilters}
+            fullWidth
+          >
+            {t("Change filters")}
           </Button>
-        </div>
+        </DeckEnd>
       )}
     </>
   );

@@ -71,7 +71,7 @@ test("people you already have a conversation with stay out of Discover", async (
   // Maya and Sofia are in Messages already: go through the whole deck and
   // make sure neither of them comes up.
   const seen: string[] = [];
-  const done = page.getByRole("heading", { name: "You have seen everyone" });
+  const done = page.getByRole("heading", { name: "That's everyone for now" });
   for (let i = 0; i < 30 && !(await done.isVisible()); i++) {
     const name = (await card(page).textContent()) ?? "";
     seen.push(name);
@@ -81,7 +81,7 @@ test("people you already have a conversation with stay out of Discover", async (
   await expect(done).toBeVisible();
   expect(seen.length).toBeGreaterThan(2);
   // Browse everyone again brings the deck back
-  await page.getByRole("button", { name: "Browse everyone again" }).click();
+  await page.getByRole("button", { name: "Go through them again" }).click();
   await expect(card(page)).toBeVisible();
   expect(seen.filter((n) => /^(Maya|Sofia)\b/.test(n))).toEqual([]);
 });

@@ -71,6 +71,7 @@ import {
   personSection,
 } from "@/lib/discover/sections";
 import { MatchScreen } from "@/design-system/languages/card/MatchScreen";
+import { DeckEnd } from "@/design-system/languages/card/DeckEnd";
 import styles from "./showcase.module.css";
 
 type LangId = "base" | DirectionId;
@@ -832,6 +833,24 @@ export function Showcase() {
                 onClose={() => {}}
               />
             </div>
+          </Specimen>
+          <Specimen label="Card · DeckEnd (where the swipe card was, once the deck is empty)">
+            <DeckEnd
+              title="That's everyone for now"
+              body="11 people in Riga fit your filters."
+              faces={[
+                "/images/marta-1.jpg",
+                "/images/kenji-1.jpg",
+                "/images/tomas-1.jpg",
+              ]}
+              stats={["3 liked", "6 skipped"]}
+              onUndo={() => {}}
+            >
+              <Button fullWidth>Go through them again</Button>
+              <Button variant="secondary" fullWidth>
+                Change filters
+              </Button>
+            </DeckEnd>
           </Specimen>
           <Specimen label="EmptyState · with a checklist (profile gate)">
             <EmptyState

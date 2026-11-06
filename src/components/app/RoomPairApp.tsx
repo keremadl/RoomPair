@@ -499,6 +499,23 @@ function RoomPairApp() {
               ({ profile }) =>
                 !state.chats.some((c) => c.profileId === profile.id),
             )}
+            seen={{
+              liked: pool.filter(({ profile }) =>
+                state.decisions.some(
+                  (d) => d.id === profile.id && d.action === "like",
+                ),
+              ).length,
+              skipped: pool.filter(({ profile }) =>
+                state.decisions.some(
+                  (d) => d.id === profile.id && d.action === "pass",
+                ),
+              ).length,
+              // The last three people you decided on, most recent first.
+              faces: state.decisions
+                .slice(-3)
+                .reverse()
+                .map((d) => profileById(d.id).photo),
+            }}
             onFilters={() => setDialog("filters")}
             onBrowseAgain={browseAgain}
             onUndo={undo}

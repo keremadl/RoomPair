@@ -8,3 +8,4 @@ export {
 } from "./DiscoverScreen";
 export * from "./components";
 export { MatchScreen, type MatchPerson } from "./MatchScreen";
+export { DeckEnd } from "./DeckEnd";

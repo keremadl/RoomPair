@@ -771,5 +771,10 @@
   "Move-in timing": "Taşınma zamanı",
   "Length of stay": "Kalma süresi",
   "Change your filters, or go through everyone you have not matched with again.": "Filtrelerini değiştir ya da eşleşmediğin herkese yeniden bak.",
-  "You have matched with everyone who fits. Change your filters to meet more people.": "Filtrelerine uyan herkesle eşleştin. Daha fazla kişiyle tanışmak için filtrelerini değiştir."
+  "You have matched with everyone who fits. Change your filters to meet more people.": "Filtrelerine uyan herkesle eşleştin. Daha fazla kişiyle tanışmak için filtrelerini değiştir.",
+  "That's everyone for now": "Şimdilik herkes bu kadar",
+  "{count} people in {city} fit your filters.": "{city} içinde {count} kişi filtrelerine uyuyor.",
+  "{count} liked": "{count} beğenildi",
+  "{count} skipped": "{count} geçildi",
+  "Go through them again": "Tekrar göz at"
 }
