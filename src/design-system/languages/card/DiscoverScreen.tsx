@@ -3,7 +3,11 @@ import type { DiscoverDeck, MatchResult, Profile } from "@/lib/discover/deck";
 import { useRef } from "react";
 import { AnimatePresence } from "motion/react";
 import {
+  BadgeCheck,
   Bell,
+  Bookmark,
+  BookmarkCheck,
+  Info,
   Check,
   Circle,
   Compass,
@@ -23,7 +27,13 @@ import {
   Reveal,
   SwipeHero,
 } from "@/design-system/components/SwipeCard/SwipeCard";
-import { sleepLabel, useDeck, you, type Mode } from "@/lib/discover/deck";
+import {
+  dateLabel,
+  sleepLabel,
+  useDeck,
+  you,
+  type Mode,
+} from "@/lib/discover/deck";
 import {
   ProfileDetails,
   type DetailsLayout,
@@ -34,39 +44,51 @@ import {
   personSection,
 } from "@/lib/discover/sections";
 import s from "./styles.module.css";
+import w from "./swipe.module.css";
 import { Stat, Versus, Trait, Banner, HomeItem } from "./components";
 
 /**
  * The swipeable card and its actions. Controlled: pass a deck.
- * roomFirst: the viewer is looking for a room, so a host's card shows the
- * room photo with the host's face in the corner.
+ *
+ * Two looks, picked by what the viewer is looking for:
+ * - roomFirst (the viewer needs a room): the room photo fills the card,
+ *   rent at the top, the host's face, name and fit at the bottom.
+ * - otherwise (the viewer has a room): the person's photo fills the card,
+ *   name, age, fit and budget on it.
+ * Details open from the info button; the card itself stays simple.
  */
 export function DiscoverCard({
   deck,
   roomFirst = false,
+  onInfo,
+  saved,
+  onSave,
 }: {
   deck: DiscoverDeck;
   roomFirst?: boolean;
+  /** Opens Home → Person → Fit for this profile. */
+  onInfo?: () => void;
+  /** Room-first only: whether the room is saved, and the toggle. */
+  saved?: boolean;
+  onSave?: () => void;
 }) {
   const { profile: p, match: m } = deck;
   const decide = deck.decide;
-  const host = p.intent === "have-room";
-  const home = homeSection(p);
-  const person = personSection(p);
-  const fit = fitSection(m);
+  const showRoom = roomFirst && !!p.room;
+  const moveIn = dateLabel(p.moveDate);
   return (
-    <>
-      <div className={s.stage}>
+    <div className={w.wrap}>
+      <div className={w.stage}>
         <AnimatePresence initial={false} custom={deck.exitDirection}>
           <SwipeHero
             key={deck.cardKey}
-            className={s.card}
+            className={w.card}
             onDecision={decide}
-            tilt={16}
-            spring={{ stiffness: 320, damping: 22 }}
+            tilt={14}
+            spring={{ stiffness: 320, damping: 24 }}
             exit={(dir) => ({
               x: dir * 480,
-              rotate: dir * 24,
+              rotate: dir * 20,
               opacity: 0,
               transition: { duration: 0.3 },
             })}
@@ -78,78 +100,118 @@ export function DiscoverCard({
               pass: { className: `${s.stamp} ${s.stampPass}`, label: "Skip" },
             }}
           >
-            <div className={s.frame} data-type={host ? "host" : "explorer"}>
-              <div className={s.cardHead}>
-                <h2 className={s.name}>{p.name}</h2>
-                <span className={s.level}>
-                  <small>Age</small>
-                  {p.age}
+            <article className={w.photoCard} aria-label={`${p.name}, ${p.age}`}>
+              {showRoom ? (
+                <img
+                  className={w.photo}
+                  src={p.room!.photo}
+                  alt={p.room!.title}
+                  draggable={false}
+                />
+              ) : (
+                <img
+                  className={w.photo}
+                  src={p.photo}
+                  alt={p.name}
+                  draggable={false}
+                />
+              )}
+              {showRoom && (
+                <span className={w.price}>
+                  €{p.room!.price}
+                  <small>/month</small>
                 </span>
-              </div>
-              <div className={s.window}>
-                {roomFirst && p.room ? (
-                  <>
+              )}
+              {showRoom && onSave && (
+                <button
+                  type="button"
+                  className={w.save}
+                  aria-label={saved ? "Unsave room" : "Save room"}
+                  aria-pressed={saved}
+                  onClick={onSave}
+                >
+                  {saved ? <BookmarkCheck /> : <Bookmark />}
+                </button>
+              )}
+              <div className={w.overlay}>
+                <div className={w.who}>
+                  {showRoom && (
                     <img
-                      src={p.room.photo}
-                      alt={p.room.title}
-                      draggable={false}
-                    />
-                    <img
-                      className={s.face}
+                      className={w.face}
                       src={p.photo}
                       alt={p.name}
                       draggable={false}
                     />
-                    <span className={s.rent}>
-                      €{p.room.price}
-                      <small> / month</small>
-                    </span>
-                  </>
-                ) : (
-                  <img src={p.photo} alt={p.name} draggable={false} />
-                )}
-                <span className={s.type}>
-                  {host ? (
-                    <KeyRound aria-hidden="true" />
-                  ) : (
-                    <Backpack aria-hidden="true" />
                   )}
-                  {host ? "Host" : "Explorer"}
-                </span>
+                  <div className={w.text}>
+                    <h2 className={w.name}>
+                      {p.name}, {p.age}
+                      {p.verified && (
+                        <BadgeCheck
+                          className={w.verified}
+                          aria-label="Verified"
+                        />
+                      )}
+                    </h2>
+                    <p className={w.line}>
+                      <span className={w.fit}>{m.score}% fit</span>
+                      {showRoom ? (
+                        <span>From {moveIn}</span>
+                      ) : (
+                        <span>
+                          €{p.budget[0]}–{p.budget[1]} · {p.neighborhood}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  {onInfo && (
+                    <button
+                      type="button"
+                      className={w.info}
+                      aria-label={`More about ${p.name}`}
+                      onClick={onInfo}
+                    >
+                      <Info />
+                    </button>
+                  )}
+                </div>
               </div>
-              <p className={s.class}>
-                {p.occupation} · {p.neighborhood}
-              </p>
-              <div className={s.stats}>
-                <Stat label="Tidy" value={p.habits.cleanliness} />
-                <Stat label="Social" value={p.habits.social} />
-                <p className={s.statText}>
-                  <Moon aria-hidden="true" /> {sleepLabel[p.habits.sleep]}
-                </p>
-              </div>
-            </div>
+            </article>
           </SwipeHero>
         </AnimatePresence>
       </div>
 
-      <div className={s.actions}>
+      <div className={w.actions}>
         <button
           type="button"
-          className={s.small}
+          className={w.round}
+          data-kind="undo"
           onClick={deck.undo}
           disabled={!deck.canUndo}
           aria-label="Undo"
         >
           <RotateCcw />
         </button>
-        <button type="button" className={s.skip} onClick={() => decide("pass")}>
-          <X /> Skip
+        <button
+          type="button"
+          className={w.round}
+          data-kind="pass"
+          onClick={() => decide("pass")}
+          aria-label="Skip"
+        >
+          <X />
         </button>
-        <button type="button" className={s.team} onClick={() => decide("like")}>
-          <Heart /> Team up
+        <button
+          type="button"
+          className={w.round}
+          data-kind="like"
+          onClick={() => decide("like")}
+          aria-label="Team up"
+        >
+          <Heart />
         </button>
       </div>
-    </>
+    </div>
   );
 }
 

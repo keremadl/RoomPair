@@ -1,6 +1,5 @@
 /* Shared layout for app views. Tokens only; the Card language styles them. */
 .toolbar,
-.discoverGrid,
 .cardGrid,
 .roomGrid,
 .messenger,
@@ -28,39 +27,6 @@
 }
 .spaced {
   margin-top: var(--space-4);
-}
-
-/* Discover: card + details */
-.discoverGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-8);
-}
-.cardColumn {
-  width: 100%;
-  max-width: 440px;
-  margin: 0 auto;
-}
-.detailsColumn {
-  min-width: 0;
-  max-width: 680px;
-}
-.detailsActions {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: var(--space-3);
-}
-@media (min-width: 1100px) {
-  .discoverGrid {
-    grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
-    align-items: start;
-    gap: var(--space-10);
-  }
-  .cardColumn {
-    position: sticky;
-    top: calc(var(--shell-bar-height) + var(--space-6));
-    margin: 0;
-  }
 }
 
 /* Grids of character cards and rooms */

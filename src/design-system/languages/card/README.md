@@ -16,6 +16,8 @@ Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/d
 
 ## Rules
 
+- The Discover swipe card (`DiscoverCard`, `swipe.module.css`) is one photo that fills the card: the room first when the viewer is looking for a room (rent at the top, host's face, name, fit and move-in at the bottom), the person when the viewer has a room (name, age, fit, budget). Everything else opens from the info button; round icon buttons overlap the card's bottom edge.
+
 - The card front shows the person only: age, type, class, stats. Rent and dates are Home, on the `HomeItem`.
 - Frame colour encodes type: `--type-host` (has a room), `--type-explorer` (looking together).
 - Buttons press down by `--press-depth` and lose their `--press-shadow`; keep that on every pressable.

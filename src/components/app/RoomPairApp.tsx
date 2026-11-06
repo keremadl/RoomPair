@@ -363,6 +363,7 @@ function RoomPairApp() {
           onBrowseAgain={browseAgain}
           onUndo={undo}
           onToggleRoom={(id) => toggleRoom(id, true)}
+          onOpenProfile={openProfile}
           onReport={(p) => {
             setSelected(p);
             setDialog("report");

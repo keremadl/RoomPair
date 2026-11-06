@@ -36,21 +36,22 @@ test("discover shows the card and grouped details; arrows pass, undo restores", 
       portrait.evaluate((img) => (img as HTMLImageElement).naturalWidth),
     )
     .toBeGreaterThan(100);
-  // Card language, Home → Person → Fit as tabs
+  // Card language; Home → Person → Fit open from the info button, as tabs
   await expect(page.locator("[data-direction]").first()).toHaveAttribute(
     "data-direction",
     "card",
   );
-  const tabs = page.getByRole("tablist", { name: "Profile sections" });
+  await page.getByRole("button", { name: "More about Ella" }).click();
+  const details = page.getByRole("dialog");
+  const tabs = details.getByRole("tablist", { name: "Profile sections" });
   await expect(tabs).toBeVisible();
-  await expect(page.getByRole("tabpanel")).toContainText(/the room/i);
+  await expect(details.getByRole("tabpanel")).toContainText(/the room/i);
   await tabs.getByRole("tab", { name: "Ella" }).click();
-  await expect(page.getByRole("tabpanel")).toContainText(/Ella/);
+  await expect(details.getByRole("tabpanel")).toContainText(/Ella/);
   await tabs.getByRole("tab", { name: /% fit/ }).click();
-  await expect(page.getByRole("tabpanel")).toContainText(/96/);
-
-  // Arrow keys move between tabs while a tab has focus; leave the tabs first.
-  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
+  await expect(details.getByRole("tabpanel")).toContainText(/96/);
+  await page.keyboard.press("Escape");
+  await expect(details).toBeHidden();
   await page.keyboard.press("ArrowLeft");
   await expect(card(page)).toHaveText(/^Ines/);
   await expect(page.getByRole("status")).toContainText("Skipped");
@@ -177,7 +178,12 @@ test("filters validate, onboarding updates the profile, report and block work", 
     .getByRole("button", { name: /Discover/ })
     .click();
 
-  await page.getByRole("button", { name: "Report" }).first().click();
+  await page.getByRole("button", { name: "More about Ella" }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Report" })
+    .first()
+    .click();
   const options = page.getByRole("dialog", { name: "Profile options" });
   await options.getByRole("button", { name: /^Block Ella/ }).click();
   await expect(page.getByRole("status")).toContainText("blocked");
@@ -194,7 +200,7 @@ test("what you are looking for decides who Discover shows", async ({
     page.getByRole("img", { name: "A sunny room in Āgenskalns" }).first(),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: /Saved|Save room/ }),
+    page.getByRole("button", { name: /Save room|Unsave room/ }),
   ).toBeVisible();
   await expect(page.getByRole("radio", { name: "Find a room" })).toHaveCount(0);
 

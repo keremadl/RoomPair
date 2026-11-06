@@ -1,0 +1,229 @@
+/*
+ * The Discover swipe card: one photo that fills the card, the few facts
+ * that decide written on it, round buttons overlapping its bottom edge.
+ * Tokens from theme.css.
+ */
+.wrap {
+  width: 100%;
+  max-width: 26rem;
+  margin: 0 auto;
+}
+.stage {
+  position: relative;
+  /* Fill the screen between the top bar and the buttons / tab bar. */
+  height: clamp(22rem, calc(100dvh - 14.75rem), 44rem);
+}
+.card {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  user-select: none;
+}
+.card:active {
+  cursor: grabbing;
+}
+.photoCard {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border: var(--surface-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-sunken);
+  box-shadow: var(--shadow-lg);
+}
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* Rent at the top right; save at the top left (room first) */
+.price {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  border: var(--control-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-raised);
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+.price small {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+.save,
+.info {
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+.save {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  width: 2.75rem;
+  height: 2.75rem;
+  border: var(--control-border-width) solid var(--color-border-strong);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+.save[aria-pressed="true"] {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.save svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+/* Text on the photo */
+.overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--space-16) var(--space-4) var(--space-12);
+  background: var(--color-image-scrim);
+  color: var(--color-text-inverse);
+}
+.who {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.face {
+  flex-shrink: 0;
+  width: 4rem;
+  height: 4rem;
+  border: 3px solid var(--color-text-inverse);
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  pointer-events: none;
+}
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  line-height: var(--leading-tight);
+  white-space: nowrap;
+}
+@media (max-width: 400px) {
+  .name {
+    font-size: var(--text-2xl);
+  }
+  .face {
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+}
+.verified {
+  flex-shrink: 0;
+  width: 1.4rem;
+  height: 1.4rem;
+}
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+.fit {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-text);
+  font-weight: var(--weight-bold);
+}
+.info {
+  flex-shrink: 0;
+  align-self: flex-end;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: var(--border-width) solid var(--color-on-image-border);
+  background: var(--color-on-image-surface);
+  color: var(--color-text-inverse);
+}
+.info:hover {
+  border-color: var(--color-on-image-border-hover);
+}
+.info svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+/* Round buttons, overlapping the card's bottom edge */
+.actions {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: calc(var(--space-8) * -1);
+}
+.round {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border: var(--control-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  box-shadow: var(--control-shadow);
+  cursor: pointer;
+}
+.round:not(:disabled):active {
+  box-shadow: var(--control-shadow-active);
+  transform: var(--control-press);
+}
+.round:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.round svg {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+.round[data-kind="undo"] {
+  width: 3rem;
+  height: 3rem;
+}
+.round[data-kind="undo"] svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+.round[data-kind="pass"] {
+  color: var(--color-danger);
+}
+.round[data-kind="like"] {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.round:focus-visible,
+.save:focus-visible,
+.info:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

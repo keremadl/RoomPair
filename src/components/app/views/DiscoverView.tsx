@@ -1,19 +1,16 @@
 "use client";
-import { Bookmark, BookmarkCheck, RotateCcw, Sparkles } from "lucide-react";
+import { RotateCcw, Sparkles } from "lucide-react";
 import { Button, EmptyState, VisuallyHidden } from "@/design-system";
-import {
-  defaultLanguage,
-  defaultLayout,
-  discoverParts,
-} from "@/design-system/languages";
+import { defaultLanguage, discoverParts } from "@/design-system/languages";
 import type { DiscoverDeck } from "@/lib/discover/deck";
 import { useI18n } from "@/lib/i18n";
 import type { Profile } from "@/lib/types";
 import v from "./views.module.css";
 
 /**
- * Discover: the swipe card and Home → Person → Fit tabs. Room seekers see
- * people who have a room, room first; hosts see people looking for a room.
+ * Discover: one swipe card. Room seekers see people who have a room, room
+ * first; hosts see people looking for a room. The info button opens the
+ * full profile (Home → Person → Fit tabs).
  */
 export function DiscoverView({
   deck,
@@ -26,6 +23,7 @@ export function DiscoverView({
   onUndo,
   onToggleRoom,
   onReport,
+  onOpenProfile,
 }: {
   deck: DiscoverDeck | null;
   /** The viewer is looking for a room: show the room before the person. */
@@ -38,43 +36,24 @@ export function DiscoverView({
   onUndo: () => void;
   onToggleRoom: (id: string) => void;
   onReport: (p: Profile) => void;
+  /** Opens the full profile (Home → Person → Fit tabs). */
+  onOpenProfile: (p: Profile) => void;
 }) {
   const { t } = useI18n();
-  const { Card, Details } = discoverParts[defaultLanguage];
-  const layout = defaultLayout;
+  const { Card } = discoverParts[defaultLanguage];
   const roomId = deck?.profile.room ? `room-${deck.profile.id}` : null;
   const saved = roomId ? savedRooms.includes(roomId) : false;
   return (
     <>
       <VisuallyHidden as="h1">{t("nav.discover")}</VisuallyHidden>
       {deck ? (
-        <div className={v.discoverGrid}>
-          <div className={v.cardColumn}>
-            <Card deck={deck} roomFirst={roomFirst} />
-          </div>
-          <div className={v.detailsColumn}>
-            {roomFirst && roomId && (
-              <div className={v.detailsActions}>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  leadingIcon={saved ? <BookmarkCheck /> : <Bookmark />}
-                  aria-pressed={saved}
-                  onClick={() => onToggleRoom(roomId)}
-                >
-                  {saved ? t("Saved") : t("Save room")}
-                </Button>
-              </div>
-            )}
-            <Details
-              key={deck.profile.id}
-              profile={deck.profile}
-              match={deck.match}
-              layout={layout}
-              onReport={() => onReport(deck.profile)}
-            />
-          </div>
-        </div>
+        <Card
+          deck={deck}
+          roomFirst={roomFirst}
+          onInfo={() => onOpenProfile(deck.profile)}
+          saved={saved}
+          onSave={roomId ? () => onToggleRoom(roomId) : undefined}
+        />
       ) : rankedCount === 0 ? (
         <EmptyState
           icon={<Sparkles />}
