@@ -118,13 +118,20 @@ test("a mutual like opens a match, then a conversation with a simulated reply", 
   await page.keyboard.press("ArrowRight");
   const match = page.getByRole("dialog", { name: "It’s a RoomPair!" });
   await expect(match).toBeVisible();
-  await match.getByRole("button", { name: "Send a message" }).click();
+  // Full-screen "Team up!" with both of you, the fit and a first message
+  await expect(match.getByRole("heading", { name: "Team up!" })).toBeVisible();
+  await expect(match.getByText("96% fit")).toBeVisible();
+  await expect(
+    match.getByRole("group", { name: "Quick starters" }),
+  ).toBeVisible();
+  await match
+    .getByRole("textbox", { name: "Say hi to Ella" })
+    .fill("What’s your ideal Sunday at home?");
+  await match.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(match).toBeHidden();
   await expect(
     page.getByRole("heading", { name: "Messages", level: 1 }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "What’s your ideal Sunday at home?" })
-    .click();
   await expect(
     page.getByText("What’s your ideal Sunday at home?").last(),
   ).toBeVisible();
@@ -158,7 +165,7 @@ test("likes: people who liked you as tiles; a match moves to Messages", async ({
   await expect(
     page.getByRole("dialog", { name: "It’s a RoomPair!" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Not now" }).click();
+  await page.getByRole("button", { name: "Keep swiping" }).click();
   // Ella left Likes and is now a new match in Messages
   await expect(page.getByRole("button", { name: /^Ella, 23/ })).toHaveCount(0);
   await nav.getByRole("button", { name: /Messages/ }).click();

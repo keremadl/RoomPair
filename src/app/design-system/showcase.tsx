@@ -70,6 +70,7 @@ import {
   homeSection,
   personSection,
 } from "@/lib/discover/sections";
+import { MatchScreen } from "@/design-system/languages/card/MatchScreen";
 import styles from "./showcase.module.css";
 
 type LangId = "base" | DirectionId;
@@ -816,6 +817,19 @@ export function Showcase() {
                     />
                   </>
                 }
+              />
+            </div>
+          </Specimen>
+          <Specimen label="Card · MatchScreen (full-screen “Team up!”, replays on load)">
+            <div className={styles.matchFrame}>
+              <MatchScreen
+                you={{ name: "Alex", photo: "/images/alex-1.jpg" }}
+                them={{ name: "Ella", age: 23, photo: "/images/ella-1.jpg" }}
+                fit={96}
+                place={{ price: 420, area: "Āgenskalns" }}
+                starters={["👋 Hi!", "When could I see the room?"]}
+                onSend={() => {}}
+                onClose={() => {}}
               />
             </div>
           </Specimen>

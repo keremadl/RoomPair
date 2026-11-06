@@ -7,3 +7,4 @@ export {
   DiscoverDetails,
 } from "./DiscoverScreen";
 export * from "./components";
+export { MatchScreen, type MatchPerson } from "./MatchScreen";

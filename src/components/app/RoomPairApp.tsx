@@ -39,13 +39,7 @@ import { Brand } from "./Brand";
 import s from "./AppShell.module.css";
 
 type Dialog =
-  | "filters"
-  | "profile"
-  | "match"
-  | "help"
-  | "settings"
-  | "report"
-  | null;
+  "filters" | "profile" | "match" | "help" | "settings" | "report" | null;
 
 const profileById = (id: string) => profiles.find((p) => p.id === id)!;
 const clock = () =>
@@ -256,10 +250,10 @@ function RoomPairApp() {
       decisions: st.decisions.filter((d) => d.action === "like"),
     }));
   }
-  function sendMessage(text: string, photo?: string) {
+  function sendMessage(text: string, photo?: string, chatId?: string) {
     const body = text.trim();
-    if ((!body && !photo) || !chat) return;
-    const id = chat.id;
+    const id = chatId ?? chat?.id;
+    if ((!body && !photo) || !id) return;
     setState((st) => ({
       ...st,
       chats: st.chats.map((c) =>
@@ -660,9 +654,17 @@ function RoomPairApp() {
           <MatchDialog
             key="match"
             profile={detail}
-            userName={state.preferences.name}
+            you={{
+              name: state.preferences.name,
+              photo: state.me.photos[0] ?? "",
+            }}
+            fit={getCompatibility(detail, state.preferences).score}
+            roomFirst={state.preferences.intent !== "have-room"}
             onClose={() => setDialog(null)}
-            onChat={() => openChat(detail)}
+            onSend={(text) => {
+              openChat(detail);
+              sendMessage(text, undefined, `chat-${detail.id}`);
+            }}
           />
         )}
         {dialog === "help" && (

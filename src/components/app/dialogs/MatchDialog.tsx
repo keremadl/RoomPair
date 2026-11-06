@@ -1,46 +1,56 @@
 "use client";
-import { MessageCircle } from "@/design-system/icons";
-import { Avatar, AvatarGroup, Button, Dialog, Text } from "@/design-system";
+import { Dialog } from "@/design-system";
+import { MatchScreen } from "@/design-system/languages/card/MatchScreen";
 import { useI18n } from "@/lib/i18n";
 import type { Profile } from "@/lib/types";
-import d from "./dialogs.module.css";
 
+/** Full-screen "Team up!" after a mutual like, with a first message. */
 export function MatchDialog({
   profile: p,
-  userName,
+  you,
+  fit,
+  roomFirst,
   onClose,
-  onChat,
+  onSend,
 }: {
   profile: Profile;
-  userName: string;
+  you: { name: string; photo: string };
+  fit: number;
+  /** You are looking for a room: show theirs. */
+  roomFirst: boolean;
   onClose: () => void;
-  onChat: () => void;
+  /** Opens the chat with this first message. */
+  onSend: (text: string) => void;
 }) {
   const { t } = useI18n();
+  const place = roomFirst && p.room ? p.room : undefined;
+  const starters = place
+    ? [
+        t("👋 Hi!"),
+        t("When could I see the room?"),
+        t("What are the flatmates like?"),
+      ]
+    : [
+        t("👋 Hi!"),
+        t("When are you moving?"),
+        t("What's your ideal Sunday at home?"),
+      ];
   return (
-    <Dialog title={t("It’s a RoomPair!")} onClose={onClose}>
-      <div className={d.match}>
-        <AvatarGroup>
-          <Avatar name={userName} size="xl" />
-          <Avatar name={p.name} src={p.photo} size="xl" />
-        </AvatarGroup>
-        <Text size="lg">
-          {t("You and")} {p.name} {t("both pressed Team up. You can chat now.")}
-        </Text>
-        <div className={d.actions}>
-          <Button
-            size="lg"
-            leadingIcon={<MessageCircle />}
-            onClick={onChat}
-            fullWidth
-          >
-            {t("Send a message")}
-          </Button>
-          <Button variant="ghost" onClick={onClose} fullWidth>
-            {t("Not now")}
-          </Button>
-        </div>
-      </div>
+    <Dialog
+      title={t("It’s a RoomPair!")}
+      onClose={onClose}
+      size="full"
+      hideTitle
+    >
+      <MatchScreen
+        you={you}
+        them={{ name: p.name, age: p.age, photo: p.photo }}
+        fit={fit}
+        place={place && { price: place.price, area: p.neighborhood }}
+        starters={starters}
+        onSend={onSend}
+        onClose={onClose}
+      />
     </Dialog>
   );
 }

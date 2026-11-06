@@ -436,3 +436,15 @@
   height: 1em;
   vertical-align: -0.125em;
 }
+
+/* MatchScreen specimen: a phone-sized frame instead of the full screen */
+.matchFrame {
+  width: 100%;
+  max-width: 25rem;
+  height: 52rem;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+}
+.matchFrame > * {
+  min-height: 100%;
+}

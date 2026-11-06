@@ -12,7 +12,8 @@ export type DialogProps = {
   title: string;
   onClose: () => void;
   children: ReactNode;
-  size?: "md" | "lg";
+  /** "full" covers the whole screen; the content brings its own layout. */
+  size?: "md" | "lg" | "full";
   hideTitle?: boolean;
   className?: string;
 };
@@ -71,7 +72,7 @@ export function Dialog({
   const m = motionTokens();
   return (
     <motion.div
-      className={styles.backdrop}
+      className={cx(styles.backdrop, size === "full" && styles.fullBackdrop)}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

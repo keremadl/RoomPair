@@ -74,3 +74,22 @@
     padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
   }
 }
+
+/* Full screen: the content (e.g. a match screen) brings its own surface. */
+.fullBackdrop {
+  align-items: stretch;
+  padding: 0;
+}
+.dialog.full {
+  max-width: none;
+  max-height: none;
+  height: 100dvh;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.dialog.full .close {
+  z-index: 1;
+}
