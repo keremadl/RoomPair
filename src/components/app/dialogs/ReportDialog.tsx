@@ -28,9 +28,13 @@ export function ReportDialog({
   const [reason, setReason] = useState(reasons[0]);
   return (
     <Dialog title={t("Profile options")} onClose={onClose}>
-      <Heading level={3}>{t("A little more peace of mind.")}</Heading>
+      <Heading level={3}>
+        {t("Report or block")} {p.name}
+      </Heading>
       <Text tone="muted" className={d.spaced}>
-        {t("You’re in control of who you connect with.")}
+        {t(
+          "Blocking hides them and removes your chat. Reports are only saved in this demo.",
+        )}
       </Text>
       <Select
         className={d.spaced}

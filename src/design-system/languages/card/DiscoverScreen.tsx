@@ -72,7 +72,7 @@ export function DiscoverCard({ deck }: { deck: DiscoverDeck }) {
               <div className={s.cardHead}>
                 <h2 className={s.name}>{p.name}</h2>
                 <span className={s.level}>
-                  <small>LV</small>
+                  <small>Age</small>
                   {p.age}
                 </span>
               </div>
@@ -168,7 +168,7 @@ export function DiscoverDetails({
         tabLabels={{
           home: home.kind === "listing" ? "Room" : "Home",
           person: p.name,
-          fit: `${fit.score} XP`,
+          fit: `${fit.score}% fit`,
         }}
         sections={{
           home: <HomeItem home={home} />,
@@ -224,8 +224,8 @@ export function DiscoverDetails({
           fit: (
             <section className={s.box}>
               <div className={s.xpHead}>
-                <h4 className={s.title}>Experience</h4>
-                <strong>{fit.score} XP</strong>
+                <h4 className={s.title}>Fit</h4>
+                <strong>{fit.score}%</strong>
               </div>
               <div
                 className={s.xp}
@@ -260,7 +260,7 @@ export function DiscoverDetails({
                 ))}
               </dl>
               <p className={s.note}>
-                XP compares what you both said. It is not a prediction.
+                The score compares what you both said. It is not a prediction.
               </p>
             </section>
           ),

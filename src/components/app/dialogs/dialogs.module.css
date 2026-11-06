@@ -150,3 +150,14 @@
 .steps strong {
   color: var(--color-text);
 }
+.notice {
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: var(--control-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-warning-soft);
+  font-size: var(--text-sm);
+}
+.notice p {
+  margin: var(--space-1) 0 0;
+}

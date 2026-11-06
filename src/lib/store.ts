@@ -12,7 +12,8 @@ export interface AppState {
   onboarded: boolean;
   blocked: string[];
   reports: { profileId: string; reason: string }[];
-  viewing: string;
+  /** Planned viewing per saved room id (datetime-local value). */
+  viewings: Record<string, string>;
 }
 export const initialState: AppState = {
   preferences: defaultPreferences,
@@ -24,7 +25,7 @@ export const initialState: AppState = {
   onboarded: false,
   blocked: [],
   reports: [],
-  viewing: "",
+  viewings: {},
 };
 const KEY = "roompair-demo-v1";
 export function useAppState() {
@@ -44,6 +45,12 @@ export function useAppState() {
             ...initialState,
             ...saved,
             preferences: { ...defaultPreferences, ...saved.preferences },
+            // v1 stored one viewing for the whole plan; attach it to the first saved room.
+            viewings:
+              saved.viewings ??
+              (saved.viewing && saved.savedRooms?.[0]
+                ? { [saved.savedRooms[0]]: saved.viewing }
+                : {}),
           });
       }
     } catch {}

@@ -1,7 +1,7 @@
 /*
  * Language F — Kart (Character card)
  * Each person is a collectible character card: age is the level, habits are
- * stats, tags are abilities, compatibility is XP and quests. Chunky, rounded,
+ * stats, tags are abilities, compatibility is a % score with quests. Chunky, rounded,
  * game-like, but set in a plain readable sans (Rubik) at full size.
  */
 [data-direction="card"] {

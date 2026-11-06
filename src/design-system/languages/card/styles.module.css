@@ -138,7 +138,7 @@
 .level {
   display: flex;
   align-items: baseline;
-  gap: 2px;
+  gap: var(--space-1);
   font-family: var(--font-heading);
   font-size: var(--text-2xl);
   font-weight: 800;

@@ -1,13 +1,6 @@
 "use client";
-import { Heart, MessageCircle } from "lucide-react";
-import {
-  Avatar,
-  AvatarGroup,
-  Button,
-  Dialog,
-  Eyebrow,
-  Text,
-} from "@/design-system";
+import { MessageCircle } from "lucide-react";
+import { Avatar, AvatarGroup, Button, Dialog, Text } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
 import type { Profile } from "@/lib/types";
 import d from "./dialogs.module.css";
@@ -31,12 +24,8 @@ export function MatchDialog({
           <Avatar name={userName} size="xl" />
           <Avatar name={p.name} src={p.photo} size="xl" />
         </AvatarGroup>
-        <Eyebrow>
-          <Heart aria-hidden="true" className={d.inlineIcon} />{" "}
-          {t("GOOD FEELING. MUTUAL FEELING.")}
-        </Eyebrow>
         <Text size="lg">
-          {t("You and")} {p.name} {t("both see a little home in each other.")}
+          {t("You and")} {p.name} {t("both pressed Team up. You can chat now.")}
         </Text>
         <div className={d.actions}>
           <Button
@@ -45,10 +34,10 @@ export function MatchDialog({
             onClick={onChat}
             fullWidth
           >
-            {t("Say a little hello")}
+            {t("Send a message")}
           </Button>
           <Button variant="ghost" onClick={onClose} fullWidth>
-            {t("Keep exploring")}
+            {t("Not now")}
           </Button>
         </div>
       </div>

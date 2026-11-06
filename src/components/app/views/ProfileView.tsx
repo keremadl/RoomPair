@@ -1,33 +1,21 @@
 "use client";
-import {
-  ArrowUpRight,
-  KeyRound,
-  MapPin,
-  Settings2,
-  ShieldCheck,
-} from "lucide-react";
+import { Backpack, KeyRound, Moon, Pencil, Settings2 } from "lucide-react";
 import {
   Avatar,
-  Badge,
   Button,
-  Card,
-  FactGrid,
   Heading,
   Select,
   Text,
+  VisuallyHidden,
 } from "@/design-system";
+import { dateLabel, sleepLabel } from "@/lib/discover/deck";
 import { useI18n } from "@/lib/i18n";
 import type { Preferences } from "@/lib/types";
-import { PageHeader } from "../PageHeader";
+import { Pips } from "../PersonCard";
+import c from "../PersonCard.module.css";
 import v from "./views.module.css";
 
-const longDate = (iso: string) =>
-  new Date(`${iso}T12:00:00`).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-
+/** Your own character card (what others compare with) and settings. */
 export function ProfileView({
   preferences: p,
   onboarded,
@@ -40,115 +28,129 @@ export function ProfileView({
   onSettings: () => void;
 }) {
   const { t, locale, setLocale, locales, isLoading, error } = useI18n();
-  const rhythm =
-    p.sleep === "early"
-      ? "Early bird"
-      : p.sleep === "late"
-        ? "Night owl"
-        : "A little flexible";
+  const host = p.intent === "have-room";
+  const looking =
+    p.intent === "have-room"
+      ? t("I have a room and need a flatmate")
+      : p.intent === "find-room"
+        ? t("I need a room or a flatmate")
+        : t("Open to both");
+  const mustHaves = [
+    p.smokeFree && t("Smoke-free home"),
+    p.petsOkay ? t("Pets are fine") : t("No pets"),
+    p.verifiedOnly && t("Student badge only"),
+  ].filter(Boolean) as string[];
   return (
     <>
-      <PageHeader
-        eyebrow={t("A HOME STARTS WITH YOU")}
-        title={t("profile.title")}
-        description={t("The little things that make you, you.")}
-      />
+      <VisuallyHidden as="h1">{t("nav.profile")}</VisuallyHidden>
       <div className={v.profileGrid}>
-        <Card padding="lg" className={v.me}>
-          <Avatar name={p.name} size="xl" />
-          <Heading level={2} size="2xl">
-            {p.name}
+        <section aria-labelledby="my-card">
+          <article
+            className={`${c.card} ${v.myCard}`}
+            data-type={host ? "host" : "explorer"}
+          >
+            <div className={c.body}>
+              <div className={c.head}>
+                <span className={v.myName}>
+                  <Avatar name={p.name} size="lg" />
+                  <h2 className={c.name} id="my-card">
+                    {p.name}
+                  </h2>
+                </span>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  leadingIcon={<Pencil />}
+                  onClick={onEdit}
+                >
+                  {t("Edit")}
+                </Button>
+              </div>
+              <p className={c.line}>
+                <span className={c.type}>
+                  {host ? (
+                    <KeyRound aria-hidden="true" />
+                  ) : (
+                    <Backpack aria-hidden="true" />
+                  )}
+                  {host ? t("Host") : t("Explorer")}
+                </span>
+                <span className={c.meta}>{looking}</span>
+              </p>
+              <dl className={v.myFacts}>
+                <div>
+                  <dt>{t("City")}</dt>
+                  <dd>{p.city}</dd>
+                </div>
+                <div>
+                  <dt>{t("Monthly budget")}</dt>
+                  <dd>
+                    €{p.budgetMin}–{p.budgetMax}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{t("Move-in")}</dt>
+                  <dd>{dateLabel(p.moveDate)}</dd>
+                </div>
+                <div>
+                  <dt>{t("Stay")}</dt>
+                  <dd>
+                    {p.stayMonths} {t("months")}
+                  </dd>
+                </div>
+              </dl>
+              <div className={c.stats}>
+                <Pips label={t("Tidy")} value={p.cleanliness} />
+                <Pips label={t("Social")} value={p.social} />
+                <span className={c.sleep}>
+                  <Moon aria-hidden="true" /> {t(sleepLabel[p.sleep])}
+                </span>
+              </div>
+              <ul className={v.mustHaves} aria-label={t("Must-haves")}>
+                {mustHaves.map((m) => (
+                  <li key={m}>{m}</li>
+                ))}
+              </ul>
+              {!onboarded && (
+                <Text size="sm" tone="muted">
+                  {t("These are example answers. Press Edit to use your own.")}
+                </Text>
+              )}
+            </div>
+          </article>
+          <Text size="sm" tone="muted" className={v.spaced}>
+            {t(
+              "Other people compare their answers with these. Your fit score with them comes from this card.",
+            )}
+          </Text>
+        </section>
+
+        <section className={v.panel} aria-labelledby="settings-title">
+          <Heading level={2} size="lg" id="settings-title">
+            {t("Settings")}
           </Heading>
-          <Text tone="muted">
-            <MapPin aria-hidden="true" className={v.inlineIcon} /> {p.city} ·{" "}
-            {t("Your next chapter")}
-          </Text>
-          <Badge tone="accent">
-            <KeyRound aria-hidden="true" className={v.inlineIcon} />
-            {p.intent === "have-room"
-              ? t("I have a room to share")
-              : t("I’m finding my people")}
-          </Badge>
-          <Button trailingIcon={<ArrowUpRight />} onClick={onEdit}>
-            {t("Edit my profile")}
-          </Button>
-          <Text size="sm" tone="muted">
-            {onboarded
-              ? t("Your living style is ready.")
-              : t("Make it yours in a few small steps.")}
-          </Text>
-        </Card>
-
-        <div className={v.stack}>
-          <Card padding="md">
-            <div className={v.sectionHead}>
-              <Heading level={2} size="xl">
-                {t("My living style")}
-              </Heading>
-              <Button variant="ghost" size="sm" onClick={onEdit}>
-                {t("common.edit")}
-              </Button>
-            </div>
-            <FactGrid
-              facts={[
-                {
-                  label: t("Monthly budget"),
-                  value: `€${p.budgetMin}–${p.budgetMax}`,
-                },
-                { label: t("Ready to move"), value: longDate(p.moveDate) },
-                {
-                  label: t("At home"),
-                  value: p.smokeFree ? t("Smoke-free") : t("Open to smoking"),
-                },
-                { label: t("My rhythm"), value: t(rhythm) },
-              ]}
-            />
-          </Card>
-
-          <Card padding="md">
-            <Heading level={2} size="xl">
-              {t("settings.language")}
-            </Heading>
-            <Text size="sm" tone="muted" className={v.spaced}>
-              {t("Feel at home in your own language.")}
-            </Text>
-            <Select
-              label={t("settings.language")}
-              value={locale}
-              disabled={isLoading}
-              onChange={(e) => setLocale(e.target.value)}
-              options={locales.map((l) => ({
-                value: l.code,
-                label: l.nativeName,
-              }))}
-              error={error ?? undefined}
-              className={v.spaced}
-            />
-          </Card>
-
-          <Card variant="sunken" padding="md" className={v.trust}>
-            <ShieldCheck aria-hidden="true" />
-            <div>
-              <Heading level={2} size="lg">
-                {t("Trust is in the details.")}
-              </Heading>
-              <Text size="sm" tone="muted">
-                {t(
-                  "Demo student badges illustrate verification. Identity and property checks are not connected in this prototype.",
-                )}
-              </Text>
-            </div>
-          </Card>
-          <div>
+          <Select
+            label={t("settings.language")}
+            value={locale}
+            disabled={isLoading}
+            onChange={(e) => setLocale(e.target.value)}
+            options={locales.map((l) => ({
+              value: l.code,
+              label: l.nativeName,
+            }))}
+            error={error ?? undefined}
+            className={v.spaced}
+          />
+          <div className={v.spaced}>
             <Button
-              variant="ghost"
+              variant="secondary"
               leadingIcon={<Settings2 />}
               onClick={onSettings}
             >
-              {t("Demo settings & data")}
+              {t("Demo data")}
             </Button>
           </div>
-        </div>
+        </section>
       </div>
     </>
   );

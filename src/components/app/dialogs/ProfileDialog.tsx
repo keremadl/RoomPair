@@ -67,7 +67,7 @@ export function ProfileDialog({
       <div className={d.footer}>
         {hasChat || p.likesYou ? (
           <Button leadingIcon={<MessageCircle />} onClick={onChat} fullWidth>
-            {t("Say hello")}
+            {t("Message")}
           </Button>
         ) : (
           <Button
@@ -76,7 +76,7 @@ export function ProfileDialog({
             disabled={liked}
             fullWidth
           >
-            {liked ? t("Like sent") : t("Send a like")}
+            {liked ? t("Waiting for them") : t("Team up")}
           </Button>
         )}
       </div>

@@ -199,7 +199,7 @@ export function Onboarding({
                 />
                 <div className={o.row}>
                   <Input
-                    label={`${t("ob.budget")} · ${t("ob.minimum")}`}
+                    label={t("Monthly budget, from")}
                     hint={t("ob.budgetHint")}
                     type="number"
                     prefix="€"
@@ -207,7 +207,7 @@ export function Onboarding({
                     onChange={(e) => set("budgetMin", Number(e.target.value))}
                   />
                   <Input
-                    label={t("ob.maximum")}
+                    label={t("Up to")}
                     type="number"
                     prefix="€"
                     value={values.budgetMax}

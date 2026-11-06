@@ -1,44 +1,80 @@
 "use client";
 import { Bookmark, BookmarkCheck, MapPin } from "lucide-react";
-import { Badge, Button, Card, IconButton } from "@/design-system";
+import { Avatar, Button, IconButton } from "@/design-system";
+import { profiles } from "@/lib/data";
+import { dateLabel } from "@/lib/discover/deck";
 import { useI18n } from "@/lib/i18n";
 import type { Room } from "@/lib/types";
-import v from "./views/views.module.css";
+import r from "./RoomTile.module.css";
 
-/** A room listing in a grid: photo, price, area, save and open. */
+/** The host who lists a room (rooms are built from host profiles). */
+export const hostOf = (room: Room) =>
+  profiles.find((p) => `room-${p.id}` === room.id);
+
+/**
+ * A room as an item card: photo, rent, area, host, move-in and stay.
+ * `children` adds a row under the facts (My space puts the viewing there).
+ */
 export function RoomTile({
   room,
   saved,
   onOpen,
   onToggle,
+  children,
 }: {
   room: Room;
   saved: boolean;
   onOpen: () => void;
   onToggle: () => void;
+  children?: React.ReactNode;
 }) {
   const { t } = useI18n();
+  const host = hostOf(room);
   return (
-    <Card padding="none" className={v.tile}>
+    <article className={r.tile} aria-label={room.title}>
       <button
         type="button"
-        className={v.tilePhoto}
+        className={r.photo}
         onClick={onOpen}
-        aria-label={`${t("Take a look")}: ${room.title}`}
+        aria-label={`${t("Open room")}: ${room.title}`}
       >
         <img src={room.photo} alt="" />
-        <Badge tone="neutral" className={v.tileBadge}>
-          €{room.price} / {t("month")}
-        </Badge>
+        <span className={r.price}>
+          €{room.price}
+          <small> / {t("month")}</small>
+        </span>
       </button>
-      <div className={v.tileBody}>
-        <h3 className={v.tileTitle}>{room.title}</h3>
-        <p className={v.tileMeta}>
+      <div className={r.body}>
+        <h3 className={r.title}>{room.title}</h3>
+        <p className={r.area}>
           <MapPin aria-hidden="true" /> {room.neighborhood}
         </p>
-        <div className={v.tileActions}>
+        {host && (
+          <dl className={r.facts}>
+            <div>
+              <dt>{t("From")}</dt>
+              <dd>{dateLabel(host.moveDate)}</dd>
+            </div>
+            <div>
+              <dt>{t("Stay")}</dt>
+              <dd>
+                {host.stayMonths} {t("months")}
+              </dd>
+            </div>
+          </dl>
+        )}
+        {host && (
+          <p className={r.host}>
+            <Avatar name={host.name} src={host.photo} size="sm" />
+            <span>
+              {t("Host")}: <strong>{host.name}</strong>, {host.age}
+            </span>
+          </p>
+        )}
+        {children}
+        <div className={r.actions}>
           <Button size="sm" variant="secondary" onClick={onOpen}>
-            {t("Take a look")}
+            {t("Open room")}
           </Button>
           <IconButton
             size="sm"
@@ -50,6 +86,6 @@ export function RoomTile({
           />
         </div>
       </div>
-    </Card>
+    </article>
   );
 }

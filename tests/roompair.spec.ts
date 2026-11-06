@@ -17,7 +17,7 @@ async function openApp(page: Page) {
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
-      name: "Good people. Better living.",
+      name: "Discover",
       level: 1,
     }),
   ).toBeVisible();
@@ -46,14 +46,14 @@ test("discover shows the card and grouped details; arrows pass, undo restores", 
   await expect(page.getByRole("tabpanel")).toContainText(/the room/i);
   await tabs.getByRole("tab", { name: "Ella" }).click();
   await expect(page.getByRole("tabpanel")).toContainText(/Ella/);
-  await tabs.getByRole("tab", { name: /XP/ }).click();
+  await tabs.getByRole("tab", { name: /% fit/ }).click();
   await expect(page.getByRole("tabpanel")).toContainText(/96/);
 
   // Arrow keys move between tabs while a tab has focus; leave the tabs first.
   await page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
   await page.keyboard.press("ArrowLeft");
   await expect(card(page)).toHaveText(/^Leo/);
-  await expect(page.getByRole("status")).toContainText("Passed");
+  await expect(page.getByRole("status")).toContainText("Skipped");
   await page.getByRole("button", { name: "Undo" }).first().click();
   await expect(card(page)).toHaveText(/^Ella/);
   expect(errors).toEqual([]);
@@ -66,9 +66,9 @@ test("a mutual like opens a match, then a conversation with a simulated reply", 
   await page.keyboard.press("ArrowRight");
   const match = page.getByRole("dialog", { name: "It’s a RoomPair!" });
   await expect(match).toBeVisible();
-  await match.getByRole("button", { name: "Say a little hello" }).click();
+  await match.getByRole("button", { name: "Send a message" }).click();
   await expect(
-    page.getByRole("heading", { name: "From hello to home.", level: 1 }),
+    page.getByRole("heading", { name: "Messages", level: 1 }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "What’s your ideal Sunday at home?" })
@@ -92,11 +92,11 @@ test("likes, rooms, the shared space and the moving checklist", async ({
     "aria-selected",
     "true",
   );
-  await page.getByRole("button", { name: "Like back" }).first().click();
+  await page.getByRole("button", { name: "Team up" }).first().click();
   await expect(
     page.getByRole("dialog", { name: "It’s a RoomPair!" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Keep exploring" }).click();
+  await page.getByRole("button", { name: "Not now" }).click();
 
   await nav.getByRole("button", { name: "Discover" }).click();
   await page.getByRole("radio", { name: "Find a room" }).click();
@@ -108,17 +108,17 @@ test("likes, rooms, the shared space and the moving checklist", async ({
 
   await nav.getByRole("button", { name: "My space" }).click();
   await expect(
-    page.getByRole("heading", { name: /Places worth a look · 2/ }),
+    page.getByRole("heading", { name: /Saved rooms · 2/ }),
   ).toBeVisible();
-  const task = page.getByRole("button", { name: /Find your cleaning rhythm/ });
+  const task = page.getByRole("button", { name: /^Cleaning/ });
   await task.click();
   await expect(task).toHaveAttribute("aria-pressed", "true");
   await page
-    .getByRole("textbox", { name: "Shared notes" })
+    .getByRole("textbox", { name: "Notes" })
     .fill("Ask about the balcony");
   await page.reload();
   await nav.getByRole("button", { name: "My space" }).click();
-  await expect(page.getByRole("textbox", { name: "Shared notes" })).toHaveValue(
+  await expect(page.getByRole("textbox", { name: "Notes" })).toHaveValue(
     "Ask about the balcony",
   );
 });
@@ -139,8 +139,12 @@ test("filters validate, onboarding updates the profile, report and block work", 
   await filters.getByRole("button", { name: "Show my people" }).click();
   await expect(filters).toBeHidden();
 
-  await page.getByRole("button", { name: "Find your living style" }).click();
-  const setup = page.getByRole("dialog", { name: "A little about you" });
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .getByRole("button", { name: /My profile/ })
+    .click();
+  await page.getByRole("button", { name: "Edit" }).click();
+  const setup = page.getByRole("dialog", { name: "Your profile" });
   await setup
     .getByRole("textbox", { name: "What should we call you?" })
     .fill("");
@@ -153,7 +157,7 @@ test("filters validate, onboarding updates the profile, report and block work", 
     .fill("Deniz");
   for (let i = 0; i < 3; i++)
     await setup.getByRole("button", { name: "Continue" }).click();
-  await setup.getByRole("button", { name: "Find my people" }).click();
+  await setup.getByRole("button", { name: "Save and show people" }).click();
   await expect(page.getByRole("status")).toContainText("Deniz");
   await expect(
     page.getByRole("button", { name: "View your profile" }),
@@ -183,7 +187,7 @@ test("Turkish interface and a phone-sized layout", async ({ page }) => {
   ).toBeVisible();
   await turkishNav.getByRole("button", { name: /Mesajlar/ }).click();
   await expect(page.getByRole("heading", { level: 1 })).not.toHaveText(
-    "From hello to home.",
+    "Messages",
   );
 });
 

@@ -17,7 +17,7 @@ nothing, and things that look different on every page.
 | 1.3 | **Card language only on Discover.** Discover has level, stat pips, XP, "Team up / Skip". Every other page is a plain rounded card with an offset shadow.                                                                         | Likes, Messages, Space, Profile         | The chosen design language disappears after the first page.                                                                  |
 | 1.4 | **Words change from page to page:** Team up / Like / Like back; Skip / Pass ("Passed" toast); 96 XP / 96% fit / 93% lifestyle fit; Room / The room / Item: the room.                                                             | Discover vs Likes vs Messages vs toasts | The same thing has three names.                                                                                              |
 | 1.5 | **Sidebar promo card** "YOUR NEXT CHAPTER / A place is better with your people. / Find your living style" is always on screen, plus the footnote "Student project · Demo community".                                             | Desktop sidebar                         | Permanent advert for something already in the profile.                                                                       |
-| 1.6 | **Bug: sidebar background stops** at the first screen height on long pages.                                                                                                                                                      | Likes, My space (desktop)               | Looks broken when you scroll.                                                                                                |
+| 1.6 | ~~Sidebar background stops on long pages.~~ Not a bug: the sidebar is sticky and follows the scroll; it only looked cut off in full-page screenshots.                                                                            | —                                       | —                                                                                                                            |
 | 1.7 | **Disclaimers scattered** as small grey lines: "Demo replies are simulated…", "A conversation starts with a mutual like.", "A shared-living checklist, not a rental agreement.", "Demo student badges illustrate verification…". | Messages, Space, Profile                | Necessary honesty, but repeated in four styles; reads as noise. One clear demo notice would do.                              |
 | 1.8 | **Dates in US format** in date fields (mm/dd/yyyy) while the app shows "1 Feb 2027".                                                                                                                                             | Onboarding, Filters, Space              | Inconsistent; confusing for European students.                                                                               |
 
@@ -81,3 +81,17 @@ nothing, and things that look different on every page.
 5. **My space as a real plan:** one list of saved places, each with its viewing date and notes, plus the checklist; or a "household" view per match.
 6. **One demo notice** (for example in Settings / Help) instead of grey footnotes on every page.
 7. **Fix the bugs:** sidebar height, date format, duplicate room photo.
+
+## Done (6 November 2026)
+
+- Slogan headers removed from every page (screen readers still get a hidden page title).
+- Fit is shown as **%** everywhere, age as **Age 23** (no more XP / LV).
+- One vocabulary: **Team up / Skip**, "96% fit", "Saved rooms".
+- Likes: compact character cards with type, age, fit, rent or budget, move-in, stay and stats; "View profile" next to "Team up".
+- Messages: full-height chat, header with age, % fit, type and area; banners, fake emoji button, filler lines and footnotes removed; search only from six chats.
+- My space: saved rooms with host, move-in and stay, each with its own viewing date; a checklist of concrete questions; notes labelled "Only saved on this device".
+- My profile: your own character card with all answers, plus a small Settings panel.
+- Room list: host, move-in and stay on every card; Teika has its own photo (`room-4.jpg`).
+- Sidebar: promo card and footnote removed. One demo notice in Help instead of grey lines on every page.
+- Filters and setup use the same labels; all toasts say what happened; filler copy rewritten (English and Turkish).
+- Not changed: date fields follow the browser's language (a US-English browser shows mm/dd/yyyy).

@@ -148,7 +148,7 @@ function RoomPairApp() {
   function openChat(person: Profile) {
     const existing = state.chats.find((c) => c.profileId === person.id);
     if (!existing && !person.likesYou) {
-      notify(t("A conversation opens when you both like each other."));
+      notify(t("A chat opens when you both press Team up."));
       return;
     }
     ensureChat(person);
@@ -180,8 +180,8 @@ function RoomPairApp() {
       setDialog(null);
       notify(
         action === "like"
-          ? t("Like sent. A little hello goes a long way.")
-          : t("Passed. Your kind of person is still out there."),
+          ? t("Sent. If they press Team up too, a chat opens.")
+          : t("Skipped."),
       );
     }
   }
@@ -271,11 +271,7 @@ function RoomPairApp() {
         : [...st.savedRooms, id],
     }));
     if (announce)
-      notify(
-        saved
-          ? t("Removed from your shared space.")
-          : t("Saved. One step closer to your next chapter."),
-      );
+      notify(saved ? t("Removed from saved rooms.") : t("Saved to My space."));
   }
   function toggleTask(id: string) {
     setState((st) => ({
@@ -342,13 +338,9 @@ function RoomPairApp() {
       onNavigate={navigate}
       counts={{ likes: received.length, messages: unread }}
       userName={state.preferences.name}
-      onboarded={state.onboarded}
-      onLivingStyle={() => setOnboarding(true)}
       onHelp={() => setDialog("help")}
       onNotifications={() =>
-        received.length
-          ? navigate("likes")
-          : notify(t("Your newest likes are waiting for you."))
+        received.length ? navigate("likes") : notify(t("No new likes."))
       }
       toast={toast}
     >
@@ -383,7 +375,9 @@ function RoomPairApp() {
             p.likesYou
               ? openChat(p)
               : notify(
-                  t("Your like is on its way. Chat opens with a mutual match."),
+                  t(
+                    "Waiting for them. A chat opens when they press Team up too.",
+                  ),
                 )
           }
           onDiscover={() => navigate("discover")}
@@ -406,7 +400,6 @@ function RoomPairApp() {
             setSelected(p);
             setDialog("report");
           }}
-          onSpace={() => navigate("space")}
           onDiscover={() => navigate("discover")}
         />
       )}
@@ -418,7 +411,12 @@ function RoomPairApp() {
           onToggleRoom={(id) => toggleRoom(id, true)}
           onToggleTask={toggleTask}
           onNotes={(notes) => setState((st) => ({ ...st, notes }))}
-          onViewing={(viewing) => setState((st) => ({ ...st, viewing }))}
+          onViewing={(roomId, viewing) =>
+            setState((st) => ({
+              ...st,
+              viewings: { ...st.viewings, [roomId]: viewing },
+            }))
+          }
           onExploreRooms={() => {
             setMode("rooms");
             navigate("discover");
@@ -443,7 +441,7 @@ function RoomPairApp() {
             onApply={(preferences: Preferences) => {
               setState((st) => ({ ...st, preferences }));
               setDialog(null);
-              notify(t("Your search feels a little more like you."));
+              notify(t("Filters updated."));
             }}
             onInvalid={() =>
               notify(t("Your maximum budget must be above your minimum."))
@@ -503,7 +501,7 @@ function RoomPairApp() {
               reset();
               setDialog(null);
               setView("discover");
-              notify(t("Your demo is ready for a new beginning."));
+              notify(t("Demo data reset."));
             }}
           />
         )}
@@ -544,9 +542,7 @@ function RoomPairApp() {
               setState((st) => ({ ...st, preferences, onboarded: true }));
               setOnboarding(false);
               setView("discover");
-              notify(
-                `${t("Welcome to your next chapter,")} ${preferences.name}.`,
-              );
+              notify(`${t("Profile saved. Hi,")} ${preferences.name}!`);
             }}
           />
         )}

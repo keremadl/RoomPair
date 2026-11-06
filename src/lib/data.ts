@@ -241,7 +241,7 @@ export const profiles: Profile[] = [
     neighborhood: "Teika",
     bio: "Forest walks, second-hand finds, and meals built around whatever is in season. My cat Fig is an excellent, if quiet, conversation partner.",
     photo: "/images/ines.jpg",
-    photos: ["/images/ines.jpg", "/images/room-3.jpg"],
+    photos: ["/images/ines.jpg", "/images/room-4.jpg"],
     budget: [300, 550],
     moveDate: "2027-02-01",
     stayMonths: 12,
@@ -265,7 +265,7 @@ export const profiles: Profile[] = [
     room: {
       title: "Green views in Teika",
       price: 360,
-      photo: "/images/room-3.jpg",
+      photo: "/images/room-4.jpg",
       description:
         "A bright private room in a friendly two-bedroom home shared with one student and one cat. €360/month including estimated utilities.",
     },

@@ -1,58 +1,49 @@
 "use client";
-import { Bookmark, CalendarDays, Check, Plus } from "lucide-react";
+import { Bookmark, Check } from "lucide-react";
 import {
   Button,
-  Card,
   EmptyState,
-  Eyebrow,
-  FactGrid,
   Heading,
   Input,
   Text,
   Textarea,
+  VisuallyHidden,
 } from "@/design-system";
 import type { AppState } from "@/lib/store";
 import { useI18n } from "@/lib/i18n";
 import type { Room } from "@/lib/types";
-import { PageHeader } from "../PageHeader";
 import { RoomTile } from "../RoomTile";
 import v from "./views.module.css";
 
 const tasks = [
   {
     id: "budget",
-    title: "Talk budgets & shared bills",
-    sub: "Rent, utilities, and the occasional pizza.",
+    title: "Rent and bills",
+    sub: "Who pays what, and by which day?",
   },
   {
     id: "cleaning",
-    title: "Find your cleaning rhythm",
-    sub: "A little daily, or a Sunday reset?",
+    title: "Cleaning",
+    sub: "A daily tidy-up or a weekly rota?",
   },
   {
     id: "guests",
-    title: "Talk guests & quiet hours",
-    sub: "Make space for everyone’s comfort.",
+    title: "Guests and quiet hours",
+    sub: "How often are guests fine? Quiet after what time?",
   },
   {
     id: "viewing",
-    title: "Visit a place together",
-    sub: "See how it feels, in real life.",
+    title: "Visit the room together",
+    sub: "Plan a viewing for one of your saved rooms.",
   },
   {
     id: "agreement",
-    title: "Write down your house rules",
-    sub: "Shared expectations, fewer surprises.",
+    title: "House rules in writing",
+    sub: "Write down what you agreed on.",
   },
 ];
 
-const longDate = (iso: string) =>
-  new Date(`${iso}T12:00:00`).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-
+/** Saved rooms with their viewings, the move-in checklist and notes. */
 export function SpaceView({
   state,
   rooms,
@@ -69,103 +60,64 @@ export function SpaceView({
   onToggleRoom: (id: string) => void;
   onToggleTask: (id: string) => void;
   onNotes: (notes: string) => void;
-  onViewing: (viewing: string) => void;
+  onViewing: (roomId: string, viewing: string) => void;
   onExploreRooms: () => void;
 }) {
   const { t } = useI18n();
   const saved = rooms.filter((r) => state.savedRooms.includes(r.id));
-  const p = state.preferences;
+  const done = state.checklist.length;
   return (
     <>
-      <PageHeader
-        eyebrow={t("THE NEXT CHAPTER, TOGETHER")}
-        title={t("space.title")}
-        description={t("space.subtitle")}
-      />
-      <Card variant="sunken" padding="lg" className={v.banner}>
-        <Eyebrow>{t("YOUR RIGA CHAPTER")}</Eyebrow>
-        <Heading level={2} size="2xl">
-          {t("Let’s make room for real life.")}
-        </Heading>
-        <FactGrid
-          className={v.bannerFacts}
-          facts={[
-            { label: t("Ready to move"), value: longDate(p.moveDate) },
-            {
-              label: t("Monthly budget"),
-              value: `€${p.budgetMin}–${p.budgetMax}`,
-              note: `/ ${t("month")}`,
-            },
-          ]}
-        />
-      </Card>
-
+      <VisuallyHidden as="h1">{t("nav.space")}</VisuallyHidden>
       <div className={v.spaceGrid}>
-        <div className={v.stack}>
-          <section aria-labelledby="saved-title">
-            <div className={v.sectionHead}>
-              <Heading level={2} size="xl" id="saved-title">
-                {t("Places worth a look")} · {saved.length}
-              </Heading>
-              <Button
-                variant="ghost"
-                size="sm"
-                leadingIcon={<Plus />}
-                onClick={onExploreRooms}
-              >
-                {t("Add a place")}
-              </Button>
-            </div>
-            {saved.length ? (
-              <div className={v.tileGrid}>
-                {saved.map((room) => (
-                  <RoomTile
-                    key={room.id}
-                    room={room}
-                    saved
-                    onOpen={() => onOpenRoom(room)}
-                    onToggle={() => onToggleRoom(room.id)}
+        <section aria-labelledby="saved-title" className={v.stack}>
+          <div className={v.sectionHead}>
+            <Heading level={2} size="xl" id="saved-title">
+              {t("Saved rooms")} · {saved.length}
+            </Heading>
+            <Button variant="secondary" size="sm" onClick={onExploreRooms}>
+              {t("Browse rooms")}
+            </Button>
+          </div>
+          {saved.length ? (
+            <div className={v.roomGrid}>
+              {saved.map((room) => (
+                <RoomTile
+                  key={room.id}
+                  room={room}
+                  saved
+                  onOpen={() => onOpenRoom(room)}
+                  onToggle={() => onToggleRoom(room.id)}
+                >
+                  <Input
+                    type="datetime-local"
+                    label={t("Viewing")}
+                    value={state.viewings[room.id] ?? ""}
+                    onChange={(e) => onViewing(room.id, e.target.value)}
                   />
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                icon={<Bookmark />}
-                title={t("Room for a favourite.")}
-                body={t("Save homes from Discover to compare them here.")}
-                action={{ label: t("Explore rooms"), onClick: onExploreRooms }}
-              />
-            )}
-          </section>
-          <section aria-labelledby="notes-title">
-            <div className={v.sectionHead}>
-              <Heading level={2} size="xl" id="notes-title">
-                {t("A little shared notebook")}
-              </Heading>
-              <Text size="sm" tone="muted">
-                {t("Saved on this device")}
-              </Text>
+                </RoomTile>
+              ))}
             </div>
-            <Textarea
-              label={t("Shared notes")}
-              placeholder={t(
-                "Neighbourhoods you love, questions for a viewing, the coffee table you both want…",
+          ) : (
+            <EmptyState
+              icon={<Bookmark />}
+              title={t("No saved rooms")}
+              body={t(
+                "Save rooms from Discover to compare them and plan viewings here.",
               )}
-              value={state.notes}
-              onChange={(e) => onNotes(e.target.value)}
-              rows={5}
+              action={{ label: t("Browse rooms"), onClick: onExploreRooms }}
             />
-          </section>
-        </div>
+          )}
+        </section>
 
         <aside className={v.stack}>
-          <Card padding="md">
+          <section className={v.panel} aria-labelledby="checklist-title">
             <div className={v.sectionHead}>
-              <Heading level={2} size="xl">
-                {t("Before you move in")}
+              <Heading level={2} size="lg" id="checklist-title">
+                {t("Move-in checklist")}
               </Heading>
               <Text size="sm" tone="muted">
-                {state.checklist.length}/{tasks.length}
+                {done}/{tasks.length}
               </Text>
             </div>
             <div
@@ -173,31 +125,24 @@ export function SpaceView({
               role="progressbar"
               aria-valuemin={0}
               aria-valuemax={tasks.length}
-              aria-valuenow={state.checklist.length}
-              aria-label={t("Before you move in")}
+              aria-valuenow={done}
+              aria-label={t("Move-in checklist")}
             >
-              <span
-                style={{
-                  width: `${(state.checklist.length / tasks.length) * 100}%`,
-                }}
-              />
+              <span style={{ width: `${(done / tasks.length) * 100}%` }} />
             </div>
-            <Text size="sm" tone="muted">
-              {t("Small conversations. A much happier home.")}
-            </Text>
             <ul className={v.checklist}>
               {tasks.map((task) => {
-                const done = state.checklist.includes(task.id);
+                const isDone = state.checklist.includes(task.id);
                 return (
                   <li key={task.id}>
                     <button
                       type="button"
                       className={v.check}
-                      aria-pressed={done}
+                      aria-pressed={isDone}
                       onClick={() => onToggleTask(task.id)}
                     >
                       <span className={v.checkBox}>
-                        {done && <Check aria-hidden="true" />}
+                        {isDone && <Check aria-hidden="true" />}
                       </span>
                       <span>
                         <strong>{t(task.title)}</strong>
@@ -208,31 +153,18 @@ export function SpaceView({
                 );
               })}
             </ul>
-          </Card>
-          <Card padding="md">
-            <Heading level={2} size="lg">
-              <CalendarDays aria-hidden="true" className={v.inlineIcon} />{" "}
-              {t("Put a little plan in place.")}
-            </Heading>
-            <Input
-              type="datetime-local"
-              label={t("Your next viewing")}
-              value={state.viewing}
-              onChange={(e) => onViewing(e.target.value)}
-              className={v.spaced}
+          </section>
+          <section className={v.panel}>
+            <Textarea
+              label={t("Notes")}
+              className={v.notes}
+              hint={t("Only saved on this device.")}
+              placeholder={t("Questions for the viewing, things to buy…")}
+              value={state.notes}
+              onChange={(e) => onNotes(e.target.value)}
+              rows={5}
             />
-            {state.viewing && (
-              <Text size="sm" tone="primary" className={v.spaced}>
-                <Check aria-hidden="true" className={v.inlineIcon} />{" "}
-                {t("Saved to your moving plan.")}
-              </Text>
-            )}
-          </Card>
-          <Text size="xs" tone="muted">
-            {t(
-              "A shared-living checklist, not a rental agreement. Demo plans are saved on this device.",
-            )}
-          </Text>
+          </section>
         </aside>
       </div>
     </>

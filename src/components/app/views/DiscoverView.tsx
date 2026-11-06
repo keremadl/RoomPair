@@ -9,9 +9,9 @@ import {
 import {
   Button,
   EmptyState,
-  Heading,
   SegmentedControl,
   Text,
+  VisuallyHidden,
 } from "@/design-system";
 import {
   defaultLanguage,
@@ -22,7 +22,6 @@ import type { DiscoverDeck } from "@/lib/discover/deck";
 import { rooms } from "@/lib/data";
 import { useI18n } from "@/lib/i18n";
 import type { Profile, Room } from "@/lib/types";
-import { PageHeader } from "../PageHeader";
 import { RoomTile } from "../RoomTile";
 import v from "./views.module.css";
 
@@ -61,11 +60,7 @@ export function DiscoverView({
   const layout = defaultLayout;
   return (
     <>
-      <PageHeader
-        eyebrow={t("discover.eyebrow")}
-        title={t("discover.title")}
-        description={t("discover.subtitle")}
-      />
+      <VisuallyHidden as="h1">{t("nav.discover")}</VisuallyHidden>
       <div className={v.toolbar}>
         <SegmentedControl
           label={t("Search mode")}
@@ -93,15 +88,10 @@ export function DiscoverView({
 
       {mode === "rooms" ? (
         <section aria-labelledby="rooms-title">
-          <Heading level={2} size="2xl" id="rooms-title">
-            {t("A space for your next chapter.")}
-          </Heading>
-          <Text tone="muted" className={v.sectionLead}>
-            {t(
-              "Thoughtfully picked demo homes. Save a place and explore it together.",
-            )}
-          </Text>
-          <div className={v.tileGrid}>
+          <VisuallyHidden as="h2" id="rooms-title">
+            {t("Rooms")}
+          </VisuallyHidden>
+          <div className={v.roomGrid}>
             {rooms.map((room) => (
               <RoomTile
                 key={room.id}
@@ -131,20 +121,20 @@ export function DiscoverView({
       ) : rankedCount === 0 ? (
         <EmptyState
           icon={<Sparkles />}
-          title={t("A fresh start?")}
+          title={t("Nobody fits these filters")}
           body={t(
-            "You’ve met everyone who fits your search. Try adjusting your preferences.",
+            "Widen your budget, move-in date or must-haves to see more people.",
           )}
-          action={{ label: t("Adjust my search"), onClick: onFilters }}
+          action={{ label: t("Change filters"), onClick: onFilters }}
         />
       ) : (
         <EmptyState
           icon={<Sparkles />}
-          title={t("You’re all caught up.")}
+          title={t("You have seen everyone")}
           body={t(
-            "Good people are worth the wait. Adjust your filters or revisit the people you liked.",
+            "Change your filters, or go through the people you skipped again.",
           )}
-          action={{ label: t("Adjust my search"), onClick: onFilters }}
+          action={{ label: t("Change filters"), onClick: onFilters }}
           secondary={{
             label: t("Browse everyone again"),
             onClick: onBrowseAgain,

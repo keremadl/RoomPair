@@ -1,6 +1,6 @@
 # F · Card
 
-Everyone as a game character card: level, stats, skills, quests.
+Everyone as a game character card: age, stats, skills, quests.
 
 Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/directions#card-blocks`, `/directions#card-tabs`.
 
@@ -10,16 +10,16 @@ Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/d
 | ----------- | --------------------------------------------------------------------------------------- |
 | **Layout**  | A card framed in its type colour; you-vs-them stats below and the room as an item card. |
 | **Type**    | Rubik: rounded and bold, yet readable at full size.                                     |
-| **Shape**   | Thick outlines, pressable 3D buttons, stat pips and an XP bar.                          |
+| **Shape**   | Thick outlines, pressable 3D buttons, stat pips and a fit bar.                          |
 | **Motion**  | Playful and bouncy; buttons sink when pressed.                                          |
-| **Details** | Fit is XP; match reasons are completed quests, things to discuss are open ones.         |
+| **Details** | Fit is a % score; match reasons are completed quests, things to discuss are open ones.  |
 
 ## Rules
 
-- The card front shows the person only: level (age), type, class, stats. Rent and dates are Home, on the `HomeItem`.
+- The card front shows the person only: age, type, class, stats. Rent and dates are Home, on the `HomeItem`.
 - Frame colour encodes type: `--type-host` (has a room), `--type-explorer` (looking together).
 - Buttons press down by `--press-depth` and lose their `--press-shadow`; keep that on every pressable.
-- Game words stay light (XP, quests, abilities); facts stay plain ("€420 per month").
+- Game words stay light (quests, abilities); numbers stay plain: "Age 23", "96% fit", "€420 per month". No levels or XP.
 - Profile details always follow the shared content model in the order Home → Person → Fit (`ProfileDetails`, `@/lib/discover/sections`). Nothing about the place appears under Person, nothing about the person under Home.
 
 ## Files

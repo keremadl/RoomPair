@@ -89,5 +89,6 @@ export {
   EmptyState,
   type EmptyStateProps,
 } from "./components/EmptyState/EmptyState";
+export { VisuallyHidden } from "./components/VisuallyHidden/VisuallyHidden";
 export { Toast } from "./components/Toast/Toast";
 export { TextProvider, useText, type Translate } from "./text/TextProvider";

@@ -57,9 +57,7 @@ export function RoomDialog({
         </button>
       )}
       <Text size="xs" tone="muted" className={d.spaced}>
-        {t(
-          "Fictional demo listing. Property and rental authority are not verified.",
-        )}
+        {t("Demo listing: the room and its owner are not verified.")}
       </Text>
       <div className={d.footer}>
         <Button
@@ -69,7 +67,7 @@ export function RoomDialog({
           aria-pressed={saved}
           fullWidth
         >
-          {saved ? t("Saved to our space") : t("Save to our space")}
+          {saved ? t("Saved") : t("Save room")}
         </Button>
       </div>
     </Dialog>

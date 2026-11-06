@@ -30,7 +30,7 @@ export const directions: Direction[] = [
   {
     id: "card",
     name: "F · Card",
-    idea: "Everyone as a game character card: level, stats, skills, quests.",
+    idea: "Everyone as a game character card: age, stats, skills, quests.",
     principles: [
       {
         label: "Layout",
@@ -43,7 +43,7 @@ export const directions: Direction[] = [
       },
       {
         label: "Shape",
-        value: "Thick outlines, pressable 3D buttons, stat pips and an XP bar.",
+        value: "Thick outlines, pressable 3D buttons, stat pips and a fit bar.",
       },
       {
         label: "Motion",
@@ -52,7 +52,7 @@ export const directions: Direction[] = [
       {
         label: "Details",
         value:
-          "Fit is XP; match reasons are completed quests, things to discuss are open ones.",
+          "Fit is a % score; match reasons are completed quests, things to discuss are open ones.",
       },
     ],
     swatches: ["--type-host", "--type-explorer", "--color-primary", "--xp"],

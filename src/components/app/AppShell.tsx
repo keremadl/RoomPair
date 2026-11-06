@@ -1,7 +1,6 @@
 "use client";
 import type { CSSProperties, ReactNode } from "react";
 import {
-  ArrowUpRight,
   Bell,
   CircleHelp,
   Compass,
@@ -32,8 +31,6 @@ export function AppShell({
   onNavigate,
   counts,
   userName,
-  onboarded,
-  onLivingStyle,
   onHelp,
   onNotifications,
   toast,
@@ -43,8 +40,6 @@ export function AppShell({
   onNavigate: (view: View) => void;
   counts: { likes: number; messages: number };
   userName: string;
-  onboarded: boolean;
-  onLivingStyle: () => void;
   onHelp: () => void;
   onNotifications: () => void;
   toast: string;
@@ -129,27 +124,10 @@ export function AppShell({
               </button>
             ))}
           </nav>
-          <div className={s.chapter}>
-            <p className={s.chapterEyebrow}>{t("YOUR NEXT CHAPTER")}</p>
-            <p className={s.chapterTitle}>
-              {t("A place is better")} {t("with your people.")}
-            </p>
-            <button
-              type="button"
-              className={s.chapterLink}
-              onClick={onLivingStyle}
-            >
-              {onboarded
-                ? t("Refine your living style")
-                : t("Find your living style")}
-              <ArrowUpRight aria-hidden="true" />
-            </button>
-          </div>
           <button type="button" className={s.help} onClick={onHelp}>
             <CircleHelp aria-hidden="true" />
-            {t("A little help")}
+            {t("Help")}
           </button>
-          <p className={s.footnote}>{t("Student project · Demo community")}</p>
         </aside>
         <main id="main" className={s.main} tabIndex={-1}>
           {children}
