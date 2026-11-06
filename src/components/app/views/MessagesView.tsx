@@ -30,6 +30,10 @@ const starters = [
 /** Show the search box only when there is something to search. */
 const SEARCH_FROM = 6;
 
+/**
+ * Messages: new matches as tall tiles at the top (people, or their room when
+ * you are looking for one), then conversations that have started.
+ */
 export function MessagesView({
   chats,
   activeId,
@@ -60,6 +64,12 @@ export function MessagesView({
   const end = useRef<HTMLDivElement>(null);
   const chat = chats.find((c) => c.id === activeId) ?? chats[0];
   const person = chat ? profileById(chat.profileId) : null;
+  const fresh = chats.filter((c) => c.messages.length === 0);
+  const started = chats.filter((c) => c.messages.length > 0);
+  const open = (id: string) => {
+    onSelect(id);
+    setShowChat(true);
+  };
   useEffect(() => {
     end.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [chat?.messages.length, typing]);
@@ -89,7 +99,52 @@ export function MessagesView({
     <>
       <div className={v.messenger} data-show={showChat ? "chat" : "list"}>
         <aside className={v.chatList} aria-label={t("Conversations")}>
-          {chats.length >= SEARCH_FROM && (
+          {fresh.length > 0 && (
+            <section className={v.matches} aria-labelledby="new-matches">
+              <h2 className={v.matchesTitle} id="new-matches">
+                {t("New matches")} · {fresh.length}
+              </h2>
+              <ul className={v.matchRow}>
+                {fresh.map((c) => {
+                  const p = profileById(c.profileId);
+                  // Room seekers match with hosts: show the room, with the face on it.
+                  const room =
+                    p.intent === "have-room" &&
+                    preferences.intent !== "have-room"
+                      ? p.room
+                      : undefined;
+                  return (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        className={v.matchTile}
+                        aria-current={c.id === chat.id ? "true" : undefined}
+                        aria-label={
+                          room
+                            ? `${p.name} · ${room.title}`
+                            : `${p.name}, ${p.age}`
+                        }
+                        onClick={() => open(c.id)}
+                      >
+                        <img src={room?.photo ?? p.photo} alt="" />
+                        {room && (
+                          <img className={v.matchFace} src={p.photo} alt="" />
+                        )}
+                        <span className={v.matchName}>
+                          {room ? `€${room.price}` : p.name}
+                          <small>{room ? p.name : `${p.age}`}</small>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
+          {started.length > 0 && fresh.length > 0 && (
+            <h2 className={v.matchesTitle}>{t("Conversations")}</h2>
+          )}
+          {started.length >= SEARCH_FROM && (
             <label className={v.chatSearch}>
               <Search aria-hidden="true" />
               <input
@@ -100,8 +155,13 @@ export function MessagesView({
               />
             </label>
           )}
+          {started.length === 0 && (
+            <p className={v.noChats}>
+              {t("Say hi to a match to start a conversation.")}
+            </p>
+          )}
           <ul className={v.conversations}>
-            {chats
+            {started
               .filter((c) =>
                 profileById(c.profileId)
                   ?.name.toLowerCase()
@@ -116,10 +176,7 @@ export function MessagesView({
                       type="button"
                       className={v.conversation}
                       aria-current={c.id === chat.id ? "true" : undefined}
-                      onClick={() => {
-                        onSelect(c.id);
-                        setShowChat(true);
-                      }}
+                      onClick={() => open(c.id)}
                     >
                       <Avatar name={p.name} src={p.photo} />
                       <span className={v.conversationText}>

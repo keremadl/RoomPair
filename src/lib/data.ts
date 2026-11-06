@@ -560,6 +560,21 @@ export const rooms: Room[] = profiles
   }));
 
 export const conversations: Conversation[] = [
+  // New matches: nobody has written yet.
+  {
+    id: "chat-sofia",
+    profileId: "sofia",
+    unread: 0,
+    matchedAt: "2027-01-16",
+    messages: [],
+  },
+  {
+    id: "chat-anna",
+    profileId: "anna",
+    unread: 0,
+    matchedAt: "2027-01-16",
+    messages: [],
+  },
   {
     id: "chat-maya",
     profileId: "maya",
