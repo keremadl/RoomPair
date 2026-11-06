@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "../../icons";
 import { cx } from "../../cx";
 import { IconButton } from "../IconButton/IconButton";
 import s from "./TopBar.module.css";

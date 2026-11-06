@@ -30,7 +30,7 @@ import {
   Text as TextIcon,
   Users,
   Wallet,
-} from "lucide-react";
+} from "@/design-system/icons";
 import { Button, ChoiceCards, Dialog, ListRow } from "@/design-system";
 
 import { dateLabel, sleepLabel } from "@/lib/discover/deck";

@@ -14,7 +14,7 @@ import {
   ShieldCheck,
   UserPen,
   Users,
-} from "lucide-react";
+} from "@/design-system/icons";
 import {
   ChoiceCards,
   Dialog,

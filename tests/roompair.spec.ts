@@ -233,8 +233,10 @@ test("what you are looking for decides who Discover shows", async ({
     .locator('input[type="file"]')
     .setInputFiles("public/images/room-2.jpg");
   await expect(
-    page.getByRole("list", { name: "Room photos" }).getByRole("img"),
-  ).toHaveCount(1);
+    page
+      .getByRole("list", { name: "Room photos" })
+      .getByRole("button", { name: "Main photo" }),
+  ).toBeVisible();
   await nav.getByRole("button", { name: "Discover" }).click();
   // Having a room: only people looking for one, no rooms to save.
   await expect(card(page)).toHaveText(/^Leo/);

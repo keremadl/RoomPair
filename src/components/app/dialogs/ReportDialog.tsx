@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Ban, Flag } from "lucide-react";
+import { Ban, Flag } from "@/design-system/icons";
 import { Button, Dialog, Heading, Select, Text } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
 import type { Profile } from "@/lib/types";

@@ -1,6 +1,6 @@
 "use client";
 import { useId, type ReactNode } from "react";
-import { Check } from "lucide-react";
+import { Check } from "../../icons";
 import { cx } from "../../cx";
 import s from "./ChoiceCards.module.css";
 

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, ArrowRight, Check, Home, Key } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Home, Key } from "@/design-system/icons";
 import {
   Button,
   ChoiceCards,

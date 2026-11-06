@@ -13,7 +13,7 @@ import {
   SlidersHorizontal,
   Smile,
   X,
-} from "lucide-react";
+} from "@/design-system/icons";
 import { defaultPreferences, profiles } from "@/lib/data";
 import { dateLabel } from "@/lib/discover/deck";
 import { rankProfiles } from "@/lib/matching";

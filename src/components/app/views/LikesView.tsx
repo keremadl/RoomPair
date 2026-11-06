@@ -1,6 +1,6 @@
 "use client";
 import { useId, useState } from "react";
-import { Check, Heart, MessageCircle } from "lucide-react";
+import { Check, Heart, MessageCircle } from "@/design-system/icons";
 import { Button, EmptyState, Tabs } from "@/design-system";
 import { getCompatibility } from "@/lib/matching";
 import { useI18n } from "@/lib/i18n";

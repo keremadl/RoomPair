@@ -1,5 +1,5 @@
 "use client";
-import { Check, Circle, KeyRound, Star, Trophy } from "lucide-react";
+import { Check, Circle, KeyRound, Star, Trophy } from "../../icons";
 import { you } from "@/lib/discover/deck";
 import { type GroupId } from "@/design-system/components/ProfileDetails/ProfileDetails";
 import { type HomeSection } from "@/lib/discover/sections";

@@ -6,7 +6,7 @@ import {
   SlidersHorizontal,
   UserPen,
   UserRound,
-} from "lucide-react";
+} from "@/design-system/icons";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig } from "motion/react";
 import { IconButton, TextProvider } from "@/design-system";

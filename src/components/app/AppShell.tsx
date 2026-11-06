@@ -9,7 +9,7 @@ import {
   MapPin,
   MessageCircle,
   Smile,
-} from "lucide-react";
+} from "@/design-system/icons";
 import { Toast, TopBar } from "@/design-system";
 import {
   defaultLanguage,

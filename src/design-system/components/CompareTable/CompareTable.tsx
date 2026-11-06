@@ -1,4 +1,4 @@
-import { Check, Minus } from "lucide-react";
+import { Check, Minus } from "../../icons";
 import { cx } from "../../cx";
 import styles from "./CompareTable.module.css";
 

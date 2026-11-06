@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check } from "../../icons";
 import { cx } from "../../cx";
 import styles from "./ScoreBars.module.css";
 

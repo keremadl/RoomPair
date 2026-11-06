@@ -23,7 +23,7 @@ import {
   UserRound,
   Users,
   X,
-} from "lucide-react";
+} from "@/design-system/icons";
 import {
   Avatar,
   AvatarGroup,
@@ -512,7 +512,7 @@ export function Showcase() {
         <Section
           id="icons"
           title="Icons · Card set"
-          intro={`${Icons.iconList.length} icons drawn for RoomPair on a 24 grid: round caps, soft corners, a heavier stroke (--icon-stroke) and small solid dots as accents. Names match the lucide icons they will replace. Import from @/design-system/icons.`}
+          intro={`${Icons.iconList.length} icons drawn for RoomPair on a 24 grid: round caps, soft corners, a heavier stroke (--icon-stroke) and small solid dots as accents. The app uses them everywhere; names match the lucide icons they replaced. Import from @/design-system/icons.`}
         >
           <Specimen label="Every icon · 16 / 24 / 32">
             <ul className={styles.iconGrid}>

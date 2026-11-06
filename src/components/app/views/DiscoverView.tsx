@@ -1,6 +1,6 @@
 "use client";
 import { useRef } from "react";
-import { Circle, RotateCcw, Sparkles, UserPen } from "lucide-react";
+import { Circle, RotateCcw, Sparkles, UserPen } from "@/design-system/icons";
 import { Button, EmptyState } from "@/design-system";
 import {
   defaultLanguage,

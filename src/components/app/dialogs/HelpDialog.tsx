@@ -1,5 +1,5 @@
 "use client";
-import { HeartHandshake, ListChecks, ShieldCheck } from "lucide-react";
+import { HeartHandshake, ListChecks, ShieldCheck } from "@/design-system/icons";
 import { Button, Dialog } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
 import d from "./dialogs.module.css";

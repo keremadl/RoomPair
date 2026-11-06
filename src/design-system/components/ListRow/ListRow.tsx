@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight } from "../../icons";
 import { useText } from "../../text/TextProvider";
 import s from "./ListRow.module.css";
 

@@ -1,5 +1,5 @@
 "use client";
-import { Bookmark, BookmarkCheck, MapPin } from "lucide-react";
+import { Bookmark, BookmarkCheck, MapPin } from "@/design-system/icons";
 import { Avatar, Button, IconButton } from "@/design-system";
 import { profiles } from "@/lib/data";
 import { dateLabel } from "@/lib/discover/deck";

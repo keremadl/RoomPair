@@ -1,5 +1,5 @@
 "use client";
-import { Bookmark, Check } from "lucide-react";
+import { Bookmark, Check } from "@/design-system/icons";
 import {
   Button,
   EmptyState,

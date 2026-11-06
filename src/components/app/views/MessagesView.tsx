@@ -7,7 +7,7 @@ import {
   MoreHorizontal,
   Search,
   Send,
-} from "lucide-react";
+} from "@/design-system/icons";
 import {
   Avatar,
   Button,

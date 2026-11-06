@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2 } from "@/design-system/icons";
 import {
   Button,
   Chip,

@@ -1,6 +1,6 @@
 "use client";
 import { useRef } from "react";
-import { ImagePlus, Plus, Star, X } from "lucide-react";
+import { ImagePlus, Plus, Star, X } from "@/design-system/icons";
 import { Button } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
 import { readPhoto } from "./photos";

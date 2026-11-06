@@ -1,5 +1,5 @@
 "use client";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle } from "@/design-system/icons";
 import { Avatar, AvatarGroup, Button, Dialog, Text } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
 import type { Profile } from "@/lib/types";

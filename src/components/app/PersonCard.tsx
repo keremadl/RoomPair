@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { Backpack, BadgeCheck, KeyRound, Moon } from "lucide-react";
+import { Backpack, BadgeCheck, KeyRound, Moon } from "@/design-system/icons";
 import { dateLabel, sleepLabel } from "@/lib/discover/deck";
 import { useI18n } from "@/lib/i18n";
 import type { Profile } from "@/lib/types";

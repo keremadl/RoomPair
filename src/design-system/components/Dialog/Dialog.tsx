@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, type ReactNode } from "react";
 import { motion } from "motion/react";
-import { X } from "lucide-react";
+import { X } from "../../icons";
 import { cx } from "../../cx";
 import { useText } from "../../text/TextProvider";
 import styles from "./Dialog.module.css";

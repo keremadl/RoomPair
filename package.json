@@ -15,7 +15,6 @@
     "lab": "node lab/build.mjs"
   },
   "dependencies": {
-    "lucide-react": "^0.468.0",
     "motion": "^12.0.0",
     "next": "^16.0.0",
     "react": "^19.2.0",

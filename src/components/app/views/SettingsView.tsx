@@ -1,5 +1,5 @@
 "use client";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw } from "@/design-system/icons";
 import { Button, Select, Text } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
 import v from "./views.module.css";

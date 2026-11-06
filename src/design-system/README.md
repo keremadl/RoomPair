@@ -42,8 +42,10 @@ scripts/check-design.mjs ← guard: ratchet + contrast check for every theme
 
 ## Icons
 
-`icons/` is RoomPair's own icon set (Card style), drawn by hand to replace
-lucide-react. Specimen: **/design-system#icons**.
+`icons/` is RoomPair's own icon set (Card style), drawn by hand. The whole
+app uses it; there is no other icon library. Import from
+`@/design-system/icons` (design-system files use `../../icons`).
+Specimen: **/design-system#icons**.
 
 - **Grid:** 24×24 viewBox, live area 3–21 (≥2px safe area with the stroke),
   boxes use corner radius 2.5–3, circles r ≈ 8.75.
@@ -55,8 +57,8 @@ lucide-react. Specimen: **/design-system#icons**.
   `--icon-size-sm|md|lg|xl` (16/20/24/32).
 - **A11y:** decorative by default (`aria-hidden`, `focusable="false"`); pass
   `aria-label` and it becomes `role="img"`.
-- **Naming:** same names as the lucide icons they replace, so a swap is
-  changing the import: `import { Heart } from "@/design-system/icons"`.
+- **Naming:** plain names for what is drawn (`Heart`, `MapPin`), kept from
+  the lucide icons the set replaced: `import { Heart } from "@/design-system/icons"`.
   From the root they are namespaced (`import { Icons } from "@/design-system"`,
   `<Icons.Heart />`) because `Text` would clash with Typography.
 - **Adding one:** draw it in `icons/icons.tsx` with `createIcon("Name", …)`

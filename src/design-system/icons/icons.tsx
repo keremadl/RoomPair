@@ -157,16 +157,19 @@ export const Smile = createIcon(
 export const Handshake = createIcon(
   "Handshake",
   <>
-    <path d="M2.75 12 7 7.75h4.25" />
-    <path d="M21.25 12 17 7.75h-3.5l-4 4a1.5 1.5 0 0 0 2.1 2.1L14 11.5l3.5 3.5" />
-    <path d="M5.25 14.25l4 4a1.5 1.5 0 0 0 2.1 0l.15-.15a1.5 1.5 0 0 0 2.1 0l2-2" />
+    {/* Two sleeves (cuffs) and the clasped hands between them. */}
+    <path d="M2.75 6.5v8.5M21.25 6.5v8.5" />
+    <path d="M2.75 8h4.5l2.5 1.25" />
+    <path d="M21.25 8H16.5l-4.75 4a1.75 1.75 0 0 0 2.25 2.65L16 13l3.25 2.75h2" />
+    <path d="M2.75 13.5h1.5l4.5 4.25a1.75 1.75 0 0 0 2.5-.1l3.5-3.4" />
   </>,
 );
 export const HeartHandshake = createIcon(
   "HeartHandshake",
   <>
+    {/* A match: a heart with a tick. */}
     <path d={heart} />
-    <path d="M12 6.5 9.5 9a1.5 1.5 0 0 0 2.1 2.1L13 9.75l3 3" />
+    <path d="M8.75 11.75l2.25 2.25 4.25-4.25" />
   </>,
 );
 
@@ -214,11 +217,10 @@ export const BadgeCheck = createIcon(
 export const PartyPopper = createIcon(
   "PartyPopper",
   <>
-    <path d="M3.75 20.25 8.25 9.25l6.5 6.5z" />
-    <path d="M13 11c1.5-1.5 3.5-1.75 5.5-.5M11.5 8.5c.75-1.75.5-3.5-.75-5" />
-    <Dot x={15.5} y={4.5} />
-    <Dot x={20} y={7} />
-    <Dot x={19.5} y={14.5} />
+    <path d="M3.75 20.25 8.5 8.75l6.75 6.75z" />
+    <path d="M13.5 10.5c1.75-1.75 4-2 6.5-.75" />
+    <Dot x={14.5} y={4.5} r={1.5} />
+    <Dot x={19.75} y={15.5} r={1.5} />
   </>,
 );
 export const Flag = createIcon(
@@ -437,9 +439,9 @@ export const ImagePlus = createIcon(
 export const Languages = createIcon(
   "Languages",
   <>
-    <path d="M14 8V5.75a2.75 2.75 0 0 0-2.75-2.75h-5.5A2.75 2.75 0 0 0 3 5.75v5.5A2.75 2.75 0 0 0 5.75 14H8" />
-    <rect x="10" y="10" width="11" height="11" rx="2.75" />
-    <path d="M13.25 18.5 15.5 12.75l2.25 5.75M14 16.75h3M6.5 7h4M6.5 10h2" />
+    {/* A speech bubble with a letter. */}
+    <path d="M6 3.75h12a2.75 2.75 0 0 1 2.75 2.75v7.75A2.75 2.75 0 0 1 18 17h-6.5l-5 3.75V17H6a2.75 2.75 0 0 1-2.75-2.75V6.5A2.75 2.75 0 0 1 6 3.75z" />
+    <path d="M9 13.5l3-7 3 7M10.25 11h3.5" />
   </>,
 );
 export const MessageCircle = createIcon(
@@ -456,9 +458,9 @@ export const MessageSquareQuote = createIcon(
 export const PiggyBank = createIcon(
   "PiggyBank",
   <>
-    <ellipse cx="11.25" cy="12" rx="7" ry="6" />
-    <path d="M8 17.5v3M14.5 17.5v3M18.25 10h2.25v3.5h-2M9.5 8.25H13M7.5 6.75 6.25 4.5" />
-    <Dot x={15} y={10.25} r={1.15} />
+    <ellipse cx="11.25" cy="12.5" rx="7.25" ry="6.25" />
+    <path d="M18.5 11h2v3.25h-2M8 18.25v2.25M14.5 18.25v2.25M9.25 8.75h4" />
+    <Dot x={15} y={11} r={1.25} />
   </>,
 );
 export const Receipt = createIcon(
