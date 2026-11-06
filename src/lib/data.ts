@@ -11,9 +11,14 @@ export const defaultPreferences: Preferences = {
   cleanliness: 4,
   social: 4,
   sleep: "flexible",
+  guests: "sometimes",
+  homeDays: "sometimes",
+  noise: "medium",
+  sharing: "some",
   smokeFree: true,
   petsOkay: true,
   verifiedOnly: false,
+  livingWith: "anyone",
 };
 
 /** All people, listings, conversations and verification badges are demo content. */
@@ -22,8 +27,11 @@ export const profiles: Profile[] = [
     id: "ella",
     name: "Ella",
     age: 23,
+    status: "student",
     occupation: "Design student",
     university: "Art Academy of Latvia",
+    languages: ["Latvian", "English"],
+    gender: "woman",
     city: "Riga",
     neighborhood: "Āgenskalns",
     bio: "Design student, weekend market regular, and the person who always brings home one more plant. Looking for a calm home with good company.",
@@ -34,17 +42,28 @@ export const profiles: Profile[] = [
     stayMonths: 12,
     intent: "have-room",
     tags: ["Plant parent", "Slow mornings", "Design & art"],
-    prompt: {
-      question: "A small thing that makes a home",
-      answer:
-        "A kitchen you can linger in. Someone asking if you want tea. Plants that are mostly still alive.",
-    },
+    prompts: [
+      {
+        question: "The best thing about living here…",
+        answer:
+          "A kitchen you can linger in, a little balcony for slow mornings, and plants that are mostly still alive.",
+      },
+      {
+        question: "When we disagree, I usually…",
+        answer:
+          "Bring it up over tea the same day. Small things stay small that way.",
+      },
+    ],
     habits: {
       cleanliness: 4,
       social: 3,
       sleep: "flexible",
       smoking: false,
       pets: false,
+      guests: "sometimes",
+      homeDays: "sometimes",
+      noise: "medium",
+      sharing: "some",
     },
     verified: true,
     active: true,
@@ -55,14 +74,24 @@ export const profiles: Profile[] = [
       photo: "/images/room-1.jpg",
       description:
         "Your own light-filled bedroom in a two-bedroom apartment. A shared kitchen, wooden floors, and a little balcony for slow mornings. €420/month including estimated utilities.",
+      billsIncluded: true,
+      deposit: 420,
+      privateBathroom: false,
+      furnished: true,
+      flatmates: 1,
+      transport: "Tram 10 · 12 min to the centre",
+      houseRules: "Quiet after 23:00 on weekdays. Shoes off inside.",
     },
   },
   {
     id: "leo",
     name: "Leo",
     age: 24,
+    status: "student",
     occupation: "Architecture student",
     university: "Riga Technical University",
+    languages: ["Italian", "English"],
+    gender: "man",
     city: "Riga",
     neighborhood: "Centrs",
     bio: "Usually cycling somewhere, sketching a building, or making too much pasta. I like a tidy space and a flatmate I can call a friend.",
@@ -73,17 +102,28 @@ export const profiles: Profile[] = [
     stayMonths: 12,
     intent: "find-room",
     tags: ["Cycling", "Pasta nights", "Architecture"],
-    prompt: {
-      question: "My ideal Sunday at home",
-      answer:
-        "Coffee, a really long breakfast, and opening every window for five minutes. Then a bike ride before it gets dark.",
-    },
+    prompts: [
+      {
+        question: "My ideal Sunday at home…",
+        answer:
+          "Coffee, a really long breakfast, and opening every window for five minutes. Then a bike ride before it gets dark.",
+      },
+      {
+        question: "My share of the chores is usually…",
+        answer:
+          "Dishes the same evening and the bathroom every Saturday. I like a rota on the fridge.",
+      },
+    ],
     habits: {
       cleanliness: 4,
       social: 3,
       sleep: "flexible",
       smoking: false,
       pets: false,
+      guests: "sometimes",
+      homeDays: "rarely",
+      noise: "medium",
+      sharing: "some",
     },
     verified: true,
     active: true,
@@ -93,8 +133,11 @@ export const profiles: Profile[] = [
     id: "maya",
     name: "Maya",
     age: 22,
+    status: "student",
     occupation: "Psychology student",
     university: "University of Latvia",
+    languages: ["Latvian", "English", "Russian"],
+    gender: "woman",
     city: "Riga",
     neighborhood: "Avoti",
     bio: "A quiet reader with a very social kitchen. I love independent films, fresh bread, and a home where everyone can just be themselves.",
@@ -105,17 +148,28 @@ export const profiles: Profile[] = [
     stayMonths: 12,
     intent: "have-room",
     tags: ["Book club", "Film nights", "Baking"],
-    prompt: {
-      question: "Living with me means",
-      answer:
-        "There is usually banana bread. I will respect your closed door, and I will absolutely ask about your book.",
-    },
+    prompts: [
+      {
+        question: "What makes me a good flatmate…",
+        answer:
+          "There is usually banana bread. I will respect your closed door, and I will absolutely ask about your book.",
+      },
+      {
+        question: "What you should know about the people here…",
+        answer:
+          "It's me and Kārlis, a quiet master's student who plays chess online most evenings.",
+      },
+    ],
     habits: {
       cleanliness: 4,
       social: 2,
       sleep: "flexible",
       smoking: false,
       pets: false,
+      guests: "rarely",
+      homeDays: "often",
+      noise: "low",
+      sharing: "some",
     },
     verified: true,
     active: true,
@@ -126,14 +180,25 @@ export const profiles: Profile[] = [
       photo: "/images/room-3.jpg",
       description:
         "A furnished room in a cosy three-bedroom flat, with a shared living room and space for your books. €380/month including estimated utilities.",
+      billsIncluded: true,
+      deposit: 380,
+      privateBathroom: false,
+      furnished: true,
+      flatmates: 2,
+      transport: "Bus 3 · 15 min to the University of Latvia",
+      houseRules:
+        "Guests are fine, just tell us first. We share the basics like oil, salt and coffee.",
     },
   },
   {
     id: "noah",
     name: "Noah",
     age: 25,
+    status: "student",
     occupation: "Software engineering student",
     university: "Riga Technical University",
+    languages: ["English", "German"],
+    gender: "man",
     city: "Riga",
     neighborhood: "Skanste",
     bio: "Code by day, climbing by evening. Moving to Riga for my master’s and looking for a relaxed place with enough desk space for a second monitor.",
@@ -144,17 +209,28 @@ export const profiles: Profile[] = [
     stayMonths: 12,
     intent: "find-room",
     tags: ["Bouldering", "Good coffee", "Gaming"],
-    prompt: {
-      question: "My one house rule",
-      answer:
-        "Let’s say things before they turn into things. Also, the last person to make coffee starts the next pot.",
-    },
+    prompts: [
+      {
+        question: "A house rule I'd never break…",
+        answer:
+          "Say things before they turn into things. Also, the last person to make coffee starts the next pot.",
+      },
+      {
+        question: "After a long day I…",
+        answer:
+          "Climb for an hour, cook something simple and put my headphones on.",
+      },
+    ],
     habits: {
       cleanliness: 4,
       social: 3,
       sleep: "late",
       smoking: false,
       pets: false,
+      guests: "sometimes",
+      homeDays: "often",
+      noise: "medium",
+      sharing: "separate",
     },
     verified: true,
     active: true,
@@ -164,8 +240,11 @@ export const profiles: Profile[] = [
     id: "sofia",
     name: "Sofia",
     age: 24,
+    status: "student",
     occupation: "Medical student",
     university: "Rīga Stradiņš University",
+    languages: ["Spanish", "English"],
+    gender: "woman",
     city: "Riga",
     neighborhood: "Āgenskalns",
     bio: "Early starts, evening yoga, and a weakness for beautiful ceramics. I keep a predictable routine and would love to share a warm, peaceful home.",
@@ -176,17 +255,28 @@ export const profiles: Profile[] = [
     stayMonths: 12,
     intent: "have-room",
     tags: ["Yoga", "Early bird", "Weekend walks"],
-    prompt: {
-      question: "You can count on me for",
-      answer:
-        "Taking the bins out without a reminder, a well-stocked tea cupboard, and cheering on whatever you are working toward.",
-    },
+    prompts: [
+      {
+        question: "What makes me a good flatmate…",
+        answer:
+          "Taking the bins out without a reminder, a well-stocked tea cupboard, and cheering on whatever you are working toward.",
+      },
+      {
+        question: "My favourite spot in the neighbourhood…",
+        answer:
+          "The courtyard bakery. It opens at seven, which suits my early starts.",
+      },
+    ],
     habits: {
       cleanliness: 5,
       social: 3,
       sleep: "early",
       smoking: false,
       pets: false,
+      guests: "rarely",
+      homeDays: "rarely",
+      noise: "low",
+      sharing: "separate",
     },
     verified: true,
     active: true,
@@ -197,14 +287,24 @@ export const profiles: Profile[] = [
       photo: "/images/room-2.jpg",
       description:
         "A private bedroom with a large desk in a quiet two-bedroom flat. Shared kitchen and courtyard access. €460/month including estimated utilities.",
+      billsIncluded: true,
+      deposit: 460,
+      privateBathroom: true,
+      furnished: false,
+      flatmates: 1,
+      transport: "Tram 2 · 10 min to Rīga Stradiņš University",
+      houseRules: "Quiet after 22:00. No smoking anywhere, balcony included.",
     },
   },
   {
     id: "oliver",
     name: "Oliver",
     age: 23,
+    status: "student",
     occupation: "Music student",
     university: "Jāzeps Vītols Latvian Academy of Music",
+    languages: ["English"],
+    gender: "man",
     city: "Riga",
     neighborhood: "Centrs",
     bio: "Jazz records, weekend cooking projects, and a very well-organised spice drawer. I practise at the academy and keep home for winding down.",
@@ -215,17 +315,28 @@ export const profiles: Profile[] = [
     stayMonths: 10,
     intent: "find-room",
     tags: ["Jazz records", "Cooking", "Night owl"],
-    prompt: {
-      question: "The best kind of house night",
-      answer:
-        "Everyone makes something, someone picks a record, and we forget to look at our phones for a bit.",
-    },
+    prompts: [
+      {
+        question: "When guests come over, I…",
+        answer:
+          "Cook for everyone. I always check with you first, and we're done by eleven on weeknights.",
+      },
+      {
+        question: "In the kitchen I'm the one who…",
+        answer:
+          "Plans a big weekend dish and keeps the spice drawer in alphabetical order.",
+      },
+    ],
     habits: {
       cleanliness: 3,
       social: 4,
       sleep: "late",
       smoking: false,
       pets: false,
+      guests: "often",
+      homeDays: "sometimes",
+      noise: "high",
+      sharing: "most",
     },
     verified: true,
     active: true,
@@ -235,8 +346,11 @@ export const profiles: Profile[] = [
     id: "ines",
     name: "Ines",
     age: 22,
+    status: "student",
     occupation: "Environmental science student",
     university: "University of Latvia",
+    languages: ["Portuguese", "English", "French"],
+    gender: "woman",
     city: "Riga",
     neighborhood: "Teika",
     bio: "Forest walks, second-hand finds, and meals built around whatever is in season. My cat Fig is an excellent, if quiet, conversation partner.",
@@ -247,17 +361,28 @@ export const profiles: Profile[] = [
     stayMonths: 12,
     intent: "have-room",
     tags: ["Has a cat", "Nature walks", "Thrifting"],
-    prompt: {
-      question: "A little heads-up",
-      answer:
-        "Fig thinks all sunny windows belong to him. He will probably love you before he learns your name.",
-    },
+    prompts: [
+      {
+        question: "What you should know about the people here…",
+        answer:
+          "Fig the cat thinks all sunny windows belong to him. He will probably love you before he learns your name.",
+      },
+      {
+        question: "My ideal Sunday at home…",
+        answer:
+          "A forest walk in the morning, soup on the stove and a pile of second-hand books.",
+      },
+    ],
     habits: {
       cleanliness: 4,
       social: 3,
       sleep: "flexible",
       smoking: false,
       pets: true,
+      guests: "sometimes",
+      homeDays: "often",
+      noise: "medium",
+      sharing: "most",
     },
     verified: true,
     active: true,
@@ -268,14 +393,25 @@ export const profiles: Profile[] = [
       photo: "/images/room-4.jpg",
       description:
         "A bright private room in a friendly two-bedroom home shared with one student and one cat. €360/month including estimated utilities.",
+      billsIncluded: true,
+      deposit: 360,
+      privateBathroom: false,
+      furnished: true,
+      flatmates: 1,
+      transport: "Tram 11 · 20 min to the centre",
+      houseRules:
+        "Fig stays out of your room if you like. Recycling goes out every Friday.",
     },
   },
   {
     id: "felix",
     name: "Felix",
     age: 26,
+    status: "student",
     occupation: "Business master’s student",
     university: "Stockholm School of Economics in Riga",
+    languages: ["German", "English"],
+    gender: "man",
     city: "Riga",
     neighborhood: "Quiet Centre",
     bio: "Back at university after a few years working. I love dinner with friends, morning runs, and keeping shared spaces ready for the next person.",
@@ -286,17 +422,28 @@ export const profiles: Profile[] = [
     stayMonths: 12,
     intent: "find-room",
     tags: ["Morning runs", "Dinner parties", "Podcasts"],
-    prompt: {
-      question: "The way to my heart",
-      answer:
-        "A shared shopping list that actually gets used. And someone who will taste-test a new recipe honestly.",
-    },
+    prompts: [
+      {
+        question: "The one thing I need from a flatmate…",
+        answer:
+          "A shared shopping list that actually gets used. And someone who will taste-test a new recipe honestly.",
+      },
+      {
+        question: "My share of the chores is usually…",
+        answer:
+          "I clean as I cook and leave shared spaces ready for the next person.",
+      },
+    ],
     habits: {
       cleanliness: 4,
       social: 4,
       sleep: "early",
       smoking: false,
       pets: false,
+      guests: "often",
+      homeDays: "rarely",
+      noise: "medium",
+      sharing: "most",
     },
     verified: false,
     active: true,
@@ -306,8 +453,11 @@ export const profiles: Profile[] = [
     id: "anna",
     name: "Anna",
     age: 23,
+    status: "student",
     occupation: "Photography student",
     university: "Art Academy of Latvia",
+    languages: ["Latvian", "English"],
+    gender: "woman",
     city: "Riga",
     neighborhood: "Grīziņkalns",
     bio: "Analog photos, fresh flowers, and walks with no particular destination. Looking for a home with a little character and people who communicate.",
@@ -318,17 +468,28 @@ export const profiles: Profile[] = [
     stayMonths: 12,
     intent: "find-room",
     tags: ["Film photography", "Flower markets", "Long walks"],
-    prompt: {
-      question: "My favourite little ritual",
-      answer:
-        "Making the flat look nice before friends come over. Not perfect. Just putting on a record and lighting a candle.",
-    },
+    prompts: [
+      {
+        question: "When guests come over, I…",
+        answer:
+          "Make the flat look nice first. Not perfect. Just a record on and a candle lit.",
+      },
+      {
+        question: "When we disagree, I usually…",
+        answer:
+          "Talk about it straight away, kindly. A note on the fridge is not my style.",
+      },
+    ],
     habits: {
       cleanliness: 3,
       social: 3,
       sleep: "flexible",
       smoking: false,
       pets: false,
+      guests: "sometimes",
+      homeDays: "sometimes",
+      noise: "medium",
+      sharing: "some",
     },
     verified: true,
     active: true,
@@ -338,8 +499,11 @@ export const profiles: Profile[] = [
     id: "lucas",
     name: "Lucas",
     age: 24,
+    status: "student",
     occupation: "Film student",
     university: "Latvian Academy of Culture",
+    languages: ["French", "English"],
+    gender: "man",
     city: "Riga",
     neighborhood: "Avoti",
     bio: "Always up for a film recommendation or a late breakfast. I spend a lot of time on set, and want home to feel relaxed when I get back.",
@@ -350,17 +514,28 @@ export const profiles: Profile[] = [
     stayMonths: 12,
     intent: "find-room",
     tags: ["Cinema", "Brunch", "Creative projects"],
-    prompt: {
-      question: "Something to know about me",
-      answer:
-        "My schedule moves around with filming. I smoke outdoors, and I am upfront about that before we talk about sharing a place.",
-    },
+    prompts: [
+      {
+        question: "After a long day I…",
+        answer:
+          "Want a quiet sofa after a day on set, and a late breakfast the next morning.",
+      },
+      {
+        question: "A house rule I'd never break…",
+        answer:
+          "I smoke outdoors only, never inside. I say that before we talk about sharing a place.",
+      },
+    ],
     habits: {
       cleanliness: 3,
       social: 4,
       sleep: "late",
       smoking: true,
       pets: false,
+      guests: "often",
+      homeDays: "rarely",
+      noise: "high",
+      sharing: "some",
     },
     verified: true,
     active: true,
@@ -378,7 +553,7 @@ export const rooms: Room[] = profiles
     photo: profile.room!.photo,
     tags: [
       profile.habits.pets ? "Pet friendly" : "No pets",
-      "Furnished",
+      profile.room!.furnished ? "Furnished" : "Unfurnished",
       `${profile.stayMonths}-month stay`,
     ],
     description: profile.room!.description,

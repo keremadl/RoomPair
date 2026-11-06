@@ -1,7 +1,10 @@
 /**
  * Your own profile: the demo defaults, the prompt and interest choices,
- * and how complete the profile is. Wording is a first draft; the team
- * decides the final prompts and fields.
+ * and how complete the profile is.
+ *
+ * Every field answers one question: "could I live with this person, or in
+ * this home?" Anything matching uses is a choice (chips, scales); free text
+ * is only for personality (bio and prompts).
  */
 import type { MyProfile, Preferences, Profile } from "./types";
 
@@ -9,13 +12,42 @@ export const MAX_PHOTOS = 6;
 export const MAX_PROMPTS = 3;
 export const MAX_INTERESTS = 5;
 
+/** Prompts about everyday life at home; anyone can answer them. */
 export const promptQuestions = [
-  "My ideal Sunday at home",
-  "A small thing that makes a home",
-  "The best flatmate I ever had…",
+  "My ideal Sunday at home…",
+  "When we disagree, I usually…",
+  "The one thing I need from a flatmate…",
+  "My share of the chores is usually…",
+  "When guests come over, I…",
   "After a long day I…",
   "In the kitchen I'm the one who…",
-  "A house rule I'd never break",
+  "A house rule I'd never break…",
+  "What makes me a good flatmate…",
+];
+
+/** Extra prompts about the place, only for people who have a room. */
+export const hostPromptQuestions = [
+  "The best thing about living here…",
+  "My favourite spot in the neighbourhood…",
+  "What you should know about the people here…",
+];
+
+export const promptsFor = (host: boolean) =>
+  host ? [...promptQuestions, ...hostPromptQuestions] : promptQuestions;
+
+export const languageOptions = [
+  "Latvian",
+  "English",
+  "Russian",
+  "Turkish",
+  "German",
+  "French",
+  "Spanish",
+  "Italian",
+  "Portuguese",
+  "Arabic",
+  "Chinese",
+  "Ukrainian",
 ];
 
 export const interestOptions = [
@@ -42,11 +74,14 @@ export const interestOptions = [
 export const defaultMe: MyProfile = {
   photos: ["/images/alex.jpg"],
   age: 22,
+  status: "student",
   occupation: "Computer science student",
+  school: "Riga Technical University",
+  languages: ["English"],
   bio: "",
   prompts: [
     {
-      question: "My ideal Sunday at home",
+      question: "My ideal Sunday at home…",
       answer:
         "Slow breakfast, a long walk, then cooking something new for whoever is around.",
     },
@@ -59,14 +94,42 @@ export const defaultMe: MyProfile = {
     price: 400,
     billsIncluded: true,
     description: "",
+    deposit: 400,
+    privateBathroom: false,
+    furnished: true,
+    flatmates: 1,
+    transport: "",
+    houseRules: "",
   },
 };
 
-export type Step = { id: string; label: string; done: boolean };
+/**
+ * `required`: needed before others see you (photo, name, age, school or work;
+ * the living-together answers come from setup). The rest is optional and
+ * raises how complete the profile looks.
+ */
+export type Step = {
+  id: string;
+  label: string;
+  done: boolean;
+  required?: boolean;
+};
 
 /** The steps that make a profile complete; hosts also describe their room. */
 export function profileSteps(me: MyProfile, prefs: Preferences): Step[] {
   const steps: Step[] = [
+    {
+      id: "photo",
+      label: "Add a photo of yourself",
+      done: me.photos.length >= 1,
+      required: true,
+    },
+    {
+      id: "basics",
+      label: "Add your name, age and school or work",
+      done: Boolean(prefs.name.trim() && me.age && me.occupation.trim()),
+      required: true,
+    },
     {
       id: "photos",
       label: "Add at least 3 photos",
@@ -77,7 +140,16 @@ export function profileSteps(me: MyProfile, prefs: Preferences): Step[] {
       label: "Write a few lines about you",
       done: me.bio.trim().length >= 20,
     },
-    { id: "prompts", label: "Answer 2 prompts", done: me.prompts.length >= 2 },
+    {
+      id: "prompts",
+      label: `Answer ${MAX_PROMPTS} prompts`,
+      done: me.prompts.length >= MAX_PROMPTS,
+    },
+    {
+      id: "languages",
+      label: "Add the languages you speak",
+      done: me.languages.length >= 1,
+    },
     {
       id: "interests",
       label: "Pick 3 interests",
@@ -91,6 +163,7 @@ export function profileSteps(me: MyProfile, prefs: Preferences): Step[] {
         id: "roomPhotos",
         label: "Add 3 photos of the room",
         done: me.room.photos.length >= 3,
+        required: true,
       },
       {
         id: "roomText",
@@ -111,8 +184,11 @@ export function asProfile(me: MyProfile, prefs: Preferences): Profile {
     id: "me",
     name: prefs.name,
     age: me.age,
+    status: me.status,
     occupation: me.occupation,
-    university: "",
+    university: me.school,
+    languages: me.languages,
+    gender: me.gender,
     city: prefs.city,
     neighborhood: prefs.city,
     bio: me.bio,
@@ -123,25 +199,24 @@ export function asProfile(me: MyProfile, prefs: Preferences): Profile {
     stayMonths: prefs.stayMonths,
     intent: host ? "have-room" : "find-room",
     tags: me.interests,
-    prompt: me.prompts[0] ?? { question: "", answer: "" },
+    prompts: me.prompts,
     habits: {
       cleanliness: prefs.cleanliness as Profile["habits"]["cleanliness"],
       social: prefs.social as Profile["habits"]["social"],
       sleep: prefs.sleep,
       smoking: !prefs.smokeFree,
       pets: false,
+      guests: prefs.guests,
+      homeDays: prefs.homeDays,
+      noise: prefs.noise,
+      sharing: prefs.sharing,
     },
     verified: me.verified,
     active: true,
     likesYou: false,
     room:
       host && me.room.photos[0]
-        ? {
-            title: me.room.title,
-            price: me.room.price,
-            photo: me.room.photos[0],
-            description: me.room.description,
-          }
+        ? (({ photos, ...room }) => ({ ...room, photo: photos[0] }))(me.room)
         : undefined,
   };
 }

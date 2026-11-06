@@ -3,7 +3,19 @@ import { useState, type ReactNode } from "react";
 import {
   ChevronRight,
   BadgeCheck,
+  Bath,
   Building2,
+  Bus,
+  DoorOpen,
+  Handshake,
+  Languages,
+  PartyPopper,
+  PiggyBank,
+  ScrollText,
+  Sofa,
+  Sun,
+  UserRound,
+  Volume2,
   CalendarDays,
   Cigarette,
   Clock,
@@ -23,8 +35,8 @@ import { Button, ChoiceCards, Dialog, ListRow } from "@/design-system";
 
 import { dateLabel, sleepLabel } from "@/lib/discover/deck";
 import { useI18n } from "@/lib/i18n";
-import { MAX_PHOTOS, MAX_PROMPTS } from "@/lib/profile";
-import type { MyProfile, Preferences } from "@/lib/types";
+import { MAX_PHOTOS, MAX_PROMPTS, languageOptions } from "@/lib/profile";
+import type { Gender, MyProfile, Preferences, WorkStatus } from "@/lib/types";
 import { Pips } from "../PersonCard";
 import { PhotoGrid } from "../profile/PhotoGrid";
 import {
@@ -42,7 +54,35 @@ type Editing =
   | "roomText"
   | "bio"
   | "interests"
+  | "languages"
+  | "rules"
   | { prompt: number };
+
+/** Short answers, as asked in setup; the row label already names the topic. */
+const answer = {
+  guests: { rarely: "Rarely", sometimes: "Sometimes", often: "Often" },
+  homeDays: {
+    rarely: "Out most days",
+    sometimes: "Some days",
+    often: "Most days",
+  },
+  noise: {
+    low: "I need it quiet",
+    medium: "Some is fine",
+    high: "It doesn't bother me",
+  },
+  sharing: {
+    separate: "Keep things separate",
+    some: "The basics",
+    most: "Most things",
+  },
+} as const;
+
+const livingWithLabel: Record<Preferences["livingWith"], string> = {
+  anyone: "Anyone",
+  women: "Women only",
+  men: "Men only",
+};
 
 /** A white section card. With `onClick` the whole card opens an editor. */
 function Section({
@@ -102,7 +142,7 @@ export function EditProfileView({
   preferences: Preferences;
   me: MyProfile;
   onMe: (next: Partial<MyProfile>) => void;
-  /** Opens the setup steps (0 = name, 1 = budget and dates, 2 = habits, 3 = must-haves). */
+  /** Opens the setup steps (0 = name, 1 = budget and dates, 2 = habits, 3 = everyday at home, 4 = must-haves). */
   onEditBasics: (step: number) => void;
   onIntent: (intent: "find-room" | "have-room") => void;
   onError: (message: string) => void;
@@ -129,7 +169,9 @@ export function EditProfileView({
           <Section
             id="me-name"
             title={`${prefs.name}, ${me.age}`}
-            value={[me.occupation, prefs.city].filter(Boolean).join(", ")}
+            value={[me.occupation, me.school, prefs.city]
+              .filter(Boolean)
+              .join(", ")}
             onClick={() => setEditing("basics")}
           />
 
@@ -154,6 +196,22 @@ export function EditProfileView({
                 : t("A few lines about you and how you like to live.")
             }
             onClick={() => setEditing("bio")}
+          />
+
+          <Section
+            id="me-languages"
+            title={t("Languages")}
+            value={
+              me.languages.length
+                ? me.languages.map((l) => t(l)).join(", ")
+                : undefined
+            }
+            hint={
+              me.languages.length
+                ? undefined
+                : t("Which languages can you talk in at home?")
+            }
+            onClick={() => setEditing("languages")}
           />
 
           {host && (
@@ -192,6 +250,40 @@ export function EditProfileView({
                   onClick={() => setEditing("room")}
                 />
                 <ListRow
+                  icon={<PiggyBank />}
+                  label={t("Deposit")}
+                  value={`€${me.room.deposit}`}
+                  onClick={() => setEditing("room")}
+                />
+                <ListRow
+                  icon={<Bath />}
+                  label={t("Bathroom")}
+                  value={me.room.privateBathroom ? t("Your own") : t("Shared")}
+                  onClick={() => setEditing("room")}
+                />
+                <ListRow
+                  icon={<Sofa />}
+                  label={t("Furniture")}
+                  value={me.room.furnished ? t("Furnished") : t("Unfurnished")}
+                  onClick={() => setEditing("room")}
+                />
+                <ListRow
+                  icon={<DoorOpen />}
+                  label={t("Living there now")}
+                  value={
+                    me.room.flatmates === 1
+                      ? t("1 person")
+                      : t("{count} people", { count: me.room.flatmates })
+                  }
+                  onClick={() => setEditing("room")}
+                />
+                <ListRow
+                  icon={<Bus />}
+                  label={t("Getting there")}
+                  value={me.room.transport || undefined}
+                  onClick={() => setEditing("room")}
+                />
+                <ListRow
                   icon={<CalendarDays />}
                   label={t("Available from")}
                   value={dateLabel(prefs.moveDate)}
@@ -208,6 +300,12 @@ export function EditProfileView({
                   label={t("About the room")}
                   value={me.room.description || undefined}
                   onClick={() => setEditing("roomText")}
+                />
+                <ListRow
+                  icon={<ScrollText />}
+                  label={t("House rules")}
+                  value={me.room.houseRules || undefined}
+                  onClick={() => setEditing("rules")}
                 />
               </ul>
             </Section>
@@ -260,16 +358,46 @@ export function EditProfileView({
                 onClick={() => onEditBasics(2)}
               />
               <ListRow
+                icon={<PartyPopper />}
+                label={t("Guests")}
+                value={t(answer.guests[prefs.guests])}
+                onClick={() => onEditBasics(3)}
+              />
+              <ListRow
+                icon={<Sun />}
+                label={t("In the day")}
+                value={t(answer.homeDays[prefs.homeDays])}
+                onClick={() => onEditBasics(3)}
+              />
+              <ListRow
+                icon={<Volume2 />}
+                label={t("Noise")}
+                value={t(answer.noise[prefs.noise])}
+                onClick={() => onEditBasics(3)}
+              />
+              <ListRow
+                icon={<Handshake />}
+                label={t("Sharing")}
+                value={t(answer.sharing[prefs.sharing])}
+                onClick={() => onEditBasics(3)}
+              />
+              <ListRow
                 icon={<Cigarette />}
                 label={t("Smoking at home")}
                 value={prefs.smokeFree ? t("No") : t("Fine")}
-                onClick={() => onEditBasics(3)}
+                onClick={() => onEditBasics(4)}
               />
               <ListRow
                 icon={<PawPrint />}
                 label={t("Pets")}
                 value={prefs.petsOkay ? t("Fine") : t("No")}
-                onClick={() => onEditBasics(3)}
+                onClick={() => onEditBasics(4)}
+              />
+              <ListRow
+                icon={<UserRound />}
+                label={t("Living with")}
+                value={t(livingWithLabel[prefs.livingWith])}
+                onClick={() => onEditBasics(4)}
               />
             </ul>
           </Section>
@@ -398,17 +526,52 @@ export function EditProfileView({
             { key: "name", label: t("Name"), type: "text", value: prefs.name },
             { key: "age", label: t("Age"), type: "number", value: me.age },
             {
+              key: "status",
+              label: t("Right now I'm"),
+              type: "select",
+              value: me.status,
+              options: [
+                { value: "student", label: t("Studying") },
+                { value: "working", label: t("Working") },
+              ],
+            },
+            {
               key: "occupation",
-              label: t("Work or studies"),
+              label: t("What you study or do"),
               type: "text",
               value: me.occupation,
-              hint: t("For example: Design student at RTU"),
+              hint: t("For example: Design student"),
+            },
+            {
+              key: "school",
+              label: t("School or workplace"),
+              type: "text",
+              value: me.school,
+              hint: t("For example: Riga Technical University"),
+            },
+            {
+              key: "gender",
+              label: t("Gender (optional)"),
+              type: "select",
+              value: me.gender ?? "",
+              hint: t(
+                "Only used when someone wants to live with women or men only.",
+              ),
+              options: [
+                { value: "", label: t("Prefer not to say") },
+                { value: "woman", label: t("Woman") },
+                { value: "man", label: t("Man") },
+                { value: "nonbinary", label: t("Non-binary") },
+              ],
             },
           ]}
           onSave={(v) => {
             onMe({
               age: Math.min(99, Math.max(17, Number(v.age) || me.age)),
+              status: v.status as WorkStatus,
               occupation: String(v.occupation).trim(),
+              school: String(v.school).trim(),
+              gender: (v.gender as Gender) || undefined,
             });
             const name = String(v.name).trim();
             if (name && name !== prefs.name) onName(name);
@@ -436,10 +599,43 @@ export function EditProfileView({
               prefix: "€",
             },
             {
+              key: "deposit",
+              label: t("Deposit"),
+              type: "number",
+              value: me.room.deposit,
+              prefix: "€",
+            },
+            {
+              key: "flatmates",
+              label: t("People living there now"),
+              type: "number",
+              value: me.room.flatmates,
+              hint: t("Not counting the new flatmate."),
+            },
+            {
+              key: "transport",
+              label: t("Getting there"),
+              type: "text",
+              value: me.room.transport,
+              hint: t("For example: Tram 1 · 10 min to RTU"),
+            },
+            {
               key: "billsIncluded",
               label: t("Bills included"),
               type: "switch",
               value: me.room.billsIncluded,
+            },
+            {
+              key: "privateBathroom",
+              label: t("Own bathroom"),
+              type: "switch",
+              value: me.room.privateBathroom,
+            },
+            {
+              key: "furnished",
+              label: t("Furnished"),
+              type: "switch",
+              value: me.room.furnished,
             },
           ]}
           onSave={(v) => {
@@ -448,7 +644,12 @@ export function EditProfileView({
                 ...me.room,
                 title: String(v.title).trim(),
                 price: Math.max(0, Number(v.price) || 0),
+                deposit: Math.max(0, Number(v.deposit) || 0),
+                flatmates: Math.min(10, Math.max(0, Number(v.flatmates) || 0)),
+                transport: String(v.transport).trim(),
                 billsIncluded: Boolean(v.billsIncluded),
+                privateBathroom: Boolean(v.privateBathroom),
+                furnished: Boolean(v.furnished),
               },
             });
             close();
@@ -483,6 +684,40 @@ export function EditProfileView({
           onClose={close}
         />
       )}
+      {editing === "rules" && (
+        <FieldsDialog
+          title={t("House rules")}
+          fields={[
+            {
+              key: "text",
+              label: t("House rules"),
+              type: "textarea",
+              value: me.room.houseRules,
+              hint: t("Quiet hours, guests, cleaning, smoking…"),
+            },
+          ]}
+          onSave={(v) => {
+            onMe({
+              room: { ...me.room, houseRules: String(v.text).trim() },
+            });
+            close();
+          }}
+          onClose={close}
+        />
+      )}
+      {editing === "languages" && (
+        <InterestsDialog
+          title={t("Languages")}
+          options={languageOptions}
+          max={4}
+          initial={me.languages}
+          onSave={(languages) => {
+            onMe({ languages });
+            close();
+          }}
+          onClose={close}
+        />
+      )}
       {editing === "interests" && (
         <InterestsDialog
           initial={me.interests}
@@ -497,6 +732,7 @@ export function EditProfileView({
         <PromptDialog
           initial={me.prompts[editing.prompt]}
           used={me.prompts.map((x) => x.question)}
+          host={host}
           onSave={(pr) => {
             const prompts = [...me.prompts];
             prompts[editing.prompt] = pr;

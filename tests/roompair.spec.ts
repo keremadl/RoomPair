@@ -154,6 +154,13 @@ test("filters validate, onboarding updates the profile, report and block work", 
     .fill("Deniz");
   for (let i = 0; i < 3; i++)
     await setup.getByRole("button", { name: "Continue" }).click();
+  // Everyday at home: guests, days at home, noise and sharing
+  await setup.getByRole("radio", { name: "Often" }).click();
+  await expect(setup.getByRole("radio", { name: "Often" })).toBeChecked();
+  await setup.getByRole("button", { name: "Continue" }).click();
+  await expect(
+    setup.getByRole("group", { name: "Who would you like to live with?" }),
+  ).toBeVisible();
   await setup.getByRole("button", { name: "Save and show people" }).click();
   await expect(page.getByRole("status")).toContainText("Deniz");
   // Discover puts its filters at the top right, where other pages show your initial.
@@ -246,9 +253,9 @@ test("my profile: preview from the photo, then edit photos, questions and intere
   await expect(
     page.getByRole("banner").getByRole("heading", { name: "Edit profile" }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("banner").getByRole("progressbar"),
-  ).toHaveCount(0);
+  await expect(page.getByRole("banner").getByRole("progressbar")).toHaveCount(
+    0,
+  );
   await page.getByRole("button", { name: "Add a question" }).click();
   const dialog = page.getByRole("dialog", { name: "Add a prompt" });
   await dialog

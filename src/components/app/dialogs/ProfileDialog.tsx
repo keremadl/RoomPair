@@ -8,13 +8,14 @@ import {
   discoverParts,
 } from "@/design-system/languages";
 import { useI18n } from "@/lib/i18n";
-import type { MatchResult, Profile } from "@/lib/types";
+import type { MatchResult, Preferences, Profile } from "@/lib/types";
 import d from "./dialogs.module.css";
 
 /** A person's full profile: Home → Person → Fit as tabs. */
 export function ProfileDialog({
   profile: p,
   match,
+  viewer,
   liked,
   hasChat,
   onClose,
@@ -24,6 +25,8 @@ export function ProfileDialog({
 }: {
   profile: Profile;
   match: MatchResult;
+  /** Your own answers, compared with theirs. */
+  viewer: Preferences;
   liked: boolean;
   hasChat: boolean;
   onClose: () => void;
@@ -61,6 +64,7 @@ export function ProfileDialog({
           profile={p}
           match={match}
           layout={defaultLayout}
+          viewer={viewer}
           onReport={onReport}
         />
       </div>

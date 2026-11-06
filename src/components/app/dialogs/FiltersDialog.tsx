@@ -79,6 +79,19 @@ export function FiltersDialog({
             onChange={(e) => set("stayMonths", Number(e.target.value))}
           />
         </div>
+        <Select
+          label={t("Who would you like to live with?")}
+          hint={t("People who did not give a gender only show with Anyone.")}
+          value={draft.livingWith}
+          onChange={(e) =>
+            set("livingWith", e.target.value as Preferences["livingWith"])
+          }
+          options={[
+            { value: "anyone", label: t("Anyone") },
+            { value: "women", label: t("Women only") },
+            { value: "men", label: t("Men only") },
+          ]}
+        />
         <div className={d.switches}>
           <Switch
             label={t("A smoke-free home")}

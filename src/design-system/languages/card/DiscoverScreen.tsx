@@ -1,5 +1,6 @@
 "use client";
 import type { DiscoverDeck, MatchResult, Profile } from "@/lib/discover/deck";
+import type { Preferences } from "@/lib/types";
 import { useRef } from "react";
 import { AnimatePresence } from "motion/react";
 import {
@@ -228,16 +229,20 @@ export function DiscoverDetails({
   match: m,
   layout = "blocks",
   onReport,
+  viewer = you,
 }: {
   profile: Profile;
   match: MatchResult;
   layout?: DetailsLayout;
+  /** Whose answers "you" means; the demo user by default. */
+  viewer?: Preferences;
   /** Opens report/block options; without it the links are inert (demos). */
   onReport?: () => void;
 }) {
   const host = p.intent === "have-room";
   const home = homeSection(p);
-  const person = personSection(p);
+  const person = personSection(p, viewer);
+  const speaks = person.facts.find((f) => f.label === "Speaks");
   const fit = fitSection(m);
   return (
     <Reveal id={p.id} className={s.details}>
@@ -280,6 +285,7 @@ export function DiscoverDetails({
                     ? " · email checked (demo)"
                     : ""}
                 </p>
+                {speaks && <p className={s.meta}>Speaks {speaks.value}</p>}
                 <p>{person.bio}</p>
                 <h4 className={s.subTitle}>Abilities</h4>
                 <ul className={s.abilities}>
@@ -290,22 +296,24 @@ export function DiscoverDetails({
                   ))}
                 </ul>
               </section>
-              <section className={s.box}>
-                <h4 className={s.title}>{person.prompt.question}</h4>
-                <p className={s.quote}>{person.prompt.answer}</p>
-              </section>
+              {person.prompts.map((pr) => (
+                <section className={s.box} key={pr.question}>
+                  <h4 className={s.title}>{pr.question}</h4>
+                  <p className={s.quote}>{pr.answer}</p>
+                </section>
+              ))}
               <section className={s.box}>
                 <h4 className={s.title}>Stats vs. you</h4>
                 <Versus
                   label="Tidiness"
                   them={p.habits.cleanliness}
-                  mine={you.cleanliness}
+                  mine={viewer.cleanliness}
                   name={p.name}
                 />
                 <Versus
                   label="Social energy"
                   them={p.habits.social}
-                  mine={you.social}
+                  mine={viewer.social}
                   name={p.name}
                 />
                 <ul className={s.traits}>

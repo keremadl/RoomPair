@@ -57,24 +57,34 @@ Based on the interface study in [interface-research.md](interface-research.md):
 
 ## 5. The experience
 
-| Screen                   | What happens                                                                                                                                                                   |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Onboarding** (4 steps) | Name, city and intent; budget, move-in date and stay; living style (tidiness, social energy, sleep); must-haves (smoke-free, pets)                                             |
-| **Discover**             | One card at a time: photo, name, age, intent, rent or budget, move-in date. Below it, Home → Person → Fit as blocks or tabs. Like, pass and undo. A second mode browses rooms. |
-| **Filters**              | City, budget, dates, intent, smoke-free, pets, verified only. An honest empty state when nobody fits.                                                                          |
-| **Match**                | When both people like each other, a match screen leads straight into a conversation.                                                                                           |
-| **Messages**             | Conversation list, starter prompts (for example "What's your ideal Sunday at home?") and clearly labelled simulated replies in the demo.                                       |
-| **Likes**                | People who liked you, people you liked, and like back.                                                                                                                         |
-| **My space**             | Saved homes, a five-step move-in checklist (budget and bills, cleaning rhythm, guests and quiet hours, a viewing together, house rules), shared notes and a viewing date.      |
-| **Profile**              | Living style, trust information, interface language, design language and demo settings.                                                                                        |
-| **Safety**               | Report and block on every profile; blocked people disappear from discovery.                                                                                                    |
+| Screen                   | What happens                                                                                                                                                                                                   |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Onboarding** (5 steps) | Name, city and intent; budget, move-in date and stay; living style (tidiness, social energy, sleep); everyday at home (guests, days at home, noise, sharing); must-haves (who you live with, smoke-free, pets) |
+| **Discover**             | One card at a time: photo, name, age, intent, rent or budget, move-in date. Below it, Home → Person → Fit as blocks or tabs. Like, pass and undo. A second mode browses rooms.                                 |
+| **Filters**              | City, budget, dates, intent, who you'd like to live with, smoke-free, pets, verified only. An honest empty state when nobody fits.                                                                             |
+| **Match**                | When both people like each other, a match screen leads straight into a conversation.                                                                                                                           |
+| **Messages**             | Conversation list, starter prompts (for example "What's your ideal Sunday at home?") and clearly labelled simulated replies in the demo.                                                                       |
+| **Likes**                | People who liked you, people you liked, and like back.                                                                                                                                                         |
+| **My space**             | Saved homes, a five-step move-in checklist (budget and bills, cleaning rhythm, guests and quiet hours, a viewing together, house rules), shared notes and a viewing date.                                      |
+| **Profile**              | A profile hub (photo, intent, what to complete) and an edit page with the fields in "Profile content" below. Settings hold the interface language and demo reset.                                              |
+| **Safety**               | Report and block on every profile; blocked people disappear from discovery.                                                                                                                                    |
+
+### Profile content
+
+Every field answers one question: _could I live with this person, or in this home?_ Anything matching uses is a choice (chips, scales); free text is only for personality. Fields follow the Home / Person / Fit model (`src/lib/discover/sections.ts`).
+
+- **Person:** name, age, studying or working, what they study or do, school or workplace, languages (up to 4), a short bio, **3 prompts**, interests (up to 5). Gender is optional and only used by the "live with women or men only" filter.
+- **Fit (living together):** tidiness, social energy, sleep, guests, home in the day, noise tolerance, sharing, smoking, pets; plus budget, move-in, stay and area.
+- **Home (only people with a room):** photos, rent and whether bills are included, deposit, own or shared bathroom, furnished, how many people live there now, getting there, house rules, available from, minimum stay.
+- **Required:** a photo, name, age, school or work, and the living-together answers (asked in setup). Hosts also need room photos. Prompts, bio and the rest are optional and raise the profile's completion.
+- **Prompts** (`src/lib/profile.ts`): nine about everyday life for everyone, the most useful being _"When we disagree, I usually…"_; three more about the place for hosts only.
 
 ## 6. How matching works
 
 Implemented in `src/lib/matching.ts`, deliberately simple enough to explain to a user.
 
 **Step 1 — eligibility (any failure removes the person):**
-same city; overlapping budget, or a room price within your budget; compatible intent (two people who both have a room do not match); move-in dates at most 45 days apart; smoke-free and no-pets must-haves; active search; optional verified-only filter.
+same city; overlapping budget, or a room price within your budget; compatible intent (two people who both have a room do not match); move-in dates at most 45 days apart; smoke-free and no-pets must-haves; the optional "women only / men only" choice (people who gave no gender only show with "anyone"); active search; optional verified-only filter.
 
 **Step 2 — weighted fit score:**
 
@@ -87,7 +97,7 @@ same city; overlapping budget, or a room price within your budget; compatible in
 | Move-in timing | 15%    |
 | Length of stay | 10%    |
 
-The result lists the reasons the two people fit, the differences worth discussing and each factor's score. Age, nationality, popularity and likes never influence ranking. The percentage compares stated preferences; it is **not** a prediction that living together will work.
+Guests, days at home, noise and sharing do not change the score; a big gap becomes something to talk about. The result lists the reasons the two people fit, the differences worth discussing and each factor's score. Age, nationality, popularity and likes never influence ranking. The percentage compares stated preferences; it is **not** a prediction that living together will work.
 
 ## 7. Trust and safety
 

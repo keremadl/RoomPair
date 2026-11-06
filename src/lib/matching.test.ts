@@ -196,3 +196,51 @@ test("city matching ignores whitespace, case and diacritical spelling difference
     true,
   );
 });
+
+test("living with women or men only hides others, and people who did not say", () => {
+  const ella = baseProfile; // a woman
+  assert.equal(
+    getCompatibility(ella, withPrefs({ livingWith: "women" })).eligible,
+    true,
+  );
+  assert.equal(
+    getCompatibility(ella, withPrefs({ livingWith: "men" })).eligible,
+    false,
+  );
+  const unsaid = withProfile({ gender: undefined });
+  assert.equal(
+    getCompatibility(unsaid, withPrefs({ livingWith: "women" })).eligible,
+    false,
+  );
+  assert.equal(
+    getCompatibility(unsaid, withPrefs({ livingWith: "anyone" })).eligible,
+    true,
+  );
+});
+
+test("everyday answers never change the score, but big gaps become things to talk about", () => {
+  const same = getCompatibility(
+    baseProfile,
+    withPrefs({ social: baseProfile.habits.social }),
+  );
+  const apart = getCompatibility(
+    withProfile({
+      habits: {
+        ...baseProfile.habits,
+        guests: "often",
+        noise: "high",
+        sharing: "most",
+      },
+    }),
+    withPrefs({
+      social: baseProfile.habits.social,
+      guests: "rarely",
+      noise: "low",
+      sharing: "separate",
+    }),
+  );
+  assert.equal(apart.score, same.score);
+  assert.ok(apart.considerations.some((c) => c.includes("guests")));
+  assert.ok(apart.considerations.some((c) => c.includes("quiet home")));
+  assert.ok(apart.considerations.some((c) => c.includes("sharing")));
+});

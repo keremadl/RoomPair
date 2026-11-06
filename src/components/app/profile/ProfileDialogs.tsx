@@ -12,7 +12,7 @@ import {
   Textarea,
 } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
-import { MAX_INTERESTS, interestOptions, promptQuestions } from "@/lib/profile";
+import { MAX_INTERESTS, interestOptions, promptsFor } from "@/lib/profile";
 import d from "../dialogs/dialogs.module.css";
 import p from "./profile.module.css";
 
@@ -37,6 +37,14 @@ type Field =
       label: string;
       type: "switch";
       value: boolean;
+      hint?: string;
+    }
+  | {
+      key: string;
+      label: string;
+      type: "select";
+      value: string;
+      options: { value: string; label: string }[];
       hint?: string;
     };
 
@@ -78,6 +86,15 @@ export function FieldsDialog({
               value={String(values[f.key])}
               onChange={(e) => set(f.key, e.target.value)}
             />
+          ) : f.type === "select" ? (
+            <Select
+              key={f.key}
+              label={f.label}
+              hint={f.hint}
+              value={String(values[f.key])}
+              onChange={(e) => set(f.key, e.target.value)}
+              options={f.options}
+            />
           ) : f.type === "switch" ? (
             <Switch
               key={f.key}
@@ -117,18 +134,21 @@ export function FieldsDialog({
 export function PromptDialog({
   initial,
   used,
+  host = false,
   onSave,
   onDelete,
   onClose,
 }: {
   initial?: { question: string; answer: string };
   used: string[];
+  /** People with a room also get questions about the place. */
+  host?: boolean;
   onSave: (prompt: { question: string; answer: string }) => void;
   onDelete?: () => void;
   onClose: () => void;
 }) {
   const { t } = useI18n();
-  const choices = promptQuestions.filter(
+  const choices = promptsFor(host).filter(
     (q) => q === initial?.question || !used.includes(q),
   );
   const [question, setQuestion] = useState(initial?.question ?? choices[0]);
@@ -179,34 +199,35 @@ export function PromptDialog({
   );
 }
 
-/** Choose up to MAX_INTERESTS interests. */
+/** Choose up to `max` chips; interests by default. */
 export function InterestsDialog({
   initial,
   onSave,
   onClose,
+  title,
+  options = interestOptions,
+  max = MAX_INTERESTS,
 }: {
   initial: string[];
-  onSave: (interests: string[]) => void;
+  onSave: (picked: string[]) => void;
   onClose: () => void;
+  title?: string;
+  options?: string[];
+  max?: number;
 }) {
   const { t } = useI18n();
   const [picked, setPicked] = useState(initial);
   const toggle = (i: string) =>
     setPicked((s) =>
-      s.includes(i)
-        ? s.filter((x) => x !== i)
-        : s.length < MAX_INTERESTS
-          ? [...s, i]
-          : s,
+      s.includes(i) ? s.filter((x) => x !== i) : s.length < max ? [...s, i] : s,
     );
   return (
-    <Dialog title={t("Interests")} onClose={onClose}>
+    <Dialog title={title ?? t("Interests")} onClose={onClose}>
       <Text size="sm" tone="muted">
-        {t("Pick up to {max}.", { max: MAX_INTERESTS })} {picked.length}/
-        {MAX_INTERESTS}
+        {t("Pick up to {max}.", { max })} {picked.length}/{max}
       </Text>
       <div className={p.chips}>
-        {interestOptions.map((i) => (
+        {options.map((i) => (
           <Chip key={i} selected={picked.includes(i)} onClick={() => toggle(i)}>
             {t(i)}
           </Chip>

@@ -3,9 +3,12 @@ import { useMemo, useState } from "react";
 import { defaultPreferences, profiles } from "@/lib/data";
 import { rankProfiles } from "@/lib/matching";
 import type {
+  Frequency,
   MatchResult,
+  NoiseTolerance,
   Preferences,
   Profile,
+  Sharing,
   SleepSchedule,
 } from "@/lib/types";
 
@@ -97,6 +100,30 @@ export const sleepLabel: Record<SleepSchedule, string> = {
   early: "Early riser",
   flexible: "Flexible",
   late: "Night owl",
+};
+
+export const guestsLabel: Record<Frequency, string> = {
+  rarely: "Rarely",
+  sometimes: "Sometimes",
+  often: "Often",
+};
+
+export const homeDaysLabel: Record<Frequency, string> = {
+  rarely: "Out most days",
+  sometimes: "Home some days",
+  often: "Home most days",
+};
+
+export const noiseLabel: Record<NoiseTolerance, string> = {
+  low: "Needs it quiet",
+  medium: "Some noise is fine",
+  high: "Noise doesn't bother me",
+};
+
+export const sharingLabel: Record<Sharing, string> = {
+  separate: "Keeps things separate",
+  some: "Shares the basics",
+  most: "Shares most things",
 };
 
 export const tidinessLabel = [

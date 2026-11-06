@@ -2,13 +2,45 @@
 export type HabitLevel = 1 | 2 | 3 | 4 | 5;
 export type SleepSchedule = "early" | "flexible" | "late";
 export type ProfileIntent = "find-room" | "have-room";
+/** How often: guests over, being home in the day. */
+export type Frequency = "rarely" | "sometimes" | "often";
+/** How much noise at home is fine. */
+export type NoiseTolerance = "low" | "medium" | "high";
+/** What flatmates share beyond the rooms. */
+export type Sharing = "separate" | "some" | "most";
+export type WorkStatus = "student" | "working";
+/** Optional; only used for the "who you'd like to live with" filter. */
+export type Gender = "woman" | "man" | "nonbinary";
+export type Prompt = { question: string; answer: string };
+
+/** The room a host offers. */
+export interface RoomDetails {
+  title: string;
+  price: number;
+  photo: string;
+  description: string;
+  billsIncluded: boolean;
+  deposit: number;
+  privateBathroom: boolean;
+  furnished: boolean;
+  /** People already living there, not counting the newcomer. */
+  flatmates: number;
+  /** How to get to campus or the centre, e.g. "Tram 1 · 10 min to RTU". */
+  transport: string;
+  houseRules: string;
+}
 
 export interface Profile {
   id: string;
   name: string;
   age: number;
+  status: WorkStatus;
+  /** What they study or do, e.g. "Design student". */
   occupation: string;
+  /** Where: the school or the workplace. */
   university: string;
+  languages: string[];
+  gender?: Gender;
   city: string;
   neighborhood: string;
   bio: string;
@@ -19,18 +51,23 @@ export interface Profile {
   stayMonths: number;
   intent: ProfileIntent;
   tags: string[];
-  prompt: { question: string; answer: string };
+  /** Up to three; the first one is shown on the card. */
+  prompts: Prompt[];
   habits: {
     cleanliness: HabitLevel;
     social: HabitLevel;
     sleep: SleepSchedule;
     smoking: boolean;
     pets: boolean;
+    guests: Frequency;
+    homeDays: Frequency;
+    noise: NoiseTolerance;
+    sharing: Sharing;
   };
   verified: boolean;
   active: boolean;
   likesYou: boolean;
-  room?: { title: string; price: number; photo: string; description: string };
+  room?: RoomDetails;
 }
 
 export interface Preferences {
@@ -44,9 +81,15 @@ export interface Preferences {
   cleanliness: number;
   social: number;
   sleep: SleepSchedule;
+  guests: Frequency;
+  homeDays: Frequency;
+  noise: NoiseTolerance;
+  sharing: Sharing;
   smokeFree: boolean;
   petsOkay: boolean;
   verifiedOnly: boolean;
+  /** Who you'd like to live with. People who did not say are only in "anyone". */
+  livingWith: "anyone" | "women" | "men";
 }
 
 export interface MatchResult {
@@ -88,18 +131,17 @@ export interface MyProfile {
   /** Data URLs or /images paths. The first is the main photo. */
   photos: string[];
   age: number;
+  status: WorkStatus;
   occupation: string;
+  /** School or workplace. */
+  school: string;
+  languages: string[];
+  gender?: Gender;
   bio: string;
-  prompts: { question: string; answer: string }[];
+  prompts: Prompt[];
   interests: string[];
   /** Demo only: whether the student-email check is done. */
   verified: boolean;
   /** Only used when you have a room. */
-  room: {
-    photos: string[];
-    title: string;
-    price: number;
-    billsIncluded: boolean;
-    description: string;
-  };
+  room: Omit<RoomDetails, "photo"> & { photos: string[] };
 }

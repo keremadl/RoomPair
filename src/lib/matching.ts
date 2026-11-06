@@ -80,6 +80,15 @@ export function getCompatibility(
     dealbreakers.push("You selected a smoke-free home.");
   if (!prefs.petsOkay && profile.habits.pets)
     dealbreakers.push("You selected a home without pets.");
+  if (
+    (prefs.livingWith === "women" && profile.gender !== "woman") ||
+    (prefs.livingWith === "men" && profile.gender !== "man")
+  )
+    dealbreakers.push(
+      prefs.livingWith === "women"
+        ? "You chose to live with women only."
+        : "You chose to live with men only.",
+    );
   if (prefs.verifiedOnly && !profile.verified)
     dealbreakers.push("This profile does not have a demo verification badge.");
 
@@ -190,6 +199,44 @@ export function getCompatibility(
     );
   if (profile.habits.pets && prefs.petsOkay)
     considerations.push("They have a pet; meet it and discuss shared spaces.");
+  // The living-together answers below do not change the score; a big gap
+  // becomes something to talk about.
+  const freq = { rarely: 0, sometimes: 1, often: 2 } as const;
+  const h = profile.habits;
+  if (
+    h.guests &&
+    prefs.guests &&
+    Math.abs(freq[h.guests] - freq[prefs.guests]) === 2
+  )
+    considerations.push(
+      h.guests === "often"
+        ? "They often have guests over; agree on how often is fine."
+        : "You often have guests over; agree on how often is fine.",
+    );
+  if (
+    h.noise &&
+    prefs.noise &&
+    h.noise !== prefs.noise &&
+    (h.noise === "low" || prefs.noise === "low")
+  )
+    considerations.push(
+      h.noise === "low"
+        ? "They need a quiet home; talk about music and calls."
+        : "You need a quiet home; talk about music and calls.",
+    );
+  if (
+    h.sharing &&
+    prefs.sharing &&
+    h.sharing !== prefs.sharing &&
+    (h.sharing === "separate" || prefs.sharing === "separate")
+  )
+    considerations.push(
+      "You see sharing food and things differently; agree on what is shared.",
+    );
+  if (h.homeDays === "often" && prefs.homeDays === "often")
+    considerations.push(
+      "You are both home most days; talk about space to study or work.",
+    );
 
   const breakdown: MatchResult["breakdown"] = [
     {

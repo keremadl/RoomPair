@@ -554,6 +554,7 @@ function RoomPairApp() {
             key="profile"
             profile={detail}
             match={getCompatibility(detail, state.preferences)}
+            viewer={state.preferences}
             liked={state.decisions.some(
               (d) => d.id === detail.id && d.action === "like",
             )}

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { defaultPreferences, conversations } from "./data";
-import { defaultMe } from "./profile";
+import { defaultMe, hostPromptQuestions, promptQuestions } from "./profile";
 import type { Preferences, Conversation, MyProfile } from "./types";
 export interface AppState {
   preferences: Preferences;
@@ -31,6 +31,17 @@ export const initialState: AppState = {
   me: defaultMe,
 };
 const KEY = "roompair-demo-v1";
+
+/** Older saves used questions without "…" or ones that were since removed. */
+function migratePrompts(prompts: MyProfile["prompts"]) {
+  const known = [...promptQuestions, ...hostPromptQuestions];
+  return prompts
+    .map((p) => ({
+      ...p,
+      question: known.includes(p.question) ? p.question : `${p.question}…`,
+    }))
+    .filter((p) => known.includes(p.question));
+}
 export function useAppState() {
   const [state, setState] = useState<AppState>(initialState);
   const [ready, setReady] = useState(false);
@@ -51,6 +62,7 @@ export function useAppState() {
               ...defaultMe,
               ...saved.me,
               room: { ...defaultMe.room, ...saved.me?.room },
+              prompts: migratePrompts(saved.me?.prompts ?? defaultMe.prompts),
             },
             preferences: {
               ...defaultPreferences,

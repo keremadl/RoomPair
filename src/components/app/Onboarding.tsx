@@ -15,13 +15,71 @@ import {
   Text,
 } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
-import type { Preferences, SleepSchedule } from "@/lib/types";
+import type {
+  Frequency,
+  NoiseTolerance,
+  Preferences,
+  Sharing,
+  SleepSchedule,
+} from "@/lib/types";
 import o from "./Onboarding.module.css";
 
-const steps = ["ob.stepOne", "ob.stepTwo", "ob.stepThree", "ob.stepFour"];
-const subs = ["ob.subOne", "ob.subTwo", "ob.subThree", "ob.subFour"];
+const steps = [
+  "ob.stepOne",
+  "ob.stepTwo",
+  "ob.stepThree",
+  "Everyday at home",
+  "ob.stepFour",
+];
+const subs = [
+  "ob.subOne",
+  "ob.subTwo",
+  "ob.subThree",
+  "So you both know what a normal week looks like.",
+  "ob.subFour",
+];
+const LAST = steps.length - 1;
 
-/** Four short steps that set the preferences matching uses. */
+/** One question with a few answers, shown as pills. */
+function Pills<T extends string>({
+  name,
+  legend,
+  value,
+  options,
+  onChange,
+}: {
+  name: string;
+  legend: string;
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (v: T) => void;
+}) {
+  return (
+    <fieldset className={o.choices}>
+      <legend>{legend}</legend>
+      <div className={o.pills}>
+        {options.map((opt) => (
+          <label
+            key={opt.value}
+            className={o.pill}
+            data-checked={value === opt.value}
+          >
+            <input
+              type="radio"
+              name={name}
+              value={opt.value}
+              checked={value === opt.value}
+              onChange={() => onChange(opt.value)}
+            />
+            {opt.label}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+/** Five short steps that set the preferences matching uses. */
 export function Onboarding({
   initial,
   onComplete,
@@ -75,7 +133,7 @@ export function Onboarding({
   function next() {
     const invalid = validate();
     if (invalid) return setError(invalid);
-    if (step === 3)
+    if (step === LAST)
       return onComplete({
         ...values,
         name: values.name.trim(),
@@ -119,12 +177,14 @@ export function Onboarding({
   return (
     <Dialog title={t("ob.eyebrow")} onClose={onClose} size="lg" hideTitle>
       <div className={o.head}>
-        <Eyebrow>{t("ob.progress", { current: step + 1, total: 4 })}</Eyebrow>
+        <Eyebrow>
+          {t("ob.progress", { current: step + 1, total: steps.length })}
+        </Eyebrow>
         <div
           className={o.progress}
           role="progressbar"
           aria-valuemin={1}
-          aria-valuemax={4}
+          aria-valuemax={steps.length}
           aria-valuenow={step + 1}
           aria-label={t("ob.eyebrow")}
         >
@@ -246,31 +306,79 @@ export function Onboarding({
                   ends={[t("ob.quiet"), t("ob.together")]}
                   valueText={`${values.social}/5`}
                 />
-                <fieldset className={o.choices}>
-                  <legend>{t("ob.sleep")}</legend>
-                  <div className={o.pills}>
-                    {rhythms.map(({ value, label }) => (
-                      <label
-                        key={value}
-                        className={o.pill}
-                        data-checked={values.sleep === value}
-                      >
-                        <input
-                          type="radio"
-                          name="sleep"
-                          value={value}
-                          checked={values.sleep === value}
-                          onChange={() => set("sleep", value)}
-                        />
-                        {t(label)}
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
+                <Pills<SleepSchedule>
+                  name="sleep"
+                  legend={t("ob.sleep")}
+                  value={values.sleep}
+                  onChange={(v) => set("sleep", v)}
+                  options={rhythms.map((r) => ({
+                    value: r.value,
+                    label: t(r.label),
+                  }))}
+                />
               </>
             )}
             {step === 3 && (
               <>
+                <Pills<Frequency>
+                  name="guests"
+                  legend={t("How often do you have guests over?")}
+                  value={values.guests}
+                  onChange={(v) => set("guests", v)}
+                  options={[
+                    { value: "rarely", label: t("Rarely") },
+                    { value: "sometimes", label: t("Sometimes") },
+                    { value: "often", label: t("Often") },
+                  ]}
+                />
+                <Pills<Frequency>
+                  name="homeDays"
+                  legend={t("Are you home in the day?")}
+                  value={values.homeDays}
+                  onChange={(v) => set("homeDays", v)}
+                  options={[
+                    { value: "rarely", label: t("Out most days") },
+                    { value: "sometimes", label: t("Some days") },
+                    { value: "often", label: t("Most days") },
+                  ]}
+                />
+                <Pills<NoiseTolerance>
+                  name="noise"
+                  legend={t("How much noise is fine?")}
+                  value={values.noise}
+                  onChange={(v) => set("noise", v)}
+                  options={[
+                    { value: "low", label: t("I need it quiet") },
+                    { value: "medium", label: t("Some is fine") },
+                    { value: "high", label: t("It doesn't bother me") },
+                  ]}
+                />
+                <Pills<Sharing>
+                  name="sharing"
+                  legend={t("What do you like to share?")}
+                  value={values.sharing}
+                  onChange={(v) => set("sharing", v)}
+                  options={[
+                    { value: "separate", label: t("Keep things separate") },
+                    { value: "some", label: t("The basics") },
+                    { value: "most", label: t("Most things") },
+                  ]}
+                />
+              </>
+            )}
+            {step === LAST && (
+              <>
+                <Pills<Preferences["livingWith"]>
+                  name="livingWith"
+                  legend={t("Who would you like to live with?")}
+                  value={values.livingWith}
+                  onChange={(v) => set("livingWith", v)}
+                  options={[
+                    { value: "anyone", label: t("Anyone") },
+                    { value: "women", label: t("Women only") },
+                    { value: "men", label: t("Men only") },
+                  ]}
+                />
                 <div className={o.switches}>
                   <Switch
                     label={t("ob.smokeFree")}
@@ -326,9 +434,9 @@ export function Onboarding({
           )}
           <Button
             type="submit"
-            trailingIcon={step === 3 ? <Check /> : <ArrowRight />}
+            trailingIcon={step === LAST ? <Check /> : <ArrowRight />}
           >
-            {t(step === 3 ? "ob.finish" : "ob.continue")}
+            {t(step === LAST ? "ob.finish" : "ob.continue")}
           </Button>
         </div>
       </form>
