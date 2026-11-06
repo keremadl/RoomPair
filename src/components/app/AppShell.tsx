@@ -5,7 +5,6 @@ import {
   CircleHelp,
   Compass,
   Heart,
-  Home,
   MapPin,
   MessageCircle,
   Smile,
@@ -19,7 +18,7 @@ import { useI18n } from "@/lib/i18n";
 import { Brand } from "./Brand";
 import s from "./AppShell.module.css";
 
-export type View = "discover" | "likes" | "messages" | "space" | "profile";
+export type View = "discover" | "likes" | "messages" | "profile";
 
 /**
  * The app frame: the top bar (page title, or back + title on a sub-page,
@@ -66,7 +65,6 @@ export function AppShell({
       icon: MessageCircle,
       count: counts.messages,
     },
-    { id: "space", label: t("nav.space"), icon: Home },
     { id: "profile", label: t("nav.profile"), icon: Smile },
   ];
   return (

@@ -7,27 +7,18 @@ export interface AppState {
   preferences: Preferences;
   decisions: { id: string; action: "like" | "pass" }[];
   chats: Conversation[];
-  savedRooms: string[];
-  checklist: string[];
-  notes: string;
   onboarded: boolean;
   blocked: string[];
   reports: { profileId: string; reason: string }[];
-  /** Planned viewing per saved room id (datetime-local value). */
-  viewings: Record<string, string>;
   me: MyProfile;
 }
 export const initialState: AppState = {
   preferences: defaultPreferences,
   decisions: [],
   chats: conversations,
-  savedRooms: ["room-ella"],
-  checklist: ["budget"],
-  notes: "",
   onboarded: false,
   blocked: [],
   reports: [],
-  viewings: {},
   me: defaultMe,
 };
 const KEY = "roompair-demo-v1";
@@ -77,12 +68,6 @@ export function useAppState() {
                   ? "have-room"
                   : "find-room",
             },
-            // v1 stored one viewing for the whole plan; attach it to the first saved room.
-            viewings:
-              saved.viewings ??
-              (saved.viewing && saved.savedRooms?.[0]
-                ? { [saved.savedRooms[0]]: saved.viewing }
-                : {}),
           });
       }
     } catch {}

@@ -15,25 +15,23 @@ import {
   TextProvider,
   type PageMotion,
 } from "@/design-system";
-import { profiles, rooms } from "@/lib/data";
+import { profiles } from "@/lib/data";
 import { getCompatibility, rankProfiles } from "@/lib/matching";
 import { missingRequired } from "@/lib/profile";
 import { useAppState } from "@/lib/store";
 import { I18nProvider, useI18n } from "@/lib/i18n";
-import type { Preferences, Profile, Room } from "@/lib/types";
+import type { Preferences, Profile } from "@/lib/types";
 import type { DiscoverDeck } from "@/lib/discover/deck";
 import { AppShell, type View } from "./AppShell";
 import { DiscoverView, ProfileGate } from "./views/DiscoverView";
-import { LikeNext, LikesView } from "./views/LikesView";
+import { LikesView } from "./views/LikesView";
 import { MessagesView } from "./views/MessagesView";
-import { SpaceView } from "./views/SpaceView";
 import { ProfileView } from "./views/ProfileView";
 import { SettingsView } from "./views/SettingsView";
 import { EditProfileView } from "./views/EditProfileView";
 import { FiltersDialog } from "./dialogs/FiltersDialog";
 import { ProfileDialog } from "./dialogs/ProfileDialog";
 import { MatchDialog } from "./dialogs/MatchDialog";
-import { RoomDialog } from "./dialogs/RoomDialog";
 import { HelpDialog } from "./dialogs/HelpDialog";
 import { ReportDialog } from "./dialogs/ReportDialog";
 import { Onboarding } from "./Onboarding";
@@ -44,7 +42,6 @@ type Dialog =
   | "filters"
   | "profile"
   | "match"
-  | "room"
   | "help"
   | "settings"
   | "report"
@@ -87,7 +84,6 @@ function RoomPairApp() {
   // false = closed; a number = open at that step.
   const [onboarding, setOnboarding] = useState<false | number>(false);
   const [selected, setSelected] = useState<Profile | null>(null);
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [activeChat, setActiveChat] = useState<string | null>(null);
   /** On phones an open conversation is a sub-page: back and name in the top bar. */
   const [chatOpen, setChatOpen] = useState(false);
@@ -126,11 +122,6 @@ function RoomPairApp() {
       profile.likesYou &&
       !state.decisions.some((d) => d.id === profile.id) &&
       !state.chats.some((c) => c.profileId === profile.id),
-  );
-  const sent = profiles.filter(
-    (p) =>
-      state.decisions.some((d) => d.id === p.id && d.action === "like") &&
-      !state.blocked.includes(p.id),
   );
   const unread = state.chats.reduce((n, c) => n + c.unread, 0);
   const chat = state.chats.find((c) => c.id === activeChat) ?? state.chats[0];
@@ -181,10 +172,6 @@ function RoomPairApp() {
   function openProfile(p: Profile) {
     setSelected(p);
     setDialog("profile");
-  }
-  function openRoom(room: Room) {
-    setSelectedRoom(room);
-    setDialog("room");
   }
   function ensureChat(person: Profile) {
     if (!state.chats.some((c) => c.profileId === person.id))
@@ -330,25 +317,6 @@ function RoomPairApp() {
     }, 1600);
     replyTimers.current.push(timer);
   }
-  function toggleRoom(id: string, announce = false) {
-    const saved = state.savedRooms.includes(id);
-    setState((st) => ({
-      ...st,
-      savedRooms: saved
-        ? st.savedRooms.filter((r) => r !== id)
-        : [...st.savedRooms, id],
-    }));
-    if (announce)
-      notify(saved ? t("Removed from saved rooms.") : t("Saved to My space."));
-  }
-  function toggleTask(id: string) {
-    setState((st) => ({
-      ...st,
-      checklist: st.checklist.includes(id)
-        ? st.checklist.filter((x) => x !== id)
-        : [...st.checklist, id],
-    }));
-  }
 
   // Arrow keys like and pass on the Discover card.
   useEffect(() => {
@@ -400,9 +368,6 @@ function RoomPairApp() {
   const detail = selected;
   const likePerson =
     view === "likes" && likeOpen ? profileById(likeOpen) : null;
-  const likeWaiting = likePerson
-    ? received.some((r) => r.profile.id === likePerson.id)
-    : false;
   const closeLike = () => {
     setLikeOpen(null);
     window.scrollTo({ top: 0 });
@@ -531,11 +496,9 @@ function RoomPairApp() {
             roomFirst={state.preferences.intent !== "have-room"}
             canUndo={state.decisions.length > 0}
             rankedCount={ranked.length}
-            savedRooms={state.savedRooms}
             onFilters={() => setDialog("filters")}
             onBrowseAgain={browseAgain}
             onUndo={undo}
-            onToggleRoom={(id) => toggleRoom(id, true)}
             viewer={state.preferences}
             onReport={(p) => {
               setSelected(p);
@@ -544,9 +507,8 @@ function RoomPairApp() {
           />
         )}
         {view === "likes" && likePerson && (
-          // A person from Likes, as a sub-page: the Discover card and details.
-          // Someone waiting for your answer gets Skip / Team up; someone you
-          // already liked shows whether you can message them.
+          // Someone who liked you, as a sub-page: the Discover card and
+          // details, with Skip / Team up.
           <DiscoverView
             key={likePerson.id}
             deck={{
@@ -566,31 +528,20 @@ function RoomPairApp() {
             roomFirst={state.preferences.intent !== "have-room"}
             canUndo={false}
             rankedCount={1}
-            savedRooms={state.savedRooms}
             onFilters={() => setDialog("filters")}
             onBrowseAgain={browseAgain}
             onUndo={undo}
-            onToggleRoom={(id) => toggleRoom(id, true)}
             viewer={state.preferences}
-            preview={!likeWaiting}
-          showUndo={false}
+            showUndo={false}
             onReport={(p) => {
               setSelected(p);
               setDialog("report");
             }}
-          >
-            {!likeWaiting && (
-              <LikeNext
-                matched={likePerson.likesYou}
-                onMessage={() => openChat(likePerson)}
-              />
-            )}
-          </DiscoverView>
+          />
         )}
         {view === "likes" && !likePerson && (
           <LikesView
             received={received.map((r) => r.profile)}
-            sent={sent}
             preferences={state.preferences}
             onOpen={(p) => {
               setLikeOpen(p.id);
@@ -620,25 +571,6 @@ function RoomPairApp() {
               setDialog("report");
             }}
             onDiscover={() => navigate("discover")}
-          />
-        )}
-        {view === "space" && (
-          <SpaceView
-            state={state}
-            rooms={rooms}
-            onOpenRoom={openRoom}
-            onToggleRoom={(id) => toggleRoom(id, true)}
-            onToggleTask={toggleTask}
-            onNotes={(notes) => setState((st) => ({ ...st, notes }))}
-            onViewing={(roomId, viewing) =>
-              setState((st) => ({
-                ...st,
-                viewings: { ...st.viewings, [roomId]: viewing },
-              }))
-            }
-            onExploreRooms={() => {
-              navigate("discover");
-            }}
           />
         )}
         {view === "profile" && sub === "settings" && (
@@ -675,7 +607,7 @@ function RoomPairApp() {
             me={state.me}
             counts={{
               likes: received.length,
-              saved: state.savedRooms.length,
+              matches: state.chats.length,
               blocked: state.blocked.length,
               reports: state.reports.length,
             }}
@@ -689,7 +621,7 @@ function RoomPairApp() {
               }))
             }
             onLikes={() => navigate("likes")}
-            onSpace={() => navigate("space")}
+            onMatches={() => navigate("messages")}
           />
         )}
       </PageTransition>
@@ -731,17 +663,6 @@ function RoomPairApp() {
             userName={state.preferences.name}
             onClose={() => setDialog(null)}
             onChat={() => openChat(detail)}
-          />
-        )}
-        {dialog === "room" && selectedRoom && (
-          <RoomDialog
-            key="room"
-            room={selectedRoom}
-            host={profiles.find((p) => `room-${p.id}` === selectedRoom.id)}
-            saved={state.savedRooms.includes(selectedRoom.id)}
-            onClose={() => setDialog(null)}
-            onToggle={() => toggleRoom(selectedRoom.id, true)}
-            onHost={(p) => openProfile(p)}
           />
         )}
         {dialog === "help" && (

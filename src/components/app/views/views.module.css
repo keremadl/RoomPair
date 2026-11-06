@@ -1,10 +1,7 @@
 /* Shared layout for app views. Tokens only; the Card language styles them. */
 .toolbar,
 .cardGrid,
-.roomGrid,
 .messenger,
-.spaceGrid,
-.profileGrid,
 .centered,
 .toolbar + [role="tabpanel"] {
   /* width: 100% keeps them full width inside flex columns, where auto
@@ -34,23 +31,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr));
   gap: var(--space-5);
-}
-.roomGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
-  gap: var(--space-5);
-}
-.waiting {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-}
-.waiting svg {
-  width: 1rem;
-  height: 1rem;
 }
 
 /* Panels: a chunky card for a side section */
@@ -171,8 +151,7 @@
   background: var(--color-primary-soft);
 }
 .conversation:focus-visible,
-.chatPerson:focus-visible,
-.check:focus-visible {
+.chatPerson:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
 }
@@ -402,23 +381,6 @@
   padding: 0 var(--space-2);
 }
 
-/* My space */
-.spaceGrid,
-.profileGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-8);
-}
-@media (min-width: 1100px) {
-  .spaceGrid {
-    grid-template-columns: minmax(0, 1fr) 22rem;
-    align-items: start;
-  }
-  .profileGrid {
-    grid-template-columns: minmax(0, 1fr) 22rem;
-    align-items: start;
-  }
-}
 .stack {
   display: flex;
   flex-direction: column;
@@ -448,63 +410,6 @@
   background: var(--stat-on, var(--color-primary));
   transition: width var(--duration-slow) var(--ease-standard);
 }
-.checklist {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  margin: var(--space-3) 0 0;
-  padding: 0;
-  list-style: none;
-}
-.check {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  width: 100%;
-  padding: var(--space-2);
-  border: 0;
-  border-radius: var(--radius-md);
-  background: none;
-  color: var(--color-text);
-  font-family: var(--font-body);
-  text-align: left;
-  cursor: pointer;
-}
-.check:hover {
-  background: var(--color-surface-sunken);
-}
-.check span:last-child {
-  display: flex;
-  flex-direction: column;
-}
-.check small {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
-.checkBox {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 1.5rem;
-  height: 1.5rem;
-  margin-top: var(--space-1);
-  border: var(--control-border-width) solid
-    var(--control-border, var(--color-border-strong));
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-raised);
-}
-.check[aria-pressed="true"] .checkBox {
-  background: var(--color-success);
-  color: var(--color-text-inverse);
-}
-.checkBox svg {
-  width: 1rem;
-  height: 1rem;
-}
-.notes textarea {
-  min-height: 8rem;
-}
-
 /* My profile: your own character card */
 .myName {
   display: flex;
@@ -724,6 +629,11 @@
 }
 
 /* Likes: a two-column grid of photo tiles (the match tile, bigger) */
+.likes {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 .likeGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr));
@@ -744,11 +654,7 @@
   composes: matchTile;
   width: 100%;
 }
-.likeTile[data-waiting] > img:first-child {
-  opacity: 0.6;
-}
-.likeFit,
-.likeState {
+.likeFit {
   position: absolute;
   top: var(--space-2);
   z-index: 1;
@@ -766,15 +672,6 @@
   left: var(--space-2);
   background: var(--color-accent-soft);
   color: var(--color-accent-strong);
-}
-.likeState {
-  right: var(--space-2);
-  background: var(--color-surface-raised);
-  color: var(--color-text);
-}
-.likeState svg {
-  width: 0.8rem;
-  height: 0.8rem;
 }
 .likeTile > img.likeFace {
   inset: auto auto var(--space-12) var(--space-3);
@@ -806,11 +703,3 @@
   white-space: nowrap;
 }
 
-/* Likes sub-page: what happens next with someone you already liked */
-.likeNext {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  max-width: 26rem;
-  margin: var(--space-6) auto 0;
-}

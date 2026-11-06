@@ -120,16 +120,6 @@ export interface Conversation {
   matchedAt: string;
 }
 
-export interface Room {
-  id: string;
-  title: string;
-  neighborhood: string;
-  price: number;
-  photo: string;
-  tags: string[];
-  description: string;
-}
-
 /** What you show others: photos, words, and your room if you have one. */
 export interface MyProfile {
   /** Data URLs or /images paths. The first is the main photo. */

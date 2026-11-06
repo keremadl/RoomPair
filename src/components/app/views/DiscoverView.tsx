@@ -24,11 +24,9 @@ export function DiscoverView({
   roomFirst,
   canUndo,
   rankedCount,
-  savedRooms,
   onFilters,
   onBrowseAgain,
   onUndo,
-  onToggleRoom,
   onReport,
   viewer,
   preview = false,
@@ -40,11 +38,9 @@ export function DiscoverView({
   roomFirst: boolean;
   canUndo: boolean;
   rankedCount: number;
-  savedRooms: string[];
   onFilters: () => void;
   onBrowseAgain: () => void;
   onUndo: () => void;
-  onToggleRoom: (id: string) => void;
   onReport: (p: Profile) => void;
   /** Your own answers, compared with theirs in the details. */
   viewer: Preferences;
@@ -66,8 +62,6 @@ export function DiscoverView({
     if (window.scrollY > 0)
       window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" });
   };
-  const roomId = deck?.profile.room ? `room-${deck.profile.id}` : null;
-  const saved = roomId ? savedRooms.includes(roomId) : false;
   return (
     <>
       {deck ? (
@@ -81,8 +75,6 @@ export function DiscoverView({
                 block: "start",
               })
             }
-            saved={saved}
-            onSave={roomId ? () => onToggleRoom(roomId) : undefined}
             preview={preview}
             showUndo={showUndo}
           />

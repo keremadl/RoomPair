@@ -2,7 +2,7 @@
 import { useState } from "react";
 import {
   BadgeCheck,
-  Bookmark,
+  MessageCircle,
   Building2,
   ChevronRight,
   CircleHelp,
@@ -41,17 +41,18 @@ export function ProfileView({
   onIntent,
   onVerify,
   onLikes,
-  onSpace,
+  onMatches,
 }: {
   preferences: Preferences;
   me: MyProfile;
-  counts: { likes: number; saved: number; blocked: number; reports: number };
+  counts: { likes: number; matches: number; blocked: number; reports: number };
   onEdit: () => void;
   onHelp: () => void;
   onIntent: (intent: "find-room" | "have-room") => void;
   onVerify: () => void;
   onLikes: () => void;
-  onSpace: () => void;
+  /** Opens Messages, where matches are. */
+  onMatches: () => void;
 }) {
   const { t } = useI18n();
   const [choosing, setChoosing] = useState(false);
@@ -128,13 +129,13 @@ export function ProfileView({
             <strong>{counts.likes}</strong>
           </span>
         </button>
-        <button type="button" className={h.tile} onClick={onSpace}>
+        <button type="button" className={h.tile} onClick={onMatches}>
           <span className={h.tileIcon}>
-            <Bookmark aria-hidden="true" />
+            <MessageCircle aria-hidden="true" />
           </span>
           <span>
-            <small>{host ? t("Checklist") : t("Saved rooms")}</small>
-            <strong>{host ? t("Open") : counts.saved}</strong>
+            <small>{t("Matches")}</small>
+            <strong>{counts.matches}</strong>
           </span>
         </button>
       </div>

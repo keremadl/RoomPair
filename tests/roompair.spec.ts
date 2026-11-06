@@ -134,18 +134,21 @@ test("a mutual like opens a match, then a conversation with a simulated reply", 
   ).toBeVisible({ timeout: 6000 });
 });
 
-test("likes, rooms, the shared space and the moving checklist", async ({
+test("likes: people who liked you as tiles; a match moves to Messages", async ({
   page,
 }) => {
   await openApp(page);
   const nav = page.getByRole("navigation", { name: "Main navigation" });
+  // There is no My space and nothing to save any more
+  await expect(nav.getByRole("button", { name: /My space/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Save room/ })).toHaveCount(0);
   await nav.getByRole("button", { name: /Likes/ }).click();
-  await expect(page.getByRole("tab", { name: /Liked you/ })).toHaveAttribute(
-    "aria-selected",
-    "true",
-  );
-  // Likes are a grid of tiles; Maya is already in a conversation, so only
-  // Ella is waiting for an answer. A tile opens her as a sub-page.
+  // Only people who liked you; no tab for the people you liked
+  await expect(page.getByRole("tab", { name: /Your likes/ })).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: /^Liked you · \d+/ }),
+  ).toBeVisible();
+  // Maya is already in a conversation, so she is not waiting here.
   await expect(page.getByRole("button", { name: /^Maya/ })).toHaveCount(0);
   await page.getByRole("button", { name: /^Ella, 23/ }).click();
   await expect(
@@ -156,34 +159,12 @@ test("likes, rooms, the shared space and the moving checklist", async ({
     page.getByRole("dialog", { name: "It’s a RoomPair!" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Not now" }).click();
-  // Back on the grid: Ella moved to Your likes, as a match
-  await page.getByRole("tab", { name: /Your likes/ }).click();
+  // Ella left Likes and is now a new match in Messages
+  await expect(page.getByRole("button", { name: /^Ella, 23/ })).toHaveCount(0);
+  await nav.getByRole("button", { name: /Messages/ }).click();
   await expect(
-    page.getByRole("button", { name: /^Ella, 23.*Matched/ }),
+    page.getByRole("button", { name: /^Ella/ }).first(),
   ).toBeVisible();
-
-  await nav.getByRole("button", { name: "Discover" }).click();
-  await page
-    .getByRole("button", { name: "Save room", exact: true })
-    .first()
-    .click();
-  await expect(page.getByRole("status")).toContainText("Saved");
-
-  await nav.getByRole("button", { name: "My space" }).click();
-  await expect(
-    page.getByRole("heading", { name: /Saved rooms · 2/ }),
-  ).toBeVisible();
-  const task = page.getByRole("button", { name: /^Cleaning/ });
-  await task.click();
-  await expect(task).toHaveAttribute("aria-pressed", "true");
-  await page
-    .getByRole("textbox", { name: "Notes" })
-    .fill("Ask about the balcony");
-  await page.reload();
-  await nav.getByRole("button", { name: "My space" }).click();
-  await expect(page.getByRole("textbox", { name: "Notes" })).toHaveValue(
-    "Ask about the balcony",
-  );
 });
 
 test("filters validate, onboarding updates the profile, report and block work", async ({
@@ -269,13 +250,10 @@ test("what you are looking for decides who Discover shows", async ({
   page,
 }) => {
   await openApp(page);
-  // Looking for a room (default): hosts, room first, with Save room.
+  // Looking for a room (default): hosts, room first.
   await expect(card(page)).toHaveText(/^Ella/);
   await expect(
     page.getByRole("img", { name: "A sunny room in Āgenskalns" }).first(),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: /Save room|Unsave room/ }),
   ).toBeVisible();
   await expect(page.getByRole("radio", { name: "Find a room" })).toHaveCount(0);
 
@@ -309,15 +287,10 @@ test("what you are looking for decides who Discover shows", async ({
       .getByRole("button", { name: "Main photo" }),
   ).toBeVisible();
   await nav.getByRole("button", { name: "Discover" }).click();
-  // Having a room: only people looking for one, no rooms to save. Leo is
+  // Having a room: only people looking for one. Leo is
   // looking too, but you already have a conversation with him.
   // The best fit for the demo host among people looking for a room
   await expect(card(page)).toHaveText(/^Chidi/);
-  await expect(page.getByRole("button", { name: /Save room/ })).toHaveCount(0);
-  await nav.getByRole("button", { name: /My space/ }).click();
-  await expect(page.getByRole("heading", { name: /Saved rooms/ })).toHaveCount(
-    0,
-  );
 });
 
 test("my profile: preview from the photo, then edit photos, questions and interests", async ({
@@ -468,8 +441,7 @@ test.describe("on a phone", () => {
         .getByRole("article", { name })
         .first()
         .evaluate((el) => el.getBoundingClientRect().width);
-    await nav.getByRole("button", { name: /My space/ }).click();
-    expect(await widthOf("A sunny room in Āgenskalns")).toBeGreaterThan(300);
+    expect(await widthOf("Ella, 23")).toBeGreaterThan(300);
     await nav.getByRole("button", { name: /My profile/ }).click();
     await page
       .getByRole("button", { name: "Edit profile", exact: true })

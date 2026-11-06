@@ -6,8 +6,6 @@ import { AnimatePresence } from "motion/react";
 import {
   BadgeCheck,
   Bell,
-  Bookmark,
-  BookmarkCheck,
   ChevronDown,
   Check,
   Circle,
@@ -61,8 +59,6 @@ export function DiscoverCard({
   deck,
   roomFirst = false,
   onInfo,
-  saved,
-  onSave,
   preview = false,
   showUndo = true,
 }: {
@@ -74,9 +70,6 @@ export function DiscoverCard({
   roomFirst?: boolean;
   /** Shows Home → Person → Fit for this profile (below the card in the app). */
   onInfo?: () => void;
-  /** Room-first only: whether the room is saved, and the toggle. */
-  saved?: boolean;
-  onSave?: () => void;
 }) {
   const t = useText();
   const { profile: p, match: m } = deck;
@@ -183,17 +176,6 @@ export function DiscoverCard({
                   €{p.room!.price}
                   <small>{t("/month")}</small>
                 </span>
-              )}
-              {showRoom && onSave && (
-                <button
-                  type="button"
-                  className={w.save}
-                  aria-label={saved ? t("Unsave room") : t("Save room")}
-                  aria-pressed={saved}
-                  onClick={onSave}
-                >
-                  {saved ? <BookmarkCheck /> : <Bookmark />}
-                </button>
               )}
               <div className={w.overlay}>
                 <div className={w.who}>

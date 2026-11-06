@@ -1,4 +1,4 @@
-import type { Conversation, Preferences, Profile, Room } from "./types";
+import type { Conversation, Preferences, Profile } from "./types";
 
 export const defaultPreferences: Preferences = {
   name: "Alex",
@@ -1243,22 +1243,6 @@ export const profiles: Profile[] = [
     likesYou: true,
   },
 ];
-
-export const rooms: Room[] = profiles
-  .filter((profile) => profile.room)
-  .map((profile) => ({
-    id: `room-${profile.id}`,
-    title: profile.room!.title,
-    neighborhood: profile.neighborhood,
-    price: profile.room!.price,
-    photo: profile.room!.photo,
-    tags: [
-      profile.habits.pets ? "Pet friendly" : "No pets",
-      profile.room!.furnished ? "Furnished" : "Unfurnished",
-      `${profile.stayMonths}-month stay`,
-    ],
-    description: profile.room!.description,
-  }));
 
 export const conversations: Conversation[] = [
   // New matches: nobody has written yet.

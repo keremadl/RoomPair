@@ -25,8 +25,8 @@ export function HelpDialog({
     },
     {
       icon: ListChecks,
-      title: "Plan the move",
-      body: "Save rooms, plan viewings and agree on house rules in My space.",
+      title: "Agree before you move",
+      body: "Use the chat to visit the room together and agree on bills, cleaning and guests.",
     },
   ];
   return (
