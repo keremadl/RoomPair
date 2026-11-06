@@ -14,7 +14,7 @@
     background-color var(--duration-base) var(--ease-standard),
     border-color var(--duration-base) var(--ease-standard),
     color var(--duration-base) var(--ease-standard),
-    transform var(--duration-fast) var(--ease-standard);
+    var(--transition-press);
 }
 .button:focus-visible {
   outline: none;
@@ -81,6 +81,8 @@
 
 .danger {
   background: var(--color-danger-soft);
+  border-color: var(--control-border, transparent);
+  box-shadow: var(--control-shadow);
   color: var(--color-danger);
 }
 .danger:not(:disabled):hover {

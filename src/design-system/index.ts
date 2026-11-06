@@ -75,11 +75,17 @@ export {
   type DetailsClasses,
   type GroupId,
 } from "./components/ProfileDetails/ProfileDetails";
+export { SwipeHero, type Decision } from "./components/SwipeCard/SwipeCard";
+
+/* Motion: page push/pop and tab fades, list stagger, block reveal */
 export {
-  SwipeHero,
+  PageTransition,
+  Stagger,
   Reveal,
-  type Decision,
-} from "./components/SwipeCard/SwipeCard";
+  type PageMotion,
+  type PageTransitionProps,
+  type StaggerProps,
+} from "./components/Motion/Motion";
 
 /* App building blocks */
 export { Dialog, type DialogProps } from "./components/Dialog/Dialog";

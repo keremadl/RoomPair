@@ -1,6 +1,7 @@
 "use client";
 import { useId, useState, type ReactNode } from "react";
 import { Tabs } from "../Tabs/Tabs";
+import { PageTransition } from "../Motion/Motion";
 import styles from "./ProfileDetails.module.css";
 
 export type GroupId = "home" | "person" | "fit";
@@ -76,7 +77,8 @@ export function ProfileDetails({
         tabClassName={classes.tab}
         unstyled={Boolean(classes.tab)}
       />
-      <div
+      <PageTransition
+        transitionKey={active}
         role="tabpanel"
         id={`${base}-panel`}
         aria-labelledby={`${base}-tab-${active}`}
@@ -85,7 +87,7 @@ export function ProfileDetails({
       >
         {headers[active]}
         {sections[active]}
-      </div>
+      </PageTransition>
     </div>
   );
 }

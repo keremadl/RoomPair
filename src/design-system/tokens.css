@@ -190,6 +190,17 @@
   --duration-slow: 320ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  /* Page and list motion (PageTransition, Stagger, Reveal in components/Motion) */
+  --duration-page: 260ms; /* a page sliding in on push / pop */
+  --ease-page: var(--ease-standard); /* languages may add a little bounce */
+  --motion-distance-page: 1.5rem; /* how far a pushed page slides */
+  --motion-distance-rise: 0.5rem; /* how far a list item or block rises */
+  --stagger-step: 40ms; /* delay between items in a Stagger */
+  --stagger-max: 8; /* items after this many share the last delay */
+  /* Press feedback: every pressable uses this with --control-press */
+  --transition-press:
+    transform var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
 
   /* ───────────── Component tokens ─────────────
    * The structural character of controls and surfaces. Each design language
@@ -225,5 +236,7 @@
     --duration-fast: 0ms;
     --duration-base: 0ms;
     --duration-slow: 0ms;
+    --duration-page: 0ms;
+    --stagger-step: 0ms;
   }
 }

@@ -9,7 +9,12 @@ import {
 } from "@/design-system/icons";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig } from "motion/react";
-import { IconButton, TextProvider } from "@/design-system";
+import {
+  IconButton,
+  PageTransition,
+  TextProvider,
+  type PageMotion,
+} from "@/design-system";
 import { profiles, rooms } from "@/lib/data";
 import { getCompatibility, rankProfiles } from "@/lib/matching";
 import { missingRequired } from "@/lib/profile";
@@ -94,13 +99,24 @@ function RoomPairApp() {
   const [toast, setToast] = useState("");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const replyTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  /** The page on screen and how it arrived (push, pop or a tab fade). */
+  const shown = useRef<{ page: string; motion: PageMotion }>({
+    page: "discover",
+    motion: "fade",
+  });
 
   const ranked = rankProfiles(profiles, state.preferences).filter(
     ({ profile }) => !state.blocked.includes(profile.id),
   );
-  const queue = ranked.filter(
-    ({ profile }) => !state.decisions.some((d) => d.id === profile.id),
+  const decided = (id: string) => state.decisions.some((d) => d.id === id);
+  // Someone you already have a conversation with is not a stranger to
+  // swipe on: keep them out of the deck (unless you decided on them here).
+  const pool = ranked.filter(
+    ({ profile }) =>
+      decided(profile.id) ||
+      !state.chats.some((c) => c.profileId === profile.id),
   );
+  const queue = pool.filter(({ profile }) => !decided(profile.id));
   const current = queue[0];
   const missing = missingRequired(state.me, state.preferences);
   // People who liked you and are still waiting for your answer: not yet
@@ -158,7 +174,8 @@ function RoomPairApp() {
     setSub(null);
     setChatOpen(false);
     setLikeOpen(null);
-    if (next === "messages" && chat) markRead(chat.id);
+    // Wide screens show the first conversation at once; phones show the list.
+    if (next === "messages" && chat && !narrow) markRead(chat.id);
     window.scrollTo({ top: 0 });
   }
   function openProfile(p: Profile) {
@@ -376,8 +393,8 @@ function RoomPairApp() {
         canUndo: state.decisions.length > 0,
         decide: (d) => decide(d),
         undo,
-        index: ranked.length - queue.length,
-        total: ranked.length,
+        index: pool.length - queue.length,
+        total: pool.length,
       }
     : null;
   const detail = selected;
@@ -394,6 +411,29 @@ function RoomPairApp() {
     view === "messages" && chatOpen && narrow && chat
       ? profileById(chat.profileId)
       : null;
+  // Which page is on screen: a tab ("likes") or a sub-page ("likes/ella").
+  // Deeper in the same tab slides in (push), back out slides back (pop),
+  // another tab fades. Idempotent, so a repeated render keeps the motion.
+  const page = likePerson
+    ? `likes/${likePerson.id}`
+    : chatPerson
+      ? "messages/chat"
+      : sub
+        ? `profile/${sub}`
+        : view;
+  if (shown.current.page !== page) {
+    const [root, child] = page.split("/");
+    const [prevRoot, prevChild] = shown.current.page.split("/");
+    shown.current = {
+      page,
+      motion:
+        root !== prevRoot || Boolean(child) === Boolean(prevChild)
+          ? "fade"
+          : child
+            ? "push"
+            : "pop",
+    };
+  }
 
   return (
     <AppShell
@@ -475,181 +515,183 @@ function RoomPairApp() {
         ) : undefined
       }
     >
-      {view === "discover" && missing.length > 0 && (
-        <ProfileGate
-          missing={missing}
-          onComplete={() => {
-            setView("profile");
-            openSub("edit");
-          }}
-        />
-      )}
-      {view === "discover" && missing.length === 0 && (
-        <DiscoverView
-          deck={deck}
-          roomFirst={state.preferences.intent !== "have-room"}
-          canUndo={state.decisions.length > 0}
-          rankedCount={ranked.length}
-          savedRooms={state.savedRooms}
-          onFilters={() => setDialog("filters")}
-          onBrowseAgain={browseAgain}
-          onUndo={undo}
-          onToggleRoom={(id) => toggleRoom(id, true)}
-          viewer={state.preferences}
-          onReport={(p) => {
-            setSelected(p);
-            setDialog("report");
-          }}
-        />
-      )}
-      {view === "likes" && likePerson && (
-        // A person from Likes, as a sub-page: the Discover card and details.
-        // Someone waiting for your answer gets Skip / Team up; someone you
-        // already liked shows whether you can message them.
-        <DiscoverView
-          key={likePerson.id}
-          deck={{
-            profile: likePerson,
-            match: getCompatibility(likePerson, state.preferences),
-            cardKey: likePerson.id,
-            exitDirection: direction,
-            canUndo: false,
-            decide: (d) => {
-              decide(d, likePerson);
-              closeLike();
-            },
-            undo: () => {},
-            index: 0,
-            total: 1,
-          }}
-          roomFirst={state.preferences.intent !== "have-room"}
-          canUndo={false}
-          rankedCount={1}
-          savedRooms={state.savedRooms}
-          onFilters={() => setDialog("filters")}
-          onBrowseAgain={browseAgain}
-          onUndo={undo}
-          onToggleRoom={(id) => toggleRoom(id, true)}
-          viewer={state.preferences}
-          preview={!likeWaiting}
-          onReport={(p) => {
-            setSelected(p);
-            setDialog("report");
-          }}
-        >
-          {!likeWaiting && (
-            <LikeNext
-              matched={likePerson.likesYou}
-              onMessage={() => openChat(likePerson)}
-            />
-          )}
-        </DiscoverView>
-      )}
-      {view === "likes" && !likePerson && (
-        <LikesView
-          received={received.map((r) => r.profile)}
-          sent={sent}
-          preferences={state.preferences}
-          onOpen={(p) => {
-            setLikeOpen(p.id);
-            window.scrollTo({ top: 0 });
-          }}
-          onDiscover={() => navigate("discover")}
-        />
-      )}
-      {view === "messages" && (
-        <MessagesView
-          chats={state.chats}
-          activeId={chat?.id ?? null}
-          typing={typing}
-          preferences={state.preferences}
-          profileById={profileById}
-          showChat={chatOpen}
-          onSelect={(id) => {
-            setActiveChat(id);
-            markRead(id);
-            setChatOpen(true);
-          }}
-          onSend={sendMessage}
-          onError={notify}
-          onOpenProfile={openProfile}
-          onOptions={(p) => {
-            setSelected(p);
-            setDialog("report");
-          }}
-          onDiscover={() => navigate("discover")}
-        />
-      )}
-      {view === "space" && (
-        <SpaceView
-          state={state}
-          rooms={rooms}
-          onOpenRoom={openRoom}
-          onToggleRoom={(id) => toggleRoom(id, true)}
-          onToggleTask={toggleTask}
-          onNotes={(notes) => setState((st) => ({ ...st, notes }))}
-          onViewing={(roomId, viewing) =>
-            setState((st) => ({
-              ...st,
-              viewings: { ...st.viewings, [roomId]: viewing },
-            }))
-          }
-          onExploreRooms={() => {
-            navigate("discover");
-          }}
-        />
-      )}
-      {view === "profile" && sub === "settings" && (
-        <SettingsView
-          onReset={() => {
-            reset();
-            setSub(null);
-            setView("discover");
-            notify(t("Demo data reset."));
-          }}
-        />
-      )}
-      {view === "profile" && sub === "edit" && (
-        <EditProfileView
-          preferences={state.preferences}
-          me={state.me}
-          onMe={(next) =>
-            setState((st) => ({ ...st, me: { ...st.me, ...next } }))
-          }
-          onEditBasics={(step) => setOnboarding(step)}
-          onError={notify}
-          onName={(name) =>
-            setState((st) => ({
-              ...st,
-              preferences: { ...st.preferences, name },
-            }))
-          }
-          onIntent={changeIntent}
-        />
-      )}
-      {view === "profile" && !sub && (
-        <ProfileView
-          preferences={state.preferences}
-          me={state.me}
-          counts={{
-            likes: received.length,
-            saved: state.savedRooms.length,
-            blocked: state.blocked.length,
-            reports: state.reports.length,
-          }}
-          onEdit={() => openSub("edit")}
-          onHelp={() => setDialog("help")}
-          onIntent={changeIntent}
-          onVerify={() =>
-            setState((st) => ({
-              ...st,
-              me: { ...st.me, verified: !st.me.verified },
-            }))
-          }
-          onLikes={() => navigate("likes")}
-          onSpace={() => navigate("space")}
-        />
-      )}
+      <PageTransition transitionKey={page} motion={shown.current.motion}>
+        {view === "discover" && missing.length > 0 && (
+          <ProfileGate
+            missing={missing}
+            onComplete={() => {
+              setView("profile");
+              openSub("edit");
+            }}
+          />
+        )}
+        {view === "discover" && missing.length === 0 && (
+          <DiscoverView
+            deck={deck}
+            roomFirst={state.preferences.intent !== "have-room"}
+            canUndo={state.decisions.length > 0}
+            rankedCount={ranked.length}
+            savedRooms={state.savedRooms}
+            onFilters={() => setDialog("filters")}
+            onBrowseAgain={browseAgain}
+            onUndo={undo}
+            onToggleRoom={(id) => toggleRoom(id, true)}
+            viewer={state.preferences}
+            onReport={(p) => {
+              setSelected(p);
+              setDialog("report");
+            }}
+          />
+        )}
+        {view === "likes" && likePerson && (
+          // A person from Likes, as a sub-page: the Discover card and details.
+          // Someone waiting for your answer gets Skip / Team up; someone you
+          // already liked shows whether you can message them.
+          <DiscoverView
+            key={likePerson.id}
+            deck={{
+              profile: likePerson,
+              match: getCompatibility(likePerson, state.preferences),
+              cardKey: likePerson.id,
+              exitDirection: direction,
+              canUndo: false,
+              decide: (d) => {
+                decide(d, likePerson);
+                closeLike();
+              },
+              undo: () => {},
+              index: 0,
+              total: 1,
+            }}
+            roomFirst={state.preferences.intent !== "have-room"}
+            canUndo={false}
+            rankedCount={1}
+            savedRooms={state.savedRooms}
+            onFilters={() => setDialog("filters")}
+            onBrowseAgain={browseAgain}
+            onUndo={undo}
+            onToggleRoom={(id) => toggleRoom(id, true)}
+            viewer={state.preferences}
+            preview={!likeWaiting}
+            onReport={(p) => {
+              setSelected(p);
+              setDialog("report");
+            }}
+          >
+            {!likeWaiting && (
+              <LikeNext
+                matched={likePerson.likesYou}
+                onMessage={() => openChat(likePerson)}
+              />
+            )}
+          </DiscoverView>
+        )}
+        {view === "likes" && !likePerson && (
+          <LikesView
+            received={received.map((r) => r.profile)}
+            sent={sent}
+            preferences={state.preferences}
+            onOpen={(p) => {
+              setLikeOpen(p.id);
+              window.scrollTo({ top: 0 });
+            }}
+            onDiscover={() => navigate("discover")}
+          />
+        )}
+        {view === "messages" && (
+          <MessagesView
+            chats={state.chats}
+            activeId={chat?.id ?? null}
+            typing={typing}
+            preferences={state.preferences}
+            profileById={profileById}
+            showChat={chatOpen}
+            onSelect={(id) => {
+              setActiveChat(id);
+              markRead(id);
+              setChatOpen(true);
+            }}
+            onSend={sendMessage}
+            onError={notify}
+            onOpenProfile={openProfile}
+            onOptions={(p) => {
+              setSelected(p);
+              setDialog("report");
+            }}
+            onDiscover={() => navigate("discover")}
+          />
+        )}
+        {view === "space" && (
+          <SpaceView
+            state={state}
+            rooms={rooms}
+            onOpenRoom={openRoom}
+            onToggleRoom={(id) => toggleRoom(id, true)}
+            onToggleTask={toggleTask}
+            onNotes={(notes) => setState((st) => ({ ...st, notes }))}
+            onViewing={(roomId, viewing) =>
+              setState((st) => ({
+                ...st,
+                viewings: { ...st.viewings, [roomId]: viewing },
+              }))
+            }
+            onExploreRooms={() => {
+              navigate("discover");
+            }}
+          />
+        )}
+        {view === "profile" && sub === "settings" && (
+          <SettingsView
+            onReset={() => {
+              reset();
+              setSub(null);
+              setView("discover");
+              notify(t("Demo data reset."));
+            }}
+          />
+        )}
+        {view === "profile" && sub === "edit" && (
+          <EditProfileView
+            preferences={state.preferences}
+            me={state.me}
+            onMe={(next) =>
+              setState((st) => ({ ...st, me: { ...st.me, ...next } }))
+            }
+            onEditBasics={(step) => setOnboarding(step)}
+            onError={notify}
+            onName={(name) =>
+              setState((st) => ({
+                ...st,
+                preferences: { ...st.preferences, name },
+              }))
+            }
+            onIntent={changeIntent}
+          />
+        )}
+        {view === "profile" && !sub && (
+          <ProfileView
+            preferences={state.preferences}
+            me={state.me}
+            counts={{
+              likes: received.length,
+              saved: state.savedRooms.length,
+              blocked: state.blocked.length,
+              reports: state.reports.length,
+            }}
+            onEdit={() => openSub("edit")}
+            onHelp={() => setDialog("help")}
+            onIntent={changeIntent}
+            onVerify={() =>
+              setState((st) => ({
+                ...st,
+                me: { ...st.me, verified: !st.me.verified },
+              }))
+            }
+            onLikes={() => navigate("likes")}
+            onSpace={() => navigate("space")}
+          />
+        )}
+      </PageTransition>
 
       <AnimatePresence>
         {dialog === "filters" && (
@@ -736,6 +778,12 @@ function RoomPairApp() {
                 blocked: [...st.blocked, detail.id],
                 chats: st.chats.filter((c) => c.profileId !== detail.id),
               }));
+              // Leave any page that still shows the blocked person.
+              if (likeOpen === detail.id) setLikeOpen(null);
+              if (chat?.profileId === detail.id) {
+                setActiveChat(null);
+                setChatOpen(false);
+              }
               setDialog(null);
               notify(t("Profile blocked and conversation removed."));
             }}

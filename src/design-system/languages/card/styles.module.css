@@ -303,11 +303,11 @@
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);
   cursor: pointer;
-  transition: transform var(--duration-fast) var(--ease-standard);
+  transition: var(--transition-press);
 }
 .actions button:not(:disabled):active {
-  transform: translateY(var(--press-depth));
-  box-shadow: none;
+  transform: var(--control-press);
+  box-shadow: var(--control-shadow-active);
 }
 .actions svg {
   width: 20px;

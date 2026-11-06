@@ -1,7 +1,7 @@
 "use client";
 import { useRef, type ReactNode } from "react";
 import { Circle, RotateCcw, Sparkles, UserPen } from "@/design-system/icons";
-import { Button, EmptyState } from "@/design-system";
+import { Button, EmptyState, Stagger } from "@/design-system";
 import {
   defaultLanguage,
   defaultLayout,
@@ -154,13 +154,13 @@ export function ProfileGate({
       )}
       action={{ label: t("Complete my profile"), onClick: onComplete }}
     >
-      <ul className={v.gateList}>
+      <Stagger className={v.gateList}>
         {missing.map((step) => (
           <li key={step.id}>
             <Circle aria-hidden="true" /> {t(step.label)}
           </li>
         ))}
-      </ul>
+      </Stagger>
     </EmptyState>
   );
 }

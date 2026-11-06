@@ -1,7 +1,13 @@
 "use client";
 import { useId, useState } from "react";
 import { Check, Heart, MessageCircle } from "@/design-system/icons";
-import { Button, EmptyState, Tabs } from "@/design-system";
+import {
+  Button,
+  EmptyState,
+  PageTransition,
+  Stagger,
+  Tabs,
+} from "@/design-system";
 import { getCompatibility } from "@/lib/matching";
 import { useI18n } from "@/lib/i18n";
 import type { Preferences, Profile } from "@/lib/types";
@@ -53,7 +59,8 @@ export function LikesView({
           ]}
         />
       </div>
-      <div
+      <PageTransition
+        transitionKey={tab}
         role="tabpanel"
         id={`${base}-panel`}
         aria-labelledby={`${base}-tab-${tab}`}
@@ -74,7 +81,7 @@ export function LikesView({
             action={{ label: t("Go to Discover"), onClick: onDiscover }}
           />
         ) : (
-          <ul className={v.likeGrid}>
+          <Stagger key={tab} className={v.likeGrid}>
             {people.map(({ p, fit }) => {
               const room =
                 seeker && p.intent === "have-room" ? p.room : undefined;
@@ -133,9 +140,9 @@ export function LikesView({
                 </li>
               );
             })}
-          </ul>
+          </Stagger>
         )}
-      </div>
+      </PageTransition>
     </>
   );
 }

@@ -52,6 +52,9 @@ import {
   ReasonList,
   Tabs,
   Icons,
+  PageTransition,
+  Stagger,
+  type PageMotion,
 } from "@/design-system";
 import {
   directionFontVariables,
@@ -134,6 +137,7 @@ const sections = [
   ["type", "Typography"],
   ["space", "Space & shape"],
   ["buttons", "Buttons"],
+  ["motion", "Motion"],
   ["icons", "Icons"],
   ["labels", "Badges & chips"],
   ["forms", "Forms"],
@@ -201,6 +205,115 @@ function Specimen({ label, children }: { label: string; children: ReactNode }) {
         {label}
       </Text>
       <div className={styles.specimenBody}>{children}</div>
+    </div>
+  );
+}
+
+const motionTokens = [
+  "--duration-fast",
+  "--duration-base",
+  "--duration-slow",
+  "--duration-page",
+  "--ease-standard",
+  "--ease-page",
+  "--motion-distance-page",
+  "--motion-distance-rise",
+  "--stagger-step",
+];
+
+/** A token and its value where it is rendered (no colour swatch). */
+function TokenValue({ token }: { token: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [value, setValue] = useState("");
+  useLayoutEffect(() => {
+    if (ref.current)
+      setValue(getComputedStyle(ref.current).getPropertyValue(token).trim());
+  }, [token]);
+  return (
+    <div className={styles.swatch} ref={ref}>
+      <code>{token}</code>
+      <span className={styles.swatchValue}>{value}</span>
+    </div>
+  );
+}
+
+/** PageTransition: push a sub-page, pop back, or fade to another tab. */
+function PageTransitionSpecimen() {
+  const [page, setPage] = useState<{ name: string; motion: PageMotion }>({
+    name: "Likes",
+    motion: "fade",
+  });
+  const go = (name: string, motion: PageMotion) => setPage({ name, motion });
+  return (
+    <div className={styles.stackWide}>
+      <Stack direction="row" gap={2} wrap>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => go("Ella", "push")}
+        >
+          Push a sub-page
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => go("Likes", "pop")}
+        >
+          Back (pop)
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() =>
+            go(page.name === "Messages" ? "Likes" : "Messages", "fade")
+          }
+        >
+          Another tab (fade)
+        </Button>
+      </Stack>
+      <div className={styles.pageFrame}>
+        <TopBar
+          title={page.name}
+          onBack={page.name === "Ella" ? () => go("Likes", "pop") : undefined}
+        />
+        <PageTransition
+          transitionKey={page.name}
+          motion={page.motion}
+          className={styles.pageBody}
+        >
+          <Text tone="muted">
+            {page.name === "Ella"
+              ? "A sub-page slides in from the right; back slides the page underneath in from the left."
+              : `The ${page.name} tab fades in.`}
+          </Text>
+        </PageTransition>
+      </div>
+    </div>
+  );
+}
+
+/** Stagger: tiles rise in one after another when they mount. */
+function StaggerSpecimen() {
+  const [round, setRound] = useState(0);
+  return (
+    <div className={styles.stackWide}>
+      <Button
+        size="sm"
+        variant="secondary"
+        leadingIcon={<RotateCcw />}
+        onClick={() => setRound((r) => r + 1)}
+      >
+        Replay
+      </Button>
+      <Stagger key={round} className={styles.cardGrid}>
+        {["Ella", "Leo", "Ines", "Maya", "Noah", "Sofia"].map((name) => (
+          <li key={name} style={{ listStyle: "none" }}>
+            <Card>
+              <Text weight="semibold">{name}</Text>
+            </Card>
+          </li>
+        ))}
+      </Stagger>
     </div>
   );
 }
@@ -506,6 +619,32 @@ export function Showcase() {
               icon={<Sparkles />}
               variant="outline"
             />
+          </Specimen>
+        </Section>
+
+        <Section
+          id="motion"
+          title="Motion"
+          intro="Shared motion primitives from components/Motion. Durations, easing and distances are tokens; under reduced motion they are 0. Pages move with a relative offset, never a transform, so fixed and sticky parts stay put."
+        >
+          <Specimen label="Tokens">
+            <div className={styles.cardGrid}>
+              {motionTokens.map((token) => (
+                <TokenValue key={token} token={token} />
+              ))}
+            </div>
+          </Specimen>
+          <Specimen label="PageTransition · push / pop / fade (also tab panels)">
+            <PageTransitionSpecimen />
+          </Specimen>
+          <Specimen label="Stagger · tiles and rows">
+            <StaggerSpecimen />
+          </Specimen>
+          <Specimen label="Press · --control-press with --transition-press">
+            <Button>Press me</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="danger">Danger</Button>
+            <IconButton label="Like" icon={<Heart />} variant="solid" />
           </Specimen>
         </Section>
 

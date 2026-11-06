@@ -1,0 +1,30 @@
+/*
+ * Shared motion. Durations, easing and distances are tokens
+ * (--duration-*, --ease-*, --motion-distance-*, --stagger-step), which
+ * tokens.css sets to 0 under prefers-reduced-motion.
+ *
+ * Nothing here moves layout: PageTransition shifts itself with a relative
+ * offset (no transform, so a position: fixed child such as the chat
+ * composer stays fixed to the viewport); list items rise with a transform.
+ */
+.page {
+  position: relative;
+}
+
+.stagger > * {
+  animation: rise var(--duration-slow) var(--ease-standard) backwards;
+  animation-delay: calc(
+    min(var(--stagger-index, 0), var(--stagger-max)) * var(--stagger-step)
+  );
+}
+
+.rise {
+  animation: rise var(--duration-slow) var(--ease-standard) backwards;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-rise));
+  }
+}

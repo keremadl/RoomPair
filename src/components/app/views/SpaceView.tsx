@@ -5,6 +5,7 @@ import {
   EmptyState,
   Heading,
   Input,
+  Stagger,
   Text,
   Textarea,
 } from "@/design-system";
@@ -86,7 +87,7 @@ export function SpaceView({
       >
         <span style={{ width: `${(done / tasks.length) * 100}%` }} />
       </div>
-      <ul className={v.checklist}>
+      <Stagger className={v.checklist}>
         {tasks.map((task) => {
           const isDone = state.checklist.includes(task.id);
           return (
@@ -108,7 +109,7 @@ export function SpaceView({
             </li>
           );
         })}
-      </ul>
+      </Stagger>
     </section>
   );
   return (
@@ -128,7 +129,7 @@ export function SpaceView({
               </Button>
             </div>
             {saved.length ? (
-              <div className={v.roomGrid}>
+              <Stagger as="div" className={v.roomGrid}>
                 {saved.map((room) => (
                   <RoomTile
                     key={room.id}
@@ -145,7 +146,7 @@ export function SpaceView({
                     />
                   </RoomTile>
                 ))}
-              </div>
+              </Stagger>
             ) : (
               <EmptyState
                 icon={<Bookmark />}
@@ -169,6 +170,7 @@ export function SpaceView({
               value={state.notes}
               onChange={(e) => onNotes(e.target.value)}
               rows={5}
+              maxLength={2000}
             />
           </section>
         </aside>

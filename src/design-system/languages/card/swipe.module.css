@@ -193,6 +193,7 @@
   color: var(--color-text);
   box-shadow: var(--control-shadow);
   cursor: pointer;
+  transition: var(--transition-press);
 }
 .round:not(:disabled):active {
   box-shadow: var(--control-shadow-active);

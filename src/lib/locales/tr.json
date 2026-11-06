@@ -717,5 +717,12 @@
   "Send a photo": "Fotoğraf gönder",
   "That file is not a photo.": "Bu dosya bir fotoğraf değil.",
   "Matched": "Eşleştiniz",
-  "Waiting": "Bekleniyor"
+  "Waiting": "Bekleniyor",
+  "Team up!": "Takım ol!",
+  "Skip": "Geç",
+  "/month": "/ay",
+  "Verified": "Doğrulanmış",
+  "From {date}": "{date} itibarıyla",
+  "More about {name}": "{name} hakkında daha fazla",
+  "Undo": "Geri al"
 }

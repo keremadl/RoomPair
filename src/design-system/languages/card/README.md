@@ -38,16 +38,17 @@ Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/d
 
 Beyond the shared semantic tokens (`--color-*`, `--text-*`, `--space-*`, `--radius-*`), this language defines:
 
-| Token             | Value             |
-| ----------------- | ----------------- |
-| `--type-host`     | `#17784d`         |
-| `--type-explorer` | `#2d62c9`         |
-| `--stat-on`       | `#5b3fd6`         |
-| `--stat-off`      | `#d9dfeb`         |
-| `--xp`            | `#f5a524`         |
-| `--press-depth`   | `4px`             |
-| `--press-shadow`  | `0 4px 0 #1d2240` |
-| `--icon-stroke`   | `2.5`             |
+| Token             | Value                                                                  |
+| ----------------- | ---------------------------------------------------------------------- |
+| `--type-host`     | `#17784d`                                                              |
+| `--type-explorer` | `#2d62c9`                                                              |
+| `--stat-on`       | `#5b3fd6`                                                              |
+| `--stat-off`      | `#d9dfeb`                                                              |
+| `--xp`            | `#f5a524`                                                              |
+| `--press-depth`   | `4px`                                                                  |
+| `--press-shadow`  | `0 4px 0 #1d2240`                                                      |
+| `--icon-stroke`   | `2.5`                                                                  |
+| `--ease-page`     | `cubic-bezier(0.3, 1.3, 0.5, 1)` (a small overshoot when a page lands) |
 
 Component tokens (`--control-*`, `--surface-*`, `--heading-weight`) at the end of `theme.css` give the core components (Button, IconButton, Chip, Input, Card, Tabs, FactGrid…) this language's character. Change them there, never in a component.
 

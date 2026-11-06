@@ -61,6 +61,20 @@ test("discover shows the card and grouped details; arrows pass, undo restores", 
   expect(errors).toEqual([]);
 });
 
+test("people you already have a conversation with stay out of Discover", async ({
+  page,
+}) => {
+  await openApp(page);
+  // Maya and Sofia are in Messages already; the deck is Ella, then Ines.
+  await expect(card(page)).toHaveText(/^Ella/);
+  await page.keyboard.press("ArrowLeft");
+  await expect(card(page)).toHaveText(/^Ines/);
+  await page.keyboard.press("ArrowLeft");
+  await expect(
+    page.getByRole("heading", { name: "You have seen everyone" }),
+  ).toBeVisible();
+});
+
 test("a mutual like opens a match, then a conversation with a simulated reply", async ({
   page,
 }) => {
@@ -250,8 +264,9 @@ test("what you are looking for decides who Discover shows", async ({
       .getByRole("button", { name: "Main photo" }),
   ).toBeVisible();
   await nav.getByRole("button", { name: "Discover" }).click();
-  // Having a room: only people looking for one, no rooms to save.
-  await expect(card(page)).toHaveText(/^Leo/);
+  // Having a room: only people looking for one, no rooms to save. Leo is
+  // looking too, but you already have a conversation with him.
+  await expect(card(page)).toHaveText(/^Noah/);
   await expect(page.getByRole("button", { name: /Save room/ })).toHaveCount(0);
   await nav.getByRole("button", { name: /My space/ }).click();
   await expect(page.getByRole("heading", { name: /Saved rooms/ })).toHaveCount(

@@ -14,6 +14,7 @@ import {
   Button,
   EmptyState,
   IconButton,
+  Stagger,
   VisuallyHidden,
 } from "@/design-system";
 import { getCompatibility } from "@/lib/matching";
@@ -74,6 +75,8 @@ export function MessagesView({
   const fresh = chats.filter((c) => c.messages.length === 0);
   const started = chats.filter((c) => c.messages.length > 0);
   const open = (id: string) => onSelect(id);
+  // A draft belongs to one conversation: don't carry it into the next.
+  useEffect(() => setMessage(""), [chat?.id]);
   useEffect(() => {
     end.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [chat?.messages.length, typing]);
@@ -108,7 +111,7 @@ export function MessagesView({
               <h2 className={v.matchesTitle} id="new-matches">
                 {t("New matches")} · {fresh.length}
               </h2>
-              <ul className={v.matchRow}>
+              <Stagger className={v.matchRow}>
                 {fresh.map((c) => {
                   const p = profileById(c.profileId);
                   // Room seekers match with hosts: show the room, with the face on it.
@@ -142,7 +145,7 @@ export function MessagesView({
                     </li>
                   );
                 })}
-              </ul>
+              </Stagger>
             </section>
           )}
           {started.length > 0 && fresh.length > 0 && (
@@ -164,7 +167,7 @@ export function MessagesView({
               {t("Say hi to a match to start a conversation.")}
             </p>
           )}
-          <ul className={v.conversations}>
+          <Stagger className={v.conversations}>
             {started
               .filter((c) =>
                 profileById(c.profileId)
@@ -202,7 +205,7 @@ export function MessagesView({
                   </li>
                 );
               })}
-          </ul>
+          </Stagger>
         </aside>
 
         <section className={v.chat} aria-label={person.name}>
@@ -231,6 +234,7 @@ export function MessagesView({
               </span>
             </button>
             <IconButton
+              variant="outline"
               label={t("Conversation options")}
               icon={<MoreHorizontal />}
               onClick={() => onOptions(person)}

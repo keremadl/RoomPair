@@ -26,7 +26,8 @@ src/design-system/
     CompareTable/       their habits, yours, and whether they work together
     ScoreBars/          score bars + ReasonList
     ProfileDetails/     Home → Person → Fit as blocks or tabs
-    SwipeCard/          draggable card (SwipeHero) + Reveal
+    SwipeCard/          draggable card (SwipeHero)
+    Motion/             PageTransition, Stagger, Reveal (see Motion below)
   languages/            ← the design language
     index.ts            registry: metadata, default language + layout, signature components
     fonts.ts            Rubik, the Card typeface
@@ -65,6 +66,26 @@ Specimen: **/design-system#icons**.
   on the grid above (no copied path data from other libraries), check it at
   16, 24 and 32 in the specimen (it appears automatically), then run
   `npm run typecheck && npm run check:design`.
+
+## Motion
+
+Motion is shared, never hand-rolled per screen (`components/Motion`,
+specimen: **/design-system#motion**):
+
+- **`PageTransition`** plays when its `transitionKey` changes: `push` (a
+  sub-page slides in from the right), `pop` (back), `fade` (another tab, or a
+  tab panel; pass `role="tabpanel"` and ids). It moves with a relative
+  offset, not a transform, so the fixed chat composer and sticky bars stay
+  put, and it never remounts its children.
+- **`Stagger`** (`as="ul" | "ol" | "div"`): items rise in one after another
+  on mount. Use it for tile grids and row lists.
+- **`Reveal`**: a block rises in whenever its `id` changes.
+- **Press:** pressables sink with `--control-press` / `--control-shadow-active`
+  and animate with `--transition-press`.
+- **Tokens:** `--duration-fast|base|slow|page`, `--ease-standard|exit|page`,
+  `--motion-distance-page|rise`, `--stagger-step`, `--stagger-max`.
+  `prefers-reduced-motion` sets the durations and the stagger step to 0;
+  the app also wraps motion/react in `MotionConfig reducedMotion="user"`.
 
 ## Core and languages
 

@@ -640,10 +640,10 @@
   font-family: var(--font-body);
   text-align: left;
   cursor: pointer;
-  transition: transform var(--duration-fast) ease;
+  transition: var(--transition-press);
 }
 .matchTile:active {
-  transform: translateY(var(--control-press, 0));
+  transform: var(--control-press);
   box-shadow: var(--control-shadow-active, none);
 }
 .matchTile:focus-visible {

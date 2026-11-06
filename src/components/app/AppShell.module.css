@@ -118,6 +118,11 @@
 }
 .tab:focus-visible,
 .sideItem:focus-visible,
+.help:focus-visible,
+.brandButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
 .tabIcon {
   position: relative;
   display: grid;
@@ -218,7 +223,6 @@
   background: var(--color-bg);
   color: var(--color-text);
 }
-.brandButton:focus-visible,
 .help {
   display: inline-flex;
   align-items: center;
@@ -238,4 +242,8 @@
 }
 .help:hover {
   color: var(--color-text);
+}
+/* The current page keeps its pressed look and still shows focus. */
+.sideItem[aria-current="page"]:focus-visible {
+  box-shadow: var(--control-shadow), var(--focus-ring);
 }

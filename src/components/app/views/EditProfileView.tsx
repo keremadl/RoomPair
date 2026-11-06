@@ -524,7 +524,14 @@ export function EditProfileView({
           title={t("Name and work")}
           fields={[
             { key: "name", label: t("Name"), type: "text", value: prefs.name },
-            { key: "age", label: t("Age"), type: "number", value: me.age },
+            {
+              key: "age",
+              label: t("Age"),
+              type: "number",
+              value: me.age,
+              min: 17,
+              max: 99,
+            },
             {
               key: "status",
               label: t("Right now I'm"),
@@ -597,6 +604,7 @@ export function EditProfileView({
               type: "number",
               value: me.room.price,
               prefix: "€",
+              min: 0,
             },
             {
               key: "deposit",
@@ -604,12 +612,15 @@ export function EditProfileView({
               type: "number",
               value: me.room.deposit,
               prefix: "€",
+              min: 0,
             },
             {
               key: "flatmates",
               label: t("People living there now"),
               type: "number",
               value: me.room.flatmates,
+              min: 0,
+              max: 10,
               hint: t("Not counting the new flatmate."),
             },
             {

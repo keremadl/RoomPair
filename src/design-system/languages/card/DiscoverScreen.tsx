@@ -24,10 +24,9 @@ import {
   Star,
   X,
 } from "../../icons";
-import {
-  Reveal,
-  SwipeHero,
-} from "@/design-system/components/SwipeCard/SwipeCard";
+import { SwipeHero } from "@/design-system/components/SwipeCard/SwipeCard";
+import { Reveal } from "@/design-system/components/Motion/Motion";
+import { useText } from "@/design-system/text/TextProvider";
 import {
   dateLabel,
   sleepLabel,
@@ -76,6 +75,7 @@ export function DiscoverCard({
   saved?: boolean;
   onSave?: () => void;
 }) {
+  const t = useText();
   const { profile: p, match: m } = deck;
   const decide = deck.decide;
   const showRoom = roomFirst && !!p.room;
@@ -99,9 +99,12 @@ export function DiscoverCard({
             stamps={{
               like: {
                 className: `${s.stamp} ${s.stampLike}`,
-                label: "Team up!",
+                label: t("Team up!"),
               },
-              pass: { className: `${s.stamp} ${s.stampPass}`, label: "Skip" },
+              pass: {
+                className: `${s.stamp} ${s.stampPass}`,
+                label: t("Skip"),
+              },
             }}
           >
             <article className={w.photoCard} aria-label={`${p.name}, ${p.age}`}>
@@ -123,14 +126,14 @@ export function DiscoverCard({
               {showRoom && (
                 <span className={w.price}>
                   €{p.room!.price}
-                  <small>/month</small>
+                  <small>{t("/month")}</small>
                 </span>
               )}
               {showRoom && onSave && (
                 <button
                   type="button"
                   className={w.save}
-                  aria-label={saved ? "Unsave room" : "Save room"}
+                  aria-label={saved ? t("Unsave room") : t("Save room")}
                   aria-pressed={saved}
                   onClick={onSave}
                 >
@@ -153,16 +156,18 @@ export function DiscoverCard({
                       {p.verified && (
                         <BadgeCheck
                           className={w.verified}
-                          aria-label="Verified"
+                          aria-label={t("Verified")}
                         />
                       )}
                     </h2>
                     <p className={w.line}>
                       {!preview && (
-                        <span className={w.fit}>{m.score}% fit</span>
+                        <span className={w.fit}>
+                          {m.score}% {t("fit")}
+                        </span>
                       )}
                       {showRoom ? (
-                        <span>From {moveIn}</span>
+                        <span>{t("From {date}", { date: moveIn })}</span>
                       ) : (
                         <span>
                           €{p.budget[0]}–{p.budget[1]} · {p.neighborhood}
@@ -174,7 +179,7 @@ export function DiscoverCard({
                     <button
                       type="button"
                       className={w.info}
-                      aria-label={`More about ${p.name}`}
+                      aria-label={t("More about {name}", { name: p.name })}
                       onClick={onInfo}
                     >
                       <ChevronDown />
@@ -195,7 +200,7 @@ export function DiscoverCard({
             data-kind="undo"
             onClick={deck.undo}
             disabled={!deck.canUndo}
-            aria-label="Undo"
+            aria-label={t("Undo")}
           >
             <RotateCcw />
           </button>
@@ -204,7 +209,7 @@ export function DiscoverCard({
             className={w.round}
             data-kind="pass"
             onClick={() => decide("pass")}
-            aria-label="Skip"
+            aria-label={t("Skip")}
           >
             <X />
           </button>
@@ -213,7 +218,7 @@ export function DiscoverCard({
             className={w.round}
             data-kind="like"
             onClick={() => decide("like")}
-            aria-label="Team up"
+            aria-label={t("Team up")}
           >
             <Heart />
           </button>

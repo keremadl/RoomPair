@@ -127,6 +127,10 @@
   box-shadow: var(--control-shadow, var(--shadow-sm));
 }
 /* A card that opens an editor sinks when pressed, like every pressable. */
+.card,
+.prompt {
+  transition: var(--transition-press);
+}
 .card:has(> .cardButton:active) {
   box-shadow: var(--control-shadow-active, none);
   transform: var(--control-press);

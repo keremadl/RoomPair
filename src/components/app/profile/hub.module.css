@@ -200,6 +200,11 @@
   height: 1.25rem;
 }
 
+.intent,
+.nudge,
+.tile {
+  transition: var(--transition-press);
+}
 .intent:active,
 .nudge:active,
 .tile:active {

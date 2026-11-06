@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, ArrowRight, Check, Home, Key } from "@/design-system/icons";
 import {
   Button,
@@ -10,6 +9,7 @@ import {
   FactGrid,
   Heading,
   Input,
+  PageTransition,
   Slider,
   Switch,
   Text,
@@ -205,219 +205,212 @@ export function Onboarding({
         }}
         noValidate
       >
-        <AnimatePresence mode="wait" initial={false} custom={direction}>
-          <motion.div
-            key={step}
-            className={o.step}
-            initial={{ opacity: 0, x: direction * 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction * -24 }}
-            transition={{ duration: 0.2 }}
-          >
-            {step === 0 && (
-              <>
+        <PageTransition
+          transitionKey={String(step)}
+          motion={direction > 0 ? "push" : "pop"}
+          className={o.step}
+        >
+          {step === 0 && (
+            <>
+              <Input
+                label={t("ob.yourName")}
+                placeholder={t("ob.namePlaceholder")}
+                value={values.name}
+                onChange={(e) => set("name", e.target.value)}
+                error={error === "ob.nameError" ? t(error) : undefined}
+                autoComplete="given-name"
+              />
+              <ChoiceCards
+                label={t("onboarding.intent")}
+                value={
+                  values.intent === "have-room" ? "have-room" : "find-room"
+                }
+                onChange={(v) => set("intent", v)}
+                options={intents.map(({ value, title, hint, icon: Icon }) => ({
+                  value,
+                  title: t(title),
+                  hint: t(hint),
+                  icon: <Icon />,
+                }))}
+              />
+            </>
+          )}
+          {step === 1 && (
+            <>
+              <Input
+                label={t("ob.city")}
+                value={values.city}
+                onChange={(e) => set("city", e.target.value)}
+                error={error === "ob.cityError" ? t(error) : undefined}
+              />
+              <div className={o.row}>
                 <Input
-                  label={t("ob.yourName")}
-                  placeholder={t("ob.namePlaceholder")}
-                  value={values.name}
-                  onChange={(e) => set("name", e.target.value)}
-                  error={error === "ob.nameError" ? t(error) : undefined}
-                  autoComplete="given-name"
+                  label={t("Monthly budget, from")}
+                  hint={t("ob.budgetHint")}
+                  type="number"
+                  prefix="€"
+                  value={values.budgetMin}
+                  onChange={(e) => set("budgetMin", Number(e.target.value))}
                 />
-                <ChoiceCards
-                  label={t("onboarding.intent")}
-                  value={
-                    values.intent === "have-room" ? "have-room" : "find-room"
-                  }
-                  onChange={(v) => set("intent", v)}
-                  options={intents.map(
-                    ({ value, title, hint, icon: Icon }) => ({
-                      value,
-                      title: t(title),
-                      hint: t(hint),
-                      icon: <Icon />,
-                    }),
-                  )}
-                />
-              </>
-            )}
-            {step === 1 && (
-              <>
                 <Input
-                  label={t("ob.city")}
-                  value={values.city}
-                  onChange={(e) => set("city", e.target.value)}
-                  error={error === "ob.cityError" ? t(error) : undefined}
+                  label={t("Up to")}
+                  type="number"
+                  prefix="€"
+                  value={values.budgetMax}
+                  onChange={(e) => set("budgetMax", Number(e.target.value))}
+                  error={error === "ob.budgetError" ? t(error) : undefined}
                 />
-                <div className={o.row}>
-                  <Input
-                    label={t("Monthly budget, from")}
-                    hint={t("ob.budgetHint")}
-                    type="number"
-                    prefix="€"
-                    value={values.budgetMin}
-                    onChange={(e) => set("budgetMin", Number(e.target.value))}
-                  />
-                  <Input
-                    label={t("Up to")}
-                    type="number"
-                    prefix="€"
-                    value={values.budgetMax}
-                    onChange={(e) => set("budgetMax", Number(e.target.value))}
-                    error={error === "ob.budgetError" ? t(error) : undefined}
-                  />
-                </div>
-                <div className={o.row}>
-                  <Input
-                    label={t("ob.moveDate")}
-                    type="date"
-                    value={values.moveDate}
-                    onChange={(e) => set("moveDate", e.target.value)}
-                    error={error === "ob.dateError" ? t(error) : undefined}
-                  />
-                  <Input
-                    label={t("ob.stay")}
-                    type="number"
-                    min={1}
-                    max={24}
-                    value={values.stayMonths}
-                    onChange={(e) => set("stayMonths", Number(e.target.value))}
-                    hint={t("ob.months", { count: values.stayMonths })}
-                    error={error === "ob.stayError" ? t(error) : undefined}
-                  />
-                </div>
-              </>
-            )}
-            {step === 2 && (
-              <>
-                <Slider
-                  label={t("ob.clean")}
-                  hint={t("ob.cleanHint")}
-                  value={values.cleanliness}
-                  onChange={(v) => set("cleanliness", v)}
-                  ends={[t("ob.relaxed"), t("ob.spotless")]}
-                  valueText={`${values.cleanliness}/5${clean[values.cleanliness] ? ` · ${clean[values.cleanliness]}` : ""}`}
+              </div>
+              <div className={o.row}>
+                <Input
+                  label={t("ob.moveDate")}
+                  type="date"
+                  value={values.moveDate}
+                  onChange={(e) => set("moveDate", e.target.value)}
+                  error={error === "ob.dateError" ? t(error) : undefined}
                 />
-                <Slider
-                  label={t("ob.social")}
-                  hint={t("ob.socialHint")}
-                  value={values.social}
-                  onChange={(v) => set("social", v)}
-                  ends={[t("ob.quiet"), t("ob.together")]}
-                  valueText={`${values.social}/5`}
+                <Input
+                  label={t("ob.stay")}
+                  type="number"
+                  min={1}
+                  max={24}
+                  value={values.stayMonths}
+                  onChange={(e) => set("stayMonths", Number(e.target.value))}
+                  hint={t("ob.months", { count: values.stayMonths })}
+                  error={error === "ob.stayError" ? t(error) : undefined}
                 />
-                <Pills<SleepSchedule>
-                  name="sleep"
-                  legend={t("ob.sleep")}
-                  value={values.sleep}
-                  onChange={(v) => set("sleep", v)}
-                  options={rhythms.map((r) => ({
-                    value: r.value,
-                    label: t(r.label),
-                  }))}
+              </div>
+            </>
+          )}
+          {step === 2 && (
+            <>
+              <Slider
+                label={t("ob.clean")}
+                hint={t("ob.cleanHint")}
+                value={values.cleanliness}
+                onChange={(v) => set("cleanliness", v)}
+                ends={[t("ob.relaxed"), t("ob.spotless")]}
+                valueText={`${values.cleanliness}/5${clean[values.cleanliness] ? ` · ${clean[values.cleanliness]}` : ""}`}
+              />
+              <Slider
+                label={t("ob.social")}
+                hint={t("ob.socialHint")}
+                value={values.social}
+                onChange={(v) => set("social", v)}
+                ends={[t("ob.quiet"), t("ob.together")]}
+                valueText={`${values.social}/5`}
+              />
+              <Pills<SleepSchedule>
+                name="sleep"
+                legend={t("ob.sleep")}
+                value={values.sleep}
+                onChange={(v) => set("sleep", v)}
+                options={rhythms.map((r) => ({
+                  value: r.value,
+                  label: t(r.label),
+                }))}
+              />
+            </>
+          )}
+          {step === 3 && (
+            <>
+              <Pills<Frequency>
+                name="guests"
+                legend={t("How often do you have guests over?")}
+                value={values.guests}
+                onChange={(v) => set("guests", v)}
+                options={[
+                  { value: "rarely", label: t("Rarely") },
+                  { value: "sometimes", label: t("Sometimes") },
+                  { value: "often", label: t("Often") },
+                ]}
+              />
+              <Pills<Frequency>
+                name="homeDays"
+                legend={t("Are you home in the day?")}
+                value={values.homeDays}
+                onChange={(v) => set("homeDays", v)}
+                options={[
+                  { value: "rarely", label: t("Out most days") },
+                  { value: "sometimes", label: t("Some days") },
+                  { value: "often", label: t("Most days") },
+                ]}
+              />
+              <Pills<NoiseTolerance>
+                name="noise"
+                legend={t("How much noise is fine?")}
+                value={values.noise}
+                onChange={(v) => set("noise", v)}
+                options={[
+                  { value: "low", label: t("I need it quiet") },
+                  { value: "medium", label: t("Some is fine") },
+                  { value: "high", label: t("It doesn't bother me") },
+                ]}
+              />
+              <Pills<Sharing>
+                name="sharing"
+                legend={t("What do you like to share?")}
+                value={values.sharing}
+                onChange={(v) => set("sharing", v)}
+                options={[
+                  { value: "separate", label: t("Keep things separate") },
+                  { value: "some", label: t("The basics") },
+                  { value: "most", label: t("Most things") },
+                ]}
+              />
+            </>
+          )}
+          {step === LAST && (
+            <>
+              <Pills<Preferences["livingWith"]>
+                name="livingWith"
+                legend={t("Who would you like to live with?")}
+                value={values.livingWith}
+                onChange={(v) => set("livingWith", v)}
+                options={[
+                  { value: "anyone", label: t("Anyone") },
+                  { value: "women", label: t("Women only") },
+                  { value: "men", label: t("Men only") },
+                ]}
+              />
+              <div className={o.switches}>
+                <Switch
+                  label={t("ob.smokeFree")}
+                  description={t("ob.smokeHint")}
+                  checked={values.smokeFree}
+                  onChange={(v) => set("smokeFree", v)}
                 />
-              </>
-            )}
-            {step === 3 && (
-              <>
-                <Pills<Frequency>
-                  name="guests"
-                  legend={t("How often do you have guests over?")}
-                  value={values.guests}
-                  onChange={(v) => set("guests", v)}
-                  options={[
-                    { value: "rarely", label: t("Rarely") },
-                    { value: "sometimes", label: t("Sometimes") },
-                    { value: "often", label: t("Often") },
+                <Switch
+                  label={t("ob.pets")}
+                  description={t("ob.petsHint")}
+                  checked={values.petsOkay}
+                  onChange={(v) => set("petsOkay", v)}
+                />
+              </div>
+              <div className={o.summary}>
+                <Heading level={3}>{t("ob.ready")}</Heading>
+                <Text tone="muted">{t("ob.readyHint")}</Text>
+                <FactGrid
+                  facts={[
+                    {
+                      label: t("ob.budget"),
+                      value: `€${values.budgetMin}–${values.budgetMax}`,
+                    },
+                    { label: t("ob.moveDate"), value: values.moveDate },
+                    {
+                      label: t("ob.stay"),
+                      value: t("ob.months", { count: values.stayMonths }),
+                    },
+                    { label: t("ob.city"), value: values.city },
                   ]}
                 />
-                <Pills<Frequency>
-                  name="homeDays"
-                  legend={t("Are you home in the day?")}
-                  value={values.homeDays}
-                  onChange={(v) => set("homeDays", v)}
-                  options={[
-                    { value: "rarely", label: t("Out most days") },
-                    { value: "sometimes", label: t("Some days") },
-                    { value: "often", label: t("Most days") },
-                  ]}
-                />
-                <Pills<NoiseTolerance>
-                  name="noise"
-                  legend={t("How much noise is fine?")}
-                  value={values.noise}
-                  onChange={(v) => set("noise", v)}
-                  options={[
-                    { value: "low", label: t("I need it quiet") },
-                    { value: "medium", label: t("Some is fine") },
-                    { value: "high", label: t("It doesn't bother me") },
-                  ]}
-                />
-                <Pills<Sharing>
-                  name="sharing"
-                  legend={t("What do you like to share?")}
-                  value={values.sharing}
-                  onChange={(v) => set("sharing", v)}
-                  options={[
-                    { value: "separate", label: t("Keep things separate") },
-                    { value: "some", label: t("The basics") },
-                    { value: "most", label: t("Most things") },
-                  ]}
-                />
-              </>
-            )}
-            {step === LAST && (
-              <>
-                <Pills<Preferences["livingWith"]>
-                  name="livingWith"
-                  legend={t("Who would you like to live with?")}
-                  value={values.livingWith}
-                  onChange={(v) => set("livingWith", v)}
-                  options={[
-                    { value: "anyone", label: t("Anyone") },
-                    { value: "women", label: t("Women only") },
-                    { value: "men", label: t("Men only") },
-                  ]}
-                />
-                <div className={o.switches}>
-                  <Switch
-                    label={t("ob.smokeFree")}
-                    description={t("ob.smokeHint")}
-                    checked={values.smokeFree}
-                    onChange={(v) => set("smokeFree", v)}
-                  />
-                  <Switch
-                    label={t("ob.pets")}
-                    description={t("ob.petsHint")}
-                    checked={values.petsOkay}
-                    onChange={(v) => set("petsOkay", v)}
-                  />
-                </div>
-                <div className={o.summary}>
-                  <Heading level={3}>{t("ob.ready")}</Heading>
-                  <Text tone="muted">{t("ob.readyHint")}</Text>
-                  <FactGrid
-                    facts={[
-                      {
-                        label: t("ob.budget"),
-                        value: `€${values.budgetMin}–${values.budgetMax}`,
-                      },
-                      { label: t("ob.moveDate"), value: values.moveDate },
-                      {
-                        label: t("ob.stay"),
-                        value: t("ob.months", { count: values.stayMonths }),
-                      },
-                      { label: t("ob.city"), value: values.city },
-                    ]}
-                  />
-                  <Text size="sm" tone="muted">
-                    {t("ob.editHint")}
-                  </Text>
-                </div>
-              </>
-            )}
-          </motion.div>
-        </AnimatePresence>
+                <Text size="sm" tone="muted">
+                  {t("ob.editHint")}
+                </Text>
+              </div>
+            </>
+          )}
+        </PageTransition>
 
         <div className={o.footer}>
           {step > 0 ? (

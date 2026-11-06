@@ -160,6 +160,7 @@ export function ProfileView({
           icon={<CircleHelp />}
           label={t("How RoomPair works")}
           onClick={onHelp}
+          link
         />
       </ListGroup>
 

@@ -6,18 +6,23 @@ import s from "./ListRow.module.css";
 
 /**
  * One editable fact: icon, label, value, chevron. An empty value shows
- * "Add", so missing information stays visible. Group rows in a ListGroup.
+ * "Add", so missing information stays visible. A row that only opens
+ * something (help, a page) sets `link` and shows no value at all.
+ * Group rows in a ListGroup.
  */
 export function ListRow({
   icon,
   label,
   value,
   onClick,
+  link = false,
 }: {
   icon?: ReactNode;
   label: string;
   value?: ReactNode;
   onClick?: () => void;
+  /** Opens something rather than holding a value: no value, no "Add". */
+  link?: boolean;
 }) {
   const t = useText();
   const empty = value === undefined || value === null || value === "";
@@ -25,9 +30,11 @@ export function ListRow({
     <>
       {icon && <span className={s.icon}>{icon}</span>}
       <span className={s.label}>{label}</span>
-      <span className={s.value} data-empty={empty || undefined}>
-        {empty ? t("Add") : value}
-      </span>
+      {!link && (
+        <span className={s.value} data-empty={empty || undefined}>
+          {empty ? t("Add") : value}
+        </span>
+      )}
       {onClick && <ChevronRight className={s.chevron} aria-hidden="true" />}
     </>
   );

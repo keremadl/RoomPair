@@ -24,6 +24,9 @@ type Field =
       value: string | number;
       hint?: string;
       prefix?: string;
+      /** Number fields: the allowed range, checked before saving. */
+      min?: number;
+      max?: number;
     }
   | {
       key: string;
@@ -110,13 +113,13 @@ export function FieldsDialog({
               hint={f.hint}
               prefix={"prefix" in f ? f.prefix : undefined}
               type={f.type}
+              min={"min" in f ? f.min : undefined}
+              max={"max" in f ? f.max : undefined}
+              inputMode={f.type === "number" ? "numeric" : undefined}
               value={String(values[f.key])}
-              onChange={(e) =>
-                set(
-                  f.key,
-                  f.type === "number" ? Number(e.target.value) : e.target.value,
-                )
-              }
+              // Kept as typed (an emptied field stays empty instead of
+              // jumping to 0); each onSave turns it into a number.
+              onChange={(e) => set(f.key, e.target.value)}
             />
           ),
         )}

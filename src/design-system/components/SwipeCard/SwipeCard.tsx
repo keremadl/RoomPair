@@ -75,25 +75,5 @@ export function SwipeHero({
   );
 }
 
-/** Fades the detail section in whenever the profile changes. */
-export function Reveal({
-  children,
-  className,
-  id,
-}: {
-  children: ReactNode;
-  className?: string;
-  id: string;
-}) {
-  return (
-    <motion.div
-      key={id}
-      className={className}
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.2, 0, 0, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
-}
+/** Kept here for older imports; it lives with the other motion primitives. */
+export { Reveal } from "../Motion/Motion";
