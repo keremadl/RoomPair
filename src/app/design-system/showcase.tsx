@@ -14,6 +14,8 @@ import {
   MapPin,
   MoreHorizontal,
   RotateCcw,
+  Settings,
+  UserPen,
   Sparkles,
   Sun,
   Handshake,
@@ -35,6 +37,8 @@ import {
   Input,
   SegmentedControl,
   ChoiceCards,
+  TopBar,
+  Progress,
   ListGroup,
   ListRow,
   Stack,
@@ -566,6 +570,58 @@ export function Showcase() {
               />
               <ListRow icon={<Building2 />} label="Area" onClick={() => {}} />
             </ListGroup>
+          </Specimen>
+          <Specimen label="TopBar · tab page">
+            <div className={styles.pageFrame}>
+              <TopBar
+                title="Profile"
+                actions={
+                  <>
+                    <IconButton
+                      variant="outline"
+                      label="Settings"
+                      icon={<Settings />}
+                    />
+                    <IconButton
+                      variant="outline"
+                      label="Edit profile"
+                      icon={<UserPen />}
+                    />
+                  </>
+                }
+              />
+            </div>
+          </Specimen>
+          <Specimen label="TopBar · sub-page template (back, title, below)">
+            <div className={styles.pageFrame}>
+              <TopBar
+                title="Edit profile"
+                onBack={() => {}}
+                below={
+                  <Progress
+                    label="Profile complete"
+                    text="20% complete"
+                    value={20}
+                  />
+                }
+              />
+              <div className={styles.pageBody}>
+                <ListGroup title="Living together" id="spec-sub">
+                  <ListRow
+                    icon={<Users />}
+                    label="Social energy"
+                    value="Often"
+                    onClick={() => {}}
+                  />
+                  <ListRow
+                    icon={<Building2 />}
+                    label="Move-in"
+                    value="1 Feb 2027"
+                    onClick={() => {}}
+                  />
+                </ListGroup>
+              </div>
+            </div>
           </Specimen>
           <Specimen label="ChoiceCards">
             <ChoiceCards

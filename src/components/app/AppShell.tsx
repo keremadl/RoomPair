@@ -10,7 +10,7 @@ import {
   MessageCircle,
   Smile,
 } from "lucide-react";
-import { Toast } from "@/design-system";
+import { Toast, TopBar } from "@/design-system";
 import {
   defaultLanguage,
   directionFontVariables,
@@ -22,7 +22,8 @@ import s from "./AppShell.module.css";
 export type View = "discover" | "likes" | "messages" | "space" | "profile";
 
 /**
- * The app frame: top bar, sidebar on wide screens, tab bar on phones.
+ * The app frame: the top bar (page title, or back + title on a sub-page,
+ * and the page's icons), sidebar on wide screens, tab bar on phones.
  * The design language (Card) comes from data-direction; everything inside
  * reads its tokens.
  */
@@ -30,23 +31,27 @@ export function AppShell({
   view,
   onNavigate,
   counts,
-  userName,
   onHelp,
-  onNotifications,
   toast,
-  barAction,
+  title,
+  actions,
+  onBack,
+  below,
   children,
 }: {
   view: View;
   onNavigate: (view: View) => void;
   counts: { likes: number; messages: number };
-  userName: string;
   onHelp: () => void;
-  onNotifications: () => void;
   toast: string;
-  /** The page's own action at the top right, in place of the profile button. */
-  /** null hides the corner button (the page has its own header icons). */
-  barAction?: { label: string; icon: ReactNode; onClick: () => void } | null;
+  /** The page title, shown in the top bar. */
+  title: string;
+  /** The page's icon buttons, at the top right. */
+  actions?: ReactNode;
+  /** Set on a sub-page: shows a back button before the title. */
+  onBack?: () => void;
+  /** Under the title, e.g. a Progress on Edit profile. */
+  below?: ReactNode;
   children: ReactNode;
 }) {
   const { t } = useI18n();
@@ -76,54 +81,24 @@ export function AppShell({
       <a href="#main" className={s.skip}>
         {t("Skip to content")}
       </a>
-      <header className={s.bar}>
-        <button
-          type="button"
-          className={s.brandButton}
-          onClick={() => onNavigate("discover")}
-          aria-label={t("RoomPair home")}
-        >
-          <Brand />
-        </button>
-        <span className={s.city}>
-          <MapPin aria-hidden="true" />
-          {t("header.location")}
-        </span>
-        <div className={s.barEnd}>
-          <button
-            type="button"
-            className={s.barIcon}
-            aria-label={t("Notifications")}
-            onClick={onNotifications}
-          >
-            <Bell aria-hidden="true" />
-            {counts.likes > 0 && <span className={s.dot} />}
-          </button>
-          {barAction ? (
-            <button
-              type="button"
-              className={s.barAction}
-              aria-label={barAction.label}
-              onClick={barAction.onClick}
-            >
-              {barAction.icon}
-            </button>
-          ) : barAction === null ? null : (
-            <button
-              type="button"
-              className={s.avatar}
-              aria-label={t("View your profile")}
-              aria-current={view === "profile" ? "page" : undefined}
-              onClick={() => onNavigate("profile")}
-            >
-              {userName.charAt(0).toUpperCase()}
-            </button>
-          )}
-        </div>
-      </header>
+      <TopBar
+        title={title}
+        actions={actions}
+        onBack={onBack}
+        backLabel={t("Back")}
+        below={below}
+      />
 
       <div className={s.body}>
         <aside className={s.sidebar}>
+          <button
+            type="button"
+            className={s.brandButton}
+            onClick={() => onNavigate("discover")}
+            aria-label={t("RoomPair home")}
+          >
+            <Brand />
+          </button>
           <nav aria-label={t("Main navigation")} className={s.sideNav}>
             {nav.map(({ id, label, icon: Icon, count }) => (
               <button

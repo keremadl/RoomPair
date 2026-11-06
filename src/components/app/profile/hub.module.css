@@ -7,21 +7,6 @@
   max-width: 40rem;
   margin: 0 auto;
 }
-.top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.title {
-  margin: 0;
-  font-family: var(--font-heading);
-  font-size: var(--text-3xl);
-  font-weight: var(--heading-weight);
-}
-.icons {
-  display: flex;
-  gap: var(--space-1);
-}
 
 /* Photo in a completion ring, name, why you're here */
 .me {

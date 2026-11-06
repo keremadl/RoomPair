@@ -91,6 +91,8 @@ export {
 } from "./components/EmptyState/EmptyState";
 export { VisuallyHidden } from "./components/VisuallyHidden/VisuallyHidden";
 export { ListRow, ListGroup } from "./components/ListRow/ListRow";
+export { TopBar } from "./components/TopBar/TopBar";
+export { Progress } from "./components/Progress/Progress";
 export {
   ChoiceCards,
   type ChoiceCardOption,

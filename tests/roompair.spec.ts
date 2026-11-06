@@ -160,16 +160,17 @@ test("filters validate, onboarding updates the profile, report and block work", 
   await expect(
     page.getByRole("banner").getByRole("button", { name: "Filters" }),
   ).toBeVisible();
+  // The top bar shows the page title, not the logo.
   await expect(
-    page.getByRole("button", { name: "View your profile" }),
-  ).toHaveCount(0);
+    page
+      .getByRole("banner")
+      .getByRole("heading", { level: 1, name: "Discover" }),
+  ).toBeVisible();
   await page
     .getByRole("navigation", { name: "Main navigation" })
-    .getByRole("button", { name: /Likes/ })
+    .getByRole("button", { name: /My profile/ })
     .click();
-  await expect(
-    page.getByRole("button", { name: "View your profile" }),
-  ).toHaveText("D");
+  await expect(page.getByRole("heading", { name: /^Deniz, / })).toBeVisible();
   await page
     .getByRole("navigation", { name: "Main navigation" })
     .getByRole("button", { name: /Discover/ })
@@ -241,10 +242,12 @@ test("my profile: preview from the photo, then edit photos, questions and intere
     .getAttribute("aria-label");
 
   await page.getByRole("button", { name: "Edit profile", exact: true }).click();
-  await expect(page.getByRole("progressbar")).toHaveCount(0);
+  // The sub-page bar shows how complete the profile is
   await expect(
-    page.getByRole("button", { name: "Preview", exact: true }),
-  ).toHaveCount(0);
+    page
+      .getByRole("banner")
+      .getByRole("progressbar", { name: "Profile complete" }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Add a question" }).click();
   const dialog = page.getByRole("dialog", { name: "Add a prompt" });
   await dialog
@@ -273,11 +276,11 @@ test("my profile: preview from the photo, then edit photos, questions and intere
     .click();
   await expect(page.getByRole("heading", { name: "My room" })).toBeVisible();
 
-  // The tab goes back to the profile page, where completion went up
-  await page
-    .getByRole("navigation", { name: "Main navigation" })
-    .getByRole("button", { name: /My profile/ })
-    .click();
+  // Back, in the top bar, returns to the profile page; completion went up
+  await expect(
+    page.getByRole("banner").getByRole("heading", { name: "Edit profile" }),
+  ).toBeVisible();
+  await page.getByRole("banner").getByRole("button", { name: "Back" }).click();
   await expect(
     page.getByRole("button", { name: /Preview my card/ }),
   ).not.toHaveAttribute("aria-label", before!);

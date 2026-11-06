@@ -1,7 +1,7 @@
 "use client";
 import { useId, useState } from "react";
 import { Check, Heart, MessageCircle } from "lucide-react";
-import { Button, EmptyState, Tabs, VisuallyHidden } from "@/design-system";
+import { Button, EmptyState, Tabs } from "@/design-system";
 import { getCompatibility } from "@/lib/matching";
 import { useI18n } from "@/lib/i18n";
 import type { Preferences, Profile } from "@/lib/types";
@@ -36,7 +36,6 @@ export function LikesView({
     .sort((a, b) => b.fit - a.fit);
   return (
     <>
-      <VisuallyHidden as="h1">{t("nav.likes")}</VisuallyHidden>
       <div className={v.toolbar}>
         <Tabs
           label={t("nav.likes")}

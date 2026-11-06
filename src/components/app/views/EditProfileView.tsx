@@ -19,13 +19,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import {
-  Button,
-  ChoiceCards,
-  Dialog,
-  ListRow,
-  VisuallyHidden,
-} from "@/design-system";
+import { Button, ChoiceCards, Dialog, ListRow } from "@/design-system";
 
 import { dateLabel, sleepLabel } from "@/lib/discover/deck";
 import { useI18n } from "@/lib/i18n";
@@ -121,7 +115,6 @@ export function EditProfileView({
 
   return (
     <>
-      <VisuallyHidden as="h1">{t("Edit profile")}</VisuallyHidden>
       <div className={p.page}>
         <PhotoGrid
           photos={me.photos}

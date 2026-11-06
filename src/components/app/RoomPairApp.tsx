@@ -1,8 +1,9 @@
 "use client";
-import { SlidersHorizontal } from "lucide-react";
+import { CircleHelp, Settings, SlidersHorizontal, UserPen } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig } from "motion/react";
-import { TextProvider } from "@/design-system";
+import { IconButton, Progress, TextProvider } from "@/design-system";
+import { completion, profileSteps } from "@/lib/profile";
 import { profiles, rooms } from "@/lib/data";
 import { getCompatibility, rankProfiles } from "@/lib/matching";
 import { useAppState } from "@/lib/store";
@@ -15,13 +16,13 @@ import { LikesView } from "./views/LikesView";
 import { MessagesView } from "./views/MessagesView";
 import { SpaceView } from "./views/SpaceView";
 import { ProfileView } from "./views/ProfileView";
+import { SettingsView } from "./views/SettingsView";
 import { EditProfileView } from "./views/EditProfileView";
 import { FiltersDialog } from "./dialogs/FiltersDialog";
 import { ProfileDialog } from "./dialogs/ProfileDialog";
 import { MatchDialog } from "./dialogs/MatchDialog";
 import { RoomDialog } from "./dialogs/RoomDialog";
 import { HelpDialog } from "./dialogs/HelpDialog";
-import { SettingsDialog } from "./dialogs/SettingsDialog";
 import { ReportDialog } from "./dialogs/ReportDialog";
 import { Onboarding } from "./Onboarding";
 import { Brand } from "./Brand";
@@ -67,8 +68,10 @@ function Translated() {
 function RoomPairApp() {
   const { t } = useI18n();
   const { state, setState, ready, reset } = useAppState();
+  const profilePercent = completion(profileSteps(state.me, state.preferences));
   const [view, setView] = useState<View>("discover");
-  const [editingProfile, setEditingProfile] = useState(false);
+  /** A sub-page of Profile, shown with a back button in the top bar. */
+  const [sub, setSub] = useState<null | "edit" | "settings">(null);
   const [dialog, setDialog] = useState<Dialog>(null);
   // false = closed; a number = open at that step.
   const [onboarding, setOnboarding] = useState<false | number>(false);
@@ -130,9 +133,13 @@ function RoomPairApp() {
         : t("Discover now shows people who have a room."),
     );
   }
+  function openSub(next: "edit" | "settings") {
+    setSub(next);
+    window.scrollTo({ top: 0 });
+  }
   function navigate(next: View) {
     setView(next);
-    setEditingProfile(false);
+    setSub(null);
     if (next === "messages" && chat) markRead(chat.id);
     window.scrollTo({ top: 0 });
   }
@@ -351,22 +358,62 @@ function RoomPairApp() {
       view={view}
       onNavigate={navigate}
       counts={{ likes: received.length, messages: unread }}
-      userName={state.preferences.name}
       onHelp={() => setDialog("help")}
-      onNotifications={() =>
-        received.length ? navigate("likes") : notify(t("No new likes."))
-      }
       toast={toast}
-      barAction={
-        view === "discover"
-          ? {
-              label: t("discover.filters"),
-              icon: <SlidersHorizontal aria-hidden="true" />,
-              onClick: () => setDialog("filters"),
+      title={
+        sub === "edit"
+          ? t("Edit profile")
+          : sub === "settings"
+            ? t("Settings")
+            : t(`nav.${view}`)
+      }
+      onBack={
+        sub
+          ? () => {
+              setSub(null);
+              window.scrollTo({ top: 0 });
             }
-          : view === "profile"
-            ? null
-            : undefined
+          : undefined
+      }
+      below={
+        sub === "edit" ? (
+          <Progress
+            label={t("Profile complete")}
+            text={`${profilePercent}% ${t("complete")}`}
+            value={profilePercent}
+          />
+        ) : undefined
+      }
+      actions={
+        view === "discover" ? (
+          <IconButton
+            variant="outline"
+            label={t("discover.filters")}
+            icon={<SlidersHorizontal />}
+            onClick={() => setDialog("filters")}
+          />
+        ) : view === "profile" && !sub ? (
+          <>
+            <IconButton
+              variant="outline"
+              label={t("Settings")}
+              icon={<Settings />}
+              onClick={() => openSub("settings")}
+            />
+            <IconButton
+              variant="outline"
+              label={t("Help")}
+              icon={<CircleHelp />}
+              onClick={() => setDialog("help")}
+            />
+            <IconButton
+              variant="outline"
+              label={t("Edit profile")}
+              icon={<UserPen />}
+              onClick={() => openSub("edit")}
+            />
+          </>
+        ) : undefined
       }
     >
       {view === "discover" && (
@@ -445,7 +492,17 @@ function RoomPairApp() {
           }}
         />
       )}
-      {view === "profile" && editingProfile && (
+      {view === "profile" && sub === "settings" && (
+        <SettingsView
+          onReset={() => {
+            reset();
+            setSub(null);
+            setView("discover");
+            notify(t("Demo data reset."));
+          }}
+        />
+      )}
+      {view === "profile" && sub === "edit" && (
         <EditProfileView
           preferences={state.preferences}
           me={state.me}
@@ -463,7 +520,7 @@ function RoomPairApp() {
           onIntent={changeIntent}
         />
       )}
-      {view === "profile" && !editingProfile && (
+      {view === "profile" && !sub && (
         <ProfileView
           preferences={state.preferences}
           me={state.me}
@@ -473,11 +530,7 @@ function RoomPairApp() {
             blocked: state.blocked.length,
             reports: state.reports.length,
           }}
-          onEdit={() => {
-            setEditingProfile(true);
-            window.scrollTo({ top: 0 });
-          }}
-          onSettings={() => setDialog("settings")}
+          onEdit={() => openSub("edit")}
           onHelp={() => setDialog("help")}
           onIntent={changeIntent}
           onVerify={() =>
@@ -549,18 +602,6 @@ function RoomPairApp() {
             onStart={() => {
               setDialog(null);
               setOnboarding(0);
-            }}
-          />
-        )}
-        {dialog === "settings" && (
-          <SettingsDialog
-            key="settings"
-            onClose={() => setDialog(null)}
-            onReset={() => {
-              reset();
-              setDialog(null);
-              setView("discover");
-              notify(t("Demo data reset."));
             }}
           />
         )}

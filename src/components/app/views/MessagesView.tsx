@@ -73,7 +73,6 @@ export function MessagesView({
   if (!chat || !person)
     return (
       <>
-        <VisuallyHidden as="h1">{t("nav.messages")}</VisuallyHidden>
         <EmptyState
           icon={<MessageCircle />}
           title={t("No conversations yet")}
@@ -88,7 +87,6 @@ export function MessagesView({
   const host = person.intent === "have-room";
   return (
     <>
-      <VisuallyHidden as="h1">{t("nav.messages")}</VisuallyHidden>
       <div className={v.messenger} data-show={showChat ? "chat" : "list"}>
         <aside className={v.chatList} aria-label={t("Conversations")}>
           {chats.length >= SEARCH_FROM && (

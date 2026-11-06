@@ -1,6 +1,6 @@
 "use client";
 import { RotateCcw, Sparkles } from "lucide-react";
-import { Button, EmptyState, VisuallyHidden } from "@/design-system";
+import { Button, EmptyState } from "@/design-system";
 import { defaultLanguage, discoverParts } from "@/design-system/languages";
 import type { DiscoverDeck } from "@/lib/discover/deck";
 import { useI18n } from "@/lib/i18n";
@@ -45,7 +45,6 @@ export function DiscoverView({
   const saved = roomId ? savedRooms.includes(roomId) : false;
   return (
     <>
-      <VisuallyHidden as="h1">{t("nav.discover")}</VisuallyHidden>
       {deck ? (
         <Card
           deck={deck}

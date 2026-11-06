@@ -377,3 +377,17 @@
   border: var(--border-width) solid var(--color-border-strong);
   box-shadow: var(--shadow-lg);
 }
+
+/* Page templates: a phone-wide frame so the sticky bar sits at its top */
+.pageFrame {
+  width: 100%;
+  max-width: 402px;
+  overflow: hidden;
+  border: var(--surface-border-width) solid
+    var(--surface-border, var(--color-border));
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+}
+.pageBody {
+  padding: var(--space-4);
+}

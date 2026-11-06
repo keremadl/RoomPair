@@ -7,7 +7,6 @@ import {
   Input,
   Text,
   Textarea,
-  VisuallyHidden,
 } from "@/design-system";
 import type { AppState } from "@/lib/store";
 import { useI18n } from "@/lib/i18n";
@@ -114,7 +113,6 @@ export function SpaceView({
   );
   return (
     <>
-      <VisuallyHidden as="h1">{t("nav.space")}</VisuallyHidden>
       <div className={v.spaceGrid}>
         {host ? (
           // Hosts are not looking for a room: their space is the checklist and notes.

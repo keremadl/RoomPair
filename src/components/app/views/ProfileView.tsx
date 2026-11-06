@@ -37,7 +37,6 @@ export function ProfileView({
   me,
   counts,
   onEdit,
-  onSettings,
   onHelp,
   onIntent,
   onVerify,
@@ -48,7 +47,6 @@ export function ProfileView({
   me: MyProfile;
   counts: { likes: number; saved: number; blocked: number; reports: number };
   onEdit: () => void;
-  onSettings: () => void;
   onHelp: () => void;
   onIntent: (intent: "find-room" | "have-room") => void;
   onVerify: () => void;
@@ -69,30 +67,6 @@ export function ProfileView({
 
   return (
     <div className={h.page}>
-      <header className={h.top}>
-        <h1 className={h.title}>{t("Profile")}</h1>
-        <div className={h.icons}>
-          <IconButton
-            label={t("Settings")}
-            icon={<Settings />}
-            variant="ghost"
-            onClick={onSettings}
-          />
-          <IconButton
-            label={t("Help")}
-            icon={<CircleHelp />}
-            variant="ghost"
-            onClick={onHelp}
-          />
-          <IconButton
-            label={t("Edit profile")}
-            icon={<UserPen />}
-            variant="ghost"
-            onClick={onEdit}
-          />
-        </div>
-      </header>
-
       <section className={h.me} aria-label={t("You")}>
         <button
           type="button"
