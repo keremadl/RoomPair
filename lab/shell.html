@@ -181,7 +181,12 @@
       '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
       '<meta name="viewport" content="width=device-width, initial-scale=1">' +
       '<link rel="stylesheet" href="' + FONTS + '">' +
-      "<style>" + APP_CSS + "</style></head><body>" +
+      "<style>" + APP_CSS + "</style>" +
+      // The phone hides scrollbars like iOS does; scrolling still works.
+      (view === "app"
+        ? "<style>*{scrollbar-width:none}*::-webkit-scrollbar{display:none}</style>"
+        : "") +
+      "</head><body>" +
       '<div id="root" class="lab-font-rubik"></div>' +
       "<script>window.__LAB_VIEW=" + JSON.stringify(view) + ";<\/script>" +
       "<script>" + APP_JS + "<\/script></body></html>"
