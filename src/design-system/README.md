@@ -40,6 +40,30 @@ src/app/design-system/  ← library environment: everything above, live, in any 
 scripts/check-design.mjs ← guard: ratchet + contrast check for every theme
 ```
 
+## Icons
+
+`icons/` is RoomPair's own icon set (Card style), drawn by hand to replace
+lucide-react. Specimen: **/design-system#icons**.
+
+- **Grid:** 24×24 viewBox, live area 3–21 (≥2px safe area with the stroke),
+  boxes use corner radius 2.5–3, circles r ≈ 8.75.
+- **Stroke:** `currentColor`, `fill="none"`, round caps and joins. Width is
+  `--icon-stroke` (2.25 base, 2.5 in Card) in grid units, so it scales with
+  the icon. Small solid accents are `currentColor` dots only.
+- **Size:** `size` prop (default 24, like lucide); any CSS `width`/`height`
+  on the `svg` wins, so `.x svg { width: 20px }` and `1em` both work. Tokens:
+  `--icon-size-sm|md|lg|xl` (16/20/24/32).
+- **A11y:** decorative by default (`aria-hidden`, `focusable="false"`); pass
+  `aria-label` and it becomes `role="img"`.
+- **Naming:** same names as the lucide icons they replace, so a swap is
+  changing the import: `import { Heart } from "@/design-system/icons"`.
+  From the root they are namespaced (`import { Icons } from "@/design-system"`,
+  `<Icons.Heart />`) because `Text` would clash with Typography.
+- **Adding one:** draw it in `icons/icons.tsx` with `createIcon("Name", …)`
+  on the grid above (no copied path data from other libraries), check it at
+  16, 24 and 32 in the specimen (it appears automatically), then run
+  `npm run typecheck && npm run check:design`.
+
 ## Core and languages
 
 The core components never hard-code a look. They read **semantic tokens**

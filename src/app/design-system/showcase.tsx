@@ -589,8 +589,7 @@ export function Showcase() {
                 className={styles.inlineIcon}
                 aria-label="Verified"
               />{" "}
-              verified · <Icons.Moon className={styles.inlineIcon} /> night
-              owl
+              verified · <Icons.Moon className={styles.inlineIcon} /> night owl
             </Text>
           </Specimen>
         </Section>

@@ -8,12 +8,7 @@
 import * as all from "./icons";
 
 export * from "./icons";
-export {
-  Icon,
-  createIcon,
-  type IconProps,
-  type IconComponent,
-} from "./Icon";
+export { Icon, createIcon, type IconProps, type IconComponent } from "./Icon";
 
 /** Every icon by name, in alphabetical order (for the showcase and docs). */
 export const iconList = Object.entries(all)

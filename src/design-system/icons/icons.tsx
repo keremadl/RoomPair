@@ -116,6 +116,10 @@ export const Search = createIcon(
   </>,
 );
 
+/** Shared outline: plump heart (Heart, HeartHandshake). */
+const heart =
+  "M12 20s-8.25-4.75-8.25-10.75A4.5 4.5 0 0 1 12 6.5a4.5 4.5 0 0 1 8.25 2.75C20.25 15.25 12 20 12 20z";
+
 /* ── People ────────────────────────────────────────── */
 
 export const UserRound = createIcon(
@@ -153,17 +157,16 @@ export const Smile = createIcon(
 export const Handshake = createIcon(
   "Handshake",
   <>
-    <path d="M2.75 8.5h2.5l3-2.25H12" />
-    <path d="M21.25 8.5h-2.5l-2.5-2.25H13.5l-3.75 3.5a1.6 1.6 0 0 0 2.25 2.25l2-1.75 4.75 4.5" />
-    <path d="M5.25 13.75l4.25 4a1.4 1.4 0 0 0 2-.05l.5.45a1.4 1.4 0 0 0 2-.1 1.4 1.4 0 0 0 2-1.3l.75-.25" />
-    <path d="M2.75 15h2.5V8.5M21.25 15h-2.5V8.5" />
+    <path d="M2.75 12 7 7.75h4.25" />
+    <path d="M21.25 12 17 7.75h-3.5l-4 4a1.5 1.5 0 0 0 2.1 2.1L14 11.5l3.5 3.5" />
+    <path d="M5.25 14.25l4 4a1.5 1.5 0 0 0 2.1 0l.15-.15a1.5 1.5 0 0 0 2.1 0l2-2" />
   </>,
 );
 export const HeartHandshake = createIcon(
   "HeartHandshake",
   <>
-    <path d="M12 20s-8.25-4.75-8.25-10.75A4.5 4.5 0 0 1 12 6.5a4.5 4.5 0 0 1 8.25 2.75C20.25 15.25 12 20 12 20z" />
-    <path d="M7.5 12.25h2l2-2 1.5 1.5 1.5-1.5 2 2" />
+    <path d={heart} />
+    <path d="M12 6.5 9.5 9a1.5 1.5 0 0 0 2.1 2.1L13 9.75l3 3" />
   </>,
 );
 
@@ -171,11 +174,15 @@ export const HeartHandshake = createIcon(
 
 export const Heart = createIcon(
   "Heart",
-  <path d="M12 20s-8.25-4.75-8.25-10.75A4.5 4.5 0 0 1 12 6.5a4.5 4.5 0 0 1 8.25 2.75C20.25 15.25 12 20 12 20z" />,
+  <>
+    <path d={heart} />
+  </>,
 );
 export const Star = createIcon(
   "Star",
-  <path d="M12 3.2Q15.06 8.19 20.75 9.56Q16.95 14.01 17.41 19.84Q12 17.6 6.59 19.84Q7.05 14.01 3.25 9.56Q8.94 8.19 12 3.2Z" />,
+  <>
+    <path d="M12 3.25 14.62 8.9 20.8 9.65 16.25 13.9 17.43 20.03 12 17.05 6.57 20.03 7.75 13.9 3.2 9.65 9.38 8.9z" />
+  </>,
 );
 export const Sparkles = createIcon(
   "Sparkles",
@@ -335,8 +342,8 @@ export const Leaf = createIcon(
 export const Sun = createIcon(
   "Sun",
   <>
-    <circle cx="12" cy="12" r="4" />
-    <path d="M12 4.6V3M17.23 6.77l1.13-1.13M19.4 12H21M17.23 17.23l1.13 1.13M12 19.4V21M6.77 17.23l-1.13 1.13M4.6 12H3M6.77 6.77 5.64 5.64" />
+    <circle cx="12" cy="12" r="3.75" />
+    <path d="M12 5.25V3.5M16.77 7.23l1.24-1.24M18.75 12h1.75M16.77 16.77l1.24 1.24M12 18.75v1.75M7.23 16.77l-1.24 1.24M5.25 12H3.5M7.23 7.23 5.99 5.99" />
   </>,
 );
 export const Moon = createIcon(
@@ -432,8 +439,7 @@ export const Languages = createIcon(
   <>
     <path d="M14 8V5.75a2.75 2.75 0 0 0-2.75-2.75h-5.5A2.75 2.75 0 0 0 3 5.75v5.5A2.75 2.75 0 0 0 5.75 14H8" />
     <rect x="10" y="10" width="11" height="11" rx="2.75" />
-    <path d="M13.25 18.5 15.5 12.75l2.25 5.75M14 16.75h3" />
-    <path d="M6 7h5M8.5 7c0 2-1 3.5-2.5 4" />
+    <path d="M13.25 18.5 15.5 12.75l2.25 5.75M14 16.75h3M6.5 7h4M6.5 10h2" />
   </>,
 );
 export const MessageCircle = createIcon(
@@ -450,9 +456,9 @@ export const MessageSquareQuote = createIcon(
 export const PiggyBank = createIcon(
   "PiggyBank",
   <>
-    <path d="M17.5 7.25A7.5 7.5 0 0 0 12 5.25c-4 0-7 2.6-7 6 0 2.1 1 3.8 2.5 4.8V19.5h3v-1.75h3.5v1.75h3v-3c1-.6 1.75-1.5 2.15-2.5h1.35v-4.5h-1.4a5 5 0 0 0-1.1-1.75V5z" />
-    <path d="M10 9h3.5M5 11.5c-1.25 0-2-.75-2-2" />
-    <Dot x={16} y={10.75} r={1.15} />
+    <ellipse cx="11.25" cy="12" rx="7" ry="6" />
+    <path d="M8 17.5v3M14.5 17.5v3M18.25 10h2.25v3.5h-2M9.5 8.25H13M7.5 6.75 6.25 4.5" />
+    <Dot x={15} y={10.25} r={1.15} />
   </>,
 );
 export const Receipt = createIcon(
@@ -465,10 +471,9 @@ export const Receipt = createIcon(
 export const ScrollText = createIcon(
   "ScrollText",
   <>
-    <path d="M18.5 16V6a2.5 2.5 0 0 0-2.5-2.5H6.5" />
-    <path d="M6.5 3.5A2.5 2.5 0 0 0 4 6v1.5h3.5" />
-    <path d="M6.5 3.5A2.5 2.5 0 0 1 9 6v12a2.5 2.5 0 0 0 2.5 2.5h7A2.5 2.5 0 0 0 21 18v-1.5H12V18a2.5 2.5 0 0 1-2.5 2.5" />
-    <path d="M12 8h3.5M12 11.75h3.5" />
+    <path d="M16.5 8.5V18a2.5 2.5 0 0 1-2.5 2.5H6a2.5 2.5 0 0 1-2.5-2.5v-1.5H7" />
+    <path d="M7 16.5V6a2.5 2.5 0 0 1 2.5-2.5h9A2.5 2.5 0 0 1 21 6v2.5h-4.5" />
+    <path d="M10.5 8.5H13M10.5 12.5H13" />
   </>,
 );
 export const Send = createIcon(

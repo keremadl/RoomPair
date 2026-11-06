@@ -47,8 +47,11 @@ Beyond the shared semantic tokens (`--color-*`, `--text-*`, `--space-*`, `--radi
 | `--xp`            | `#f5a524`         |
 | `--press-depth`   | `4px`             |
 | `--press-shadow`  | `0 4px 0 #1d2240` |
+| `--icon-stroke`   | `2.5`             |
 
 Component tokens (`--control-*`, `--surface-*`, `--heading-weight`) at the end of `theme.css` give the core components (Button, IconButton, Chip, Input, Card, Tabs, FactGrid…) this language's character. Change them there, never in a component.
+
+Icons come from the shared Card icon set (`@/design-system/icons`, see the design-system README); this language only makes their stroke heavier with `--icon-stroke: 2.5` to match the 2px outlines.
 
 ## Signature components
 
