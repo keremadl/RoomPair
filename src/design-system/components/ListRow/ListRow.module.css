@@ -23,6 +23,7 @@
     var(--surface-border, var(--color-border));
   border-radius: var(--radius-lg);
   background: var(--color-surface);
+  box-shadow: var(--control-shadow, none);
 }
 .item + .item {
   border-top: var(--border-width) solid var(--color-border);

@@ -558,7 +558,12 @@ export function Showcase() {
           </Specimen>
           <Specimen label="ListRow / ListGroup">
             <ListGroup title="About you" id="spec-about">
-              <ListRow icon={<Users />} label="Work or studies" value="Design student" onClick={() => {}} />
+              <ListRow
+                icon={<Users />}
+                label="Work or studies"
+                value="Design student"
+                onClick={() => {}}
+              />
               <ListRow icon={<Building2 />} label="Area" onClick={() => {}} />
             </ListGroup>
           </Specimen>
