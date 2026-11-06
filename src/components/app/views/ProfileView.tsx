@@ -1,32 +1,29 @@
 "use client";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   BadgeCheck,
-  Briefcase,
   Building2,
   CalendarDays,
-  Cake,
+  ChevronRight,
   Cigarette,
   Clock,
-  Eye,
-  MapPin,
+  MessageSquareQuote,
   Moon,
   PawPrint,
-  Pencil,
   Plus,
   Receipt,
   ShieldCheck,
   Sparkles,
+  Tag,
   Text as TextIcon,
-  UserRound,
   Users,
   Wallet,
+  X,
 } from "lucide-react";
 import {
   Button,
   ChoiceCards,
   Dialog,
-  ListGroup,
   ListRow,
   VisuallyHidden,
 } from "@/design-system";
@@ -36,10 +33,11 @@ import { useI18n } from "@/lib/i18n";
 import {
   MAX_PHOTOS,
   MAX_PROMPTS,
+  asProfile,
   completion,
   profileSteps,
 } from "@/lib/profile";
-import type { MyProfile, Preferences, Profile } from "@/lib/types";
+import type { MyProfile, Preferences } from "@/lib/types";
 import { Pips } from "../PersonCard";
 import { PhotoGrid } from "../profile/PhotoGrid";
 import {
@@ -52,6 +50,7 @@ import p from "../profile/profile.module.css";
 type Editing =
   | null
   | "basics"
+  | "intent"
   | "room"
   | "roomText"
   | "bio"
@@ -59,50 +58,52 @@ type Editing =
   | "preview"
   | { prompt: number };
 
-/** Builds the card others see from your own answers. */
-function asProfile(me: MyProfile, prefs: Preferences): Profile {
-  return {
-    id: "me",
-    name: prefs.name,
-    age: me.age,
-    occupation: me.occupation,
-    university: "",
-    city: prefs.city,
-    neighborhood: prefs.city,
-    bio: me.bio,
-    photo: me.photos[0] ?? "",
-    photos: me.photos,
-    budget: [prefs.budgetMin, prefs.budgetMax],
-    moveDate: prefs.moveDate,
-    stayMonths: prefs.stayMonths,
-    intent: prefs.intent === "have-room" ? "have-room" : "find-room",
-    tags: me.interests,
-    prompt: me.prompts[0] ?? { question: "", answer: "" },
-    habits: {
-      cleanliness: prefs.cleanliness as Profile["habits"]["cleanliness"],
-      social: prefs.social as Profile["habits"]["social"],
-      sleep: prefs.sleep,
-      smoking: !prefs.smokeFree,
-      pets: false,
-    },
-    verified: me.verified,
-    active: true,
-    likesYou: false,
-    room:
-      prefs.intent === "have-room" && me.room.photos[0]
-        ? {
-            title: me.room.title,
-            price: me.room.price,
-            photo: me.room.photos[0],
-            description: me.room.description,
-          }
-        : undefined,
-  };
+/** A white section card. With `onClick` the whole card opens an editor. */
+function Section({
+  title,
+  hint,
+  value,
+  onClick,
+  children,
+  id,
+}: {
+  title: string;
+  hint?: string;
+  value?: ReactNode;
+  onClick?: () => void;
+  children?: ReactNode;
+  id?: string;
+}) {
+  const head = (
+    <>
+      <span className={p.sectionText}>
+        <h2 className={p.sectionTitle} id={id}>
+          {title}
+        </h2>
+        {hint && <span className={p.sectionHint}>{hint}</span>}
+        {value !== undefined && <span className={p.sectionValue}>{value}</span>}
+      </span>
+      {onClick && <ChevronRight className={p.chevron} aria-hidden="true" />}
+    </>
+  );
+  return (
+    <section className={p.card} aria-labelledby={id}>
+      {onClick ? (
+        <button type="button" className={p.cardButton} onClick={onClick}>
+          {head}
+        </button>
+      ) : (
+        <div className={p.cardHead}>{head}</div>
+      )}
+      {children}
+    </section>
+  );
 }
 
 /**
- * Your profile: what others see on your card and in your details, with
- * every field editable in place. Settings live behind the gear at the top.
+ * My profile is the edit page itself: a progress bar and Preview stay at
+ * the top, then photos, who you are, why you are here, and one card per
+ * topic. Empty topics say what they are for and offer one clear button.
  */
 export function ProfileView({
   preferences: prefs,
@@ -111,17 +112,20 @@ export function ProfileView({
   onEditBasics,
   onIntent,
   onError,
+  onName,
 }: {
   preferences: Preferences;
   me: MyProfile;
   onMe: (next: Partial<MyProfile>) => void;
-  /** Opens the setup steps (1 = budget and dates, 2 = habits, 3 = must-haves). */
+  /** Opens the setup steps (0 = name, 1 = budget and dates, 2 = habits, 3 = must-haves). */
   onEditBasics: (step: number) => void;
   onIntent: (intent: "find-room" | "have-room") => void;
   onError: (message: string) => void;
+  onName: (name: string) => void;
 }) {
   const { t } = useI18n();
   const [editing, setEditing] = useState<Editing>(null);
+  const [tipClosed, setTipClosed] = useState(false);
   const host = prefs.intent === "have-room";
   const steps = profileSteps(me, prefs);
   const percent = completion(steps);
@@ -133,321 +137,293 @@ export function ProfileView({
     <>
       <VisuallyHidden as="h1">{t("nav.profile")}</VisuallyHidden>
       <div className={p.page}>
-        {/* Summary: main photo with completion ring, name, preview */}
-        <header className={p.summary}>
+        <div className={p.progressBar}>
           <div
-            className={p.ring}
-            style={{ "--done": percent } as React.CSSProperties}
-            role="img"
-            aria-label={`${t("Profile")} ${percent}% ${t("complete")}`}
+            className={p.progress}
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={percent}
+            aria-label={t("Profile complete")}
           >
-            {me.photos[0] ? (
-              <img src={me.photos[0]} alt="" />
-            ) : (
-              <span>{prefs.name.charAt(0)}</span>
-            )}
-            <b>{percent}%</b>
+            <span className={p.progressText}>
+              {percent}% {t("complete")}
+            </span>
+            <span className={p.progressTrack}>
+              <span style={{ width: `${percent}%` }} />
+            </span>
           </div>
-          <div className={p.who}>
-            <h2 className={p.name}>
-              {prefs.name}, {me.age}
-              {me.verified && (
-                <BadgeCheck aria-label={t("discover.verified")} />
-              )}
-            </h2>
-            <Button
-              size="sm"
-              variant="secondary"
-              leadingIcon={<Eye />}
-              onClick={() => setEditing("preview")}
-            >
-              {t("Preview my card")}
-            </Button>
-          </div>
-        </header>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setEditing("preview")}
+          >
+            {t("Preview")}
+          </Button>
+        </div>
 
-        {next && (
+        {next && !tipClosed && (
           <div className={p.tip}>
-            <Sparkles aria-hidden="true" />
-            <p>
-              <strong>{t("Next")}:</strong> {t(next.label)}
-            </p>
-          </div>
-        )}
-
-        <section className={p.section}>
-          <ChoiceCards
-            label={t("What are you looking for?")}
-            value={host ? "have-room" : "find-room"}
-            onChange={onIntent}
-            columns={2}
-            options={[
-              {
-                value: "find-room",
-                title: t("I’m looking for a room"),
-                hint: t("Discover shows people who have a room, room first."),
-                icon: <Building2 />,
-              },
-              {
-                value: "have-room",
-                title: t("I have a room, I need a flatmate"),
-                hint: t("Discover shows only people looking for a room."),
-                icon: <Users />,
-              },
-            ]}
-          />
-        </section>
-
-        <section className={p.section} aria-labelledby="my-photos">
-          <h2 className={p.heading} id="my-photos">
-            {t("My photos")}
-          </h2>
-          <PhotoGrid
-            photos={me.photos}
-            max={MAX_PHOTOS}
-            label={t("My photos")}
-            onChange={(photos) => onMe({ photos })}
-            onError={onError}
-          />
-        </section>
-
-        {host && (
-          <section className={p.section} aria-labelledby="my-room">
-            <h2 className={p.heading} id="my-room">
-              {t("My room")}
-            </h2>
-            <p className={p.lead}>
-              {t("Room seekers see the main room photo first.")}
-            </p>
-            <PhotoGrid
-              photos={me.room.photos}
-              max={MAX_PHOTOS}
-              label={t("Room photos")}
-              onChange={(photos) => onMe({ room: { ...me.room, photos } })}
-              onError={onError}
-            />
-            <ListGroup>
-              <ListRow
-                icon={<TextIcon />}
-                label={t("Title")}
-                value={me.room.title}
-                onClick={() => setEditing("room")}
-              />
-              <ListRow
-                icon={<Wallet />}
-                label={t("Rent")}
-                value={`€${me.room.price} / ${t("month")}`}
-                onClick={() => setEditing("room")}
-              />
-              <ListRow
-                icon={<Receipt />}
-                label={t("Bills")}
-                value={
-                  me.room.billsIncluded ? t("Included") : t("Not included")
-                }
-                onClick={() => setEditing("room")}
-              />
-              <ListRow
-                icon={<CalendarDays />}
-                label={t("Available from")}
-                value={dateLabel(prefs.moveDate)}
-                onClick={() => onEditBasics(1)}
-              />
-              <ListRow
-                icon={<Clock />}
-                label={t("Minimum stay")}
-                value={`${prefs.stayMonths} ${t("months")}`}
-                onClick={() => onEditBasics(1)}
-              />
-            </ListGroup>
+            <p className={p.tipTitle}>{t("Next step")}</p>
+            <p className={p.tipText}>{t(next.label)}</p>
             <button
               type="button"
-              className={p.textCard}
-              onClick={() => setEditing("roomText")}
+              className={p.tipClose}
+              aria-label={t("Hide tip")}
+              onClick={() => setTipClosed(true)}
             >
-              <span className={p.cardLabel}>{t("About the room")}</span>
-              {me.room.description ? (
-                <span className={p.cardText}>{me.room.description}</span>
-              ) : (
-                <span className={p.cardEmpty}>
-                  {t("Size, light, what is shared, who lives there…")}
-                </span>
-              )}
-              <Pencil className={p.pen} aria-hidden="true" />
+              <X />
             </button>
-          </section>
+          </div>
         )}
 
-        <section className={p.section} aria-labelledby="about-me">
-          <h2 className={p.heading} id="about-me">
-            {t("About me")}
-          </h2>
-          <button
-            type="button"
-            className={p.textCard}
+        <PhotoGrid
+          photos={me.photos}
+          max={MAX_PHOTOS}
+          label={t("My photos")}
+          addLabel={t("Add photos")}
+          onChange={(photos) => onMe({ photos })}
+          onError={onError}
+        />
+
+        <div className={p.cards}>
+          <Section
+            id="me-name"
+            title={`${prefs.name}, ${me.age}`}
+            value={[me.occupation, prefs.city].filter(Boolean).join(", ")}
+            onClick={() => setEditing("basics")}
+          />
+
+          <Section
+            id="me-intent"
+            title={t("Why you're here")}
+            value={
+              host
+                ? t("I have a room, I need a flatmate")
+                : t("I’m looking for a room")
+            }
+            onClick={() => setEditing("intent")}
+          />
+
+          <Section
+            id="me-bio"
+            title={t("About me")}
+            value={me.bio || undefined}
+            hint={
+              me.bio
+                ? undefined
+                : t("A few lines about you and how you like to live.")
+            }
             onClick={() => setEditing("bio")}
-          >
-            {me.bio ? (
-              <span className={p.cardText}>{me.bio}</span>
-            ) : (
-              <span className={p.cardEmpty}>
-                {t("A few lines about you and how you like to live")}
-              </span>
-            )}
-            <Pencil className={p.pen} aria-hidden="true" />
-          </button>
-        </section>
+          />
 
-        <section className={p.section} aria-labelledby="my-prompts">
-          <h2 className={p.heading} id="my-prompts">
-            {t("My prompts")}
-          </h2>
-          <div className={p.prompts}>
-            {me.prompts.map((pr, i) => (
-              <button
-                key={pr.question}
-                type="button"
-                className={p.prompt}
-                onClick={() => setEditing({ prompt: i })}
-              >
-                <span className={p.cardLabel}>{t(pr.question)}</span>
-                <span className={p.answer}>{pr.answer}</span>
-                <Pencil className={p.pen} aria-hidden="true" />
-              </button>
-            ))}
-            {me.prompts.length < MAX_PROMPTS && (
-              <button
-                type="button"
-                className={p.prompt}
-                data-empty="true"
-                onClick={() => setEditing({ prompt: me.prompts.length })}
-              >
-                <Plus aria-hidden="true" />
-                <span>{t("Add a prompt")}</span>
-              </button>
-            )}
-          </div>
-        </section>
-
-        <section className={p.section} aria-labelledby="my-interests">
-          <div className={p.headRow}>
-            <h2 className={p.heading} id="my-interests">
-              {t("Interests")}
-            </h2>
-            <Button
-              size="sm"
-              variant="ghost"
-              leadingIcon={<Pencil />}
-              onClick={() => setEditing("interests")}
+          {host && (
+            <Section
+              id="me-room"
+              title={t("My room")}
+              hint={t("Room seekers see the main room photo first.")}
             >
-              {t("Edit")}
-            </Button>
-          </div>
-          {me.interests.length ? (
-            <ul className={p.tags}>
-              {me.interests.map((i) => (
-                <li key={i}>{t(i)}</li>
-              ))}
+              <PhotoGrid
+                photos={me.room.photos}
+                max={MAX_PHOTOS}
+                label={t("Room photos")}
+                addLabel={t("Add room photos")}
+                onChange={(photos) => onMe({ room: { ...me.room, photos } })}
+                onError={onError}
+              />
+              <ul className={p.rows}>
+                <ListRow
+                  icon={<TextIcon />}
+                  label={t("Title")}
+                  value={me.room.title}
+                  onClick={() => setEditing("room")}
+                />
+                <ListRow
+                  icon={<Wallet />}
+                  label={t("Rent")}
+                  value={`€${me.room.price} / ${t("month")}`}
+                  onClick={() => setEditing("room")}
+                />
+                <ListRow
+                  icon={<Receipt />}
+                  label={t("Bills")}
+                  value={
+                    me.room.billsIncluded ? t("Included") : t("Not included")
+                  }
+                  onClick={() => setEditing("room")}
+                />
+                <ListRow
+                  icon={<CalendarDays />}
+                  label={t("Available from")}
+                  value={dateLabel(prefs.moveDate)}
+                  onClick={() => onEditBasics(1)}
+                />
+                <ListRow
+                  icon={<Clock />}
+                  label={t("Minimum stay")}
+                  value={`${prefs.stayMonths} ${t("months")}`}
+                  onClick={() => onEditBasics(1)}
+                />
+                <ListRow
+                  icon={<MessageSquareQuote />}
+                  label={t("About the room")}
+                  value={me.room.description || undefined}
+                  onClick={() => setEditing("roomText")}
+                />
+              </ul>
+            </Section>
+          )}
+
+          <Section id="me-living" title={t("Living together")}>
+            <ul className={p.rows}>
+              {!host && (
+                <>
+                  <ListRow
+                    icon={<Wallet />}
+                    label={t("Monthly budget")}
+                    value={`€${prefs.budgetMin}–${prefs.budgetMax}`}
+                    onClick={() => onEditBasics(1)}
+                  />
+                  <ListRow
+                    icon={<CalendarDays />}
+                    label={t("Move-in")}
+                    value={dateLabel(prefs.moveDate)}
+                    onClick={() => onEditBasics(1)}
+                  />
+                  <ListRow
+                    icon={<Clock />}
+                    label={t("Stay")}
+                    value={`${prefs.stayMonths} ${t("months")}`}
+                    onClick={() => onEditBasics(1)}
+                  />
+                </>
+              )}
+              <ListRow
+                icon={<Sparkles />}
+                label={t("Tidiness")}
+                value={
+                  <Pips bare label={t("Tidiness")} value={prefs.cleanliness} />
+                }
+                onClick={() => onEditBasics(2)}
+              />
+              <ListRow
+                icon={<Users />}
+                label={t("Social energy")}
+                value={
+                  <Pips bare label={t("Social energy")} value={prefs.social} />
+                }
+                onClick={() => onEditBasics(2)}
+              />
+              <ListRow
+                icon={<Moon />}
+                label={t("Sleep")}
+                value={t(sleepLabel[prefs.sleep])}
+                onClick={() => onEditBasics(2)}
+              />
+              <ListRow
+                icon={<Cigarette />}
+                label={t("Smoking at home")}
+                value={prefs.smokeFree ? t("No") : t("Fine")}
+                onClick={() => onEditBasics(3)}
+              />
+              <ListRow
+                icon={<PawPrint />}
+                label={t("Pets")}
+                value={prefs.petsOkay ? t("Fine") : t("No")}
+                onClick={() => onEditBasics(3)}
+              />
             </ul>
-          ) : (
-            <p className={p.lead}>{t("No interests yet.")}</p>
-          )}
-        </section>
+          </Section>
 
-        <ListGroup title={t("Basics")} id="basics">
-          <ListRow
-            icon={<UserRound />}
-            label={t("Name")}
-            value={prefs.name}
-            onClick={() => onEditBasics(0)}
-          />
-          <ListRow
-            icon={<Cake />}
-            label={t("Age")}
-            value={me.age}
-            onClick={() => setEditing("basics")}
-          />
-          <ListRow
-            icon={<Briefcase />}
-            label={t("Work or studies")}
-            value={me.occupation}
-            onClick={() => setEditing("basics")}
-          />
-          <ListRow
-            icon={<MapPin />}
-            label={t("City")}
-            value={prefs.city}
-            onClick={() => onEditBasics(1)}
-          />
-          {!host && (
-            <>
-              <ListRow
-                icon={<Wallet />}
-                label={t("Monthly budget")}
-                value={`€${prefs.budgetMin}–${prefs.budgetMax}`}
-                onClick={() => onEditBasics(1)}
-              />
-              <ListRow
-                icon={<CalendarDays />}
-                label={t("Move-in")}
-                value={dateLabel(prefs.moveDate)}
-                onClick={() => onEditBasics(1)}
-              />
-              <ListRow
-                icon={<Clock />}
-                label={t("Stay")}
-                value={`${prefs.stayMonths} ${t("months")}`}
-                onClick={() => onEditBasics(1)}
-              />
-            </>
-          )}
-        </ListGroup>
-
-        <ListGroup title={t("Living habits")} id="habits">
-          <ListRow
-            icon={<Sparkles />}
-            label={t("Tidiness")}
-            value={
-              <Pips bare label={t("Tidiness")} value={prefs.cleanliness} />
+          <Section
+            id="me-prompts"
+            title={t("Profile questions")}
+            hint={
+              me.prompts.length
+                ? undefined
+                : t(
+                    "Answer a few questions so people know what living with you is like.",
+                  )
             }
-            onClick={() => onEditBasics(2)}
-          />
-          <ListRow
-            icon={<Users />}
-            label={t("Social energy")}
-            value={
-              <Pips bare label={t("Social energy")} value={prefs.social} />
-            }
-            onClick={() => onEditBasics(2)}
-          />
-          <ListRow
-            icon={<Moon />}
-            label={t("Sleep")}
-            value={t(sleepLabel[prefs.sleep])}
-            onClick={() => onEditBasics(2)}
-          />
-          <ListRow
-            icon={<Cigarette />}
-            label={t("Smoking at home")}
-            value={prefs.smokeFree ? t("No") : t("Fine")}
-            onClick={() => onEditBasics(3)}
-          />
-          <ListRow
-            icon={<PawPrint />}
-            label={t("Pets")}
-            value={prefs.petsOkay ? t("Fine") : t("No")}
-            onClick={() => onEditBasics(3)}
-          />
-        </ListGroup>
+          >
+            {me.prompts.length > 0 && (
+              <div className={p.prompts}>
+                {me.prompts.map((pr, i) => (
+                  <button
+                    key={pr.question}
+                    type="button"
+                    className={p.prompt}
+                    onClick={() => setEditing({ prompt: i })}
+                  >
+                    <span className={p.cardLabel}>{t(pr.question)}</span>
+                    <span className={p.answer}>{pr.answer}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {me.prompts.length < MAX_PROMPTS && (
+              <Button
+                leadingIcon={<Plus />}
+                variant={me.prompts.length ? "secondary" : "primary"}
+                onClick={() => setEditing({ prompt: me.prompts.length })}
+                fullWidth
+              >
+                {t("Add a question")}
+              </Button>
+            )}
+          </Section>
 
-        <ListGroup title={t("Trust")} id="trust">
-          <ListRow
-            icon={<ShieldCheck />}
-            label={t("Student email")}
-            value={me.verified ? t("Verified (demo)") : undefined}
-            onClick={() => onMe({ verified: !me.verified })}
-          />
-        </ListGroup>
+          <Section
+            id="me-interests"
+            title={t("Interests")}
+            hint={
+              me.interests.length
+                ? undefined
+                : t("Show what you like doing, so shared interests stand out.")
+            }
+          >
+            {me.interests.length > 0 && (
+              <ul className={p.tags}>
+                {me.interests.map((i) => (
+                  <li key={i}>{t(i)}</li>
+                ))}
+              </ul>
+            )}
+            <Button
+              leadingIcon={<Tag />}
+              variant={me.interests.length ? "secondary" : "primary"}
+              onClick={() => setEditing("interests")}
+              fullWidth
+            >
+              {me.interests.length ? t("Edit interests") : t("Add interests")}
+            </Button>
+          </Section>
+
+          <Section
+            id="me-verify"
+            title={t("Get verified")}
+            hint={
+              me.verified
+                ? undefined
+                : t("A checked student email shows people you are who you say.")
+            }
+          >
+            {me.verified ? (
+              <p className={p.verified}>
+                <BadgeCheck aria-hidden="true" />{" "}
+                {t("Student email verified (demo)")}
+              </p>
+            ) : (
+              <Button
+                leadingIcon={<ShieldCheck />}
+                onClick={() => onMe({ verified: true })}
+                fullWidth
+              >
+                {t("Verify student email")}
+              </Button>
+            )}
+          </Section>
+        </div>
       </div>
 
       {editing === "preview" && (
@@ -483,10 +459,37 @@ export function ProfileView({
           </div>
         </Dialog>
       )}
+      {editing === "intent" && (
+        <Dialog title={t("Why you're here")} onClose={close}>
+          <ChoiceCards
+            label={t("What are you looking for?")}
+            value={host ? "have-room" : "find-room"}
+            onChange={(v) => {
+              onIntent(v);
+              close();
+            }}
+            options={[
+              {
+                value: "find-room",
+                title: t("I’m looking for a room"),
+                hint: t("Discover shows people who have a room, room first."),
+                icon: <Building2 />,
+              },
+              {
+                value: "have-room",
+                title: t("I have a room, I need a flatmate"),
+                hint: t("Discover shows only people looking for a room."),
+                icon: <Users />,
+              },
+            ]}
+          />
+        </Dialog>
+      )}
       {editing === "basics" && (
         <FieldsDialog
-          title={t("Basics")}
+          title={t("Name and work")}
           fields={[
+            { key: "name", label: t("Name"), type: "text", value: prefs.name },
             { key: "age", label: t("Age"), type: "number", value: me.age },
             {
               key: "occupation",
@@ -501,6 +504,8 @@ export function ProfileView({
               age: Math.min(99, Math.max(17, Number(v.age) || me.age)),
               occupation: String(v.occupation).trim(),
             });
+            const name = String(v.name).trim();
+            if (name && name !== prefs.name) onName(name);
             close();
           }}
           onClose={close}
@@ -554,6 +559,10 @@ export function ProfileView({
               label: editing === "bio" ? t("About me") : t("About the room"),
               type: "textarea",
               value: editing === "bio" ? me.bio : me.room.description,
+              hint:
+                editing === "bio"
+                  ? undefined
+                  : t("Size, light, what is shared, who lives there…"),
             },
           ]}
           onSave={(v) => {

@@ -139,11 +139,8 @@ test("filters validate, onboarding updates the profile, report and block work", 
   await filters.getByRole("button", { name: "Show my people" }).click();
   await expect(filters).toBeHidden();
 
-  await page
-    .getByRole("navigation", { name: "Main navigation" })
-    .getByRole("button", { name: /My profile/ })
-    .click();
-  await page.getByRole("button", { name: /^Name/ }).click();
+  await page.getByRole("button", { name: "Help" }).click();
+  await page.getByRole("button", { name: "Set up my profile" }).click();
   const setup = page.getByRole("dialog", { name: "Your profile" });
   await setup
     .getByRole("textbox", { name: "What should we call you?" })
@@ -206,9 +203,10 @@ test("what you are looking for decides who Discover shows", async ({
 
   const nav = page.getByRole("navigation", { name: "Main navigation" });
   await nav.getByRole("button", { name: /My profile/ }).click();
+  await page.getByRole("button", { name: /Why you're here/ }).click();
   await page
     .getByRole("radio", { name: /I have a room, I need a flatmate/ })
-    .check();
+    .click();
   await expect(page.getByRole("status")).toContainText(
     "people looking for a room",
   );
@@ -230,19 +228,19 @@ test("my profile: photos, prompts, interests, preview and completion", async ({
     .getByRole("navigation", { name: "Main navigation" })
     .getByRole("button", { name: /My profile/ })
     .click();
-  const ring = page.getByRole("img", { name: /Profile \d+% complete/ });
-  const before = await ring.getAttribute("aria-label");
+  const ring = page.getByRole("progressbar", { name: "Profile complete" });
+  const before = await ring.getAttribute("aria-valuenow");
   // Add a second prompt
-  await page.getByRole("button", { name: "Add a prompt" }).click();
+  await page.getByRole("button", { name: "Add a question" }).click();
   const dialog = page.getByRole("dialog", { name: "Add a prompt" });
   await dialog
     .getByRole("textbox", { name: "Your answer" })
     .fill("Cooking for everyone.");
   await dialog.getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("Cooking for everyone.")).toBeVisible();
-  await expect(ring).not.toHaveAttribute("aria-label", before!);
+  await expect(ring).not.toHaveAttribute("aria-valuenow", before!);
   // Interests: add one
-  await page.getByRole("button", { name: "Edit" }).last().click();
+  await page.getByRole("button", { name: "Edit interests" }).click();
   await page
     .getByRole("dialog", { name: "Interests" })
     .getByRole("button", { name: "Yoga" })
@@ -263,7 +261,7 @@ test("my profile: photos, prompts, interests, preview and completion", async ({
     page.getByRole("button", { name: /Photo 2: make main/ }),
   ).toBeVisible();
   // Preview shows the card others see
-  await page.getByRole("button", { name: "Preview my card" }).click();
+  await page.getByRole("button", { name: "Preview", exact: true }).click();
   await expect(
     page
       .getByRole("dialog", { name: "Your card" })
@@ -271,9 +269,10 @@ test("my profile: photos, prompts, interests, preview and completion", async ({
   ).toBeVisible();
   await page.keyboard.press("Escape");
   // Hosts get a room section
+  await page.getByRole("button", { name: /Why you're here/ }).click();
   await page
     .getByRole("radio", { name: /I have a room, I need a flatmate/ })
-    .check();
+    .click();
   await expect(page.getByRole("heading", { name: "My room" })).toBeVisible();
 });
 

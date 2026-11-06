@@ -444,6 +444,12 @@ function RoomPairApp() {
           }
           onEditBasics={(step) => setOnboarding(step)}
           onError={notify}
+          onName={(name) =>
+            setState((st) => ({
+              ...st,
+              preferences: { ...st.preferences, name },
+            }))
+          }
           onIntent={(intent) => {
             setState((st) => ({
               ...st,

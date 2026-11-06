@@ -1,6 +1,7 @@
 "use client";
 import { useRef } from "react";
-import { Plus, Star, X } from "lucide-react";
+import { ImagePlus, Plus, Star, X } from "lucide-react";
+import { Button } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
 import { readPhoto } from "./photos";
 import p from "./profile.module.css";
@@ -15,12 +16,15 @@ export function PhotoGrid({
   label,
   onChange,
   onError,
+  addLabel,
 }: {
   photos: string[];
   max: number;
   label: string;
   onChange: (photos: string[]) => void;
   onError: (message: string) => void;
+  /** Text of the full-width add button under the grid. */
+  addLabel: string;
 }) {
   const { t } = useI18n();
   const input = useRef<HTMLInputElement>(null);
@@ -103,6 +107,15 @@ export function PhotoGrid({
           e.target.value = "";
         }}
       />
+      <Button
+        className={p.addAll}
+        leadingIcon={<ImagePlus />}
+        onClick={() => input.current?.click()}
+        disabled={photos.length >= max}
+        fullWidth
+      >
+        {addLabel}
+      </Button>
       <p className={p.hint}>{t("Tap a photo to make it the main one.")}</p>
     </div>
   );

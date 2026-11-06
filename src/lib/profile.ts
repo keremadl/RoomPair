@@ -3,7 +3,7 @@
  * and how complete the profile is. Wording is a first draft; the team
  * decides the final prompts and fields.
  */
-import type { MyProfile, Preferences } from "./types";
+import type { MyProfile, Preferences, Profile } from "./types";
 
 export const MAX_PHOTOS = 6;
 export const MAX_PROMPTS = 3;
@@ -103,3 +103,45 @@ export function profileSteps(me: MyProfile, prefs: Preferences): Step[] {
 
 export const completion = (steps: Step[]) =>
   Math.round((steps.filter((s) => s.done).length / steps.length) * 100);
+
+/** Builds the card others see from your own answers. */
+export function asProfile(me: MyProfile, prefs: Preferences): Profile {
+  const host = prefs.intent === "have-room";
+  return {
+    id: "me",
+    name: prefs.name,
+    age: me.age,
+    occupation: me.occupation,
+    university: "",
+    city: prefs.city,
+    neighborhood: prefs.city,
+    bio: me.bio,
+    photo: me.photos[0] ?? "",
+    photos: me.photos,
+    budget: [prefs.budgetMin, prefs.budgetMax],
+    moveDate: prefs.moveDate,
+    stayMonths: prefs.stayMonths,
+    intent: host ? "have-room" : "find-room",
+    tags: me.interests,
+    prompt: me.prompts[0] ?? { question: "", answer: "" },
+    habits: {
+      cleanliness: prefs.cleanliness as Profile["habits"]["cleanliness"],
+      social: prefs.social as Profile["habits"]["social"],
+      sleep: prefs.sleep,
+      smoking: !prefs.smokeFree,
+      pets: false,
+    },
+    verified: me.verified,
+    active: true,
+    likesYou: false,
+    room:
+      host && me.room.photos[0]
+        ? {
+            title: me.room.title,
+            price: me.room.price,
+            photo: me.room.photos[0],
+            description: me.room.description,
+          }
+        : undefined,
+  };
+}
