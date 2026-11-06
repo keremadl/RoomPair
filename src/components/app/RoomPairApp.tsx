@@ -1,5 +1,12 @@
 "use client";
-import { CircleHelp, Settings, SlidersHorizontal, UserPen } from "lucide-react";
+import {
+  CircleHelp,
+  MoreHorizontal,
+  Settings,
+  SlidersHorizontal,
+  UserPen,
+  UserRound,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig } from "motion/react";
 import { IconButton, TextProvider } from "@/design-system";
@@ -77,6 +84,9 @@ function RoomPairApp() {
   const [selected, setSelected] = useState<Profile | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [activeChat, setActiveChat] = useState<string | null>(null);
+  /** On phones an open conversation is a sub-page: back and name in the top bar. */
+  const [chatOpen, setChatOpen] = useState(false);
+  const narrow = useNarrow();
   const [typing, setTyping] = useState<string | null>(null);
   const [direction, setDirection] = useState(1);
   const [toast, setToast] = useState("");
@@ -140,6 +150,7 @@ function RoomPairApp() {
   function navigate(next: View) {
     setView(next);
     setSub(null);
+    setChatOpen(false);
     if (next === "messages" && chat) markRead(chat.id);
     window.scrollTo({ top: 0 });
   }
@@ -177,6 +188,7 @@ function RoomPairApp() {
     const id = existing?.id ?? `chat-${person.id}`;
     markRead(id);
     setActiveChat(id);
+    setChatOpen(true);
     setDialog(null);
     setView("messages");
     window.scrollTo({ top: 0 });
@@ -359,6 +371,10 @@ function RoomPairApp() {
       }
     : null;
   const detail = selected;
+  const chatPerson =
+    view === "messages" && chatOpen && narrow && chat
+      ? profileById(chat.profileId)
+      : null;
 
   return (
     <AppShell
@@ -368,22 +384,44 @@ function RoomPairApp() {
       onHelp={() => setDialog("help")}
       toast={toast}
       title={
-        sub === "edit"
-          ? t("Edit profile")
-          : sub === "settings"
-            ? t("Settings")
-            : t(`nav.${view}`)
+        chatPerson
+          ? chatPerson.name
+          : sub === "edit"
+            ? t("Edit profile")
+            : sub === "settings"
+              ? t("Settings")
+              : t(`nav.${view}`)
       }
       onBack={
-        sub
-          ? () => {
-              setSub(null);
-              window.scrollTo({ top: 0 });
-            }
-          : undefined
+        chatPerson
+          ? () => setChatOpen(false)
+          : sub
+            ? () => {
+                setSub(null);
+                window.scrollTo({ top: 0 });
+              }
+            : undefined
       }
       actions={
-        sub ? undefined : view === "discover" ? (
+        chatPerson ? (
+          <>
+            <IconButton
+              variant="outline"
+              label={`${t("discover.viewProfile")}: ${chatPerson.name}`}
+              icon={<UserRound />}
+              onClick={() => openProfile(chatPerson)}
+            />
+            <IconButton
+              variant="outline"
+              label={t("Conversation options")}
+              icon={<MoreHorizontal />}
+              onClick={() => {
+                setSelected(chatPerson);
+                setDialog("report");
+              }}
+            />
+          </>
+        ) : sub ? undefined : view === "discover" ? (
           <IconButton
             variant="outline"
             label={t("discover.filters")}
@@ -467,9 +505,11 @@ function RoomPairApp() {
           typing={typing}
           preferences={state.preferences}
           profileById={profileById}
+          showChat={chatOpen}
           onSelect={(id) => {
             setActiveChat(id);
             markRead(id);
+            setChatOpen(true);
           }}
           onSend={sendMessage}
           onOpenProfile={openProfile}
@@ -658,4 +698,17 @@ function RoomPairApp() {
       </AnimatePresence>
     </AppShell>
   );
+}
+
+/** True below the width where the list and the chat sit side by side. */
+function useNarrow() {
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 859px)");
+    const update = () => setNarrow(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return narrow;
 }

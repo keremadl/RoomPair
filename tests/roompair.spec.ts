@@ -341,6 +341,27 @@ test.describe("on a phone", () => {
     hasTouch: true,
   });
 
+  test("an open conversation is a sub-page: back and name in the top bar", async ({
+    page,
+  }) => {
+    await openApp(page);
+    const nav = page.getByRole("navigation", { name: "Mobile navigation" });
+    await nav.getByRole("button", { name: /Messages/ }).click();
+    // New matches sit on top as tiles
+    await expect(
+      page.getByRole("heading", { name: /New matches/ }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: /^Maya/ }).click();
+    const bar = page.getByRole("banner");
+    await expect(bar.getByRole("heading", { level: 1 })).toHaveText("Maya");
+    await expect(
+      bar.getByRole("button", { name: "Conversation options" }),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /Maya, 22/ })).toBeHidden();
+    await bar.getByRole("button", { name: "Back" }).click();
+    await expect(bar.getByRole("heading", { level: 1 })).toHaveText("Messages");
+  });
+
   test("the page never gets wider than the phone", async ({ page }) => {
     // Anything past the right edge makes a phone lay the page out wider and
     // zoom it, so the tab bar and the score bars get cut off.

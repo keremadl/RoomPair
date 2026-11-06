@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import {
-  ArrowLeft,
   BadgeCheck,
   CheckCheck,
   MessageCircle,
@@ -37,6 +36,7 @@ const SEARCH_FROM = 6;
 export function MessagesView({
   chats,
   activeId,
+  showChat,
   typing,
   preferences,
   profileById,
@@ -48,6 +48,8 @@ export function MessagesView({
 }: {
   chats: Conversation[];
   activeId: string | null;
+  /** Phones: show the open conversation instead of the list. */
+  showChat: boolean;
   typing: string | null;
   preferences: Preferences;
   profileById: (id: string) => Profile;
@@ -60,16 +62,12 @@ export function MessagesView({
   const { t } = useI18n();
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
-  const [showChat, setShowChat] = useState(false);
   const end = useRef<HTMLDivElement>(null);
   const chat = chats.find((c) => c.id === activeId) ?? chats[0];
   const person = chat ? profileById(chat.profileId) : null;
   const fresh = chats.filter((c) => c.messages.length === 0);
   const started = chats.filter((c) => c.messages.length > 0);
-  const open = (id: string) => {
-    onSelect(id);
-    setShowChat(true);
-  };
+  const open = (id: string) => onSelect(id);
   useEffect(() => {
     end.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [chat?.messages.length, typing]);
@@ -202,13 +200,8 @@ export function MessagesView({
         </aside>
 
         <section className={v.chat} aria-label={person.name}>
+          {/* Wide screens only; on phones the top bar holds back, name and options. */}
           <header className={v.chatHeader}>
-            <IconButton
-              className={v.chatBack}
-              label={t("Back to conversations")}
-              icon={<ArrowLeft />}
-              onClick={() => setShowChat(false)}
-            />
             <button
               type="button"
               className={v.chatPerson}

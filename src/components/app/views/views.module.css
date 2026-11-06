@@ -113,9 +113,6 @@
     border-right: var(--surface-border-width) solid
       var(--surface-border, var(--color-border));
   }
-  .chatBack {
-    display: none !important;
-  }
 }
 .chatSearch {
   display: flex;
@@ -676,4 +673,15 @@
   margin: 0;
   color: var(--color-text-muted);
   font-size: var(--text-sm);
+}
+
+/* Phones: an open conversation is a sub-page; the top bar holds back,
+   name and options, so the in-page header goes. Last, to win the cascade. */
+@media (max-width: 859px) {
+  .chatHeader {
+    display: none;
+  }
+  .stream {
+    padding-top: 0;
+  }
 }
