@@ -245,3 +245,15 @@
     font-size: var(--text-2xl);
   }
 }
+
+.lead {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.preview {
+  margin-top: var(--space-4);
+}
+.preview > div > div:first-child {
+  height: min(32rem, 62dvh);
+}

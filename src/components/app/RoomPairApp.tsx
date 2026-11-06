@@ -461,10 +461,6 @@ function RoomPairApp() {
             }))
           }
           onIntent={changeIntent}
-          onBack={() => {
-            setEditingProfile(false);
-            window.scrollTo({ top: 0 });
-          }}
         />
       )}
       {view === "profile" && !editingProfile && (

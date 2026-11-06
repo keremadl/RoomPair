@@ -23,7 +23,8 @@ import {
   ListRow,
 } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
-import { completion, profileSteps } from "@/lib/profile";
+import { defaultLanguage, discoverParts } from "@/design-system/languages";
+import { asProfile, completion, profileSteps } from "@/lib/profile";
 import type { MyProfile, Preferences } from "@/lib/types";
 import h from "../profile/hub.module.css";
 
@@ -56,6 +57,8 @@ export function ProfileView({
 }) {
   const { t } = useI18n();
   const [choosing, setChoosing] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
+  const { Card } = discoverParts[defaultLanguage];
   const host = prefs.intent === "have-room";
   const steps = profileSteps(me, prefs);
   const percent = completion(steps);
@@ -95,8 +98,8 @@ export function ProfileView({
           type="button"
           className={h.ring}
           style={{ "--done": percent } as React.CSSProperties}
-          onClick={onEdit}
-          aria-label={`${t("Edit profile")}: ${percent}% ${t("complete")}`}
+          onClick={() => setPreviewing(true)}
+          aria-label={`${t("Preview my card")} · ${percent}% ${t("complete")}`}
         >
           {me.photos[0] ? (
             <img src={me.photos[0]} alt="" />
@@ -186,6 +189,39 @@ export function ProfileView({
         />
       </ListGroup>
 
+      {previewing && (
+        <Dialog title={t("Your card")} onClose={() => setPreviewing(false)}>
+          <p className={h.lead}>
+            {host
+              ? t("Room seekers see this card.")
+              : t("People with a room see this card.")}
+          </p>
+          <div className={h.preview}>
+            <Card
+              preview
+              roomFirst={host}
+              deck={{
+                profile: asProfile(me, prefs),
+                match: {
+                  score: 0,
+                  eligible: true,
+                  reasons: [],
+                  considerations: [],
+                  breakdown: [],
+                  dealbreakers: [],
+                },
+                cardKey: "me",
+                exitDirection: 0,
+                canUndo: false,
+                decide: () => {},
+                undo: () => {},
+                index: 0,
+                total: 1,
+              }}
+            />
+          </div>
+        </Dialog>
+      )}
       {choosing && (
         <Dialog title={t("Why you're here")} onClose={() => setChoosing(false)}>
           <ChoiceCards

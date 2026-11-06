@@ -1,11 +1,10 @@
 "use client";
 import { useState, type ReactNode } from "react";
 import {
+  ChevronRight,
   BadgeCheck,
   Building2,
   CalendarDays,
-  ChevronLeft,
-  ChevronRight,
   Cigarette,
   Clock,
   MessageSquareQuote,
@@ -19,7 +18,6 @@ import {
   Text as TextIcon,
   Users,
   Wallet,
-  X,
 } from "lucide-react";
 import {
   Button,
@@ -28,16 +26,10 @@ import {
   ListRow,
   VisuallyHidden,
 } from "@/design-system";
-import { defaultLanguage, discoverParts } from "@/design-system/languages";
+
 import { dateLabel, sleepLabel } from "@/lib/discover/deck";
 import { useI18n } from "@/lib/i18n";
-import {
-  MAX_PHOTOS,
-  MAX_PROMPTS,
-  asProfile,
-  completion,
-  profileSteps,
-} from "@/lib/profile";
+import { MAX_PHOTOS, MAX_PROMPTS } from "@/lib/profile";
 import type { MyProfile, Preferences } from "@/lib/types";
 import { Pips } from "../PersonCard";
 import { PhotoGrid } from "../profile/PhotoGrid";
@@ -56,7 +48,6 @@ type Editing =
   | "roomText"
   | "bio"
   | "interests"
-  | "preview"
   | { prompt: number };
 
 /** A white section card. With `onClick` the whole card opens an editor. */
@@ -102,8 +93,7 @@ function Section({
 }
 
 /**
- * Edit profile, opened from the profile page: a progress bar and Preview stay at
- * the top, then photos, who you are, why you are here, and one card per
+ * Edit profile, opened from the profile page: photos, who you are, why you are here, and one card per
  * topic. Empty topics say what they are for and offer one clear button.
  */
 export function EditProfileView({
@@ -114,7 +104,6 @@ export function EditProfileView({
   onIntent,
   onError,
   onName,
-  onBack,
 }: {
   preferences: Preferences;
   me: MyProfile;
@@ -124,71 +113,16 @@ export function EditProfileView({
   onIntent: (intent: "find-room" | "have-room") => void;
   onError: (message: string) => void;
   onName: (name: string) => void;
-  /** Back to the profile page. */
-  onBack: () => void;
 }) {
   const { t } = useI18n();
   const [editing, setEditing] = useState<Editing>(null);
-  const [tipClosed, setTipClosed] = useState(false);
   const host = prefs.intent === "have-room";
-  const steps = profileSteps(me, prefs);
-  const percent = completion(steps);
-  const next = steps.find((s) => !s.done);
-  const { Card } = discoverParts[defaultLanguage];
   const close = () => setEditing(null);
 
   return (
     <>
       <VisuallyHidden as="h1">{t("Edit profile")}</VisuallyHidden>
       <div className={p.page}>
-        <div className={p.progressBar}>
-          <button
-            type="button"
-            className={p.back}
-            aria-label={t("Back to profile")}
-            onClick={onBack}
-          >
-            <ChevronLeft />
-          </button>
-          <div
-            className={p.progress}
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={percent}
-            aria-label={t("Profile complete")}
-          >
-            <span className={p.progressText}>
-              {percent}% {t("complete")}
-            </span>
-            <span className={p.progressTrack}>
-              <span style={{ width: `${percent}%` }} />
-            </span>
-          </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setEditing("preview")}
-          >
-            {t("Preview")}
-          </Button>
-        </div>
-
-        {next && !tipClosed && (
-          <div className={p.tip}>
-            <p className={p.tipTitle}>{t("Next step")}</p>
-            <p className={p.tipText}>{t(next.label)}</p>
-            <button
-              type="button"
-              className={p.tipClose}
-              aria-label={t("Hide tip")}
-              onClick={() => setTipClosed(true)}
-            >
-              <X />
-            </button>
-          </div>
-        )}
-
         <PhotoGrid
           photos={me.photos}
           max={MAX_PHOTOS}
@@ -438,39 +372,6 @@ export function EditProfileView({
         </div>
       </div>
 
-      {editing === "preview" && (
-        <Dialog title={t("Your card")} onClose={close}>
-          <p className={p.lead}>
-            {host
-              ? t("Room seekers see this card.")
-              : t("People with a room see this card.")}
-          </p>
-          <div className={p.preview}>
-            <Card
-              preview
-              roomFirst={host}
-              deck={{
-                profile: asProfile(me, prefs),
-                match: {
-                  score: 0,
-                  eligible: true,
-                  reasons: [],
-                  considerations: [],
-                  breakdown: [],
-                  dealbreakers: [],
-                },
-                cardKey: "me",
-                exitDirection: 0,
-                canUndo: false,
-                decide: () => {},
-                undo: () => {},
-                index: 0,
-                total: 1,
-              }}
-            />
-          </div>
-        </Dialog>
-      )}
       {editing === "intent" && (
         <Dialog title={t("Why you're here")} onClose={close}>
           <ChoiceCards

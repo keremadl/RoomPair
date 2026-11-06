@@ -220,7 +220,7 @@ test("what you are looking for decides who Discover shows", async ({
   );
 });
 
-test("my profile: photos, prompts, interests, preview and completion", async ({
+test("my profile: preview from the photo, then edit photos, questions and interests", async ({
   page,
 }) => {
   await openApp(page);
@@ -228,10 +228,23 @@ test("my profile: photos, prompts, interests, preview and completion", async ({
     .getByRole("navigation", { name: "Main navigation" })
     .getByRole("button", { name: /My profile/ })
     .click();
+  // The photo opens the card others see
+  await page.getByRole("button", { name: /Preview my card/ }).click();
+  await expect(
+    page
+      .getByRole("dialog", { name: "Your card" })
+      .getByRole("heading", { name: /Alex, 22/ }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  const before = await page
+    .getByRole("button", { name: /Preview my card/ })
+    .getAttribute("aria-label");
+
   await page.getByRole("button", { name: "Edit profile", exact: true }).click();
-  const ring = page.getByRole("progressbar", { name: "Profile complete" });
-  const before = await ring.getAttribute("aria-valuenow");
-  // Add a second prompt
+  await expect(page.getByRole("progressbar")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Preview", exact: true }),
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Add a question" }).click();
   const dialog = page.getByRole("dialog", { name: "Add a prompt" });
   await dialog
@@ -239,21 +252,13 @@ test("my profile: photos, prompts, interests, preview and completion", async ({
     .fill("Cooking for everyone.");
   await dialog.getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("Cooking for everyone.")).toBeVisible();
-  await expect(ring).not.toHaveAttribute("aria-valuenow", before!);
-  // Interests: add one
   await page.getByRole("button", { name: "Edit interests" }).click();
-  await page
-    .getByRole("dialog", { name: "Interests" })
-    .getByRole("button", { name: "Yoga" })
-    .click();
-  await page
-    .getByRole("dialog", { name: "Interests" })
-    .getByRole("button", { name: "Save" })
-    .click();
+  const interests = page.getByRole("dialog", { name: "Interests" });
+  await interests.getByRole("button", { name: "Yoga" }).click();
+  await interests.getByRole("button", { name: "Save" }).click();
   await expect(
     page.getByRole("listitem").filter({ hasText: /^Yoga$/ }),
   ).toBeVisible();
-  // Upload a photo
   await page
     .locator('input[type="file"]')
     .first()
@@ -261,20 +266,21 @@ test("my profile: photos, prompts, interests, preview and completion", async ({
   await expect(
     page.getByRole("button", { name: /Photo 2: make main/ }),
   ).toBeVisible();
-  // Preview shows the card others see
-  await page.getByRole("button", { name: "Preview", exact: true }).click();
-  await expect(
-    page
-      .getByRole("dialog", { name: "Your card" })
-      .getByRole("heading", { name: /Alex, 22/ }),
-  ).toBeVisible();
-  await page.keyboard.press("Escape");
   // Hosts get a room section
   await page.getByRole("button", { name: /Why you're here/ }).click();
   await page
     .getByRole("radio", { name: /I have a room, I need a flatmate/ })
     .click();
   await expect(page.getByRole("heading", { name: "My room" })).toBeVisible();
+
+  // The tab goes back to the profile page, where completion went up
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .getByRole("button", { name: /My profile/ })
+    .click();
+  await expect(
+    page.getByRole("button", { name: /Preview my card/ }),
+  ).not.toHaveAttribute("aria-label", before!);
 });
 
 test("Turkish interface and a phone-sized layout", async ({ page }) => {
