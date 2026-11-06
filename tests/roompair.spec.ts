@@ -9,7 +9,8 @@ const card = (page: Page) =>
   page
     .getByRole("heading", {
       level: 2,
-      name: /^(Ella|Leo|Ines|Maya|Noah|Felix|Sofia|Anna|Oliver)/,
+      // A card's heading is "Name, age"
+      name: /^\p{L}+, \d+/u,
     })
     .first();
 
@@ -65,14 +66,19 @@ test("people you already have a conversation with stay out of Discover", async (
   page,
 }) => {
   await openApp(page);
-  // Maya and Sofia are in Messages already; the deck is Ella, then Ines.
-  await expect(card(page)).toHaveText(/^Ella/);
-  await page.keyboard.press("ArrowLeft");
-  await expect(card(page)).toHaveText(/^Ines/);
-  await page.keyboard.press("ArrowLeft");
-  await expect(
-    page.getByRole("heading", { name: "You have seen everyone" }),
-  ).toBeVisible();
+  // Maya and Sofia are in Messages already: go through the whole deck and
+  // make sure neither of them comes up.
+  const seen: string[] = [];
+  const done = page.getByRole("heading", { name: "You have seen everyone" });
+  for (let i = 0; i < 30 && !(await done.isVisible()); i++) {
+    const name = (await card(page).textContent()) ?? "";
+    seen.push(name);
+    await page.keyboard.press("ArrowLeft");
+    await expect(card(page).or(done)).not.toHaveText(name);
+  }
+  await expect(done).toBeVisible();
+  expect(seen.length).toBeGreaterThan(2);
+  expect(seen.filter((n) => /^(Maya|Sofia)\b/.test(n))).toEqual([]);
 });
 
 test("a mutual like opens a match, then a conversation with a simulated reply", async ({
@@ -275,7 +281,8 @@ test("what you are looking for decides who Discover shows", async ({
   await nav.getByRole("button", { name: "Discover" }).click();
   // Having a room: only people looking for one, no rooms to save. Leo is
   // looking too, but you already have a conversation with him.
-  await expect(card(page)).toHaveText(/^Noah/);
+  // The best fit for the demo host among people looking for a room
+  await expect(card(page)).toHaveText(/^Chidi/);
   await expect(page.getByRole("button", { name: /Save room/ })).toHaveCount(0);
   await nav.getByRole("button", { name: /My space/ }).click();
   await expect(page.getByRole("heading", { name: /Saved rooms/ })).toHaveCount(

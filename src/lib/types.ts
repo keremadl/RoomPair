@@ -18,6 +18,8 @@ export interface RoomDetails {
   title: string;
   price: number;
   photo: string;
+  /** All room photos, the main one first (optional; else just `photo`). */
+  photos?: string[];
   description: string;
   billsIncluded: boolean;
   deposit: number;

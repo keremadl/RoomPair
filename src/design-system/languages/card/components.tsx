@@ -81,6 +81,15 @@ export function HomeItem({ home }: { home: HomeSection }) {
   return (
     <section className={s.item}>
       {home.photo && <img src={home.photo} alt={home.title ?? ""} />}
+      {home.photos && home.photos.length > 1 && (
+        <ul className={s.gallery} aria-label="More photos of the place">
+          {home.photos.slice(1).map((src, i) => (
+            <li key={src}>
+              <img src={src} alt={`${home.title ?? "Room"}, photo ${i + 2}`} />
+            </li>
+          ))}
+        </ul>
+      )}
       <div>
         {home.title && <h4 className={s.title}>{home.title}</h4>}
         <dl className={s.coins}>

@@ -225,7 +225,9 @@ export function asProfile(me: MyProfile, prefs: Preferences): Profile {
     likesYou: false,
     room:
       host && me.room.photos[0]
-        ? (({ photos, ...room }) => ({ ...room, photo: photos[0] }))(me.room)
+        ? (({ photos, ...room }) => ({ ...room, photo: photos[0], photos }))(
+            me.room,
+          )
         : undefined,
   };
 }

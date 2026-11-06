@@ -34,6 +34,8 @@ export type HomeSection = {
   summary: string;
   facts: Fact[];
   photo?: string;
+  /** Every room photo, the main one first. */
+  photos?: string[];
   title?: string;
   description: string;
 };
@@ -112,6 +114,7 @@ export function homeSection(p: Profile): HomeSection {
           : []),
       ],
       photo: p.room.photo,
+      photos: p.room.photos?.length ? p.room.photos : [p.room.photo],
       title: p.room.title,
       description: withoutPrice(p.room.description),
     };
