@@ -37,15 +37,17 @@ test("discover shows the card and grouped details; arrows pass, undo restores", 
       portrait.evaluate((img) => (img as HTMLImageElement).naturalWidth),
     )
     .toBeGreaterThan(100);
-  // Card language; Home → Person → Fit sit under the card, as tabs, and
-  // the arrow on the card scrolls down to them
+  // Card language; Home → Person → Fit sit under the card, as tabs, reached
+  // by scrolling (there is no button on the card for it)
   await expect(page.locator("[data-direction]").first()).toHaveAttribute(
     "data-direction",
     "card",
   );
-  await page.getByRole("button", { name: "More about Ella" }).click();
+  await expect(
+    page.getByRole("button", { name: "More about Ella" }),
+  ).toHaveCount(0);
   const details = page.getByRole("region", { name: "About Ella" });
-  await expect(details).toBeInViewport();
+  await details.scrollIntoViewIfNeeded();
   const tabs = details.getByRole("tablist", { name: "Profile sections" });
   await expect(tabs).toBeVisible();
   await expect(details.getByRole("tabpanel")).toContainText(/the room/i);
@@ -78,6 +80,9 @@ test("people you already have a conversation with stay out of Discover", async (
   }
   await expect(done).toBeVisible();
   expect(seen.length).toBeGreaterThan(2);
+  // Browse everyone again brings the deck back
+  await page.getByRole("button", { name: "Browse everyone again" }).click();
+  await expect(card(page)).toBeVisible();
   expect(seen.filter((n) => /^(Maya|Sofia)\b/.test(n))).toEqual([]);
 });
 

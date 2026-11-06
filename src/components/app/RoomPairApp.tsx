@@ -244,11 +244,16 @@ function RoomPairApp() {
     }));
     notify(t("Last swipe undone."));
   }
+  // Everyone you skipped or liked without a match comes back; people you
+  // already have a conversation with stay out of the deck.
   function browseAgain() {
     setState((st) => ({
       ...st,
-      decisions: st.decisions.filter((d) => d.action === "like"),
+      decisions: st.decisions.filter((d) =>
+        st.chats.some((c) => c.profileId === d.id),
+      ),
     }));
+    window.scrollTo({ top: 0 });
   }
   function sendMessage(text: string, photo?: string, chatId?: string) {
     const body = text.trim();
@@ -490,6 +495,10 @@ function RoomPairApp() {
             roomFirst={state.preferences.intent !== "have-room"}
             canUndo={state.decisions.length > 0}
             rankedCount={ranked.length}
+            canBrowseAgain={ranked.some(
+              ({ profile }) =>
+                !state.chats.some((c) => c.profileId === profile.id),
+            )}
             onFilters={() => setDialog("filters")}
             onBrowseAgain={browseAgain}
             onUndo={undo}

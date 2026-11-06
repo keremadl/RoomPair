@@ -16,14 +16,15 @@ import v from "./views.module.css";
 /**
  * Discover: one swipe card, and below it the full profile (Home → Person →
  * Fit tabs) for whoever scrolls down. Room seekers see people who have a
- * room, room first; hosts see people looking for a room. The arrow on the
- * card scrolls to the details; a decision brings the next card back up.
+ * room, room first; hosts see people looking for a room. A decision brings
+ * the next card back up.
  */
 export function DiscoverView({
   deck,
   roomFirst,
   canUndo,
   rankedCount,
+  canBrowseAgain = true,
   onFilters,
   onBrowseAgain,
   onUndo,
@@ -38,6 +39,8 @@ export function DiscoverView({
   roomFirst: boolean;
   canUndo: boolean;
   rankedCount: number;
+  /** Someone you have not matched with could come back into the deck. */
+  canBrowseAgain?: boolean;
   onFilters: () => void;
   onBrowseAgain: () => void;
   onUndo: () => void;
@@ -69,12 +72,6 @@ export function DiscoverView({
           <Card
             deck={{ ...deck, decide }}
             roomFirst={roomFirst}
-            onInfo={() =>
-              details.current?.scrollIntoView({
-                behavior: reduced() ? "auto" : "smooth",
-                block: "start",
-              })
-            }
             preview={preview}
             showUndo={showUndo}
           />
@@ -108,14 +105,21 @@ export function DiscoverView({
         <EmptyState
           icon={<Sparkles />}
           title={t("You have seen everyone")}
-          body={t(
-            "Change your filters, or go through the people you skipped again.",
-          )}
+          body={
+            canBrowseAgain
+              ? t(
+                  "Change your filters, or go through everyone you have not matched with again.",
+                )
+              : t(
+                  "You have matched with everyone who fits. Change your filters to meet more people.",
+                )
+          }
           action={{ label: t("Change filters"), onClick: onFilters }}
-          secondary={{
-            label: t("Browse everyone again"),
-            onClick: onBrowseAgain,
-          }}
+          secondary={
+            canBrowseAgain
+              ? { label: t("Browse everyone again"), onClick: onBrowseAgain }
+              : undefined
+          }
         />
       )}
       {!deck && canUndo && (
