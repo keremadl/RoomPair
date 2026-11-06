@@ -360,6 +360,20 @@ test.describe("on a phone", () => {
       bar.getByRole("button", { name: "Conversation options" }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: /Maya, 22/ })).toBeHidden();
+    // The composer sits above the tab bar, with a photo button on its left
+    const composer = page.getByRole("textbox", { name: "Write a message" });
+    await expect(composer).toBeInViewport();
+    await page
+      .locator('input[type="file"][accept="image/*"]')
+      .setInputFiles("public/images/room-3.jpg");
+    await expect(page.getByRole("img", { name: "Photo" })).toBeVisible();
+    await expect(
+      page
+        .getByRole("region", { name: "Maya" })
+        .getByText("Thanks for the photo!"),
+    ).toBeVisible({
+      timeout: 10_000,
+    });
     await bar.getByRole("button", { name: "Back" }).click();
     await expect(bar.getByRole("heading", { level: 1 })).toHaveText("Messages");
   });

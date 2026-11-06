@@ -6,6 +6,8 @@
  */
 .app {
   --shell-bar-height: 64px;
+  /* Phone tab bar, without the safe area (which it adds below its tabs). */
+  --shell-tab-height: 3.875rem;
   min-height: 100dvh;
   /* A card flying off-screen must not widen the page: on phones a moment of
      horizontal overflow makes the browser zoom out and stay zoomed. */
@@ -87,6 +89,7 @@
   z-index: var(--z-sticky);
   display: grid;
   grid-template-columns: repeat(5, 1fr);
+  height: calc(var(--shell-tab-height) + env(safe-area-inset-bottom, 0px));
   padding: var(--space-1) var(--space-1)
     calc(var(--space-1) + env(safe-area-inset-bottom, 0px));
   border-top: var(--surface-border-width) solid

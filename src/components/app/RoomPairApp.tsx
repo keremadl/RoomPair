@@ -245,9 +245,9 @@ function RoomPairApp() {
       decisions: st.decisions.filter((d) => d.action === "like"),
     }));
   }
-  function sendMessage(text: string) {
+  function sendMessage(text: string, photo?: string) {
     const body = text.trim();
-    if (!body || !chat) return;
+    if ((!body && !photo) || !chat) return;
     const id = chat.id;
     setState((st) => ({
       ...st,
@@ -261,6 +261,7 @@ function RoomPairApp() {
                   id: crypto.randomUUID(),
                   sender: "me",
                   text: body,
+                  ...(photo ? { photo } : {}),
                   time: clock(),
                 },
               ],
@@ -271,15 +272,17 @@ function RoomPairApp() {
     setTyping(id);
     const timer = setTimeout(() => {
       const lower = body.toLowerCase();
-      const answer = lower.includes("budget")
-        ? "I’m thinking around €450–550 including bills. What feels comfortable for you?"
-        : lower.includes("coffee") || lower.includes("meet")
-          ? "Coffee sounds lovely! How about Saturday at 11? There’s a nice little place near the market."
-          : lower.includes("clean")
-            ? "A quick tidy after cooking and a shared Sunday reset works for me. What’s your routine?"
-            : lower.includes("room") || lower.includes("flat")
-              ? "Yes! I’d love to compare places together. Let’s add our favourites to Our space."
-              : "That sounds good to me! I’m looking for a home where we can be honest, respect each other’s space, and share a coffee now and then.";
+      const answer = !body
+        ? "Thanks for the photo! That helps a lot."
+        : lower.includes("budget")
+          ? "I’m thinking around €450–550 including bills. What feels comfortable for you?"
+          : lower.includes("coffee") || lower.includes("meet")
+            ? "Coffee sounds lovely! How about Saturday at 11? There’s a nice little place near the market."
+            : lower.includes("clean")
+              ? "A quick tidy after cooking and a shared Sunday reset works for me. What’s your routine?"
+              : lower.includes("room") || lower.includes("flat")
+                ? "Yes! I’d love to compare places together. Let’s add our favourites to Our space."
+                : "That sounds good to me! I’m looking for a home where we can be honest, respect each other’s space, and share a coffee now and then.";
       setState((st) => ({
         ...st,
         chats: st.chats.map((c) =>
@@ -512,6 +515,7 @@ function RoomPairApp() {
             setChatOpen(true);
           }}
           onSend={sendMessage}
+          onError={notify}
           onOpenProfile={openProfile}
           onOptions={(p) => {
             setSelected(p);

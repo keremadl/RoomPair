@@ -74,7 +74,6 @@
   height: var(--messenger-height);
   min-height: 26rem;
   /* No frame: the list and the chat sit on the page itself. */
-  overflow: hidden;
 }
 @media (max-width: 979px) {
   /* Phones: leave room for the tab bar. */
@@ -355,29 +354,48 @@
     animation: none;
   }
 }
+/* Composer: one rounded bar holding photo, text and send. */
 .composer {
+  /* Room for the bar's press shadow, so nothing is clipped. */
+  padding: var(--space-3) 0 var(--space-2);
+}
+.composerBar {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) 0 0;
-  border-top: var(--surface-border-width) solid
-    var(--surface-border, var(--color-border));
-}
-.composer input {
-  flex: 1;
-  min-width: 0;
-  min-height: var(--control-md);
-  padding: 0 var(--space-4);
+  gap: var(--space-1);
+  padding: var(--space-1);
   border: var(--control-border-width) solid
     var(--control-border, var(--color-border-strong));
   border-radius: var(--radius-full);
   background: var(--color-surface-raised);
+  box-shadow: var(--control-shadow, var(--shadow-sm));
+}
+.composerBar:focus-within {
+  box-shadow: var(--control-shadow, var(--shadow-sm)), var(--focus-ring);
+}
+.composerInput {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--control-sm);
+  padding: 0 var(--space-2);
+  border: 0;
+  outline: none;
+  background: transparent;
   color: var(--color-text);
   font: inherit;
 }
-.composer input:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
+.bubblePhoto {
+  display: block;
+  width: 100%;
+  max-width: 16rem;
+  border-radius: var(--radius-md);
+}
+.bubble[data-photo] {
+  padding: var(--space-1);
+}
+.bubble[data-photo] p,
+.bubble[data-photo] small {
+  padding: 0 var(--space-2);
 }
 
 /* My space */
@@ -683,5 +701,20 @@
   }
   .stream {
     padding-top: 0;
+  }
+  /* The composer stays put just above the tab bar; messages scroll under. */
+  .composer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--shell-tab-height) + env(safe-area-inset-bottom, 0px));
+    z-index: var(--z-sticky);
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-bg);
+  }
+  /* The column already ends above the tab bar; this keeps the last
+     message clear of the composer's own height. */
+  .chat {
+    padding-bottom: var(--space-4);
   }
 }

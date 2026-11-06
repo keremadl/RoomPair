@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   BadgeCheck,
   CheckCheck,
+  ImagePlus,
   MessageCircle,
   MoreHorizontal,
   Search,
@@ -18,6 +19,7 @@ import {
 import { getCompatibility } from "@/lib/matching";
 import { useI18n } from "@/lib/i18n";
 import type { Conversation, Preferences, Profile } from "@/lib/types";
+import { readPhoto } from "../profile/photos";
 import v from "./views.module.css";
 
 const starters = [
@@ -42,6 +44,7 @@ export function MessagesView({
   profileById,
   onSelect,
   onSend,
+  onError,
   onOpenProfile,
   onOptions,
   onDiscover,
@@ -54,7 +57,9 @@ export function MessagesView({
   preferences: Preferences;
   profileById: (id: string) => Profile;
   onSelect: (id: string) => void;
-  onSend: (text: string) => void;
+  onSend: (text: string, photo?: string) => void;
+  /** Shown when a picked file is not an image. */
+  onError?: (message: string) => void;
   onOpenProfile: (p: Profile) => void;
   onOptions: (p: Profile) => void;
   onDiscover: () => void;
@@ -63,6 +68,7 @@ export function MessagesView({
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
   const end = useRef<HTMLDivElement>(null);
+  const picker = useRef<HTMLInputElement>(null);
   const chat = chats.find((c) => c.id === activeId) ?? chats[0];
   const person = chat ? profileById(chat.profileId) : null;
   const fresh = chats.filter((c) => c.messages.length === 0);
@@ -252,8 +258,15 @@ export function MessagesView({
                 className={v.messageRow}
                 data-mine={m.sender === "me"}
               >
-                <div className={v.bubble}>
-                  <p>{m.text}</p>
+                <div className={v.bubble} data-photo={m.photo ? "" : undefined}>
+                  {m.photo && (
+                    <img
+                      className={v.bubblePhoto}
+                      src={m.photo}
+                      alt={t("Photo")}
+                    />
+                  )}
+                  {m.text && <p>{m.text}</p>}
                   <small>
                     {m.time}
                     {m.sender === "me" && <CheckCheck aria-label={t("Sent")} />}
@@ -277,19 +290,47 @@ export function MessagesView({
               send();
             }}
           >
+            <div className={v.composerBar}>
+              <IconButton
+                size="sm"
+                label={t("Send a photo")}
+                icon={<ImagePlus />}
+                onClick={() => picker.current?.click()}
+              />
+              <input
+                className={v.composerInput}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder={t("Write a message")}
+                aria-label={t("Write a message")}
+                maxLength={2000}
+              />
+              <IconButton
+                type="submit"
+                variant="solid"
+                size="sm"
+                label={t("messages.send")}
+                icon={<Send />}
+                disabled={!message.trim()}
+              />
+            </div>
             <input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder={t("Write a message")}
-              aria-label={t("Write a message")}
-              maxLength={2000}
-            />
-            <IconButton
-              type="submit"
-              variant="solid"
-              label={t("messages.send")}
-              icon={<Send />}
-              disabled={!message.trim()}
+              ref={picker}
+              type="file"
+              accept="image/*"
+              hidden
+              aria-label={t("Send a photo")}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (!file) return;
+                try {
+                  onSend(message, await readPhoto(file));
+                  setMessage("");
+                } catch {
+                  onError?.(t("That file is not a photo."));
+                }
+              }}
             />
           </form>
         </section>

@@ -105,6 +105,8 @@ export interface Message {
   id: string;
   sender: "me" | "them";
   text: string;
+  /** A shared photo (data URL), shown above the text. */
+  photo?: string;
   time: string;
 }
 

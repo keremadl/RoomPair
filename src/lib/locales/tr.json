@@ -713,5 +713,7 @@
   "Finish your profile first: {step}.": "Önce profilini tamamla: {step}.",
   "Add a photo of the room": "Odanın bir fotoğrafını ekle",
   "New matches": "Yeni eşleşmeler",
-  "Say hi to a match to start a conversation.": "Sohbet başlatmak için bir eşleşmene merhaba de."
+  "Say hi to a match to start a conversation.": "Sohbet başlatmak için bir eşleşmene merhaba de.",
+  "Send a photo": "Fotoğraf gönder",
+  "That file is not a photo.": "Bu dosya bir fotoğraf değil."
 }
