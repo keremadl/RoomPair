@@ -592,13 +592,14 @@ export function Showcase() {
               />
             </div>
           </Specimen>
-          <Specimen label="TopBar · sub-page template (back, title, below)">
+          <Specimen label="TopBar · sub-page template (back, title, status)">
             <div className={styles.pageFrame}>
               <TopBar
                 title="Edit profile"
                 onBack={() => {}}
-                below={
+                actions={
                   <Progress
+                    compact
                     label="Profile complete"
                     text="20% complete"
                     value={20}

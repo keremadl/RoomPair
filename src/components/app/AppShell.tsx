@@ -36,7 +36,6 @@ export function AppShell({
   title,
   actions,
   onBack,
-  below,
   children,
 }: {
   view: View;
@@ -50,8 +49,6 @@ export function AppShell({
   actions?: ReactNode;
   /** Set on a sub-page: shows a back button before the title. */
   onBack?: () => void;
-  /** Under the title, e.g. a Progress on Edit profile. */
-  below?: ReactNode;
   children: ReactNode;
 }) {
   const { t } = useI18n();
@@ -86,7 +83,6 @@ export function AppShell({
         actions={actions}
         onBack={onBack}
         backLabel={t("Back")}
-        below={below}
       />
 
       <div className={s.body}>

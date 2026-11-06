@@ -8,8 +8,9 @@ import s from "./TopBar.module.css";
 /**
  * The bar at the top of every screen. Two uses:
  * - a tab's main page: the page title, and its icons on the right;
- * - a sub-page (settings, edit profile…): a back button before the title,
- *   and optional content under the title (`below`, e.g. a Progress).
+ * - a sub-page (settings, edit profile…): a back button before the title;
+ *   its right side holds icons or a compact status such as a Progress.
+ * The bar has the same height on every page; nothing goes under the title.
  * The title is the page's h1.
  */
 export function TopBar({
@@ -17,17 +18,14 @@ export function TopBar({
   actions,
   onBack,
   backLabel = "Back",
-  below,
   className,
 }: {
   title: string;
-  /** Icon buttons on the right. */
+  /** Icon buttons, or a compact status (e.g. Progress compact), on the right. */
   actions?: ReactNode;
   /** Turns the bar into a sub-page bar with a back button. */
   onBack?: () => void;
   backLabel?: string;
-  /** Shown under the title, e.g. how complete something is. */
-  below?: ReactNode;
   className?: string;
 }) {
   return (
@@ -44,7 +42,6 @@ export function TopBar({
         <h1 className={s.title}>{title}</h1>
         {actions && <div className={s.actions}>{actions}</div>}
       </div>
-      {below && <div className={s.below}>{below}</div>}
     </header>
   );
 }

@@ -375,17 +375,15 @@ function RoomPairApp() {
             }
           : undefined
       }
-      below={
+      actions={
         sub === "edit" ? (
           <Progress
+            compact
             label={t("Profile complete")}
             text={`${profilePercent}% ${t("complete")}`}
             value={profilePercent}
           />
-        ) : undefined
-      }
-      actions={
-        view === "discover" ? (
+        ) : view === "discover" ? (
           <IconButton
             variant="outline"
             label={t("discover.filters")}
