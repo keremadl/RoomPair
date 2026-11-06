@@ -724,5 +724,15 @@
   "Verified": "Doğrulanmış",
   "From {date}": "{date} itibarıyla",
   "More about {name}": "{name} hakkında daha fazla",
-  "Undo": "Geri al"
+  "Undo": "Geri al",
+  "Check the highlighted fields.": "İşaretli alanları kontrol et.",
+  "Enter a city.": "Bir şehir gir.",
+  "Enter a budget of €0 or more.": "€0 veya daha fazla bir bütçe gir.",
+  "Choose a move-in date.": "Bir taşınma tarihi seç.",
+  "Choose between 1 and 24 months.": "1 ile 24 ay arasında seç.",
+  "This can't be empty.": "Bu alan boş bırakılamaz.",
+  "Enter a number.": "Bir sayı gir.",
+  "Choose between {min} and {max}.": "{min} ile {max} arasında seç.",
+  "Enter {min} or more.": "{min} veya daha fazla gir.",
+  "Pick a time that hasn't passed yet.": "Henüz geçmemiş bir zaman seç."
 }

@@ -27,6 +27,8 @@ type Field =
       /** Number fields: the allowed range, checked before saving. */
       min?: number;
       max?: number;
+      /** Must not be left empty. */
+      required?: boolean;
     }
   | {
       key: string;
@@ -67,15 +69,35 @@ export function FieldsDialog({
   const [values, setValues] = useState(
     Object.fromEntries(fields.map((f) => [f.key, f.value])),
   );
+  const [submitted, setSubmitted] = useState(false);
   const set = (k: string, v: string | number | boolean) =>
     setValues((s) => ({ ...s, [k]: v }));
+  // Inline errors (no browser pop-ups): empty required fields and numbers
+  // outside their range. Shown once you try to save.
+  const errorOf = (f: Field): string => {
+    if (f.type !== "text" && f.type !== "number") return "";
+    const raw = String(values[f.key] ?? "").trim();
+    if (f.type === "text")
+      return f.required && !raw ? t("This can't be empty.") : "";
+    if (!raw) return t("Enter a number.");
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return t("Enter a number.");
+    if (f.min !== undefined && f.max !== undefined && (n < f.min || n > f.max))
+      return t("Choose between {min} and {max}.", { min: f.min, max: f.max });
+    if (f.min !== undefined && n < f.min)
+      return t("Enter {min} or more.", { min: f.min });
+    return "";
+  };
+  const invalid = fields.some((f) => errorOf(f));
   return (
     <Dialog title={title} onClose={onClose}>
       <form
+        noValidate
         className={p.form}
         onSubmit={(e) => {
           e.preventDefault();
-          onSave(values);
+          setSubmitted(true);
+          if (!invalid) onSave(values);
         }}
       >
         {fields.map((f) =>
@@ -116,6 +138,7 @@ export function FieldsDialog({
               min={"min" in f ? f.min : undefined}
               max={"max" in f ? f.max : undefined}
               inputMode={f.type === "number" ? "numeric" : undefined}
+              error={submitted ? errorOf(f) || undefined : undefined}
               value={String(values[f.key])}
               // Kept as typed (an emptied field stays empty instead of
               // jumping to 0); each onSave turns it into a number.

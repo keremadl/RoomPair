@@ -160,9 +160,18 @@ test("filters validate, onboarding updates the profile, report and block work", 
     .getByRole("spinbutton", { name: "Monthly budget, from" })
     .fill("900");
   await expect(filters.getByRole("alert")).toContainText("maximum budget");
+  // Equal is not "above"; an emptied city is an inline error, not a pop-up
+  await filters
+    .getByRole("spinbutton", { name: "Monthly budget, from" })
+    .fill("650");
+  await expect(filters.getByRole("alert")).toContainText("maximum budget");
   await filters
     .getByRole("spinbutton", { name: "Monthly budget, from" })
     .fill("350");
+  await filters.getByRole("textbox", { name: "City" }).fill("");
+  await filters.getByRole("button", { name: "Show my people" }).click();
+  await expect(filters.getByRole("alert")).toContainText("Enter a city.");
+  await filters.getByRole("textbox", { name: "City" }).fill("Riga");
   await filters.getByRole("button", { name: "Show my people" }).click();
   await expect(filters).toBeHidden();
 

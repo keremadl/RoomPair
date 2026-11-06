@@ -64,13 +64,17 @@ export function SpaceView({
   onExploreRooms: () => void;
 }) {
   const { t } = useI18n();
+  // datetime-local wants local time without a zone: no viewings in the past.
+  const now = new Date(Date.now() - new Date().getTimezoneOffset() * 60_000)
+    .toISOString()
+    .slice(0, 16);
   const saved = rooms.filter((r) => state.savedRooms.includes(r.id));
   const done = state.checklist.length;
   const host = state.preferences.intent === "have-room";
   const checklist = (
     <section className={v.panel} aria-labelledby="checklist-title">
       <div className={v.sectionHead}>
-        <Heading level={2} size="lg" id="checklist-title">
+        <Heading level={2} size="xl" id="checklist-title">
           {t("Move-in checklist")}
         </Heading>
         <Text size="sm" tone="muted">
@@ -141,8 +145,14 @@ export function SpaceView({
                     <Input
                       type="datetime-local"
                       label={t("Viewing")}
+                      min={now}
                       value={state.viewings[room.id] ?? ""}
                       onChange={(e) => onViewing(room.id, e.target.value)}
+                      error={
+                        state.viewings[room.id] && state.viewings[room.id] < now
+                          ? t("Pick a time that hasn't passed yet.")
+                          : undefined
+                      }
                     />
                   </RoomTile>
                 ))}

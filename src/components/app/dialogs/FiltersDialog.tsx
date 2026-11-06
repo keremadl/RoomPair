@@ -18,9 +18,46 @@ export function FiltersDialog({
 }) {
   const { t } = useI18n();
   const [draft, setDraft] = useState<Preferences>({ ...initial });
+  // Number fields keep what is typed (an emptied field stays empty, not 0);
+  // they become numbers on submit.
+  const [numbers, setNumbers] = useState({
+    budgetMin: String(initial.budgetMin),
+    budgetMax: String(initial.budgetMax),
+    stayMonths: String(initial.stayMonths),
+  });
+  const [submitted, setSubmitted] = useState(false);
   const set = <K extends keyof Preferences>(key: K, value: Preferences[K]) =>
     setDraft((p) => ({ ...p, [key]: value }));
-  const invalid = draft.budgetMin > draft.budgetMax;
+  const setNumber = (key: keyof typeof numbers, value: string) =>
+    setNumbers((n) => ({ ...n, [key]: value }));
+  const min = Number(numbers.budgetMin);
+  const max = Number(numbers.budgetMax);
+  const stay = Number(numbers.stayMonths);
+  const errors = {
+    city: draft.city.trim() ? "" : t("Enter a city."),
+    budgetMin:
+      numbers.budgetMin === "" || min < 0
+        ? t("Enter a budget of €0 or more.")
+        : "",
+    budgetMax:
+      numbers.budgetMax === "" || max < 0
+        ? t("Enter a budget of €0 or more.")
+        : min >= max
+          ? t("Your maximum budget must be above your minimum.")
+          : "",
+    moveDate: draft.moveDate ? "" : t("Choose a move-in date."),
+    stayMonths:
+      numbers.stayMonths === "" ||
+      !Number.isInteger(stay) ||
+      stay < 1 ||
+      stay > 24
+        ? t("Choose between 1 and 24 months.")
+        : "",
+  };
+  const invalid = Object.values(errors).some(Boolean);
+  // The budget pair is checked as you type; the rest once you try to apply.
+  const show = (key: keyof typeof errors) =>
+    submitted || key === "budgetMax" ? errors[key] || undefined : undefined;
   return (
     <Dialog title={t("discover.filters")} onClose={onClose}>
       <Text tone="muted" className={d.lead}>
@@ -28,17 +65,25 @@ export function FiltersDialog({
       </Text>
       <form
         className={d.form}
+        noValidate
         onSubmit={(e) => {
           e.preventDefault();
+          setSubmitted(true);
           if (invalid) return onInvalid();
-          onApply(draft);
+          onApply({
+            ...draft,
+            city: draft.city.trim(),
+            budgetMin: min,
+            budgetMax: max,
+            stayMonths: stay,
+          });
         }}
       >
         <Input
           label={t("City")}
           value={draft.city}
           onChange={(e) => set("city", e.target.value)}
-          required
+          error={show("city")}
         />
         <div className={d.row}>
           <Input
@@ -46,21 +91,20 @@ export function FiltersDialog({
             type="number"
             prefix="€"
             min={0}
-            value={draft.budgetMin}
-            onChange={(e) => set("budgetMin", Number(e.target.value))}
+            inputMode="numeric"
+            value={numbers.budgetMin}
+            onChange={(e) => setNumber("budgetMin", e.target.value)}
+            error={show("budgetMin")}
           />
           <Input
             label={t("Up to")}
             type="number"
             prefix="€"
             min={0}
-            value={draft.budgetMax}
-            onChange={(e) => set("budgetMax", Number(e.target.value))}
-            error={
-              invalid
-                ? t("Your maximum budget must be above your minimum.")
-                : undefined
-            }
+            inputMode="numeric"
+            value={numbers.budgetMax}
+            onChange={(e) => setNumber("budgetMax", e.target.value)}
+            error={show("budgetMax")}
           />
         </div>
         <div className={d.row}>
@@ -69,14 +113,17 @@ export function FiltersDialog({
             type="date"
             value={draft.moveDate}
             onChange={(e) => set("moveDate", e.target.value)}
+            error={show("moveDate")}
           />
           <Input
             label={t("Stay in months")}
             type="number"
             min={1}
             max={24}
-            value={draft.stayMonths}
-            onChange={(e) => set("stayMonths", Number(e.target.value))}
+            inputMode="numeric"
+            value={numbers.stayMonths}
+            onChange={(e) => setNumber("stayMonths", e.target.value)}
+            error={show("stayMonths")}
           />
         </div>
         <Select

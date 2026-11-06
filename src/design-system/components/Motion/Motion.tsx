@@ -145,3 +145,35 @@ export function Reveal({
     </div>
   );
 }
+
+const bezier = (
+  value: string,
+): [number, number, number, number] | undefined => {
+  const m = /cubic-bezier\(([^)]+)\)/.exec(value);
+  const n = m?.[1].split(",").map(Number);
+  return n && n.length === 4 && n.every(Number.isFinite)
+    ? (n as [number, number, number, number])
+    : undefined;
+};
+
+/**
+ * Motion tokens as numbers for motion/react (Dialog, Toast): durations in
+ * seconds and easing curves, read from the active language's element so a
+ * theme's --ease-page applies. 0 under reduced motion, like the CSS side.
+ */
+export function motionTokens() {
+  const el =
+    typeof document === "undefined"
+      ? null
+      : (document.querySelector("[data-direction]") ??
+        document.documentElement);
+  const get = (name: string) => (el ? read(el, name) : "");
+  return {
+    base: toMs(get("--duration-base") || "200ms") / 1000,
+    page: toMs(get("--duration-page") || "260ms") / 1000,
+    ease: bezier(get("--ease-standard")) ?? [0.2, 0, 0, 1],
+    easePage: bezier(get("--ease-page")) ?? [0.2, 0, 0, 1],
+    easeExit: bezier(get("--ease-exit")) ?? [0.3, 0, 1, 1],
+    rise: get("--motion-distance-rise") || "0.5rem",
+  };
+}

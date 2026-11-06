@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, type ReactNode } from "react";
 import { motion } from "motion/react";
+import { motionTokens } from "../Motion/Motion";
 import { X } from "../../icons";
 import { cx } from "../../cx";
 import { useText } from "../../text/TextProvider";
@@ -66,12 +67,15 @@ export function Dialog({
       previous?.focus();
     };
   }, []);
+  // Timing from the motion tokens (0 under reduced motion).
+  const m = motionTokens();
   return (
     <motion.div
       className={styles.backdrop}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={{ duration: m.base, ease: m.ease }}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -84,9 +88,16 @@ export function Dialog({
         aria-label={title}
         className={cx(styles.dialog, styles[size], className)}
         initial={{ y: 24, scale: 0.98 }}
-        animate={{ y: 0, scale: 1 }}
-        exit={{ y: 16, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 320, damping: 30 }}
+        animate={{
+          y: 0,
+          scale: 1,
+          transition: { duration: m.page, ease: m.easePage },
+        }}
+        exit={{
+          y: 16,
+          opacity: 0,
+          transition: { duration: m.base, ease: m.easeExit },
+        }}
       >
         <button
           type="button"

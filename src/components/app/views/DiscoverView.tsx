@@ -32,6 +32,7 @@ export function DiscoverView({
   onReport,
   viewer,
   preview = false,
+  showUndo = true,
   children,
 }: {
   deck: DiscoverDeck | null;
@@ -49,6 +50,8 @@ export function DiscoverView({
   viewer: Preferences;
   /** The card without its buttons (e.g. someone you already liked). */
   preview?: boolean;
+  /** Hide the undo button (a single person, e.g. from Likes). */
+  showUndo?: boolean;
   /** Shown between the card and the details, e.g. a status or a button. */
   children?: ReactNode;
 }) {
@@ -81,6 +84,7 @@ export function DiscoverView({
             saved={saved}
             onSave={roomId ? () => onToggleRoom(roomId) : undefined}
             preview={preview}
+            showUndo={showUndo}
           />
           {children}
           <div

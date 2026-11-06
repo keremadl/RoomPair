@@ -82,6 +82,7 @@ export {
   PageTransition,
   Stagger,
   Reveal,
+  motionTokens,
   type PageMotion,
   type PageTransitionProps,
   type StaggerProps,

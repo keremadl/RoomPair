@@ -573,6 +573,7 @@ function RoomPairApp() {
             onToggleRoom={(id) => toggleRoom(id, true)}
             viewer={state.preferences}
             preview={!likeWaiting}
+          showUndo={false}
             onReport={(p) => {
               setSelected(p);
               setDialog("report");
@@ -704,9 +705,7 @@ function RoomPairApp() {
               setDialog(null);
               notify(t("Filters updated."));
             }}
-            onInvalid={() =>
-              notify(t("Your maximum budget must be above your minimum."))
-            }
+            onInvalid={() => notify(t("Check the highlighted fields."))}
           />
         )}
         {dialog === "profile" && detail && (

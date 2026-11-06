@@ -64,8 +64,11 @@ export function DiscoverCard({
   saved,
   onSave,
   preview = false,
+  showUndo = true,
 }: {
   deck: DiscoverDeck;
+  /** Off where there is nothing to undo, e.g. a single person from Likes. */
+  showUndo?: boolean;
   /** Your own card as others see it: no buttons, no fit score. */
   preview?: boolean;
   roomFirst?: boolean;
@@ -194,16 +197,18 @@ export function DiscoverCard({
 
       {!preview && (
         <div className={w.actions}>
-          <button
-            type="button"
-            className={w.round}
-            data-kind="undo"
-            onClick={deck.undo}
-            disabled={!deck.canUndo}
-            aria-label={t("Undo")}
-          >
-            <RotateCcw />
-          </button>
+          {showUndo && (
+            <button
+              type="button"
+              className={w.round}
+              data-kind="undo"
+              onClick={deck.undo}
+              disabled={!deck.canUndo}
+              aria-label={t("Undo")}
+            >
+              <RotateCcw />
+            </button>
+          )}
           <button
             type="button"
             className={w.round}

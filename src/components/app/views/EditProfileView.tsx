@@ -523,7 +523,13 @@ export function EditProfileView({
         <FieldsDialog
           title={t("Name and work")}
           fields={[
-            { key: "name", label: t("Name"), type: "text", value: prefs.name },
+            {
+              key: "name",
+              label: t("Name"),
+              type: "text",
+              value: prefs.name,
+              required: true,
+            },
             {
               key: "age",
               label: t("Age"),
@@ -546,6 +552,7 @@ export function EditProfileView({
               key: "occupation",
               label: t("What you study or do"),
               type: "text",
+              required: true,
               value: me.occupation,
               hint: t("For example: Design student"),
             },
