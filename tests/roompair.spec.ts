@@ -228,6 +228,7 @@ test("my profile: photos, prompts, interests, preview and completion", async ({
     .getByRole("navigation", { name: "Main navigation" })
     .getByRole("button", { name: /My profile/ })
     .click();
+  await page.getByRole("button", { name: "Edit profile", exact: true }).click();
   const ring = page.getByRole("progressbar", { name: "Profile complete" });
   const before = await ring.getAttribute("aria-valuenow");
   // Add a second prompt
@@ -286,10 +287,7 @@ test("Turkish interface and a phone-sized layout", async ({ page }) => {
   ).toBeLessThanOrEqual(390);
   await expect(page.getByRole("button", { name: /Design/ })).toHaveCount(0);
   await mobileNav.getByRole("button", { name: /My profile/ }).click();
-  await page
-    .getByRole("banner")
-    .getByRole("button", { name: "Settings" })
-    .click();
+  await page.getByRole("button", { name: "Settings" }).click();
   await page.getByRole("combobox", { name: "Language" }).selectOption("tr");
   await page.keyboard.press("Escape");
   const turkishNav = page.getByRole("navigation", { name: "Mobil gezinme" });
@@ -329,6 +327,9 @@ test.describe("on a phone", () => {
     await nav.getByRole("button", { name: /My space/ }).click();
     expect(await widthOf("A sunny room in Āgenskalns")).toBeGreaterThan(300);
     await nav.getByRole("button", { name: /My profile/ }).click();
+    await page
+      .getByRole("button", { name: "Edit profile", exact: true })
+      .click();
     expect(
       await page
         .getByRole("list", { name: "My photos" })

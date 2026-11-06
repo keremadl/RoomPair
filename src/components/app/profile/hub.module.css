@@ -1,0 +1,233 @@
+/* The profile page: you at a glance, numbers, safety. Tokens only. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: var(--heading-weight);
+}
+.icons {
+  display: flex;
+  gap: var(--space-1);
+}
+
+/* Photo in a completion ring, name, why you're here */
+.me {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+.ring {
+  --done: 0;
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 8.5rem;
+  height: 8.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: conic-gradient(
+    var(--color-primary) calc(var(--done) * 1%),
+    var(--color-surface-sunken) 0
+  );
+  cursor: pointer;
+}
+.ring img,
+.initial {
+  display: grid;
+  place-items: center;
+  width: 7.5rem;
+  height: 7.5rem;
+  border: 4px solid var(--color-bg);
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: 800;
+}
+.ring b {
+  position: absolute;
+  bottom: calc(var(--space-2) * -1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-text);
+  color: var(--color-text-inverse);
+  font-size: var(--text-sm);
+}
+.who {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  line-height: var(--leading-tight);
+}
+.name svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--color-primary);
+}
+.intent {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-align: left;
+  cursor: pointer;
+}
+.intent svg {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Nudge card */
+.nudge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-4) var(--space-5);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  text-align: left;
+  cursor: pointer;
+}
+.nudgeIcon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+.nudgeIcon svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+.nudgeText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.nudgeText span {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.chevron {
+  flex-shrink: 0;
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+/* Two number tiles */
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.tile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 0;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  text-align: left;
+  cursor: pointer;
+}
+.tile > span:last-child {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tile small {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.tile strong {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums;
+}
+.tileIcon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+.tileIcon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.ring:focus-visible,
+.intent:focus-visible,
+.nudge:focus-visible,
+.tile:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+@media (max-width: 400px) {
+  .me {
+    gap: var(--space-4);
+  }
+  .ring {
+    width: 7rem;
+    height: 7rem;
+  }
+  .ring img,
+  .initial {
+    width: 6.2rem;
+    height: 6.2rem;
+  }
+  .name {
+    font-size: var(--text-2xl);
+  }
+}

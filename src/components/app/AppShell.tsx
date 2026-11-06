@@ -45,7 +45,8 @@ export function AppShell({
   onNotifications: () => void;
   toast: string;
   /** The page's own action at the top right, in place of the profile button. */
-  barAction?: { label: string; icon: ReactNode; onClick: () => void };
+  /** null hides the corner button (the page has its own header icons). */
+  barAction?: { label: string; icon: ReactNode; onClick: () => void } | null;
   children: ReactNode;
 }) {
   const { t } = useI18n();
@@ -107,7 +108,7 @@ export function AppShell({
             >
               {barAction.icon}
             </button>
-          ) : (
+          ) : barAction === null ? null : (
             <button
               type="button"
               className={s.avatar}

@@ -1,5 +1,5 @@
 "use client";
-import { Settings, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig } from "motion/react";
 import { TextProvider } from "@/design-system";
@@ -15,6 +15,7 @@ import { LikesView } from "./views/LikesView";
 import { MessagesView } from "./views/MessagesView";
 import { SpaceView } from "./views/SpaceView";
 import { ProfileView } from "./views/ProfileView";
+import { EditProfileView } from "./views/EditProfileView";
 import { FiltersDialog } from "./dialogs/FiltersDialog";
 import { ProfileDialog } from "./dialogs/ProfileDialog";
 import { MatchDialog } from "./dialogs/MatchDialog";
@@ -67,6 +68,7 @@ function RoomPairApp() {
   const { t } = useI18n();
   const { state, setState, ready, reset } = useAppState();
   const [view, setView] = useState<View>("discover");
+  const [editingProfile, setEditingProfile] = useState(false);
   const [dialog, setDialog] = useState<Dialog>(null);
   // false = closed; a number = open at that step.
   const [onboarding, setOnboarding] = useState<false | number>(false);
@@ -117,8 +119,20 @@ function RoomPairApp() {
       chats: st.chats.map((c) => (c.id === id ? { ...c, unread: 0 } : c)),
     }));
 
+  function changeIntent(intent: "find-room" | "have-room") {
+    setState((st) => ({
+      ...st,
+      preferences: { ...st.preferences, intent },
+    }));
+    notify(
+      intent === "have-room"
+        ? t("Discover now shows people looking for a room.")
+        : t("Discover now shows people who have a room."),
+    );
+  }
   function navigate(next: View) {
     setView(next);
+    setEditingProfile(false);
     if (next === "messages" && chat) markRead(chat.id);
     window.scrollTo({ top: 0 });
   }
@@ -351,11 +365,7 @@ function RoomPairApp() {
               onClick: () => setDialog("filters"),
             }
           : view === "profile"
-            ? {
-                label: t("Settings"),
-                icon: <Settings aria-hidden="true" />,
-                onClick: () => setDialog("settings"),
-              }
+            ? null
             : undefined
       }
     >
@@ -435,8 +445,8 @@ function RoomPairApp() {
           }}
         />
       )}
-      {view === "profile" && (
-        <ProfileView
+      {view === "profile" && editingProfile && (
+        <EditProfileView
           preferences={state.preferences}
           me={state.me}
           onMe={(next) =>
@@ -450,17 +460,38 @@ function RoomPairApp() {
               preferences: { ...st.preferences, name },
             }))
           }
-          onIntent={(intent) => {
+          onIntent={changeIntent}
+          onBack={() => {
+            setEditingProfile(false);
+            window.scrollTo({ top: 0 });
+          }}
+        />
+      )}
+      {view === "profile" && !editingProfile && (
+        <ProfileView
+          preferences={state.preferences}
+          me={state.me}
+          counts={{
+            likes: received.length,
+            saved: state.savedRooms.length,
+            blocked: state.blocked.length,
+            reports: state.reports.length,
+          }}
+          onEdit={() => {
+            setEditingProfile(true);
+            window.scrollTo({ top: 0 });
+          }}
+          onSettings={() => setDialog("settings")}
+          onHelp={() => setDialog("help")}
+          onIntent={changeIntent}
+          onVerify={() =>
             setState((st) => ({
               ...st,
-              preferences: { ...st.preferences, intent },
-            }));
-            notify(
-              intent === "have-room"
-                ? t("Discover now shows people looking for a room.")
-                : t("Discover now shows people who have a room."),
-            );
-          }}
+              me: { ...st.me, verified: !st.me.verified },
+            }))
+          }
+          onLikes={() => navigate("likes")}
+          onSpace={() => navigate("space")}
         />
       )}
 

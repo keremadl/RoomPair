@@ -33,6 +33,7 @@
 }
 .progress {
   grid-column: 2;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -57,9 +58,31 @@
   background: var(--color-primary);
   transition: width var(--duration-slow) var(--ease-standard);
 }
-.progressBar > button {
+.progressBar > button:last-child {
   grid-column: 3;
   justify-self: end;
+}
+.back {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.back svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+.back:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* Dismissible next-step tip */
