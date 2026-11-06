@@ -90,6 +90,3 @@
   background: none;
   box-shadow: none;
 }
-.dialog.full .close {
-  z-index: 1;
-}

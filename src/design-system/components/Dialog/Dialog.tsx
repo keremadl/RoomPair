@@ -15,6 +15,8 @@ export type DialogProps = {
   /** "full" covers the whole screen; the content brings its own layout. */
   size?: "md" | "lg" | "full";
   hideTitle?: boolean;
+  /** No close (×) button: the content offers its own way out. Escape still closes. */
+  hideClose?: boolean;
   className?: string;
 };
 
@@ -29,6 +31,7 @@ export function Dialog({
   children,
   size = "md",
   hideTitle = false,
+  hideClose = false,
   className,
 }: DialogProps) {
   const t = useText();
@@ -100,14 +103,16 @@ export function Dialog({
           transition: { duration: m.base, ease: m.easeExit },
         }}
       >
-        <button
-          type="button"
-          className={styles.close}
-          aria-label={t("Close dialog")}
-          onClick={onClose}
-        >
-          <X />
-        </button>
+        {!hideClose && (
+          <button
+            type="button"
+            className={styles.close}
+            aria-label={t("Close dialog")}
+            onClick={onClose}
+          >
+            <X />
+          </button>
+        )}
         {!hideTitle && <h2 className={styles.title}>{title}</h2>}
         {children}
       </motion.div>

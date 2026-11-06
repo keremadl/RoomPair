@@ -40,6 +40,7 @@ export function MatchDialog({
       title={t("It’s a RoomPair!")}
       onClose={onClose}
       size="full"
+      hideClose
       hideTitle
     >
       <MatchScreen
