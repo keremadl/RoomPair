@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 import { Circle, RotateCcw, Sparkles, UserPen } from "@/design-system/icons";
 import { Button, EmptyState } from "@/design-system";
 import {
@@ -31,6 +31,8 @@ export function DiscoverView({
   onToggleRoom,
   onReport,
   viewer,
+  preview = false,
+  children,
 }: {
   deck: DiscoverDeck | null;
   /** The viewer is looking for a room: show the room before the person. */
@@ -45,6 +47,10 @@ export function DiscoverView({
   onReport: (p: Profile) => void;
   /** Your own answers, compared with theirs in the details. */
   viewer: Preferences;
+  /** The card without its buttons (e.g. someone you already liked). */
+  preview?: boolean;
+  /** Shown between the card and the details, e.g. a status or a button. */
+  children?: ReactNode;
 }) {
   const { t } = useI18n();
   const { Card, Details } = discoverParts[defaultLanguage];
@@ -74,7 +80,9 @@ export function DiscoverView({
             }
             saved={saved}
             onSave={roomId ? () => onToggleRoom(roomId) : undefined}
+            preview={preview}
           />
+          {children}
           <div
             ref={details}
             className={v.discoverDetails}

@@ -94,11 +94,23 @@ test("likes, rooms, the shared space and the moving checklist", async ({
     "aria-selected",
     "true",
   );
-  await page.getByRole("button", { name: "Team up" }).first().click();
+  // Likes are a grid of tiles; Maya is already in a conversation, so only
+  // Ella is waiting for an answer. A tile opens her as a sub-page.
+  await expect(page.getByRole("button", { name: /^Maya/ })).toHaveCount(0);
+  await page.getByRole("button", { name: /^Ella, 23/ }).click();
+  await expect(
+    page.getByRole("banner").getByRole("heading", { level: 1 }),
+  ).toHaveText("Ella");
+  await page.getByRole("button", { name: "Team up" }).click();
   await expect(
     page.getByRole("dialog", { name: "It’s a RoomPair!" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Not now" }).click();
+  // Back on the grid: Ella moved to Your likes, as a match
+  await page.getByRole("tab", { name: /Your likes/ }).click();
+  await expect(
+    page.getByRole("button", { name: /^Ella, 23.*Matched/ }),
+  ).toBeVisible();
 
   await nav.getByRole("button", { name: "Discover" }).click();
   await page

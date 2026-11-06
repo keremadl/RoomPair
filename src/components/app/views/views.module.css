@@ -723,3 +723,95 @@
     padding-bottom: var(--space-4);
   }
 }
+
+/* Likes: a two-column grid of photo tiles (the match tile, bigger) */
+.likeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr));
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+@media (max-width: 979px) {
+  .likeGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+}
+.likeTile {
+  composes: matchTile;
+  width: 100%;
+}
+.likeTile[data-waiting] > img:first-child {
+  opacity: 0.6;
+}
+.likeFit,
+.likeState {
+  position: absolute;
+  top: var(--space-2);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  border: var(--control-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  line-height: 1.6;
+}
+.likeFit {
+  left: var(--space-2);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+.likeState {
+  right: var(--space-2);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+.likeState svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+.likeTile > img.likeFace {
+  inset: auto auto var(--space-12) var(--space-3);
+  z-index: 1;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: var(--control-border-width) solid var(--color-surface);
+  border-radius: var(--radius-full);
+}
+.likeName {
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: var(--space-3);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--heading-weight);
+  line-height: var(--leading-tight);
+}
+.likeName small {
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Likes sub-page: what happens next with someone you already liked */
+.likeNext {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 26rem;
+  margin: var(--space-6) auto 0;
+}

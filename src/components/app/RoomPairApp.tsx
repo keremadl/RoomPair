@@ -19,7 +19,7 @@ import type { Preferences, Profile, Room } from "@/lib/types";
 import type { DiscoverDeck } from "@/lib/discover/deck";
 import { AppShell, type View } from "./AppShell";
 import { DiscoverView, ProfileGate } from "./views/DiscoverView";
-import { LikesView } from "./views/LikesView";
+import { LikeNext, LikesView } from "./views/LikesView";
 import { MessagesView } from "./views/MessagesView";
 import { SpaceView } from "./views/SpaceView";
 import { ProfileView } from "./views/ProfileView";
@@ -86,6 +86,8 @@ function RoomPairApp() {
   const [activeChat, setActiveChat] = useState<string | null>(null);
   /** On phones an open conversation is a sub-page: back and name in the top bar. */
   const [chatOpen, setChatOpen] = useState(false);
+  /** Likes: the person opened from a tile, shown as a sub-page. */
+  const [likeOpen, setLikeOpen] = useState<string | null>(null);
   const narrow = useNarrow();
   const [typing, setTyping] = useState<string | null>(null);
   const [direction, setDirection] = useState(1);
@@ -101,9 +103,13 @@ function RoomPairApp() {
   );
   const current = queue[0];
   const missing = missingRequired(state.me, state.preferences);
+  // People who liked you and are still waiting for your answer: not yet
+  // decided on, and not already in a conversation with you.
   const received = ranked.filter(
     ({ profile }) =>
-      profile.likesYou && !state.decisions.some((d) => d.id === profile.id),
+      profile.likesYou &&
+      !state.decisions.some((d) => d.id === profile.id) &&
+      !state.chats.some((c) => c.profileId === profile.id),
   );
   const sent = profiles.filter(
     (p) =>
@@ -151,6 +157,7 @@ function RoomPairApp() {
     setView(next);
     setSub(null);
     setChatOpen(false);
+    setLikeOpen(null);
     if (next === "messages" && chat) markRead(chat.id);
     window.scrollTo({ top: 0 });
   }
@@ -374,6 +381,15 @@ function RoomPairApp() {
       }
     : null;
   const detail = selected;
+  const likePerson =
+    view === "likes" && likeOpen ? profileById(likeOpen) : null;
+  const likeWaiting = likePerson
+    ? received.some((r) => r.profile.id === likePerson.id)
+    : false;
+  const closeLike = () => {
+    setLikeOpen(null);
+    window.scrollTo({ top: 0 });
+  };
   const chatPerson =
     view === "messages" && chatOpen && narrow && chat
       ? profileById(chat.profileId)
@@ -387,26 +403,30 @@ function RoomPairApp() {
       onHelp={() => setDialog("help")}
       toast={toast}
       title={
-        chatPerson
-          ? chatPerson.name
-          : sub === "edit"
-            ? t("Edit profile")
-            : sub === "settings"
-              ? t("Settings")
-              : t(`nav.${view}`)
+        likePerson
+          ? likePerson.name
+          : chatPerson
+            ? chatPerson.name
+            : sub === "edit"
+              ? t("Edit profile")
+              : sub === "settings"
+                ? t("Settings")
+                : t(`nav.${view}`)
       }
       onBack={
-        chatPerson
-          ? () => setChatOpen(false)
-          : sub
-            ? () => {
-                setSub(null);
-                window.scrollTo({ top: 0 });
-              }
-            : undefined
+        likePerson
+          ? closeLike
+          : chatPerson
+            ? () => setChatOpen(false)
+            : sub
+              ? () => {
+                  setSub(null);
+                  window.scrollTo({ top: 0 });
+                }
+              : undefined
       }
       actions={
-        chatPerson ? (
+        likePerson ? undefined : chatPerson ? (
           <>
             <IconButton
               variant="outline"
@@ -482,22 +502,58 @@ function RoomPairApp() {
           }}
         />
       )}
-      {view === "likes" && (
+      {view === "likes" && likePerson && (
+        // A person from Likes, as a sub-page: the Discover card and details.
+        // Someone waiting for your answer gets Skip / Team up; someone you
+        // already liked shows whether you can message them.
+        <DiscoverView
+          key={likePerson.id}
+          deck={{
+            profile: likePerson,
+            match: getCompatibility(likePerson, state.preferences),
+            cardKey: likePerson.id,
+            exitDirection: direction,
+            canUndo: false,
+            decide: (d) => {
+              decide(d, likePerson);
+              closeLike();
+            },
+            undo: () => {},
+            index: 0,
+            total: 1,
+          }}
+          roomFirst={state.preferences.intent !== "have-room"}
+          canUndo={false}
+          rankedCount={1}
+          savedRooms={state.savedRooms}
+          onFilters={() => setDialog("filters")}
+          onBrowseAgain={browseAgain}
+          onUndo={undo}
+          onToggleRoom={(id) => toggleRoom(id, true)}
+          viewer={state.preferences}
+          preview={!likeWaiting}
+          onReport={(p) => {
+            setSelected(p);
+            setDialog("report");
+          }}
+        >
+          {!likeWaiting && (
+            <LikeNext
+              matched={likePerson.likesYou}
+              onMessage={() => openChat(likePerson)}
+            />
+          )}
+        </DiscoverView>
+      )}
+      {view === "likes" && !likePerson && (
         <LikesView
           received={received.map((r) => r.profile)}
           sent={sent}
           preferences={state.preferences}
-          onOpenProfile={openProfile}
-          onLikeBack={(p) => decide("like", p)}
-          onSayHello={(p) =>
-            p.likesYou
-              ? openChat(p)
-              : notify(
-                  t(
-                    "Waiting for them. A chat opens when they press Team up too.",
-                  ),
-                )
-          }
+          onOpen={(p) => {
+            setLikeOpen(p.id);
+            window.scrollTo({ top: 0 });
+          }}
           onDiscover={() => navigate("discover")}
         />
       )}
