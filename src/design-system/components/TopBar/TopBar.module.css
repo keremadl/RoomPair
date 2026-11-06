@@ -32,9 +32,9 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* Sub-pages (with a back button) use a regular-weight title. */
+/* Sub-pages (with a back button): title one weight step below headings. */
 .bar[data-sub] .title {
-  font-weight: var(--weight-regular);
+  font-weight: var(--weight-bold);
 }
 .back {
   margin-left: calc(var(--space-2) * -1);
