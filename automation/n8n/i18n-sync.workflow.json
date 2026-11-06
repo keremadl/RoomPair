@@ -1,0 +1,205 @@
+{
+  "id": "rpI18nSyncFlow01",
+  "name": "RoomPair · i18n sync (tr.json)",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "nodes": [
+    {
+      "id": "c0a8f0b1-0001-4c1e-9d10-000000000001",
+      "name": "Run from CLI",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 300],
+      "parameters": {}
+    },
+    {
+      "id": "c0a8f0b1-0002-4c1e-9d10-000000000002",
+      "name": "Extract strings",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [220, 300],
+      "notes": "Scans src/ for strings that reach t() and compares them with tr.json. ROOMPAIR_DIR is the repo root (set by scripts/i18n/run-n8n.sh).",
+      "parameters": {
+        "command": "cd \"${ROOMPAIR_DIR:-.}\" && node scripts/i18n/extract.mjs --summary"
+      }
+    },
+    {
+      "id": "c0a8f0b1-0003-4c1e-9d10-000000000003",
+      "name": "Parse report",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [440, 300],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "missingCount",
+              "type": "number",
+              "value": "={{ JSON.parse($json.stdout).summary.missing }}"
+            },
+            {
+              "id": "b2",
+              "name": "missingKeys",
+              "type": "array",
+              "value": "={{ JSON.parse($json.stdout).missing.map(m => m.key) }}"
+            },
+            {
+              "id": "b3",
+              "name": "uiStrings",
+              "type": "number",
+              "value": "={{ JSON.parse($json.stdout).summary.uiStrings }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "c0a8f0b1-0004-4c1e-9d10-000000000004",
+      "name": "Anything missing?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [660, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.missingCount }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "c0a8f0b1-0005-4c1e-9d10-000000000005",
+      "name": "Translate with Codex",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [880, 200],
+      "notes": "Uses the logged-in Codex CLI (ChatGPT login, no API key). Always prints JSON; failures are reported by the next steps.",
+      "parameters": {
+        "command": "cd \"${ROOMPAIR_DIR:-.}\" && node scripts/i18n/translate.mjs || true"
+      }
+    },
+    {
+      "id": "c0a8f0b1-0006-4c1e-9d10-000000000006",
+      "name": "Check again",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1100, 300],
+      "notes": "extract.mjs --check exits 1 when something is still missing; the exit code is read by the report, not treated as a node error.",
+      "parameters": {
+        "command": "cd \"${ROOMPAIR_DIR:-.}\" && node scripts/i18n/extract.mjs --check --summary || true"
+      }
+    },
+    {
+      "id": "c0a8f0b1-0007-4c1e-9d10-000000000007",
+      "name": "Report",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1320, 300],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r1",
+              "name": "status",
+              "type": "string",
+              "value": "={{ JSON.parse($('Check again').first().json.stdout).summary.missing + JSON.parse($('Check again').first().json.stdout).summary.placeholderMismatch === 0 ? 'pass' : 'fail' }}"
+            },
+            {
+              "id": "r2",
+              "name": "uiStrings",
+              "type": "number",
+              "value": "={{ JSON.parse($('Check again').first().json.stdout).summary.uiStrings }}"
+            },
+            {
+              "id": "r3",
+              "name": "missingBefore",
+              "type": "number",
+              "value": "={{ $('Parse report').first().json.missingCount }}"
+            },
+            {
+              "id": "r4",
+              "name": "addedCount",
+              "type": "number",
+              "value": "={{ $('Translate with Codex').isExecuted ? JSON.parse($('Translate with Codex').first().json.stdout).added.length : 0 }}"
+            },
+            {
+              "id": "r5",
+              "name": "added",
+              "type": "array",
+              "value": "={{ $('Translate with Codex').isExecuted ? JSON.parse($('Translate with Codex').first().json.stdout).added.map(a => a.key + ' → ' + a.tr) : [] }}"
+            },
+            {
+              "id": "r6",
+              "name": "stillMissing",
+              "type": "array",
+              "value": "={{ JSON.parse($('Check again').first().json.stdout).missing.map(m => m.key) }}"
+            },
+            {
+              "id": "r7",
+              "name": "placeholderMismatch",
+              "type": "array",
+              "value": "={{ JSON.parse($('Check again').first().json.stdout).placeholderMismatch.map(m => m.key) }}"
+            },
+            {
+              "id": "r8",
+              "name": "unresolvedCalls",
+              "type": "array",
+              "value": "={{ JSON.parse($('Check again').first().json.stdout).unresolved.map(u => u.file + ':' + u.line + ' t(' + u.expr + ')') }}"
+            },
+            {
+              "id": "r9",
+              "name": "translateError",
+              "type": "string",
+              "value": "={{ $('Translate with Codex').isExecuted ? (JSON.parse($('Translate with Codex').first().json.stdout).error || JSON.parse($('Translate with Codex').first().json.stdout).failed.map(f => f.key + ': ' + f.reason).join('; ')) : '' }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Run from CLI": {
+      "main": [[{ "node": "Extract strings", "type": "main", "index": 0 }]]
+    },
+    "Extract strings": {
+      "main": [[{ "node": "Parse report", "type": "main", "index": 0 }]]
+    },
+    "Parse report": {
+      "main": [[{ "node": "Anything missing?", "type": "main", "index": 0 }]]
+    },
+    "Anything missing?": {
+      "main": [
+        [{ "node": "Translate with Codex", "type": "main", "index": 0 }],
+        [{ "node": "Check again", "type": "main", "index": 0 }]
+      ]
+    },
+    "Translate with Codex": {
+      "main": [[{ "node": "Check again", "type": "main", "index": 0 }]]
+    },
+    "Check again": {
+      "main": [[{ "node": "Report", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "meta": { "templateCredsSetup": false }
+}

@@ -19,3 +19,7 @@ All UI is built from `src/design-system` — see `src/design-system/README.md` a
 - Missing something? Add a token or component variant to the design system (and its showcase specimen) first, then use it.
 - Do not reproduce another product's visual design (colors, layouts, assets). Research informs patterns only.
 - Run `npm run typecheck && npm run check:design` before committing.
+
+## Translations
+
+- At the end of every change run `npm run i18n:sync` (or at least `npm run i18n:check`) and commit the tr.json updates.

@@ -78,6 +78,20 @@ npm run translate -- lv "Latviešu"
 
 The CLI validates the result and adds a static language pack. Switching languages never calls a paid service. Credentials remain server-side. The workflow is supplied inactive; it has not been connected to a live n8n account. See [the complete setup guide](docs/localization.md).
 
+## Translations (n8n)
+
+`tr.json` is kept complete by a small n8n workflow, `automation/n8n/i18n-sync.workflow.json`: extract the UI strings → if any are missing, translate them → check again → print a report (counts, added keys, anything still missing).
+
+```bash
+npm run i18n:check   # fast (<1 s), no n8n: fails if a UI string has no Turkish entry or its {placeholders} differ
+npm run i18n:sync    # runs the n8n workflow headless and appends new translations to tr.json
+```
+
+- `scripts/i18n/extract.mjs` reads `src/` with the TypeScript parser and finds every string that reaches `t()` (from `useI18n()`) or `useText()`: literals, plus values that arrive through consts, label maps, option arrays, `.map()` callbacks, `profileSteps` and `useState`. Where a value comes in through component props, a hint in `scripts/i18n/sources.mjs` names its source; the extractor lists any `t()` call it cannot follow (`unresolved`). It also reports `unused` tr.json keys, but never deletes them.
+- `scripts/i18n/translate.mjs` translates the missing strings with the **logged-in Codex CLI** (`codex exec`, ChatGPT login, no API key), in batches with strict JSON and a short style guide (informal "sen", short UI Turkish). It checks placeholders, `…` and emoji, and appends to `tr.json` in order. If `codex` is missing or logged out, it stops with a clear message.
+- `i18n:sync` needs n8n on PATH: `npm i -g n8n@2.35.7` (the newest n8n that runs on Node 22; 2.41+ needs Node 24). When nothing is missing it returns without starting n8n; `npm run i18n:sync -- --force` always runs the workflow. `scripts/i18n/run-n8n.sh` uses a private n8n home (`~/.cache/roompair-n8n`), enables the Execute Command node (`NODES_EXCLUDE=[]`, off by default in n8n 2.x), re-imports the workflow when it changes, and runs it with `n8n execute --id`. The n8n log is in `~/.cache/roompair-n8n/last-run.log`.
+- **Open it in the n8n UI:** in n8n, *Workflows → Import from File…* and pick `automation/n8n/i18n-sync.workflow.json` (or `n8n import:workflow --input=automation/n8n/i18n-sync.workflow.json`). Start n8n with `NODES_EXCLUDE=[]` and `ROOMPAIR_DIR=/path/to/RoomPair` set, so the Execute Command nodes are available and run in the repo. After editing it in the UI, export it back to the same file (*Download*) so the CLI run uses your changes.
+
 ## Lab (testing without deploying)
 
 `npm run lab` builds `.lab/RoomPair-Lab.html`: the app inside an iPhone 16 Pro frame (402 × 874) and the design-system library, as one self-contained page. It is published as a private claude.ai artifact, so design changes can be tested there before they go to Vercel. Sources: `lab/` (entry, page shell, build script).
