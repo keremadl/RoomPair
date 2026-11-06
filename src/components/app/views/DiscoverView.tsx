@@ -12,9 +12,12 @@ import {
   Heading,
   SegmentedControl,
   Text,
-  type DetailsLayout,
 } from "@/design-system";
-import { discoverParts, type DirectionId } from "@/design-system/languages";
+import {
+  defaultLanguage,
+  defaultLayout,
+  discoverParts,
+} from "@/design-system/languages";
 import type { DiscoverDeck } from "@/lib/discover/deck";
 import { rooms } from "@/lib/data";
 import { useI18n } from "@/lib/i18n";
@@ -23,11 +26,9 @@ import { PageHeader } from "../PageHeader";
 import { RoomTile } from "../RoomTile";
 import v from "./views.module.css";
 
-/** Discover: the active language's card and Home → Person → Fit details. */
+/** Discover: the Card language's swipe card and Home → Person → Fit tabs. */
 export function DiscoverView({
   deck,
-  layout,
-  language,
   mode,
   onMode,
   canUndo,
@@ -42,8 +43,6 @@ export function DiscoverView({
   onReport,
 }: {
   deck: DiscoverDeck | null;
-  layout: DetailsLayout;
-  language: DirectionId;
   mode: "people" | "rooms";
   onMode: (mode: "people" | "rooms") => void;
   canUndo: boolean;
@@ -58,7 +57,8 @@ export function DiscoverView({
   onReport: (p: Profile) => void;
 }) {
   const { t } = useI18n();
-  const { Card, Details } = discoverParts[language];
+  const { Card, Details } = discoverParts[defaultLanguage];
+  const layout = defaultLayout;
   return (
     <>
       <PageHeader

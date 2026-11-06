@@ -1,8 +1,8 @@
 # RoomPair design system
 
-One shared core and six design languages. Every screen is built from the
-tokens and components in this folder. Live reference:
-**/design-system** (add `?lang=collage`, `?lang=poster`… to see a language).
+One shared core and one design language, **F · Card**, chosen by the team
+with the **Tabs** layout for profile details. Every screen is built from the
+tokens and components in this folder. Live reference: **/design-system**.
 
 ## Why this exists
 
@@ -27,18 +27,16 @@ src/design-system/
     ScoreBars/          score bars + ReasonList
     ProfileDetails/     Home → Person → Fit as blocks or tabs
     SwipeCard/          draggable card (SwipeHero) + Reveal
-  languages/            ← the six design languages
-    index.ts            registry: metadata, screens, signature components
-    fonts.ts            Google fonts the languages use
-    chat/ collage/ poster/ day/ plan/ card/
-      theme.css         token values for [data-direction="<id>"]
+  languages/            ← the design language
+    index.ts            registry: metadata, default language + layout, signature components
+    fonts.ts            Rubik, the Card typeface
+    card/
+      theme.css         token values for [data-direction="card"]
       components.tsx    signature components
       DiscoverScreen.tsx
       README.md         principles, rules, tokens, components
-  themes/wire.css       ← neutral wireframe theme for layout prototypes
 src/lib/discover/       ← deck state (useDeck) and the Home / Person / Fit content model
 src/app/design-system/  ← library environment: everything above, live, in any language
-src/app/directions/     ← the six Discover screens side by side, blocks or tabs
 scripts/check-design.mjs ← guard: ratchet + contrast check for every theme
 ```
 
@@ -48,23 +46,17 @@ The core components never hard-code a look. They read **semantic tokens**
 (colour, type, radius, shadow) and **component tokens** (`--control-border-width`,
 `--control-border`, `--control-shadow`, `--control-press`, `--heading-weight`,
 `--surface-border`…). Each language sets those tokens in its `theme.css`, so
-the same `<Button>` is outlined with a hard shadow in Collage, square in Poster and
-pressable in Card. A language adds **signature components** only for what the
+the same `<Button>` is chunky and pressable in Card. A language adds **signature components** only for what the
 core cannot express (chat bubbles, polaroids, floor plans, stat pips…).
 
 Every profile uses the same content model (`src/lib/discover/sections.ts`) and
 the same `ProfileDetails` arrangement: **Home → Person → Fit**, as blocks or
-tabs. Facts about the place never appear under Person, facts about the person
+tabs (the app uses tabs). Facts about the place never appear under Person, facts about the person
 never under Home.
 
-| Language       | Package             | Idea                                               |
-| -------------- | ------------------- | -------------------------------------------------- |
-| A · Chat       | `languages/chat`    | The profile as a first chat with a future flatmate |
-| B · Collage    | `languages/collage` | Polaroids and stickers; four palettes              |
-| C · Poster     | `languages/poster`  | Flat colour bands and huge numbers                 |
-| D · Day        | `languages/day`     | A day you would share, on a timeline               |
-| E · Floor plan | `languages/plan`    | The home as an architect's drawing                 |
-| F · Card       | `languages/card`    | Each person as a character card                    |
+The app uses `languages/card` (each person as a character card). The other
+five candidate languages (Chat, Collage, Poster, Day, Floor plan) are
+archived: see `docs/archive/design-languages.md`.
 
 ## Tokens: two layers
 
@@ -100,14 +92,14 @@ the showcase page updates instantly.
 
 ## Adding a component
 
-**Core** (needed by more than one language):
+**Core** (generic, not tied to the Card look):
 
 1. Create `components/Name/Name.tsx` + `Name.module.css`. Tokens only; read
    colour-valued component tokens with a fallback,
    `var(--control-border, var(--color-border-strong))`.
 2. Export it from `index.ts`.
-3. Add a specimen to `src/app/design-system/showcase.tsx` and check it in all
-   six languages (`?lang=…`).
+3. Add a specimen to `src/app/design-system/showcase.tsx` and check it in
+   the Card language.
 
 **Signature** (one language only):
 
@@ -122,6 +114,6 @@ Always finish with `npm run typecheck && npm run check:design`.
 
 ## The app
 
-The main app (`src/components/app/`) is built only from this folder. The
-top-right **Design** menu sets `data-direction` / `data-palette` on the app
-root and picks the profile layout, so every screen switches language at once.
+The main app (`src/components/app/`) is built only from this folder. The app
+root sets `data-direction="card"` (`defaultLanguage`) and profile details use
+`defaultLayout` (tabs), both from `languages/index.ts`.

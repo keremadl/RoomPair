@@ -12,24 +12,22 @@ import {
   Smile,
 } from "lucide-react";
 import { Toast } from "@/design-system";
-import { directionFontVariables } from "@/design-system/languages";
+import {
+  defaultLanguage,
+  directionFontVariables,
+} from "@/design-system/languages";
 import { useI18n } from "@/lib/i18n";
-import type { Appearance } from "./appearance";
-import { AppearanceMenu } from "./AppearanceMenu";
 import { Brand } from "./Brand";
 import s from "./AppShell.module.css";
 
 export type View = "discover" | "likes" | "messages" | "space" | "profile";
 
 /**
- * The app frame, shared by every design language: top bar (with the
- * appearance menu at the top right), sidebar on wide screens, tab bar on
- * phones. The language comes from data-direction; everything inside reads
- * its tokens.
+ * The app frame: top bar, sidebar on wide screens, tab bar on phones.
+ * The design language (Card) comes from data-direction; everything inside
+ * reads its tokens.
  */
 export function AppShell({
-  appearance,
-  onAppearance,
   view,
   onNavigate,
   counts,
@@ -41,8 +39,6 @@ export function AppShell({
   toast,
   children,
 }: {
-  appearance: Appearance;
-  onAppearance: (next: Partial<Appearance>) => void;
   view: View;
   onNavigate: (view: View) => void;
   counts: { likes: number; messages: number };
@@ -75,8 +71,7 @@ export function AppShell({
   return (
     <div
       className={`${s.app} ${directionFontVariables}`}
-      data-direction={appearance.language}
-      data-palette={appearance.palette}
+      data-direction={defaultLanguage}
       style={{ "--sticky-offset": "var(--shell-bar-height)" } as CSSProperties}
     >
       <a href="#main" className={s.skip}>
@@ -96,7 +91,6 @@ export function AppShell({
           {t("header.location")}
         </span>
         <div className={s.barEnd}>
-          <AppearanceMenu appearance={appearance} onChange={onAppearance} />
           <button
             type="button"
             className={s.barIcon}

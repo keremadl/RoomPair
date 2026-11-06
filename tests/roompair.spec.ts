@@ -1,8 +1,8 @@
 import { test, expect, type Page } from "@playwright/test";
 
 /**
- * End-to-end flows for the RoomPair demo. Selectors use roles and names, so
- * the tests hold in every design language.
+ * End-to-end flows for the RoomPair demo, in the chosen Card design
+ * language with tabbed profile details. Selectors use roles and names.
  */
 
 const card = (page: Page) =>
@@ -13,20 +13,7 @@ const card = (page: Page) =>
     })
     .first();
 
-async function openApp(
-  page: Page,
-  language?: string,
-  layout: "blocks" | "tabs" = "blocks",
-) {
-  if (language)
-    await page.addInitScript(
-      ([l, lay]) =>
-        localStorage.setItem(
-          "roompair-appearance-v1",
-          JSON.stringify({ language: l, layout: lay }),
-        ),
-      [language, layout],
-    );
+async function openApp(page: Page) {
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
@@ -42,23 +29,33 @@ test("discover shows the card and grouped details; arrows pass, undo restores", 
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await openApp(page);
-  await expect(card(page)).toHaveText(/Ella, 23/);
+  await expect(card(page)).toHaveText(/^Ella/);
   const portrait = page.getByRole("img", { name: "Ella" }).first();
   await expect
     .poll(() =>
       portrait.evaluate((img) => (img as HTMLImageElement).naturalWidth),
     )
     .toBeGreaterThan(100);
-  // Home → Person → Fit, each its own section
-  await expect(page.getByRole("region", { name: "The room" })).toBeVisible();
-  await expect(page.getByRole("region", { name: "About Ella" })).toBeVisible();
-  await expect(page.getByRole("region", { name: /Why 96%/ })).toBeVisible();
+  // Card language, Home → Person → Fit as tabs
+  await expect(page.locator("[data-direction]").first()).toHaveAttribute(
+    "data-direction",
+    "card",
+  );
+  const tabs = page.getByRole("tablist", { name: "Profile sections" });
+  await expect(tabs).toBeVisible();
+  await expect(page.getByRole("tabpanel")).toContainText(/the room/i);
+  await tabs.getByRole("tab", { name: "Ella" }).click();
+  await expect(page.getByRole("tabpanel")).toContainText(/Ella/);
+  await tabs.getByRole("tab", { name: /XP/ }).click();
+  await expect(page.getByRole("tabpanel")).toContainText(/96/);
 
+  // Arrow keys move between tabs while a tab has focus; leave the tabs first.
+  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
   await page.keyboard.press("ArrowLeft");
-  await expect(card(page)).toHaveText(/Leo, 24/);
+  await expect(card(page)).toHaveText(/^Leo/);
   await expect(page.getByRole("status")).toContainText("Passed");
   await page.getByRole("button", { name: "Undo" }).first().click();
-  await expect(card(page)).toHaveText(/Ella, 23/);
+  await expect(card(page)).toHaveText(/^Ella/);
   expect(errors).toEqual([]);
 });
 
@@ -85,53 +82,10 @@ test("a mutual like opens a match, then a conversation with a simulated reply", 
   ).toBeVisible({ timeout: 6000 });
 });
 
-test("the top-right menu switches all six design languages and remembers the choice", async ({
-  page,
-}) => {
-  await openApp(page);
-  const app = page.locator("[data-direction]").first();
-  const languages: [string, string][] = [
-    ["A · Chat", "chat"],
-    ["B · Collage", "collage"],
-    ["C · Poster", "poster"],
-    ["D · Day", "day"],
-    ["E · Floor plan", "plan"],
-    ["F · Card", "card"],
-  ];
-  for (const [name, id] of languages) {
-    await page.getByRole("button", { name: /Design/ }).click();
-    await page.getByRole("radio", { name: new RegExp(`^${name}`) }).click();
-    await expect(app).toHaveAttribute("data-direction", id);
-    await page.keyboard.press("Escape");
-    await expect(
-      page.getByRole("heading", { level: 2, name: /Ella/ }).first(),
-    ).toBeVisible();
-  }
-  // Collage palettes and the tabs layout
-  await page.getByRole("button", { name: /Design/ }).click();
-  await page.getByRole("radio", { name: /^B · Collage/ }).click();
-  await page.getByRole("radio", { name: "Night" }).click();
-  await expect(app).toHaveAttribute("data-palette", "night");
-  await page.getByRole("radio", { name: "Tabs" }).click();
-  await page.keyboard.press("Escape");
-  await expect(
-    page.getByRole("tablist", { name: "Profile sections" }),
-  ).toBeVisible();
-  await page.getByRole("tab", { name: "Ella" }).click();
-  await expect(page.getByRole("tabpanel")).toContainText("About Ella");
-
-  await page.reload();
-  await expect(app).toHaveAttribute("data-direction", "collage");
-  await expect(app).toHaveAttribute("data-palette", "night");
-  await expect(
-    page.getByRole("tablist", { name: "Profile sections" }),
-  ).toBeVisible();
-});
-
 test("likes, rooms, the shared space and the moving checklist", async ({
   page,
 }) => {
-  await openApp(page, "plan");
+  await openApp(page);
   const nav = page.getByRole("navigation", { name: "Main navigation" });
   await nav.getByRole("button", { name: /Likes/ }).click();
   await expect(page.getByRole("tab", { name: /Liked you/ })).toHaveAttribute(
@@ -172,7 +126,7 @@ test("likes, rooms, the shared space and the moving checklist", async ({
 test("filters validate, onboarding updates the profile, report and block work", async ({
   page,
 }) => {
-  await openApp(page, "day");
+  await openApp(page);
   await page.getByRole("button", { name: "Filters" }).click();
   const filters = page.getByRole("dialog", { name: "Filters" });
   await filters
@@ -214,20 +168,19 @@ test("filters validate, onboarding updates the profile, report and block work", 
 
 test("Turkish interface and a phone-sized layout", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openApp(page, "poster");
+  await openApp(page);
   const mobileNav = page.getByRole("navigation", { name: "Mobile navigation" });
   await expect(mobileNav).toBeVisible();
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(390);
-  await page.getByRole("button", { name: /Design/ }).click();
-  await page.getByRole("radio", { name: "Türkçe" }).click();
-  await page.keyboard.press("Escape");
+  await expect(page.getByRole("button", { name: /Design/ })).toHaveCount(0);
+  await mobileNav.getByRole("button", { name: /My profile/ }).click();
+  await page.getByRole("combobox", { name: "Language" }).selectOption("tr");
   const turkishNav = page.getByRole("navigation", { name: "Mobil gezinme" });
   await expect(
     turkishNav.getByRole("button", { name: /Keşfet/ }),
   ).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Tasarım/ })).toBeVisible();
   await turkishNav.getByRole("button", { name: /Mesajlar/ }).click();
   await expect(page.getByRole("heading", { level: 1 })).not.toHaveText(
     "From hello to home.",
@@ -241,35 +194,16 @@ test.describe("on a phone", () => {
     hasTouch: true,
   });
 
-  test("no design language widens the page", async ({ page }) => {
+  test("the page never gets wider than the phone", async ({ page }) => {
     // Anything past the right edge makes a phone lay the page out wider and
     // zoom it, so the tab bar and the score bars get cut off.
-    for (const language of [
-      "chat",
-      "collage",
-      "poster",
-      "day",
-      "plan",
-      "card",
-    ]) {
-      await openApp(page, language);
-      await expect(card(page)).toBeVisible();
-      const width = await page.evaluate(() =>
+    await openApp(page);
+    await expect(card(page)).toBeVisible();
+    expect(
+      await page.evaluate(() =>
         Math.max(window.innerWidth, document.documentElement.scrollWidth),
-      );
-      expect({ language, width }).toEqual({ language, width: 360 });
-    }
-    // The design menu fits on the screen.
-    await page.getByRole("button", { name: /Design/ }).click();
-    const panel = await page
-      .getByRole("dialog", { name: "Design language" })
-      .or(page.locator('[aria-label="Design language"]').first())
-      .first()
-      .boundingBox();
-    expect(panel!.x).toBeGreaterThanOrEqual(0);
-    expect(panel!.x + panel!.width).toBeLessThanOrEqual(360);
-    await page.screenshot({ path: "test-results/phone-menu.png" });
-    await page.keyboard.press("Escape");
+      ),
+    ).toBe(360);
     // A card flying out of view or a sticker past the edge must stay clipped.
     await page.evaluate(() => {
       const probe = document.createElement("div");

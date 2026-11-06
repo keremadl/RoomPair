@@ -8,7 +8,6 @@ import { useAppState } from "@/lib/store";
 import { I18nProvider, useI18n } from "@/lib/i18n";
 import type { Preferences, Profile, Room } from "@/lib/types";
 import type { DiscoverDeck } from "@/lib/discover/deck";
-import { useAppearance } from "./appearance";
 import { AppShell, type View } from "./AppShell";
 import { DiscoverView } from "./views/DiscoverView";
 import { LikesView } from "./views/LikesView";
@@ -66,7 +65,6 @@ function Translated() {
 function RoomPairApp() {
   const { t } = useI18n();
   const { state, setState, ready, reset } = useAppState();
-  const [appearance, setAppearance] = useAppearance();
   const [view, setView] = useState<View>("discover");
   const [dialog, setDialog] = useState<Dialog>(null);
   const [onboarding, setOnboarding] = useState(false);
@@ -340,8 +338,6 @@ function RoomPairApp() {
 
   return (
     <AppShell
-      appearance={appearance}
-      onAppearance={setAppearance}
       view={view}
       onNavigate={navigate}
       counts={{ likes: received.length, messages: unread }}
@@ -359,8 +355,6 @@ function RoomPairApp() {
       {view === "discover" && (
         <DiscoverView
           deck={deck}
-          layout={appearance.layout}
-          language={appearance.language}
           mode={mode}
           onMode={setMode}
           canUndo={state.decisions.length > 0}
@@ -435,8 +429,6 @@ function RoomPairApp() {
         <ProfileView
           preferences={state.preferences}
           onboarded={state.onboarded}
-          appearance={appearance}
-          onAppearance={setAppearance}
           onEdit={() => setOnboarding(true)}
           onSettings={() => setDialog("settings")}
         />
@@ -463,8 +455,6 @@ function RoomPairApp() {
             key="profile"
             profile={detail}
             match={getCompatibility(detail, state.preferences)}
-            language={appearance.language}
-            layout={appearance.layout}
             liked={state.decisions.some(
               (d) => d.id === detail.id && d.action === "like",
             )}

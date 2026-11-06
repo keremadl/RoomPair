@@ -204,7 +204,7 @@ export function Showcase() {
         ? current.filter((h) => h !== habit)
         : [...current, habit],
     );
-  const [lang, setLang] = useState<LangId>("base");
+  const [lang, setLang] = useState<LangId>("card");
   const [palette, setPalette] = useState<string | undefined>(undefined);
   const [detailTab, setDetailTab] = useState<"home" | "person" | "fit">("home");
 

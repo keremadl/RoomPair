@@ -98,18 +98,9 @@ The result lists the reasons the two people fit, the differences worth discussin
 
 ## 8. Design
 
-The interface is built from one design system with **six design languages** that can be switched live from the top-right **Design** menu. All six share the same components, content model and behaviour:
+The interface is built from one design system in the **F · Card** design language: each person is shown as a character card (level, stat pips, a "you vs them" comparison, the room as an item card), with Rubik type, thick outlines and pressable buttons. Profile details are **tabs**: Room, Person and Fit (shown as XP), one at a time.
 
-| Language       | Idea                                                                                        |
-| -------------- | ------------------------------------------------------------------------------------------- |
-| A · Chat       | The profile as a first chat with a future flatmate                                          |
-| B · Collage    | A dorm fridge door: polaroids and stickers; four palettes (Lavender, Forest, Sunset, Night) |
-| C · Poster     | Flat colour bands and huge numbers, readable at a glance                                    |
-| D · Day        | The profile as an ordinary day you would share                                              |
-| E · Floor plan | The home as an architect's drawing                                                          |
-| F · Card       | Each person as a game character card                                                        |
-
-Profile details can be shown as **Blocks** (everything visible, in a fixed order) or **Tabs** (one group at a time). The team has not yet chosen a final language; the switch exists to compare them with real users. See [`src/design-system/README.md`](../src/design-system/README.md).
+The team chose this after comparing six design languages and two detail layouts; the others are archived in [archive/design-languages.md](archive/design-languages.md). See [`src/design-system/README.md`](../src/design-system/README.md).
 
 ## 9. Current status
 
@@ -120,7 +111,7 @@ Profile details can be shown as **Blocks** (everything visible, in a fixed order
 - saved rooms, move-in checklist, notes, viewing plan, onboarding
 - report and block; a resettable demo state
 - English and Turkish interface; more languages through an optional n8n translation workflow
-- six design languages, two detail layouts, phone and desktop layouts
+- the Card design language with tabbed profile details, phone and desktop layouts
 - automated checks: type checking, design-token and contrast guard, unit tests and end-to-end tests
 
 **Not built yet:** accounts and authentication, a server database, real-time messaging between real users, identity or property verification, moderation, payments or bookings. All people, rooms, messages and badges are fictional; photos are stock images (see [assets.md](assets.md)). Data stays in the browser's local storage.
@@ -182,4 +173,4 @@ Pilot plan: interviews (Nov–Dec 2026) → accounts, live chat and student-emai
 | [interface-research.md](interface-research.md)                | Study of Tinder, Bumble, Hinge, Feeld, happn, RoomSync, Diggz and Badi, and the product decisions it led to |
 | [localization.md](localization.md)                            | Interface languages and the n8n translation workflow                                                        |
 | [assets.md](assets.md)                                        | Sources of the photos; all people and homes are fictional                                                   |
-| [src/design-system/README.md](../src/design-system/README.md) | Design system, the six design languages, rules                                                              |
+| [src/design-system/README.md](../src/design-system/README.md) | Design system, the Card design language, rules                                                              |

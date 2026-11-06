@@ -14,13 +14,10 @@ import {
   FactGrid,
   Heading,
   Select,
-  SegmentedControl,
   Text,
 } from "@/design-system";
-import { directions } from "@/design-system/languages";
 import { useI18n } from "@/lib/i18n";
 import type { Preferences } from "@/lib/types";
-import type { Appearance } from "../appearance";
 import { PageHeader } from "../PageHeader";
 import v from "./views.module.css";
 
@@ -34,15 +31,11 @@ const longDate = (iso: string) =>
 export function ProfileView({
   preferences: p,
   onboarded,
-  appearance,
-  onAppearance,
   onEdit,
   onSettings,
 }: {
   preferences: Preferences;
   onboarded: boolean;
-  appearance: Appearance;
-  onAppearance: (next: Partial<Appearance>) => void;
   onEdit: () => void;
   onSettings: () => void;
 }) {
@@ -110,42 +103,6 @@ export function ProfileView({
                 { label: t("My rhythm"), value: t(rhythm) },
               ]}
             />
-          </Card>
-
-          <Card padding="md">
-            <Heading level={2} size="xl">
-              {t("Design language")}
-            </Heading>
-            <Text size="sm" tone="muted" className={v.spaced}>
-              {t(
-                "The same app in six design languages. You can also switch from the top right.",
-              )}
-            </Text>
-            <Select
-              label={t("Design language")}
-              value={appearance.language}
-              onChange={(e) =>
-                onAppearance({
-                  language: e.target.value as Appearance["language"],
-                })
-              }
-              options={directions.map((d) => ({
-                value: d.id,
-                label: t(d.name),
-              }))}
-              className={v.spaced}
-            />
-            <div className={v.spaced}>
-              <SegmentedControl
-                label={t("Profile details")}
-                value={appearance.layout}
-                onChange={(layout) => onAppearance({ layout })}
-                options={[
-                  { value: "blocks", label: t("Blocks") },
-                  { value: "tabs", label: t("Tabs") },
-                ]}
-              />
-            </div>
           </Card>
 
           <Card padding="md">

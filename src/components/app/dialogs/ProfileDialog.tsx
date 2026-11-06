@@ -1,25 +1,20 @@
 "use client";
 import type { CSSProperties } from "react";
 import { BadgeCheck, Heart, MessageCircle, MoreHorizontal } from "lucide-react";
+import { Avatar, Button, Dialog, IconButton, Text } from "@/design-system";
 import {
-  Avatar,
-  Button,
-  Dialog,
-  IconButton,
-  Text,
-  type DetailsLayout,
-} from "@/design-system";
-import { discoverParts, type DirectionId } from "@/design-system/languages";
+  defaultLanguage,
+  defaultLayout,
+  discoverParts,
+} from "@/design-system/languages";
 import { useI18n } from "@/lib/i18n";
 import type { MatchResult, Profile } from "@/lib/types";
 import d from "./dialogs.module.css";
 
-/** A person's full profile, in the active language's Home → Person → Fit. */
+/** A person's full profile: Home → Person → Fit as tabs. */
 export function ProfileDialog({
   profile: p,
   match,
-  language,
-  layout,
   liked,
   hasChat,
   onClose,
@@ -29,8 +24,6 @@ export function ProfileDialog({
 }: {
   profile: Profile;
   match: MatchResult;
-  language: DirectionId;
-  layout: DetailsLayout;
   liked: boolean;
   hasChat: boolean;
   onClose: () => void;
@@ -39,7 +32,7 @@ export function ProfileDialog({
   onReport: () => void;
 }) {
   const { t } = useI18n();
-  const { Details } = discoverParts[language];
+  const { Details } = discoverParts[defaultLanguage];
   return (
     <Dialog title={`${p.name}, ${p.age}`} onClose={onClose} size="lg" hideTitle>
       <div className={d.person}>
@@ -67,7 +60,7 @@ export function ProfileDialog({
         <Details
           profile={p}
           match={match}
-          layout={layout}
+          layout={defaultLayout}
           onReport={onReport}
         />
       </div>
