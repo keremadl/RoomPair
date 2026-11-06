@@ -72,6 +72,7 @@
   --heading-weight: 800;
   --surface-border: var(--color-border-strong);
   --surface-border-width: 2px;
+  --icon-stroke: 2.5; /* matches the 2px outlines at 20–24px icons */
 
   /* Shell: the wordmark is a pressed badge. */
   --logo-bg: var(--color-surface-raised);

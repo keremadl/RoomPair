@@ -51,6 +51,7 @@ import {
   ScoreBars,
   ReasonList,
   Tabs,
+  Icons,
 } from "@/design-system";
 import {
   directionFontVariables,
@@ -133,6 +134,7 @@ const sections = [
   ["type", "Typography"],
   ["space", "Space & shape"],
   ["buttons", "Buttons"],
+  ["icons", "Icons"],
   ["labels", "Badges & chips"],
   ["forms", "Forms"],
   ["display", "Avatars & cards"],
@@ -504,6 +506,92 @@ export function Showcase() {
               icon={<Sparkles />}
               variant="outline"
             />
+          </Specimen>
+        </Section>
+
+        <Section
+          id="icons"
+          title="Icons · Card set"
+          intro={`${Icons.iconList.length} icons drawn for RoomPair on a 24 grid: round caps, soft corners, a heavier stroke (--icon-stroke) and small solid dots as accents. Names match the lucide icons they will replace. Import from @/design-system/icons.`}
+        >
+          <Specimen label="Every icon · 16 / 24 / 32">
+            <ul className={styles.iconGrid}>
+              {Icons.iconList.map(([name, Glyph]) => (
+                <li key={name} className={styles.iconTile}>
+                  <span className={styles.iconSizes}>
+                    <Glyph className={styles.iconSm} />
+                    <Glyph className={styles.iconLg} />
+                    <Glyph className={styles.iconXl} />
+                  </span>
+                  <code>{name}</code>
+                </li>
+              ))}
+            </ul>
+          </Specimen>
+          <Specimen label="In context · IconButton, Button, Chip">
+            <IconButton label="More options" icon={<Icons.MoreHorizontal />} />
+            <IconButton
+              label="Undo"
+              icon={<Icons.RotateCcw />}
+              variant="outline"
+            />
+            <IconButton
+              label="Pass"
+              icon={<Icons.X />}
+              variant="outline"
+              size="lg"
+            />
+            <IconButton
+              label="Like"
+              icon={<Icons.Heart />}
+              variant="solid"
+              size="lg"
+            />
+            <IconButton
+              label="Save"
+              icon={<Icons.Bookmark />}
+              variant="outline"
+              size="sm"
+            />
+            <Button leadingIcon={<Icons.Send />}>Send</Button>
+            <Button variant="secondary" trailingIcon={<Icons.ArrowRight />}>
+              Next
+            </Button>
+            <Chip icon={<Icons.Leaf />}>Plant parent</Chip>
+            <Chip icon={<Icons.PawPrint />}>Pets welcome</Chip>
+            <Badge tone="success" dot>
+              Has a room
+            </Badge>
+          </Specimen>
+          <Specimen label="In context · ListRow and inline text">
+            <ListGroup title="Your place" id="spec-icons-place">
+              <ListRow
+                icon={<Icons.Home />}
+                label="Room type"
+                value="Private room"
+                onClick={() => {}}
+              />
+              <ListRow
+                icon={<Icons.Wallet />}
+                label="Rent"
+                value="€420 / month"
+                onClick={() => {}}
+              />
+              <ListRow
+                icon={<Icons.CalendarDays />}
+                label="Move-in"
+                onClick={() => {}}
+              />
+            </ListGroup>
+            <Text size="sm" tone="muted">
+              <Icons.MapPin className={styles.inlineIcon} /> Āgenskalns, Riga ·{" "}
+              <Icons.BadgeCheck
+                className={styles.inlineIcon}
+                aria-label="Verified"
+              />{" "}
+              verified · <Icons.Moon className={styles.inlineIcon} /> night
+              owl
+            </Text>
           </Specimen>
         </Section>
 

@@ -175,6 +175,14 @@
   --control-md: 44px; /* minimum touch target */
   --control-lg: 52px;
 
+  /* Icons (src/design-system/icons): 24-unit grid, stroke in grid units, so
+   * it scales with the icon. 2.25 at 24px ≈ 2.25px; at 16px ≈ 1.5px. */
+  --icon-stroke: 2.25;
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 24px;
+  --icon-size-xl: 32px;
+
   /* ───────────── Motion ───────────── */
 
   --duration-fast: 120ms;

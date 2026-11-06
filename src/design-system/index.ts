@@ -99,3 +99,8 @@ export {
 } from "./components/ChoiceCards/ChoiceCards";
 export { Toast } from "./components/Toast/Toast";
 export { TextProvider, useText, type Translate } from "./text/TextProvider";
+
+/* Icons (Card set). Namespaced so Icons.Text / Icons.Circle don't clash with
+ * Typography; for lucide-style named imports use "@/design-system/icons". */
+export * as Icons from "./icons";
+export type { IconProps, IconComponent } from "./icons";
