@@ -78,6 +78,10 @@ npm run translate -- lv "Latviešu"
 
 The CLI validates the result and adds a static language pack. Switching languages never calls a paid service. Credentials remain server-side. The workflow is supplied inactive; it has not been connected to a live n8n account. See [the complete setup guide](docs/localization.md).
 
+## Lab (testing without deploying)
+
+`npm run lab` builds `.lab/RoomPair-Lab.html`: the app inside an iPhone 16 Pro frame (402 × 874) and the design-system library, as one self-contained page. It is published as a private claude.ai artifact, so design changes can be tested there before they go to Vercel. Sources: `lab/` (entry, page shell, build script).
+
 ## Checks
 
 ```powershell

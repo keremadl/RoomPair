@@ -1,0 +1,217 @@
+<title>RoomPair Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Layout: a quiet workbench; the device (or the library) is the only object on it. */
+  :root {
+    --bench: #e9e7e2;
+    --bench-ink: #24221f;
+    --bench-muted: #6b675f;
+    --panel: #f7f6f3;
+    --line: #d4d0c8;
+    --accent: #5b3fd6;
+    --on-accent: #ffffff;
+    --titanium: #8d8a84;
+    --titanium-hi: #b9b5ad;
+    --bezel: #0b0b0c;
+    --status: #fffdf8;
+    --status-ink: #1d2240;
+    --font-ui: "Rubik", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bench: #1b1a18; --bench-ink: #ece9e3; --bench-muted: #a29d93;
+      --panel: #252421; --line: #3a3833; --accent: #9b88ff; --on-accent: #16131f;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bench: #1b1a18; --bench-ink: #ece9e3; --bench-muted: #a29d93;
+    --panel: #252421; --line: #3a3833; --accent: #9b88ff; --on-accent: #16131f;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  body {
+    display: flex; flex-direction: column;
+    background: var(--bench); color: var(--bench-ink);
+    font-family: var(--font-ui);
+  }
+  .top {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px;
+    padding-block: 12px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+  }
+  .brand { font-weight: 700; font-size: 1.05rem; }
+  .brand small { margin-left: 6px; color: var(--bench-muted); font-weight: 400; font-size: .85rem; }
+  .tabs { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--bench); }
+  .tabs button {
+    padding: 6px 14px; border: 0; border-radius: 999px; background: none;
+    color: var(--bench-muted); font: 500 .9rem var(--font-ui); cursor: pointer;
+  }
+  .tabs button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+  .tools { display: flex; gap: 8px; margin-left: auto; }
+  .tools button {
+    padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--panel); color: var(--bench-ink); font: 500 .85rem var(--font-ui); cursor: pointer;
+  }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .stage { position: relative; flex: 1; min-height: 0; }
+  #phone-view {
+    position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden;
+    padding: 16px;
+  }
+  .meta { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); bottom: 12px; color: var(--bench-muted); font-size: .8rem; }
+
+  /* iPhone 16 Pro: 402 × 874 pt screen; drawn, not copied. */
+  .device { position: relative; width: 446px; height: 918px; transform-origin: center; flex-shrink: 0; }
+  .device svg.body { position: absolute; inset: 0; }
+  .screen {
+    position: absolute; left: 22px; top: 22px; width: 402px; height: 874px;
+    overflow: hidden; border-radius: 55px; background: var(--status);
+  }
+  .status {
+    position: relative; height: 54px; display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 30px 0 44px; background: var(--status); color: var(--status-ink);
+    font: 600 17px/1 -apple-system, "SF Pro Text", var(--font-ui);
+  }
+  .status svg { height: 13px; }
+  .island {
+    position: absolute; top: 11px; left: 50%; width: 126px; height: 37px; margin-left: -63px;
+    border-radius: 20px; background: var(--bezel); z-index: 3;
+  }
+  .screen iframe { display: block; width: 402px; height: 820px; border: 0; background: var(--status); }
+  .home {
+    position: absolute; left: 50%; bottom: 8px; width: 140px; height: 5px; margin-left: -70px;
+    border-radius: 3px; background: var(--status-ink); opacity: .85; z-index: 3; pointer-events: none;
+  }
+  #library-view { position: absolute; inset: 0; }
+  #library-view iframe { width: 100%; height: 100%; border: 0; display: block; background: var(--panel); }
+</style>
+
+<header class="top">
+  <span class="brand">RoomPair Lab <small>iPhone 16 Pro · 402 × 874</small></span>
+  <nav class="tabs" aria-label="View">
+    <button type="button" id="tab-phone" aria-pressed="true">Phone</button>
+    <button type="button" id="tab-library" aria-pressed="false">Library</button>
+  </nav>
+  <div class="tools">
+    <button type="button" id="reload">Reload</button>
+    <button type="button" id="reset">Reset demo data</button>
+  </div>
+</header>
+
+<main class="stage">
+  <section id="phone-view" aria-label="App on iPhone 16 Pro">
+    <div class="device" id="device">
+      <svg class="body" viewBox="0 0 446 918" aria-hidden="true">
+        <defs>
+          <linearGradient id="ti" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stop-color="var(--titanium-hi)" />
+            <stop offset=".5" stop-color="var(--titanium)" />
+            <stop offset="1" stop-color="var(--titanium-hi)" />
+          </linearGradient>
+        </defs>
+        <!-- side buttons: action + volume (left), side + camera control (right) -->
+        <rect x="0" y="182" width="6" height="34" rx="2" fill="var(--titanium)" />
+        <rect x="0" y="250" width="6" height="62" rx="2" fill="var(--titanium)" />
+        <rect x="0" y="326" width="6" height="62" rx="2" fill="var(--titanium)" />
+        <rect x="440" y="282" width="6" height="96" rx="2" fill="var(--titanium)" />
+        <rect x="440" y="560" width="6" height="58" rx="2" fill="var(--titanium)" />
+        <!-- titanium band, then black bezel -->
+        <rect x="4" y="0" width="438" height="918" rx="74" fill="url(#ti)" />
+        <rect x="8" y="4" width="430" height="910" rx="70" fill="var(--bezel)" />
+      </svg>
+      <div class="screen">
+        <div class="island"></div>
+        <div class="status" aria-hidden="true">
+          <span>9:41</span>
+          <svg viewBox="0 0 74 13">
+            <g fill="currentColor">
+              <rect x="0" y="9" width="3" height="4" rx="1" /><rect x="5" y="6" width="3" height="7" rx="1" />
+              <rect x="10" y="3" width="3" height="10" rx="1" /><rect x="15" y="0" width="3" height="13" rx="1" />
+              <path d="M32 3.2a10 10 0 0 1 13 0l-1.6 1.7a7.6 7.6 0 0 0-9.8 0zM35 6.4a5.6 5.6 0 0 1 7 0l-1.6 1.7a3.2 3.2 0 0 0-3.8 0zM38.5 9.6 37.6 10.6 38.5 11.6l.9-1z" />
+              <rect x="50" y="1" width="21" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1" opacity=".5" />
+              <rect x="52" y="3" width="17" height="7" rx="1.5" /><rect x="72" y="4.5" width="1.5" height="4" rx=".7" opacity=".5" />
+            </g>
+          </svg>
+        </div>
+        <iframe id="phone-frame" title="RoomPair app"></iframe>
+        <div class="home"></div>
+      </div>
+    </div>
+    <p class="meta">Viewport 402 × 820 under the status bar · changes stay in this browser</p>
+  </section>
+  <section id="library-view" aria-label="Design system library" hidden>
+    <iframe id="library-frame" title="RoomPair design system"></iframe>
+  </section>
+</main>
+
+<script>
+  const APP_CSS = /*__APP_CSS__*/;
+  const APP_JS = /*__APP_JS__*/;
+  const FONTS =
+    "https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&family=Manrope:wght@500;700;800&display=swap";
+
+  /* One document per view; the app runs inside an iframe so its own media
+     queries see the phone's width. */
+  function doc(view) {
+    return (
+      '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+      '<link rel="stylesheet" href="' + FONTS + '">' +
+      "<style>" + APP_CSS + "</style></head><body>" +
+      '<div id="root" class="lab-font-rubik"></div>' +
+      "<script>window.__LAB_VIEW=" + JSON.stringify(view) + ";<\/script>" +
+      "<script>" + APP_JS + "<\/script></body></html>"
+    );
+  }
+
+  const phone = document.getElementById("phone-frame");
+  const library = document.getElementById("library-frame");
+  const loaded = { phone: false, library: false };
+  function load(view, force) {
+    if (loaded[view] && !force) return;
+    (view === "phone" ? phone : library).srcdoc = doc(view === "phone" ? "app" : "library");
+    loaded[view] = true;
+  }
+
+  function show(view) {
+    const isPhone = view !== "library";
+    document.getElementById("phone-view").hidden = !isPhone;
+    document.getElementById("library-view").hidden = isPhone;
+    document.getElementById("tab-phone").setAttribute("aria-pressed", String(isPhone));
+    document.getElementById("tab-library").setAttribute("aria-pressed", String(!isPhone));
+    load(isPhone ? "phone" : "library");
+    if (isPhone) fit();
+  }
+
+  /* Scale the device down to fit the window; never above 1. */
+  const device = document.getElementById("device");
+  function fit() {
+    const box = document.getElementById("phone-view").getBoundingClientRect();
+    const s = Math.min(1, (box.height - 56) / 918, (box.width - 32) / 446);
+    device.style.transform = "scale(" + Math.max(0.3, s) + ")";
+  }
+  window.addEventListener("resize", fit);
+
+  const route = () => show(location.hash === "#library" ? "library" : "phone");
+  document.getElementById("tab-phone").onclick = () => { location.hash = "phone"; };
+  document.getElementById("tab-library").onclick = () => { location.hash = "library"; };
+  window.addEventListener("hashchange", route);
+
+  document.getElementById("reload").onclick = () => {
+    load("phone", true);
+    if (loaded.library) load("library", true);
+  };
+  document.getElementById("reset").onclick = () => {
+    try {
+      for (const key of Object.keys(localStorage))
+        if (key.startsWith("roompair")) localStorage.removeItem(key);
+    } catch (e) { /* storage blocked: nothing to reset */ }
+    load("phone", true);
+  };
+
+  route();
+</script>

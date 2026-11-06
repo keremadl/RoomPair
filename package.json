@@ -11,7 +11,8 @@
     "test": "tsx --test src/lib/*.test.ts",
     "translate": "node scripts/generate-locale.mjs",
     "test:e2e": "playwright test",
-    "format": "prettier --write src tests *.ts *.json"
+    "format": "prettier --write src tests *.ts *.json",
+    "lab": "node lab/build.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
