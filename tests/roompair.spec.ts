@@ -208,6 +208,25 @@ test.describe("on a phone", () => {
         Math.max(window.innerWidth, document.documentElement.scrollWidth),
       ),
     ).toBe(360);
+    // Cards use the phone's width instead of shrinking into a column.
+    const nav = page.getByRole("navigation", { name: "Mobile navigation" });
+    const widthOf = (name: string) =>
+      page
+        .getByRole("article", { name })
+        .first()
+        .evaluate((el) => el.getBoundingClientRect().width);
+    await nav.getByRole("button", { name: /My space/ }).click();
+    expect(await widthOf("A sunny room in Āgenskalns")).toBeGreaterThan(300);
+    await nav.getByRole("button", { name: /My profile/ }).click();
+    const body = page.locator("article").first().locator("h2").first();
+    expect(
+      await body.evaluate(
+        (el) =>
+          el.closest("article")!.firstElementChild!.getBoundingClientRect()
+            .width,
+      ),
+    ).toBeGreaterThan(280);
+    await nav.getByRole("button", { name: /Discover/ }).click();
     // A card flying out of view or a sticker past the edge must stay clipped.
     await page.evaluate(() => {
       const probe = document.createElement("div");

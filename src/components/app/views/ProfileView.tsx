@@ -46,7 +46,8 @@ export function ProfileView({
       <div className={v.profileGrid}>
         <section aria-labelledby="my-card">
           <article
-            className={`${c.card} ${v.myCard}`}
+            className={c.card}
+            data-stack
             data-type={host ? "host" : "explorer"}
           >
             <div className={c.body}>

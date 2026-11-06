@@ -8,6 +8,9 @@
 .profileGrid,
 .centered,
 .toolbar + [role="tabpanel"] {
+  /* width: 100% keeps them full width inside flex columns, where auto
+     margins would otherwise shrink them to their content. */
+  width: 100%;
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
@@ -521,10 +524,6 @@
 }
 
 /* My profile: your own character card */
-/* Doubled class: beats the two-column PersonCard grid whatever the CSS order. */
-.myCard.myCard {
-  grid-template-columns: 1fr;
-}
 .myName {
   display: flex;
   align-items: center;
