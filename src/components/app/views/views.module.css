@@ -375,9 +375,8 @@
   background: var(--color-surface-raised);
   box-shadow: var(--control-shadow, var(--shadow-sm));
 }
-.composerBar:focus-within {
-  box-shadow: var(--control-shadow, var(--shadow-sm)), var(--focus-ring);
-}
+/* No focus ring on the bar: the caret already shows where you type, and
+   the photo and send buttons keep their own ring for keyboard users. */
 .composerInput {
   flex: 1;
   min-width: 0;
