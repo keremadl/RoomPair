@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { defaultPreferences, conversations } from "./data";
-import type { Preferences, Conversation } from "./types";
+import { defaultMe } from "./profile";
+import type { Preferences, Conversation, MyProfile } from "./types";
 export interface AppState {
   preferences: Preferences;
   decisions: { id: string; action: "like" | "pass" }[];
@@ -14,6 +15,7 @@ export interface AppState {
   reports: { profileId: string; reason: string }[];
   /** Planned viewing per saved room id (datetime-local value). */
   viewings: Record<string, string>;
+  me: MyProfile;
 }
 export const initialState: AppState = {
   preferences: defaultPreferences,
@@ -26,6 +28,7 @@ export const initialState: AppState = {
   blocked: [],
   reports: [],
   viewings: {},
+  me: defaultMe,
 };
 const KEY = "roompair-demo-v1";
 export function useAppState() {
@@ -44,6 +47,11 @@ export function useAppState() {
           setState({
             ...initialState,
             ...saved,
+            me: {
+              ...defaultMe,
+              ...saved.me,
+              room: { ...defaultMe.room, ...saved.me?.room },
+            },
             preferences: {
               ...defaultPreferences,
               ...saved.preferences,

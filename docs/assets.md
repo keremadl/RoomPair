@@ -17,6 +17,7 @@ Images are downloaded locally so the presentation does not rely on external imag
 | room-1.jpg  | https://images.unsplash.com/photo-1600210492486-724fe5c67fb0                  |
 | room-2.jpg  | https://images.unsplash.com/photo-1616486338812-3dadae4b4ace                  |
 | room-3.jpg  | https://images.unsplash.com/photo-1618221195710-dd6b41faaea6                  |
+| alex.jpg    | https://www.pexels.com/photo/2379005/                                         |
 | room-4.jpg  | https://www.pexels.com/photo/1743229/                                         |
 
 DM Sans and Manrope are self-hosted Google Fonts. Their source families use the SIL Open Font License; license texts are included in `public/fonts/`. Icons are from the ISC-licensed `lucide-react` package. The paired-arch RoomPair mark and domestic SVG illustrations were created in code for this project. Competitor screenshots were studied as references and are not embedded in the product.

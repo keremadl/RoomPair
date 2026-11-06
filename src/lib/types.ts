@@ -82,3 +82,24 @@ export interface Room {
   tags: string[];
   description: string;
 }
+
+/** What you show others: photos, words, and your room if you have one. */
+export interface MyProfile {
+  /** Data URLs or /images paths. The first is the main photo. */
+  photos: string[];
+  age: number;
+  occupation: string;
+  bio: string;
+  prompts: { question: string; answer: string }[];
+  interests: string[];
+  /** Demo only: whether the student-email check is done. */
+  verified: boolean;
+  /** Only used when you have a room. */
+  room: {
+    photos: string[];
+    title: string;
+    price: number;
+    billsIncluded: boolean;
+    description: string;
+  };
+}

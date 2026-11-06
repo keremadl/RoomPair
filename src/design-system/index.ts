@@ -90,6 +90,7 @@ export {
   type EmptyStateProps,
 } from "./components/EmptyState/EmptyState";
 export { VisuallyHidden } from "./components/VisuallyHidden/VisuallyHidden";
+export { ListRow, ListGroup } from "./components/ListRow/ListRow";
 export {
   ChoiceCards,
   type ChoiceCardOption,

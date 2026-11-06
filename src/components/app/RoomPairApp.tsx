@@ -1,5 +1,5 @@
 "use client";
-import { SlidersHorizontal } from "lucide-react";
+import { Settings, SlidersHorizontal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig } from "motion/react";
 import { TextProvider } from "@/design-system";
@@ -68,7 +68,8 @@ function RoomPairApp() {
   const { state, setState, ready, reset } = useAppState();
   const [view, setView] = useState<View>("discover");
   const [dialog, setDialog] = useState<Dialog>(null);
-  const [onboarding, setOnboarding] = useState(false);
+  // false = closed; a number = open at that step.
+  const [onboarding, setOnboarding] = useState<false | number>(false);
   const [selected, setSelected] = useState<Profile | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [activeChat, setActiveChat] = useState<string | null>(null);
@@ -288,7 +289,7 @@ function RoomPairApp() {
       const el = e.target as HTMLElement;
       if (
         dialog ||
-        onboarding ||
+        onboarding !== false ||
         view !== "discover" ||
         ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName) ||
         el.isContentEditable ||
@@ -349,7 +350,13 @@ function RoomPairApp() {
               icon: <SlidersHorizontal aria-hidden="true" />,
               onClick: () => setDialog("filters"),
             }
-          : undefined
+          : view === "profile"
+            ? {
+                label: t("Settings"),
+                icon: <Settings aria-hidden="true" />,
+                onClick: () => setDialog("settings"),
+              }
+            : undefined
       }
     >
       {view === "discover" && (
@@ -431,9 +438,12 @@ function RoomPairApp() {
       {view === "profile" && (
         <ProfileView
           preferences={state.preferences}
-          onboarded={state.onboarded}
-          onEdit={() => setOnboarding(true)}
-          onSettings={() => setDialog("settings")}
+          me={state.me}
+          onMe={(next) =>
+            setState((st) => ({ ...st, me: { ...st.me, ...next } }))
+          }
+          onEditBasics={(step) => setOnboarding(step)}
+          onError={notify}
           onIntent={(intent) => {
             setState((st) => ({
               ...st,
@@ -505,7 +515,7 @@ function RoomPairApp() {
             onClose={() => setDialog(null)}
             onStart={() => {
               setDialog(null);
-              setOnboarding(true);
+              setOnboarding(0);
             }}
           />
         )}
@@ -549,9 +559,10 @@ function RoomPairApp() {
             }}
           />
         )}
-        {onboarding && (
+        {onboarding !== false && (
           <Onboarding
             key="onboarding"
+            startStep={onboarding}
             initial={state.preferences}
             onClose={() => setOnboarding(false)}
             onComplete={(preferences) => {

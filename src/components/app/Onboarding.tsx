@@ -26,14 +26,17 @@ export function Onboarding({
   initial,
   onComplete,
   onClose,
+  startStep = 0,
 }: {
   initial: Preferences;
+  /** Open at a later step, e.g. from a profile row. */
+  startStep?: number;
   onComplete: (p: Preferences) => void;
   onClose: () => void;
 }) {
   const { t } = useI18n();
   const [values, setValues] = useState<Preferences>({ ...initial });
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(startStep);
   const [direction, setDirection] = useState(1);
   const [error, setError] = useState("");
   const set = <K extends keyof Preferences>(key: K, value: Preferences[K]) => {

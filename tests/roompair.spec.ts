@@ -143,7 +143,7 @@ test("filters validate, onboarding updates the profile, report and block work", 
     .getByRole("navigation", { name: "Main navigation" })
     .getByRole("button", { name: /My profile/ })
     .click();
-  await page.getByRole("button", { name: "Edit" }).click();
+  await page.getByRole("button", { name: /^Name/ }).click();
   const setup = page.getByRole("dialog", { name: "Your profile" });
   await setup
     .getByRole("textbox", { name: "What should we call you?" })
@@ -222,6 +222,61 @@ test("what you are looking for decides who Discover shows", async ({
   );
 });
 
+test("my profile: photos, prompts, interests, preview and completion", async ({
+  page,
+}) => {
+  await openApp(page);
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .getByRole("button", { name: /My profile/ })
+    .click();
+  const ring = page.getByRole("img", { name: /Profile \d+% complete/ });
+  const before = await ring.getAttribute("aria-label");
+  // Add a second prompt
+  await page.getByRole("button", { name: "Add a prompt" }).click();
+  const dialog = page.getByRole("dialog", { name: "Add a prompt" });
+  await dialog
+    .getByRole("textbox", { name: "Your answer" })
+    .fill("Cooking for everyone.");
+  await dialog.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText("Cooking for everyone.")).toBeVisible();
+  await expect(ring).not.toHaveAttribute("aria-label", before!);
+  // Interests: add one
+  await page.getByRole("button", { name: "Edit" }).last().click();
+  await page
+    .getByRole("dialog", { name: "Interests" })
+    .getByRole("button", { name: "Yoga" })
+    .click();
+  await page
+    .getByRole("dialog", { name: "Interests" })
+    .getByRole("button", { name: "Save" })
+    .click();
+  await expect(
+    page.getByRole("listitem").filter({ hasText: /^Yoga$/ }),
+  ).toBeVisible();
+  // Upload a photo
+  await page
+    .locator('input[type="file"]')
+    .first()
+    .setInputFiles("public/images/room-2.jpg");
+  await expect(
+    page.getByRole("button", { name: /Photo 2: make main/ }),
+  ).toBeVisible();
+  // Preview shows the card others see
+  await page.getByRole("button", { name: "Preview my card" }).click();
+  await expect(
+    page
+      .getByRole("dialog", { name: "Your card" })
+      .getByRole("heading", { name: /Alex, 22/ }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  // Hosts get a room section
+  await page
+    .getByRole("radio", { name: /I have a room, I need a flatmate/ })
+    .check();
+  await expect(page.getByRole("heading", { name: "My room" })).toBeVisible();
+});
+
 test("Turkish interface and a phone-sized layout", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openApp(page);
@@ -232,7 +287,12 @@ test("Turkish interface and a phone-sized layout", async ({ page }) => {
   ).toBeLessThanOrEqual(390);
   await expect(page.getByRole("button", { name: /Design/ })).toHaveCount(0);
   await mobileNav.getByRole("button", { name: /My profile/ }).click();
+  await page
+    .getByRole("banner")
+    .getByRole("button", { name: "Settings" })
+    .click();
   await page.getByRole("combobox", { name: "Language" }).selectOption("tr");
+  await page.keyboard.press("Escape");
   const turkishNav = page.getByRole("navigation", { name: "Mobil gezinme" });
   await expect(
     turkishNav.getByRole("button", { name: /Keşfet/ }),
@@ -270,14 +330,11 @@ test.describe("on a phone", () => {
     await nav.getByRole("button", { name: /My space/ }).click();
     expect(await widthOf("A sunny room in Āgenskalns")).toBeGreaterThan(300);
     await nav.getByRole("button", { name: /My profile/ }).click();
-    const body = page.locator("article").first().locator("h2").first();
     expect(
-      await body.evaluate(
-        (el) =>
-          el.closest("article")!.firstElementChild!.getBoundingClientRect()
-            .width,
-      ),
-    ).toBeGreaterThan(280);
+      await page
+        .getByRole("list", { name: "My photos" })
+        .evaluate((el) => el.getBoundingClientRect().width),
+    ).toBeGreaterThan(300);
     await nav.getByRole("button", { name: /Discover/ }).click();
     // A card flying out of view or a sticker past the edge must stay clipped.
     await page.evaluate(() => {

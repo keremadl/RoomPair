@@ -63,8 +63,11 @@ export function DiscoverCard({
   onInfo,
   saved,
   onSave,
+  preview = false,
 }: {
   deck: DiscoverDeck;
+  /** Your own card as others see it: no buttons, no fit score. */
+  preview?: boolean;
   roomFirst?: boolean;
   /** Opens Home → Person → Fit for this profile. */
   onInfo?: () => void;
@@ -154,7 +157,9 @@ export function DiscoverCard({
                       )}
                     </h2>
                     <p className={w.line}>
-                      <span className={w.fit}>{m.score}% fit</span>
+                      {!preview && (
+                        <span className={w.fit}>{m.score}% fit</span>
+                      )}
                       {showRoom ? (
                         <span>From {moveIn}</span>
                       ) : (
@@ -181,36 +186,38 @@ export function DiscoverCard({
         </AnimatePresence>
       </div>
 
-      <div className={w.actions}>
-        <button
-          type="button"
-          className={w.round}
-          data-kind="undo"
-          onClick={deck.undo}
-          disabled={!deck.canUndo}
-          aria-label="Undo"
-        >
-          <RotateCcw />
-        </button>
-        <button
-          type="button"
-          className={w.round}
-          data-kind="pass"
-          onClick={() => decide("pass")}
-          aria-label="Skip"
-        >
-          <X />
-        </button>
-        <button
-          type="button"
-          className={w.round}
-          data-kind="like"
-          onClick={() => decide("like")}
-          aria-label="Team up"
-        >
-          <Heart />
-        </button>
-      </div>
+      {!preview && (
+        <div className={w.actions}>
+          <button
+            type="button"
+            className={w.round}
+            data-kind="undo"
+            onClick={deck.undo}
+            disabled={!deck.canUndo}
+            aria-label="Undo"
+          >
+            <RotateCcw />
+          </button>
+          <button
+            type="button"
+            className={w.round}
+            data-kind="pass"
+            onClick={() => decide("pass")}
+            aria-label="Skip"
+          >
+            <X />
+          </button>
+          <button
+            type="button"
+            className={w.round}
+            data-kind="like"
+            onClick={() => decide("like")}
+            aria-label="Team up"
+          >
+            <Heart />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
