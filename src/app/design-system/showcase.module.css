@@ -177,7 +177,7 @@
   gap: var(--space-2);
   padding: var(--space-6);
   border-radius: var(--radius-md);
-  background: center / cover url("/images/room-1.jpg");
+  background: center / cover url("/images/ella-room-1.jpg");
 }
 .formGrid {
   display: grid;

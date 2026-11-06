@@ -921,14 +921,14 @@ export function Showcase() {
           intro="Cards group related content. Three variants, no custom shadows."
         >
           <Specimen label="Avatar sizes">
-            <Avatar name="Ella Berzina" src="/images/ella.jpg" size="sm" />
-            <Avatar name="Ella Berzina" src="/images/ella.jpg" />
+            <Avatar name="Ella Berzina" src="/images/ella-1.jpg" size="sm" />
+            <Avatar name="Ella Berzina" src="/images/ella-1.jpg" />
             <Avatar name="Alex Kaya" size="lg" />
-            <Avatar name="Noah" src="/images/noah.jpg" size="xl" />
+            <Avatar name="Noah" src="/images/noah-1.jpg" size="xl" />
             <AvatarGroup>
-              <Avatar name="Leo" src="/images/leo.jpg" size="sm" />
-              <Avatar name="Maya" src="/images/maya.jpg" size="sm" />
-              <Avatar name="Felix" src="/images/felix.jpg" size="sm" />
+              <Avatar name="Leo" src="/images/leo-1.jpg" size="sm" />
+              <Avatar name="Maya" src="/images/maya-1.jpg" size="sm" />
+              <Avatar name="Felix" src="/images/felix-1.jpg" size="sm" />
             </AvatarGroup>
           </Specimen>
           <div className={styles.cardGrid}>
@@ -1138,7 +1138,7 @@ export function Showcase() {
         >
           <Card variant="raised" padding="none" className={styles.profileCard}>
             <img
-              src="/images/ella.jpg"
+              src="/images/ella-1.jpg"
               alt=""
               className={styles.profilePhoto}
             />

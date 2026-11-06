@@ -72,7 +72,7 @@ export const interestOptions = [
 ];
 
 export const defaultMe: MyProfile = {
-  photos: ["/images/alex.jpg"],
+  photos: ["/images/alex-1.jpg"],
   age: 22,
   status: "student",
   occupation: "Computer science student",

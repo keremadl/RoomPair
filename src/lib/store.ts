@@ -63,6 +63,10 @@ export function useAppState() {
               ...saved.me,
               room: { ...defaultMe.room, ...saved.me?.room },
               prompts: migratePrompts(saved.me?.prompts ?? defaultMe.prompts),
+              // The old demo photo was replaced by a new one.
+              photos: (saved.me?.photos ?? defaultMe.photos).map((p: string) =>
+                p === "/images/alex.jpg" ? "/images/alex-1.jpg" : p,
+              ),
             },
             preferences: {
               ...defaultPreferences,

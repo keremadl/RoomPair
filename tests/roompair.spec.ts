@@ -272,7 +272,7 @@ test("what you are looking for decides who Discover shows", async ({
   await page
     .getByRole("region", { name: "My room" })
     .locator('input[type="file"]')
-    .setInputFiles("public/images/room-2.jpg");
+    .setInputFiles("public/images/sofia-room-1.jpg");
   await expect(
     page
       .getByRole("list", { name: "Room photos" })
@@ -335,7 +335,7 @@ test("my profile: preview from the photo, then edit photos, questions and intere
   await page
     .locator('input[type="file"]')
     .first()
-    .setInputFiles("public/images/room-2.jpg");
+    .setInputFiles("public/images/sofia-room-1.jpg");
   await expect(
     page.getByRole("button", { name: /Photo 2: make main/ }),
   ).toBeVisible();
@@ -408,7 +408,7 @@ test.describe("on a phone", () => {
     await expect(composer).toBeInViewport();
     await page
       .locator('input[type="file"][accept="image/*"]')
-      .setInputFiles("public/images/room-3.jpg");
+      .setInputFiles("public/images/maya-room-1.jpg");
     await expect(page.getByRole("img", { name: "Photo" })).toBeVisible();
     await expect(
       page
