@@ -734,5 +734,6 @@
   "Enter a number.": "Bir sayı gir.",
   "Choose between {min} and {max}.": "{min} ile {max} arasında seç.",
   "Enter {min} or more.": "{min} veya daha fazla gir.",
-  "Pick a time that hasn't passed yet.": "Henüz geçmemiş bir zaman seç."
+  "Pick a time that hasn't passed yet.": "Henüz geçmemiş bir zaman seç.",
+  "Previous photo": "Önceki fotoğraf"
 }

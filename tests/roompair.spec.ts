@@ -81,6 +81,36 @@ test("people you already have a conversation with stay out of Discover", async (
   expect(seen.filter((n) => /^(Maya|Sofia)\b/.test(n))).toEqual([]);
 });
 
+test("tap the right or left of the card to step through its photos", async ({
+  page,
+}) => {
+  await openApp(page);
+  await expect(card(page)).toHaveText(/^Ella/);
+  const photo = page
+    .getByRole("article", { name: /^Ella/ })
+    .locator("img")
+    .first();
+  const first = await photo.getAttribute("src");
+  const prev = page.getByRole("button", { name: "Previous photo" });
+  const next = page.getByRole("button", { name: "Next photo" });
+  await expect(prev).toBeDisabled();
+  await next.click();
+  await expect(photo).not.toHaveAttribute("src", first ?? "");
+  await expect(prev).toBeEnabled();
+  await prev.click();
+  await expect(photo).toHaveAttribute("src", first ?? "");
+  // Room seekers see the room's photos first, then the host's
+  for (let i = 0; i < 4; i++) await next.click();
+  await expect(photo).toHaveAttribute("src", /ella-\d\.jpg/);
+  await expect(next).toBeDisabled();
+  // A new card starts again from its first photo
+  await page.keyboard.press("ArrowLeft");
+  await expect(card(page)).not.toHaveText(/^Ella/);
+  await expect(
+    page.getByRole("button", { name: "Previous photo" }),
+  ).toBeDisabled();
+});
+
 test("a mutual like opens a match, then a conversation with a simulated reply", async ({
   page,
 }) => {

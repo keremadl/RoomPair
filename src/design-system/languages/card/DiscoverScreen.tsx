@@ -1,7 +1,7 @@
 "use client";
 import type { DiscoverDeck, MatchResult, Profile } from "@/lib/discover/deck";
 import type { Preferences } from "@/lib/types";
-import { useRef } from "react";
+import { useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import { AnimatePresence } from "motion/react";
 import {
   BadgeCheck,
@@ -83,6 +83,40 @@ export function DiscoverCard({
   const decide = deck.decide;
   const showRoom = roomFirst && !!p.room;
   const moveIn = dateLabel(p.moveDate);
+  // Every photo on the card, in order: the room's photos first when the
+  // viewer is looking for a room, then the person's. Tap right / left to step.
+  const roomShots = showRoom
+    ? (p.room!.photos?.length ? p.room!.photos : [p.room!.photo]).map(
+        (src) => ({ src, alt: p.room!.title, room: true }),
+      )
+    : [];
+  const personShots = (p.photos.length ? p.photos : [p.photo]).map((src) => ({
+    src,
+    alt: p.name,
+    room: false,
+  }));
+  const shots = [...roomShots, ...personShots].filter(
+    (shot, i, all) => all.findIndex((x) => x.src === shot.src) === i,
+  );
+  // Back to the first photo whenever a new card comes up.
+  const [pos, setPos] = useState({ key: deck.cardKey, i: 0 });
+  const shot = pos.key === deck.cardKey ? Math.min(pos.i, shots.length - 1) : 0;
+  const current = shots[shot];
+  const step = (by: number) =>
+    setPos({
+      key: deck.cardKey,
+      i: Math.max(0, Math.min(shots.length - 1, shot + by)),
+    });
+  // A drag that ends over a tap zone must not count as a tap.
+  const downX = useRef(0);
+  const tap = (by: number) => ({
+    onPointerDown: (e: PointerEvent) => {
+      downX.current = e.clientX;
+    },
+    onClick: (e: MouseEvent) => {
+      if (Math.abs(e.clientX - downX.current) < 10 || e.detail === 0) step(by);
+    },
+  });
   return (
     <div className={w.wrap}>
       <div className={w.stage}>
@@ -110,21 +144,39 @@ export function DiscoverCard({
               },
             }}
           >
-            <article className={w.photoCard} aria-label={`${p.name}, ${p.age}`}>
-              {showRoom ? (
-                <img
-                  className={w.photo}
-                  src={p.room!.photo}
-                  alt={p.room!.title}
-                  draggable={false}
-                />
-              ) : (
-                <img
-                  className={w.photo}
-                  src={p.photo}
-                  alt={p.name}
-                  draggable={false}
-                />
+            <article
+              className={w.photoCard}
+              aria-label={`${p.name}, ${p.age}`}
+              data-shots={shots.length > 1 || undefined}
+            >
+              <img
+                className={w.photo}
+                src={current.src}
+                alt={current.alt}
+                draggable={false}
+              />
+              {shots.length > 1 && (
+                <>
+                  <div className={w.bars} aria-hidden="true">
+                    {shots.map((x, i) => (
+                      <span key={x.src} data-on={i === shot || undefined} />
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className={w.tapPrev}
+                    aria-label={t("Previous photo")}
+                    disabled={shot === 0}
+                    {...tap(-1)}
+                  />
+                  <button
+                    type="button"
+                    className={w.tapNext}
+                    aria-label={t("Next photo")}
+                    disabled={shot === shots.length - 1}
+                    {...tap(1)}
+                  />
+                </>
               )}
               {showRoom && (
                 <span className={w.price}>
@@ -145,7 +197,7 @@ export function DiscoverCard({
               )}
               <div className={w.overlay}>
                 <div className={w.who}>
-                  {showRoom && (
+                  {showRoom && current.room && (
                     <img
                       className={w.face}
                       src={p.photo}
