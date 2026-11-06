@@ -2,8 +2,7 @@
 import { CircleHelp, Settings, SlidersHorizontal, UserPen } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig } from "motion/react";
-import { IconButton, Progress, TextProvider } from "@/design-system";
-import { completion, profileSteps } from "@/lib/profile";
+import { IconButton, TextProvider } from "@/design-system";
 import { profiles, rooms } from "@/lib/data";
 import { getCompatibility, rankProfiles } from "@/lib/matching";
 import { useAppState } from "@/lib/store";
@@ -68,7 +67,6 @@ function Translated() {
 function RoomPairApp() {
   const { t } = useI18n();
   const { state, setState, ready, reset } = useAppState();
-  const profilePercent = completion(profileSteps(state.me, state.preferences));
   const [view, setView] = useState<View>("discover");
   /** A sub-page of Profile, shown with a back button in the top bar. */
   const [sub, setSub] = useState<null | "edit" | "settings">(null);
@@ -376,14 +374,7 @@ function RoomPairApp() {
           : undefined
       }
       actions={
-        sub === "edit" ? (
-          <Progress
-            compact
-            label={t("Profile complete")}
-            text={`${profilePercent}% ${t("complete")}`}
-            value={profilePercent}
-          />
-        ) : view === "discover" ? (
+        sub ? undefined : view === "discover" ? (
           <IconButton
             variant="outline"
             label={t("discover.filters")}

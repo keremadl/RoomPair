@@ -32,8 +32,9 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* Sub-pages (with a back button): title one weight step below headings. */
+/* Sub-pages (with a back button): title one step smaller and lighter. */
 .bar[data-sub] .title {
+  font-size: var(--text-xl);
   font-weight: var(--weight-bold);
 }
 .back {

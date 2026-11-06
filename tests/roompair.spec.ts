@@ -242,12 +242,13 @@ test("my profile: preview from the photo, then edit photos, questions and intere
     .getAttribute("aria-label");
 
   await page.getByRole("button", { name: "Edit profile", exact: true }).click();
-  // The sub-page bar shows how complete the profile is
+  // The sub-page bar holds only the back button and the page name
   await expect(
-    page
-      .getByRole("banner")
-      .getByRole("progressbar", { name: "Profile complete" }),
+    page.getByRole("banner").getByRole("heading", { name: "Edit profile" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("banner").getByRole("progressbar"),
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Add a question" }).click();
   const dialog = page.getByRole("dialog", { name: "Add a prompt" });
   await dialog

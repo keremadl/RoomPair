@@ -592,20 +592,18 @@ export function Showcase() {
               />
             </div>
           </Specimen>
-          <Specimen label="TopBar · sub-page template (back, title, status)">
+          <Specimen label="Progress · default and compact">
+            <Progress label="Profile complete" text="20% complete" value={20} />
+            <Progress
+              compact
+              label="Profile complete"
+              text="20% complete"
+              value={20}
+            />
+          </Specimen>
+          <Specimen label="TopBar · sub-page template (back, title)">
             <div className={styles.pageFrame}>
-              <TopBar
-                title="Edit profile"
-                onBack={() => {}}
-                actions={
-                  <Progress
-                    compact
-                    label="Profile complete"
-                    text="20% complete"
-                    value={20}
-                  />
-                }
-              />
+              <TopBar title="Edit profile" onBack={() => {}} />
               <div className={styles.pageBody}>
                 <ListGroup title="Living together" id="spec-sub">
                   <ListRow
