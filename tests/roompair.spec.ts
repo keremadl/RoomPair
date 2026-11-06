@@ -159,9 +159,24 @@ test("filters validate, onboarding updates the profile, report and block work", 
     await setup.getByRole("button", { name: "Continue" }).click();
   await setup.getByRole("button", { name: "Save and show people" }).click();
   await expect(page.getByRole("status")).toContainText("Deniz");
+  // Discover puts its filters at the top right, where other pages show your initial.
+  await expect(
+    page.getByRole("banner").getByRole("button", { name: "Filters" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "View your profile" }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .getByRole("button", { name: /Likes/ })
+    .click();
   await expect(
     page.getByRole("button", { name: "View your profile" }),
   ).toHaveText("D");
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .getByRole("button", { name: /Discover/ })
+    .click();
 
   await page.getByRole("button", { name: "Report" }).first().click();
   const options = page.getByRole("dialog", { name: "Profile options" });

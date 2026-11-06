@@ -34,6 +34,7 @@ export function AppShell({
   onHelp,
   onNotifications,
   toast,
+  barAction,
   children,
 }: {
   view: View;
@@ -43,6 +44,8 @@ export function AppShell({
   onHelp: () => void;
   onNotifications: () => void;
   toast: string;
+  /** The page's own action at the top right, in place of the profile button. */
+  barAction?: { label: string; icon: ReactNode; onClick: () => void };
   children: ReactNode;
 }) {
   const { t } = useI18n();
@@ -95,15 +98,26 @@ export function AppShell({
             <Bell aria-hidden="true" />
             {counts.likes > 0 && <span className={s.dot} />}
           </button>
-          <button
-            type="button"
-            className={s.avatar}
-            aria-label={t("View your profile")}
-            aria-current={view === "profile" ? "page" : undefined}
-            onClick={() => onNavigate("profile")}
-          >
-            {userName.charAt(0).toUpperCase()}
-          </button>
+          {barAction ? (
+            <button
+              type="button"
+              className={s.barAction}
+              aria-label={barAction.label}
+              onClick={barAction.onClick}
+            >
+              {barAction.icon}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={s.avatar}
+              aria-label={t("View your profile")}
+              aria-current={view === "profile" ? "page" : undefined}
+              onClick={() => onNavigate("profile")}
+            >
+              {userName.charAt(0).toUpperCase()}
+            </button>
+          )}
         </div>
       </header>
 

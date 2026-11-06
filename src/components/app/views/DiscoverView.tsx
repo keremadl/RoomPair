@@ -1,16 +1,9 @@
 "use client";
-import {
-  Building2,
-  RotateCcw,
-  SlidersHorizontal,
-  Sparkles,
-  Users,
-} from "lucide-react";
+import { Building2, RotateCcw, Sparkles, Users } from "lucide-react";
 import {
   Button,
   EmptyState,
   SegmentedControl,
-  Text,
   VisuallyHidden,
 } from "@/design-system";
 import {
@@ -32,7 +25,6 @@ export function DiscoverView({
   onMode,
   canUndo,
   rankedCount,
-  remaining,
   savedRooms,
   onFilters,
   onBrowseAgain,
@@ -46,7 +38,6 @@ export function DiscoverView({
   onMode: (mode: "people" | "rooms") => void;
   canUndo: boolean;
   rankedCount: number;
-  remaining: number;
   savedRooms: string[];
   onFilters: () => void;
   onBrowseAgain: () => void;
@@ -71,19 +62,6 @@ export function DiscoverView({
             { value: "rooms", label: t("discover.rooms"), icon: <Building2 /> },
           ]}
         />
-        {mode === "people" && rankedCount > 0 && (
-          <Text size="sm" tone="muted" className={v.toolbarNote}>
-            {t("discover.left", { count: remaining })}
-          </Text>
-        )}
-        <Button
-          variant="secondary"
-          leadingIcon={<SlidersHorizontal />}
-          onClick={onFilters}
-          className={v.toolbarEnd}
-        >
-          {t("discover.filters")}
-        </Button>
       </div>
 
       {mode === "rooms" ? (

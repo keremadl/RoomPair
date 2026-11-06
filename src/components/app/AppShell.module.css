@@ -97,6 +97,7 @@
   margin-left: auto;
 }
 .barIcon,
+.barAction,
 .avatar {
   position: relative;
   display: grid;
@@ -109,6 +110,7 @@
   color: inherit;
   cursor: pointer;
 }
+.barAction svg,
 .barIcon svg {
   width: 20px;
   height: 20px;
@@ -121,6 +123,15 @@
   height: 8px;
   border-radius: var(--radius-full);
   background: var(--color-accent);
+}
+.barAction {
+  border-color: var(--control-border, var(--color-border-strong));
+  background: var(--color-surface-raised);
+  box-shadow: var(--control-shadow);
+}
+.barAction:active {
+  box-shadow: var(--control-shadow-active);
+  transform: var(--control-press);
 }
 .avatar {
   background: var(--color-accent-soft);
@@ -305,6 +316,7 @@
 }
 .brandButton:focus-visible,
 .barIcon:focus-visible,
+.barAction:focus-visible,
 .avatar:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);

@@ -1,4 +1,5 @@
 "use client";
+import { SlidersHorizontal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig } from "motion/react";
 import { TextProvider } from "@/design-system";
@@ -343,6 +344,15 @@ function RoomPairApp() {
         received.length ? navigate("likes") : notify(t("No new likes."))
       }
       toast={toast}
+      barAction={
+        view === "discover"
+          ? {
+              label: t("discover.filters"),
+              icon: <SlidersHorizontal aria-hidden="true" />,
+              onClick: () => setDialog("filters"),
+            }
+          : undefined
+      }
     >
       {view === "discover" && (
         <DiscoverView
@@ -351,7 +361,6 @@ function RoomPairApp() {
           onMode={setMode}
           canUndo={state.decisions.length > 0}
           rankedCount={ranked.length}
-          remaining={queue.length}
           savedRooms={state.savedRooms}
           onFilters={() => setDialog("filters")}
           onBrowseAgain={browseAgain}

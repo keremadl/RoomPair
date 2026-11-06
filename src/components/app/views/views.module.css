@@ -22,12 +22,6 @@
   gap: var(--space-3);
   margin-bottom: var(--space-6);
 }
-.toolbarNote {
-  font-variant-numeric: tabular-nums;
-}
-.toolbarEnd {
-  margin-left: auto;
-}
 .centered {
   display: flex;
   justify-content: center;
