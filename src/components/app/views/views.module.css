@@ -354,13 +354,18 @@
     animation: none;
   }
 }
-/* Composer: one rounded bar holding photo, text and send. */
+/* Composer: a rounded bar (photo and text) and a round send button. */
 .composer {
-  /* Room for the bar's press shadow, so nothing is clipped. */
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  /* Room for the press shadows, so nothing is clipped. */
   padding: var(--space-3) 0 var(--space-2);
 }
 .composerBar {
   display: flex;
+  flex: 1;
+  min-width: 0;
   align-items: center;
   gap: var(--space-1);
   padding: var(--space-1);

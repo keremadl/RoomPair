@@ -305,15 +305,16 @@ export function MessagesView({
                 aria-label={t("Write a message")}
                 maxLength={2000}
               />
-              <IconButton
-                type="submit"
-                variant="solid"
-                size="sm"
-                label={t("messages.send")}
-                icon={<Send />}
-                disabled={!message.trim()}
-              />
             </div>
+            {/* Send stands apart: a round button to the right of the bar. */}
+            <IconButton
+              type="submit"
+              variant="solid"
+              size="lg"
+              label={t("messages.send")}
+              icon={<Send />}
+              disabled={!message.trim()}
+            />
             <input
               ref={picker}
               type="file"
