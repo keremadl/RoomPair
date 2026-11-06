@@ -36,13 +36,15 @@ test("discover shows the card and grouped details; arrows pass, undo restores", 
       portrait.evaluate((img) => (img as HTMLImageElement).naturalWidth),
     )
     .toBeGreaterThan(100);
-  // Card language; Home → Person → Fit open from the info button, as tabs
+  // Card language; Home → Person → Fit sit under the card, as tabs, and
+  // the arrow on the card scrolls down to them
   await expect(page.locator("[data-direction]").first()).toHaveAttribute(
     "data-direction",
     "card",
   );
   await page.getByRole("button", { name: "More about Ella" }).click();
-  const details = page.getByRole("dialog");
+  const details = page.getByRole("region", { name: "About Ella" });
+  await expect(details).toBeInViewport();
   const tabs = details.getByRole("tablist", { name: "Profile sections" });
   await expect(tabs).toBeVisible();
   await expect(details.getByRole("tabpanel")).toContainText(/the room/i);
@@ -50,8 +52,7 @@ test("discover shows the card and grouped details; arrows pass, undo restores", 
   await expect(details.getByRole("tabpanel")).toContainText(/Ella/);
   await tabs.getByRole("tab", { name: /% fit/ }).click();
   await expect(details.getByRole("tabpanel")).toContainText(/96/);
-  await page.keyboard.press("Escape");
-  await expect(details).toBeHidden();
+  await page.locator(":focus").blur();
   await page.keyboard.press("ArrowLeft");
   await expect(card(page)).toHaveText(/^Ines/);
   await expect(page.getByRole("status")).toContainText("Skipped");
@@ -183,11 +184,9 @@ test("filters validate, onboarding updates the profile, report and block work", 
     .getByRole("button", { name: /Discover/ })
     .click();
 
-  await page.getByRole("button", { name: "More about Ella" }).click();
   await page
-    .getByRole("dialog")
+    .getByRole("region", { name: "About Ella" })
     .getByRole("button", { name: "Report" })
-    .first()
     .click();
   const options = page.getByRole("dialog", { name: "Profile options" });
   await options.getByRole("button", { name: /^Block Ella/ }).click();
@@ -218,6 +217,24 @@ test("what you are looking for decides who Discover shows", async ({
   await expect(page.getByRole("status")).toContainText(
     "people looking for a room",
   );
+  await nav.getByRole("button", { name: "Discover" }).click();
+  // A host without a room photo is held back: required fields come first,
+  // and nobody can be liked meanwhile.
+  await expect(
+    page.getByRole("heading", { name: "Finish your profile to start" }),
+  ).toBeVisible();
+  await expect(page.getByText("Add a photo of the room")).toBeVisible();
+  await page.getByRole("button", { name: "Complete my profile" }).click();
+  await expect(
+    page.getByRole("banner").getByRole("heading", { name: "Edit profile" }),
+  ).toBeVisible();
+  await page
+    .getByRole("region", { name: "My room" })
+    .locator('input[type="file"]')
+    .setInputFiles("public/images/room-2.jpg");
+  await expect(
+    page.getByRole("list", { name: "Room photos" }).getByRole("img"),
+  ).toHaveCount(1);
   await nav.getByRole("button", { name: "Discover" }).click();
   // Having a room: only people looking for one, no rooms to save.
   await expect(card(page)).toHaveText(/^Leo/);

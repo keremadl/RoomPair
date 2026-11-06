@@ -9,6 +9,8 @@ export type EmptyStateProps = {
   body?: string;
   action?: { label: string; onClick: () => void; icon?: ReactNode };
   secondary?: { label: string; onClick: () => void };
+  /** Extra content between the text and the buttons, e.g. a short checklist. */
+  children?: ReactNode;
   className?: string;
 };
 
@@ -19,6 +21,7 @@ export function EmptyState({
   body,
   action,
   secondary,
+  children,
   className,
 }: EmptyStateProps) {
   return (
@@ -26,6 +29,7 @@ export function EmptyState({
       {icon && <span className={styles.icon}>{icon}</span>}
       <h2 className={styles.title}>{title}</h2>
       {body && <p className={styles.body}>{body}</p>}
+      {children}
       {(action || secondary) && (
         <div className={styles.actions}>
           {action && (

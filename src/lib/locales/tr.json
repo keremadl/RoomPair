@@ -705,5 +705,11 @@
   "Chinese": "Çince",
   "Ukrainian": "Ukraynaca",
   "You chose to live with women only.": "Sadece kadınlarla yaşamayı seçtin.",
-  "You chose to live with men only.": "Sadece erkeklerle yaşamayı seçtin."
+  "You chose to live with men only.": "Sadece erkeklerle yaşamayı seçtin.",
+  "About {name}": "{name} hakkında",
+  "Finish your profile to start": "Başlamak için profilini tamamla",
+  "People only see you, and you can only team up, once these are done:": "Bunları tamamlayana kadar kimse seni göremez ve kimseyle eşleşemezsin:",
+  "Complete my profile": "Profilimi tamamla",
+  "Finish your profile first: {step}.": "Önce profilini tamamla: {step}.",
+  "Add a photo of the room": "Odanın bir fotoğrafını ekle"
 }

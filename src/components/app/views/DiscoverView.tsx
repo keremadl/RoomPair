@@ -1,16 +1,23 @@
 "use client";
-import { RotateCcw, Sparkles } from "lucide-react";
+import { useRef } from "react";
+import { Circle, RotateCcw, Sparkles, UserPen } from "lucide-react";
 import { Button, EmptyState } from "@/design-system";
-import { defaultLanguage, discoverParts } from "@/design-system/languages";
-import type { DiscoverDeck } from "@/lib/discover/deck";
+import {
+  defaultLanguage,
+  defaultLayout,
+  discoverParts,
+} from "@/design-system/languages";
+import type { Decision, DiscoverDeck } from "@/lib/discover/deck";
 import { useI18n } from "@/lib/i18n";
-import type { Profile } from "@/lib/types";
+import type { Step } from "@/lib/profile";
+import type { Preferences, Profile } from "@/lib/types";
 import v from "./views.module.css";
 
 /**
- * Discover: one swipe card. Room seekers see people who have a room, room
- * first; hosts see people looking for a room. The info button opens the
- * full profile (Home → Person → Fit tabs).
+ * Discover: one swipe card, and below it the full profile (Home → Person →
+ * Fit tabs) for whoever scrolls down. Room seekers see people who have a
+ * room, room first; hosts see people looking for a room. The arrow on the
+ * card scrolls to the details; a decision brings the next card back up.
  */
 export function DiscoverView({
   deck,
@@ -23,7 +30,7 @@ export function DiscoverView({
   onUndo,
   onToggleRoom,
   onReport,
-  onOpenProfile,
+  viewer,
 }: {
   deck: DiscoverDeck | null;
   /** The viewer is looking for a room: show the room before the person. */
@@ -36,23 +43,54 @@ export function DiscoverView({
   onUndo: () => void;
   onToggleRoom: (id: string) => void;
   onReport: (p: Profile) => void;
-  /** Opens the full profile (Home → Person → Fit tabs). */
-  onOpenProfile: (p: Profile) => void;
+  /** Your own answers, compared with theirs in the details. */
+  viewer: Preferences;
 }) {
   const { t } = useI18n();
-  const { Card } = discoverParts[defaultLanguage];
+  const { Card, Details } = discoverParts[defaultLanguage];
+  const details = useRef<HTMLDivElement>(null);
+  const reduced = () =>
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // After a decision the next card's top should be in view again.
+  const decide = (d: Decision) => {
+    deck?.decide(d);
+    if (window.scrollY > 0)
+      window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" });
+  };
   const roomId = deck?.profile.room ? `room-${deck.profile.id}` : null;
   const saved = roomId ? savedRooms.includes(roomId) : false;
   return (
     <>
       {deck ? (
-        <Card
-          deck={deck}
-          roomFirst={roomFirst}
-          onInfo={() => onOpenProfile(deck.profile)}
-          saved={saved}
-          onSave={roomId ? () => onToggleRoom(roomId) : undefined}
-        />
+        <>
+          <Card
+            deck={{ ...deck, decide }}
+            roomFirst={roomFirst}
+            onInfo={() =>
+              details.current?.scrollIntoView({
+                behavior: reduced() ? "auto" : "smooth",
+                block: "start",
+              })
+            }
+            saved={saved}
+            onSave={roomId ? () => onToggleRoom(roomId) : undefined}
+          />
+          <div
+            ref={details}
+            className={v.discoverDetails}
+            aria-label={t("About {name}", { name: deck.profile.name })}
+            role="region"
+          >
+            <Details
+              key={deck.profile.id}
+              profile={deck.profile}
+              match={deck.match}
+              layout={defaultLayout}
+              viewer={viewer}
+              onReport={() => onReport(deck.profile)}
+            />
+          </div>
+        </>
       ) : rankedCount === 0 ? (
         <EmptyState
           icon={<Sparkles />}
@@ -84,5 +122,37 @@ export function DiscoverView({
         </div>
       )}
     </>
+  );
+}
+
+/**
+ * Shown instead of Discover while required profile fields are missing:
+ * nobody sees you, and you cannot team up, until they are filled in.
+ */
+export function ProfileGate({
+  missing,
+  onComplete,
+}: {
+  missing: Step[];
+  onComplete: () => void;
+}) {
+  const { t } = useI18n();
+  return (
+    <EmptyState
+      icon={<UserPen />}
+      title={t("Finish your profile to start")}
+      body={t(
+        "People only see you, and you can only team up, once these are done:",
+      )}
+      action={{ label: t("Complete my profile"), onClick: onComplete }}
+    >
+      <ul className={v.gateList}>
+        {missing.map((step) => (
+          <li key={step.id}>
+            <Circle aria-hidden="true" /> {t(step.label)}
+          </li>
+        ))}
+      </ul>
+    </EmptyState>
   );
 }

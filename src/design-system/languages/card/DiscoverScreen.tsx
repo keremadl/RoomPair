@@ -8,7 +8,7 @@ import {
   Bell,
   Bookmark,
   BookmarkCheck,
-  Info,
+  ChevronDown,
   Check,
   Circle,
   Compass,
@@ -70,7 +70,7 @@ export function DiscoverCard({
   /** Your own card as others see it: no buttons, no fit score. */
   preview?: boolean;
   roomFirst?: boolean;
-  /** Opens Home → Person → Fit for this profile. */
+  /** Shows Home → Person → Fit for this profile (below the card in the app). */
   onInfo?: () => void;
   /** Room-first only: whether the room is saved, and the toggle. */
   saved?: boolean;
@@ -177,7 +177,7 @@ export function DiscoverCard({
                       aria-label={`More about ${p.name}`}
                       onClick={onInfo}
                     >
-                      <Info />
+                      <ChevronDown />
                     </button>
                   )}
                 </div>

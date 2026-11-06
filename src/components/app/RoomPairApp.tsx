@@ -5,12 +5,13 @@ import { AnimatePresence, MotionConfig } from "motion/react";
 import { IconButton, TextProvider } from "@/design-system";
 import { profiles, rooms } from "@/lib/data";
 import { getCompatibility, rankProfiles } from "@/lib/matching";
+import { missingRequired } from "@/lib/profile";
 import { useAppState } from "@/lib/store";
 import { I18nProvider, useI18n } from "@/lib/i18n";
 import type { Preferences, Profile, Room } from "@/lib/types";
 import type { DiscoverDeck } from "@/lib/discover/deck";
 import { AppShell, type View } from "./AppShell";
-import { DiscoverView } from "./views/DiscoverView";
+import { DiscoverView, ProfileGate } from "./views/DiscoverView";
 import { LikesView } from "./views/LikesView";
 import { MessagesView } from "./views/MessagesView";
 import { SpaceView } from "./views/SpaceView";
@@ -89,6 +90,7 @@ function RoomPairApp() {
     ({ profile }) => !state.decisions.some((d) => d.id === profile.id),
   );
   const current = queue[0];
+  const missing = missingRequired(state.me, state.preferences);
   const received = ranked.filter(
     ({ profile }) =>
       profile.likesYou && !state.decisions.some((d) => d.id === profile.id),
@@ -184,6 +186,13 @@ function RoomPairApp() {
     person: Profile | undefined = current?.profile,
   ) {
     if (!person) return;
+    // Nobody can team up with a profile that is missing required fields.
+    if (action === "like" && missing.length) {
+      notify(
+        t("Finish your profile first: {step}.", { step: t(missing[0].label) }),
+      );
+      return;
+    }
     setDirection(action === "like" ? 1 : -1);
     setState((st) => ({
       ...st,
@@ -405,7 +414,16 @@ function RoomPairApp() {
         ) : undefined
       }
     >
-      {view === "discover" && (
+      {view === "discover" && missing.length > 0 && (
+        <ProfileGate
+          missing={missing}
+          onComplete={() => {
+            setView("profile");
+            openSub("edit");
+          }}
+        />
+      )}
+      {view === "discover" && missing.length === 0 && (
         <DiscoverView
           deck={deck}
           roomFirst={state.preferences.intent !== "have-room"}
@@ -416,7 +434,7 @@ function RoomPairApp() {
           onBrowseAgain={browseAgain}
           onUndo={undo}
           onToggleRoom={(id) => toggleRoom(id, true)}
-          onOpenProfile={openProfile}
+          viewer={state.preferences}
           onReport={(p) => {
             setSelected(p);
             setDialog("report");

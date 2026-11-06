@@ -160,10 +160,15 @@ export function profileSteps(me: MyProfile, prefs: Preferences): Step[] {
   if (prefs.intent === "have-room")
     steps.push(
       {
+        id: "roomPhoto",
+        label: "Add a photo of the room",
+        done: me.room.photos.length >= 1,
+        required: true,
+      },
+      {
         id: "roomPhotos",
         label: "Add 3 photos of the room",
         done: me.room.photos.length >= 3,
-        required: true,
       },
       {
         id: "roomText",
@@ -173,6 +178,10 @@ export function profileSteps(me: MyProfile, prefs: Preferences): Step[] {
     );
   return steps;
 }
+
+/** Required steps still open. Until there are none, you cannot like anyone. */
+export const missingRequired = (me: MyProfile, prefs: Preferences) =>
+  profileSteps(me, prefs).filter((s) => s.required && !s.done);
 
 export const completion = (steps: Step[]) =>
   Math.round((steps.filter((s) => s.done).length / steps.length) * 100);

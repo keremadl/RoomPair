@@ -39,6 +39,7 @@ import {
   ChoiceCards,
   TopBar,
   Progress,
+  EmptyState,
   ListGroup,
   ListRow,
   Stack,
@@ -591,6 +592,19 @@ export function Showcase() {
                 }
               />
             </div>
+          </Specimen>
+          <Specimen label="EmptyState · with a checklist (profile gate)">
+            <EmptyState
+              icon={<UserPen />}
+              title="Finish your profile to start"
+              body="People only see you, and you can only team up, once these are done:"
+              action={{ label: "Complete my profile", onClick: () => {} }}
+            >
+              <ul>
+                <li>Add a photo of yourself</li>
+                <li>Add your name, age and school or work</li>
+              </ul>
+            </EmptyState>
           </Specimen>
           <Specimen label="Progress · default and compact">
             <Progress label="Profile complete" text="20% complete" value={20} />

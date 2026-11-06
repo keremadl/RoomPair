@@ -551,3 +551,33 @@
   max-width: 40rem;
   margin: 0 auto;
 }
+
+/* Discover: the full profile under the swipe card. */
+.discoverDetails {
+  width: 100%;
+  max-width: 26rem;
+  margin: var(--space-8) auto 0;
+  scroll-margin-top: calc(var(--shell-bar-height) + var(--space-4));
+}
+
+/* What is still missing before Discover opens */
+.gateList {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.gateList li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--weight-semibold);
+}
+.gateList svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
