@@ -59,13 +59,26 @@
   button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .stage { position: relative; flex: 1; min-height: 0; }
   #phone-view {
-    position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden;
-    padding: 16px;
+    position: absolute; inset: 0; overflow: hidden;
+    cursor: grab; touch-action: none;
   }
+  #phone-view.dragging { cursor: grabbing; }
+  #phone-view.dragging iframe { pointer-events: none; }
+  .zoom {
+    position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: 12px; z-index: 5;
+    display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--panel);
+  }
+  .zoom button {
+    min-width: 36px; height: 32px; padding: 0 10px; border: 0; border-radius: 7px;
+    background: none; color: var(--bench-ink); font: 500 .85rem var(--font-ui); cursor: pointer;
+  }
+  .zoom button:hover { background: var(--bench); }
+  .zoom output { align-self: center; min-width: 46px; text-align: center; color: var(--bench-muted); font-size: .8rem; font-variant-numeric: tabular-nums; }
   .meta { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); bottom: 12px; color: var(--bench-muted); font-size: .8rem; }
 
   /* iPhone 16 Pro: 402 × 874 pt screen; drawn, not copied. */
-  .device { position: relative; width: 446px; height: 918px; transform-origin: center; flex-shrink: 0; }
+  .device { position: absolute; left: 0; top: 0; width: 446px; height: 918px; transform-origin: 0 0; }
   .device svg.body { position: absolute; inset: 0; }
   .screen {
     position: absolute; left: 22px; top: 22px; width: 402px; height: 874px;
@@ -141,7 +154,14 @@
         <div class="home"></div>
       </div>
     </div>
-    <p class="meta">Viewport 402 × 820 under the status bar · changes stay in this browser</p>
+    <p class="meta">Drag the empty space or the frame to move · wheel or the buttons to zoom</p>
+    <div class="zoom" role="group" aria-label="Zoom">
+      <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+      <output id="zoom-level">100%</output>
+      <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" id="zoom-fit">Fit</button>
+      <button type="button" id="zoom-real">100%</button>
+    </div>
   </section>
   <section id="library-view" aria-label="Design system library" hidden>
     <iframe id="library-frame" title="RoomPair design system"></iframe>
@@ -187,14 +207,67 @@
     if (isPhone) fit();
   }
 
-  /* Scale the device down to fit the window; never above 1. */
+  /* The device sits on a canvas you can pan (drag) and zoom (wheel / buttons). */
   const device = document.getElementById("device");
-  function fit() {
-    const box = document.getElementById("phone-view").getBoundingClientRect();
-    const s = Math.min(1, (box.height - 56) / 918, (box.width - 32) / 446);
-    device.style.transform = "scale(" + Math.max(0.3, s) + ")";
+  const canvas = document.getElementById("phone-view");
+  const W = 446, H = 918, MIN = 0.25, MAX = 2;
+  const view = { x: 0, y: 0, s: 1 };
+  let fitted = false;
+  function apply() {
+    device.style.transform = "translate(" + view.x + "px," + view.y + "px) scale(" + view.s + ")";
+    document.getElementById("zoom-level").value = Math.round(view.s * 100) + "%";
   }
-  window.addEventListener("resize", fit);
+  function centreAt(s) {
+    const box = canvas.getBoundingClientRect();
+    view.s = Math.min(MAX, Math.max(MIN, s));
+    view.x = (box.width - W * view.s) / 2;
+    view.y = Math.max(16, (box.height - H * view.s) / 2);
+    apply();
+  }
+  function fit() {
+    const box = canvas.getBoundingClientRect();
+    if (!box.height) return;
+    centreAt(Math.min(1, (box.height - 72) / H, (box.width - 32) / W));
+    fitted = true;
+  }
+  function zoomAt(factor, cx, cy) {
+    const s = Math.min(MAX, Math.max(MIN, view.s * factor));
+    view.x = cx - ((cx - view.x) * s) / view.s;
+    view.y = cy - ((cy - view.y) * s) / view.s;
+    view.s = s;
+    fitted = false;
+    apply();
+  }
+  const middle = () => { const b = canvas.getBoundingClientRect(); return [b.width / 2, b.height / 2]; };
+  document.getElementById("zoom-in").onclick = () => zoomAt(1.2, ...middle());
+  document.getElementById("zoom-out").onclick = () => zoomAt(1 / 1.2, ...middle());
+  document.getElementById("zoom-fit").onclick = fit;
+  document.getElementById("zoom-real").onclick = () => { centreAt(1); fitted = false; };
+  canvas.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const b = canvas.getBoundingClientRect();
+    zoomAt(e.deltaY < 0 ? 1.1 : 1 / 1.1, e.clientX - b.left, e.clientY - b.top);
+  }, { passive: false });
+
+  let drag = null;
+  canvas.addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".zoom, .meta button")) return;
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, vx: view.x, vy: view.y };
+    canvas.setPointerCapture(e.pointerId);
+    canvas.classList.add("dragging");
+  });
+  canvas.addEventListener("pointermove", (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    view.x = drag.vx + e.clientX - drag.x;
+    view.y = drag.vy + e.clientY - drag.y;
+    fitted = false;
+    apply();
+  });
+  const end = () => { drag = null; canvas.classList.remove("dragging"); };
+  canvas.addEventListener("pointerup", end);
+  canvas.addEventListener("pointercancel", end);
+  window.addEventListener("resize", () => { if (fitted) fit(); });
+  new ResizeObserver(() => { if (fitted || !device.style.transform) fit(); }).observe(canvas);
 
   const route = () => show(location.hash === "#library" ? "library" : "phone");
   document.getElementById("tab-phone").onclick = () => { location.hash = "phone"; };
