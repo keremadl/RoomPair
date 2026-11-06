@@ -29,8 +29,8 @@ npm start
 2. **Filters:** change the budget or choose a city outside the Riga demo. The app respects the requirements and shows an honest empty state.
 3. **Like Ella:** swipe right, use the heart, or press the right arrow. Ella already likes the demo user, so a mutual-match screen appears.
 4. **Say a little hello:** send a message or choose a conversation starter. The demo generates a clearly labeled simulated reply.
-5. **Find a room → Save:** open an interior, save it, then open **My space**. Compare saved homes, tick household discussion points, write a note, and schedule a viewing.
-6. **My profile:** edit your living style with the four-step onboarding. Select **I have a room** to discover people seeking one. Switch to Turkish on the profile page.
+5. **Save a room:** on a host's card, press **Save room**, then open **My space**. Compare saved rooms, plan a viewing for each, tick the move-in checklist and write a note.
+6. **My profile:** answer **What are you looking for?** — _I'm looking for a room_ shows hosts with their room first; _I have a room, I need a flatmate_ shows only people looking for a room. Edit your living style, or switch to Turkish.
 7. **Demo settings & data → Reset:** return to the original presentation state.
 
 The app opens directly in discovery for a strong first impression. Onboarding is available from **Find your living style** and **Edit my profile**. A completed profile remains on this browser after refresh.
@@ -39,7 +39,7 @@ The app opens directly in discovery for a strong first impression. Onboarding is
 
 - Pointer/touch swiping, keyboard arrows, photo paging, profile details and undo.
 - Received and sent likes, mutual matches, conversation list, starter prompts, message sending and simulated replies.
-- Two search intentions: find a room/search together, or fill an available room.
+- Two search intentions, chosen on My profile: looking for a room (see hosts, room first) or having a room (see room seekers only).
 - Explainable filtering and ranking, preferences, honest empty states.
 - Saved rooms, moving checklist, notes, viewing plan, profile setup.
 - Local blocking/report recording and a resettable demo state.
@@ -48,7 +48,7 @@ The app opens directly in discovery for a strong first impression. Onboarding is
 
 ## Matching rules
 
-`src/lib/matching.ts` is deliberately understandable. It checks city, budget overlap, the actual room price, compatible search intent, move-in dates within 45 days, smoking/pet must-haves, active-search status and the optional student badge filter **before** ranking.
+`src/lib/matching.ts` is deliberately understandable. It checks city, budget overlap, the actual room price, compatible search intent (room seekers only meet hosts, hosts only meet room seekers), move-in dates within 45 days, smoking/pet must-haves, active-search status and the optional student badge filter **before** ranking.
 
 Eligible profiles receive a weighted comparison: budget 25%, tidiness 20%, sleep 15%, social energy 15%, moving date 15%, and stay length 10%. The result includes reasons, differences to discuss, and the exact score components. Age, nationality, popularity and likes do not influence ranking. The percentage is a rule-based comparison of stated preferences, **not a proven probability of successful cohabitation**.
 

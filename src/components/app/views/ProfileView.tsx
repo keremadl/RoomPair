@@ -1,8 +1,17 @@
 "use client";
-import { Backpack, KeyRound, Moon, Pencil, Settings2 } from "lucide-react";
+import {
+  Backpack,
+  Building2,
+  KeyRound,
+  Moon,
+  Pencil,
+  Settings2,
+  Users,
+} from "lucide-react";
 import {
   Avatar,
   Button,
+  ChoiceCards,
   Heading,
   Select,
   Text,
@@ -21,20 +30,19 @@ export function ProfileView({
   onboarded,
   onEdit,
   onSettings,
+  onIntent,
 }: {
   preferences: Preferences;
   onboarded: boolean;
   onEdit: () => void;
   onSettings: () => void;
+  onIntent: (intent: "find-room" | "have-room") => void;
 }) {
   const { t, locale, setLocale, locales, isLoading, error } = useI18n();
   const host = p.intent === "have-room";
-  const looking =
-    p.intent === "have-room"
-      ? t("I have a room and need a flatmate")
-      : p.intent === "find-room"
-        ? t("I need a room or a flatmate")
-        : t("Open to both");
+  const looking = host
+    ? t("I have a room, I need a flatmate")
+    : t("I’m looking for a room");
   const mustHaves = [
     p.smokeFree && t("Smoke-free home"),
     p.petsOkay ? t("Pets are fine") : t("No pets"),
@@ -43,6 +51,28 @@ export function ProfileView({
   return (
     <>
       <VisuallyHidden as="h1">{t("nav.profile")}</VisuallyHidden>
+      <section className={`${v.panel} ${v.lookingFor}`}>
+        <ChoiceCards
+          label={t("What are you looking for?")}
+          value={host ? "have-room" : "find-room"}
+          onChange={onIntent}
+          columns={2}
+          options={[
+            {
+              value: "find-room",
+              title: t("I’m looking for a room"),
+              hint: t("Discover shows people who have a room, room first."),
+              icon: <Building2 />,
+            },
+            {
+              value: "have-room",
+              title: t("I have a room, I need a flatmate"),
+              hint: t("Discover shows only people looking for a room."),
+              icon: <Users />,
+            },
+          ]}
+        />
+      </section>
       <div className={v.profileGrid}>
         <section aria-labelledby="my-card">
           <article

@@ -71,7 +71,6 @@ function RoomPairApp() {
   const [onboarding, setOnboarding] = useState(false);
   const [selected, setSelected] = useState<Profile | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [mode, setMode] = useState<"people" | "rooms">("people");
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [typing, setTyping] = useState<string | null>(null);
   const [direction, setDirection] = useState(1);
@@ -291,7 +290,6 @@ function RoomPairApp() {
         dialog ||
         onboarding ||
         view !== "discover" ||
-        mode !== "people" ||
         ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName) ||
         el.isContentEditable ||
         el.getAttribute("role") === "tab" ||
@@ -357,15 +355,13 @@ function RoomPairApp() {
       {view === "discover" && (
         <DiscoverView
           deck={deck}
-          mode={mode}
-          onMode={setMode}
+          roomFirst={state.preferences.intent !== "have-room"}
           canUndo={state.decisions.length > 0}
           rankedCount={ranked.length}
           savedRooms={state.savedRooms}
           onFilters={() => setDialog("filters")}
           onBrowseAgain={browseAgain}
           onUndo={undo}
-          onOpenRoom={openRoom}
           onToggleRoom={(id) => toggleRoom(id, true)}
           onReport={(p) => {
             setSelected(p);
@@ -427,7 +423,6 @@ function RoomPairApp() {
             }))
           }
           onExploreRooms={() => {
-            setMode("rooms");
             navigate("discover");
           }}
         />
@@ -438,6 +433,17 @@ function RoomPairApp() {
           onboarded={state.onboarded}
           onEdit={() => setOnboarding(true)}
           onSettings={() => setDialog("settings")}
+          onIntent={(intent) => {
+            setState((st) => ({
+              ...st,
+              preferences: { ...st.preferences, intent },
+            }));
+            notify(
+              intent === "have-room"
+                ? t("Discover now shows people looking for a room.")
+                : t("Discover now shows people who have a room."),
+            );
+          }}
         />
       )}
 

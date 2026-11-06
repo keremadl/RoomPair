@@ -36,8 +36,18 @@ import {
 import s from "./styles.module.css";
 import { Stat, Versus, Trait, Banner, HomeItem } from "./components";
 
-/** The swipeable card and its actions. Controlled: pass a deck. */
-export function DiscoverCard({ deck }: { deck: DiscoverDeck }) {
+/**
+ * The swipeable card and its actions. Controlled: pass a deck.
+ * roomFirst: the viewer is looking for a room, so a host's card shows the
+ * room photo with the host's face in the corner.
+ */
+export function DiscoverCard({
+  deck,
+  roomFirst = false,
+}: {
+  deck: DiscoverDeck;
+  roomFirst?: boolean;
+}) {
   const { profile: p, match: m } = deck;
   const decide = deck.decide;
   const host = p.intent === "have-room";
@@ -77,7 +87,27 @@ export function DiscoverCard({ deck }: { deck: DiscoverDeck }) {
                 </span>
               </div>
               <div className={s.window}>
-                <img src={p.photo} alt={p.name} draggable={false} />
+                {roomFirst && p.room ? (
+                  <>
+                    <img
+                      src={p.room.photo}
+                      alt={p.room.title}
+                      draggable={false}
+                    />
+                    <img
+                      className={s.face}
+                      src={p.photo}
+                      alt={p.name}
+                      draggable={false}
+                    />
+                    <span className={s.rent}>
+                      €{p.room.price}
+                      <small> / month</small>
+                    </span>
+                  </>
+                ) : (
+                  <img src={p.photo} alt={p.name} draggable={false} />
+                )}
                 <span className={s.type}>
                   {host ? (
                     <KeyRound aria-hidden="true" />

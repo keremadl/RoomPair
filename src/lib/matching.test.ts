@@ -50,20 +50,20 @@ test("actual room price is checked even when profile budget ranges overlap", () 
 });
 
 test("budget ranges support exact boundaries and reject disjoint ranges", () => {
+  // A host comparing budgets with a room seeker.
+  const host = withPrefs({ intent: "have-room" });
   const seeker = withProfile({
     intent: "find-room",
     room: undefined,
     budget: [650, 800],
   });
-  assert.equal(getCompatibility(seeker, defaultPreferences).eligible, true);
+  assert.equal(getCompatibility(seeker, host).eligible, true);
   assert.equal(
-    getCompatibility({ ...seeker, budget: [651, 800] }, defaultPreferences)
-      .eligible,
+    getCompatibility({ ...seeker, budget: [651, 800] }, host).eligible,
     false,
   );
   assert.equal(
-    getCompatibility({ ...seeker, budget: [500, 500] }, defaultPreferences)
-      .eligible,
+    getCompatibility({ ...seeker, budget: [500, 500] }, host).eligible,
     true,
   );
 });
@@ -92,14 +92,15 @@ test("move dates are inclusive at 45 days, strict beyond it, and calendar-valid"
   );
 });
 
-test("find-room viewers can team up, while room hosts see only people searching", () => {
+test("room seekers see only people with a room; hosts see only room seekers", () => {
   const seeker = withProfile({ intent: "find-room", room: undefined });
-  assert.equal(getCompatibility(seeker, defaultPreferences).eligible, true);
-  assert.ok(
-    getCompatibility(seeker, defaultPreferences).considerations.some((text) =>
-      text.includes("both searching"),
-    ),
+  // Looking for a room (the default): hosts yes, other seekers no.
+  assert.equal(
+    getCompatibility(baseProfile, defaultPreferences).eligible,
+    true,
   );
+  assert.equal(getCompatibility(seeker, defaultPreferences).eligible, false);
+  // Having a room: seekers yes, other hosts no.
   assert.equal(
     getCompatibility(baseProfile, withPrefs({ intent: "have-room" })).eligible,
     false,

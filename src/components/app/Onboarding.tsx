@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, ArrowRight, Check, Home, Key, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Home, Key } from "lucide-react";
 import {
   Button,
+  ChoiceCards,
   Dialog,
   Eyebrow,
   FactGrid,
@@ -87,7 +88,7 @@ export function Onboarding({
   }
 
   const intents: {
-    value: Preferences["intent"];
+    value: "find-room" | "have-room";
     title: string;
     hint: string;
     icon: typeof Key;
@@ -104,7 +105,6 @@ export function Onboarding({
       hint: "ob.haveRoomHint",
       icon: Key,
     },
-    { value: "either", title: "ob.either", hint: "ob.eitherHint", icon: Users },
   ];
   const rhythms: { value: SleepSchedule; label: string }[] = [
     { value: "early", label: "ob.early" },
@@ -161,32 +161,21 @@ export function Onboarding({
                   error={error === "ob.nameError" ? t(error) : undefined}
                   autoComplete="given-name"
                 />
-                <fieldset className={o.choices}>
-                  <legend>{t("onboarding.intent")}</legend>
-                  {intents.map(({ value, title, hint, icon: Icon }) => (
-                    <label
-                      key={value}
-                      className={o.choice}
-                      data-checked={values.intent === value}
-                    >
-                      <input
-                        type="radio"
-                        name="intent"
-                        value={value}
-                        checked={values.intent === value}
-                        onChange={() => set("intent", value)}
-                      />
-                      <Icon aria-hidden="true" />
-                      <span>
-                        <strong>{t(title)}</strong>
-                        <small>{t(hint)}</small>
-                      </span>
-                      {values.intent === value && (
-                        <Check aria-hidden="true" className={o.tick} />
-                      )}
-                    </label>
-                  ))}
-                </fieldset>
+                <ChoiceCards
+                  label={t("onboarding.intent")}
+                  value={
+                    values.intent === "have-room" ? "have-room" : "find-room"
+                  }
+                  onChange={(v) => set("intent", v)}
+                  options={intents.map(
+                    ({ value, title, hint, icon: Icon }) => ({
+                      value,
+                      title: t(title),
+                      hint: t(hint),
+                      icon: <Icon />,
+                    }),
+                  )}
+                />
               </>
             )}
             {step === 1 && (

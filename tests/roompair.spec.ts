@@ -52,7 +52,7 @@ test("discover shows the card and grouped details; arrows pass, undo restores", 
   // Arrow keys move between tabs while a tab has focus; leave the tabs first.
   await page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
   await page.keyboard.press("ArrowLeft");
-  await expect(card(page)).toHaveText(/^Leo/);
+  await expect(card(page)).toHaveText(/^Ines/);
   await expect(page.getByRole("status")).toContainText("Skipped");
   await page.getByRole("button", { name: "Undo" }).first().click();
   await expect(card(page)).toHaveText(/^Ella/);
@@ -99,7 +99,6 @@ test("likes, rooms, the shared space and the moving checklist", async ({
   await page.getByRole("button", { name: "Not now" }).click();
 
   await nav.getByRole("button", { name: "Discover" }).click();
-  await page.getByRole("radio", { name: "Find a room" }).click();
   await page
     .getByRole("button", { name: "Save room", exact: true })
     .first()
@@ -183,6 +182,38 @@ test("filters validate, onboarding updates the profile, report and block work", 
   await options.getByRole("button", { name: /^Block Ella/ }).click();
   await expect(page.getByRole("status")).toContainText("blocked");
   await expect(card(page)).not.toHaveText(/Ella/);
+});
+
+test("what you are looking for decides who Discover shows", async ({
+  page,
+}) => {
+  await openApp(page);
+  // Looking for a room (default): hosts, room first, with Save room.
+  await expect(card(page)).toHaveText(/^Ella/);
+  await expect(
+    page.getByRole("img", { name: "A sunny room in Āgenskalns" }).first(),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /Saved|Save room/ }),
+  ).toBeVisible();
+  await expect(page.getByRole("radio", { name: "Find a room" })).toHaveCount(0);
+
+  const nav = page.getByRole("navigation", { name: "Main navigation" });
+  await nav.getByRole("button", { name: /My profile/ }).click();
+  await page
+    .getByRole("radio", { name: /I have a room, I need a flatmate/ })
+    .check();
+  await expect(page.getByRole("status")).toContainText(
+    "people looking for a room",
+  );
+  await nav.getByRole("button", { name: "Discover" }).click();
+  // Having a room: only people looking for one, no rooms to save.
+  await expect(card(page)).toHaveText(/^Leo/);
+  await expect(page.getByRole("button", { name: /Save room/ })).toHaveCount(0);
+  await nav.getByRole("button", { name: /My space/ }).click();
+  await expect(page.getByRole("heading", { name: /Saved rooms/ })).toHaveCount(
+    0,
+  );
 });
 
 test("Turkish interface and a phone-sized layout", async ({ page }) => {

@@ -1,92 +1,71 @@
 "use client";
-import { Building2, RotateCcw, Sparkles, Users } from "lucide-react";
-import {
-  Button,
-  EmptyState,
-  SegmentedControl,
-  VisuallyHidden,
-} from "@/design-system";
+import { Bookmark, BookmarkCheck, RotateCcw, Sparkles } from "lucide-react";
+import { Button, EmptyState, VisuallyHidden } from "@/design-system";
 import {
   defaultLanguage,
   defaultLayout,
   discoverParts,
 } from "@/design-system/languages";
 import type { DiscoverDeck } from "@/lib/discover/deck";
-import { rooms } from "@/lib/data";
 import { useI18n } from "@/lib/i18n";
-import type { Profile, Room } from "@/lib/types";
-import { RoomTile } from "../RoomTile";
+import type { Profile } from "@/lib/types";
 import v from "./views.module.css";
 
-/** Discover: the Card language's swipe card and Home → Person → Fit tabs. */
+/**
+ * Discover: the swipe card and Home → Person → Fit tabs. Room seekers see
+ * people who have a room, room first; hosts see people looking for a room.
+ */
 export function DiscoverView({
   deck,
-  mode,
-  onMode,
+  roomFirst,
   canUndo,
   rankedCount,
   savedRooms,
   onFilters,
   onBrowseAgain,
   onUndo,
-  onOpenRoom,
   onToggleRoom,
   onReport,
 }: {
   deck: DiscoverDeck | null;
-  mode: "people" | "rooms";
-  onMode: (mode: "people" | "rooms") => void;
+  /** The viewer is looking for a room: show the room before the person. */
+  roomFirst: boolean;
   canUndo: boolean;
   rankedCount: number;
   savedRooms: string[];
   onFilters: () => void;
   onBrowseAgain: () => void;
   onUndo: () => void;
-  onOpenRoom: (room: Room) => void;
   onToggleRoom: (id: string) => void;
   onReport: (p: Profile) => void;
 }) {
   const { t } = useI18n();
   const { Card, Details } = discoverParts[defaultLanguage];
   const layout = defaultLayout;
+  const roomId = deck?.profile.room ? `room-${deck.profile.id}` : null;
+  const saved = roomId ? savedRooms.includes(roomId) : false;
   return (
     <>
       <VisuallyHidden as="h1">{t("nav.discover")}</VisuallyHidden>
-      <div className={v.toolbar}>
-        <SegmentedControl
-          label={t("Search mode")}
-          value={mode}
-          onChange={onMode}
-          options={[
-            { value: "people", label: t("discover.people"), icon: <Users /> },
-            { value: "rooms", label: t("discover.rooms"), icon: <Building2 /> },
-          ]}
-        />
-      </div>
-
-      {mode === "rooms" ? (
-        <section aria-labelledby="rooms-title">
-          <VisuallyHidden as="h2" id="rooms-title">
-            {t("Rooms")}
-          </VisuallyHidden>
-          <div className={v.roomGrid}>
-            {rooms.map((room) => (
-              <RoomTile
-                key={room.id}
-                room={room}
-                saved={savedRooms.includes(room.id)}
-                onOpen={() => onOpenRoom(room)}
-                onToggle={() => onToggleRoom(room.id)}
-              />
-            ))}
-          </div>
-        </section>
-      ) : deck ? (
+      {deck ? (
         <div className={v.discoverGrid}>
           <div className={v.cardColumn}>
-            <Card deck={deck} />
+            <Card deck={deck} roomFirst={roomFirst} />
           </div>
           <div className={v.detailsColumn}>
+            {roomFirst && roomId && (
+              <div className={v.detailsActions}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  leadingIcon={saved ? <BookmarkCheck /> : <Bookmark />}
+                  aria-pressed={saved}
+                  onClick={() => onToggleRoom(roomId)}
+                >
+                  {saved ? t("Saved") : t("Save room")}
+                </Button>
+              </div>
+            )}
             <Details
               key={deck.profile.id}
               profile={deck.profile}
@@ -119,7 +98,7 @@ export function DiscoverView({
           }}
         />
       )}
-      {mode === "people" && !deck && canUndo && (
+      {!deck && canUndo && (
         <div className={v.centered}>
           <Button variant="ghost" leadingIcon={<RotateCcw />} onClick={onUndo}>
             {t("discover.undo")}

@@ -90,5 +90,9 @@ export {
   type EmptyStateProps,
 } from "./components/EmptyState/EmptyState";
 export { VisuallyHidden } from "./components/VisuallyHidden/VisuallyHidden";
+export {
+  ChoiceCards,
+  type ChoiceCardOption,
+} from "./components/ChoiceCards/ChoiceCards";
 export { Toast } from "./components/Toast/Toast";
 export { TextProvider, useText, type Translate } from "./text/TextProvider";

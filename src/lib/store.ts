@@ -44,7 +44,15 @@ export function useAppState() {
           setState({
             ...initialState,
             ...saved,
-            preferences: { ...defaultPreferences, ...saved.preferences },
+            preferences: {
+              ...defaultPreferences,
+              ...saved.preferences,
+              // "Either" is no longer offered; treat it as looking for a room.
+              intent:
+                saved.preferences.intent === "have-room"
+                  ? "have-room"
+                  : "find-room",
+            },
             // v1 stored one viewing for the whole plan; attach it to the first saved room.
             viewings:
               saved.viewings ??

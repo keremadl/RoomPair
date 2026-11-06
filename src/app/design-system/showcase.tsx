@@ -34,6 +34,7 @@ import {
   IconButton,
   Input,
   SegmentedControl,
+  ChoiceCards,
   Stack,
   Text,
   Textarea,
@@ -197,6 +198,9 @@ function Specimen({ label, children }: { label: string; children: ReactNode }) {
 
 export function Showcase() {
   const [mode, setMode] = useState<"people" | "rooms">("people");
+  const [looking, setLooking] = useState<"find-room" | "have-room">(
+    "find-room",
+  );
   const [habits, setHabits] = useState<string[]>(["Early riser"]);
   const toggleHabit = (habit: string) =>
     setHabits((current) =>
@@ -547,6 +551,28 @@ export function Showcase() {
               options={[
                 { value: "people", label: "Find people", icon: <Users /> },
                 { value: "rooms", label: "Find a room", icon: <Building2 /> },
+              ]}
+            />
+          </Specimen>
+          <Specimen label="ChoiceCards">
+            <ChoiceCards
+              label="What are you looking for?"
+              value={looking}
+              onChange={setLooking}
+              columns={2}
+              options={[
+                {
+                  value: "find-room",
+                  title: "I’m looking for a room",
+                  hint: "See people who have a room, room first",
+                  icon: <Building2 />,
+                },
+                {
+                  value: "have-room",
+                  title: "I have a room, I need a flatmate",
+                  hint: "See only people looking for a room",
+                  icon: <Users />,
+                },
               ]}
             />
           </Specimen>

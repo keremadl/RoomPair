@@ -67,8 +67,13 @@ export function getCompatibility(
     dealbreakers.push(
       `Looking in ${profile.city}, outside your selected city.`,
     );
+  // Room seekers meet people with a room; people with a room meet seekers.
   if (prefs.intent === "have-room" && profile.intent === "have-room")
     dealbreakers.push("You both have a room; neither is looking to move in.");
+  if (prefs.intent === "find-room" && profile.intent === "find-room")
+    dealbreakers.push(
+      "You are both looking for a room; neither has one to share.",
+    );
   if (!profile.active)
     dealbreakers.push("This person has paused their search.");
   if (prefs.smokeFree && profile.habits.smoking)
@@ -185,10 +190,6 @@ export function getCompatibility(
     );
   if (profile.habits.pets && prefs.petsOkay)
     considerations.push("They have a pet; meet it and discuss shared spaces.");
-  if (prefs.intent === "find-room" && profile.intent === "find-room")
-    considerations.push(
-      "You are both searching: team up to find a home together.",
-    );
 
   const breakdown: MatchResult["breakdown"] = [
     {

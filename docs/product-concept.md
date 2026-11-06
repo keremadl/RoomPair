@@ -22,12 +22,12 @@ Moving to a new city for university means finding two things at once: a place to
 
 The product serves two sides of the same match:
 
-| Intent                               | Who                                                                                | What they need                                                                    |
-| ------------------------------------ | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| **Find a room** (or search together) | A student moving to the city, often international or exchange, without a place yet | People to live with, or a room in a shared flat, that fits their budget and dates |
-| **Have a room**                      | A student or young professional with a free room in their flat                     | Someone reliable and compatible to fill it                                        |
+| Intent                 | Who                                                                                | What they need                                                                    |
+| ---------------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Looking for a room** | A student moving to the city, often international or exchange, without a place yet | People to live with, or a room in a shared flat, that fits their budget and dates |
+| **Have a room**        | A student or young professional with a free room in their flat                     | Someone reliable and compatible to fill it                                        |
 
-A person can also choose **either**. The demo is set in **Riga** with students from local universities. Riga is a suggested pilot city, not a validated market claim.
+Each person answers **What are you looking for?** on their profile. Room seekers see hosts, with the room photo first; hosts see only room seekers. The demo is set in **Riga** with students from local universities. Riga is a suggested pilot city, not a validated market claim.
 
 ## 3. Value proposition
 

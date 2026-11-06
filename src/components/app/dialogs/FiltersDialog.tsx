@@ -40,18 +40,6 @@ export function FiltersDialog({
           onChange={(e) => set("city", e.target.value)}
           required
         />
-        <Select
-          label={t("I’m here to")}
-          value={draft.intent}
-          onChange={(e) =>
-            set("intent", e.target.value as Preferences["intent"])
-          }
-          options={[
-            { value: "find-room", label: t("Find a room or search together") },
-            { value: "have-room", label: t("Find someone for my spare room") },
-            { value: "either", label: t("Explore both") },
-          ]}
-        />
         <div className={d.row}>
           <Input
             label={t("Monthly budget, from")}
