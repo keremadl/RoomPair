@@ -310,7 +310,7 @@ export function MessagesView({
             <IconButton
               type="submit"
               variant="solid"
-              size="lg"
+              size="md"
               label={t("messages.send")}
               icon={<Send />}
               disabled={!message.trim()}
