@@ -776,5 +776,19 @@
   "{count} people in {city} fit your filters.": "{city} içinde {count} kişi filtrelerine uyuyor.",
   "{count} liked": "{count} beğenildi",
   "{count} skipped": "{count} geçildi",
-  "Go through them again": "Tekrar göz at"
+  "Go through them again": "Tekrar göz at",
+  "Theme": "Tema",
+  "System": "Sistem",
+  "Follows your device.": "Cihaz ayarını izler.",
+  "Light": "Açık",
+  "Dark": "Koyu",
+  "Colour palette": "Renk paleti",
+  "Today's look: violet, amber and navy on a cool pale page.": "Bugünün görünümü: serin ve açık bir sayfada mor, kehribar ve lacivert.",
+  "Electric cobalt with a highlighter-lime XP on an icy page.": "Buz rengi sayfada canlı kobalt mavisi ve fosforlu limon yeşili XP.",
+  "Deep teal with a hot coral-pink XP on a mint-ice page.": "Buzlu nane rengi sayfada koyu petrol yeşili ve canlı mercan pembesi XP.",
+  "Terracotta, sage and honey on warm oat paper.": "Sıcak yulaf rengi kâğıtta kiremit, adaçayı yeşili ve bal rengi.",
+  "Deep teal, clay and apricot on linen.": "Keten üzerinde koyu petrol yeşili, kil ve kayısı rengi.",
+  "Black-and-white zine cards with one fluorescent-magenta accent.": "Tek bir fosforlu eflatun vurguyla siyah beyaz fanzin kartları.",
+  "Deep berry plum with a fresh mint XP on blush paper.": "Açık pembe kâğıtta koyu mürdüm ve ferah nane yeşili XP.",
+  "Leaf green and sunflower yellow on fresh spring paper.": "Ferah bahar kâğıdında yaprak yeşili ve ayçiçeği sarısı."
 }

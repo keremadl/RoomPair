@@ -24,6 +24,13 @@ Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/d
 - Game words stay light (quests, abilities); numbers stay plain: "Age 23", "96% fit", "€420 per month". No levels or XP.
 - Profile details always follow the shared content model in the order Home → Person → Fit (`ProfileDetails`, `@/lib/discover/sections`). Nothing about the place appears under Person, nothing about the person under Home.
 
+## Palettes and light/dark
+
+- Eight colour palettes live in `palette-<id>.css` and are listed in `palettes.ts` (classic first, the default). Each file has a light block, `[data-direction="card"][data-palette="<id>"]`, and a dark block with `[data-theme="dark"]` added. A palette defines colours only; `theme.css` builds the press shadows and the focus ring from `--press-color`, `--color-focus-ring` and `--color-bg`.
+- `data-palette` and `data-theme` must sit on the same element as `data-direction`, or component tokens resolve with the wrong values. The app sets them on the AppShell root from Settings (System / Light / Dark; "System" follows the device).
+- Tokens with one job each, so dark mode works: `--color-on-image` and `--color-photo-frame` (stay light on photos), `--color-on-xp` / `--color-on-accent` (text on the highlight), `--color-surface-inverse` / `--color-on-inverse` (small solid badges), `--color-on-danger`, `--match-bg` / `--match-fg`. Use these instead of `--color-text-inverse` or `--color-surface-raised` for those jobs.
+- `npm run check:design` checks every palette's light and dark block separately, including text on the highlight, badges, the match screen, outlines, press shadows and the focus ring.
+
 ## Files
 
 | File                 | What                                                                                                                                                                                                           |

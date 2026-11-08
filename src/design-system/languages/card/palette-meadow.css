@@ -1,0 +1,112 @@
+/*
+ * Card palette: Meadow (meadow)
+ * A picnic in the park: leaf-green cards, a sunflower XP and sky-blue focus on spring paper.
+ * Main colours: leaf #2b711c, sunflower #ffc928, sky #2a6fd6, moss ink #1a2614, spring #eef3e2; dark: lime-leaf #8fd16e on #121a0f.
+ * Colour only. --press-shadow, --shadow-sm/md and --focus-ring are built by
+ * theme.css from --press-color, --color-focus-ring and --color-bg.
+ */
+[data-direction="card"][data-palette="meadow"] {
+  color-scheme: light;
+  --color-bg: #eef3e2;
+  --color-surface: #fdfef8;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #dfe8cc;
+  --color-text: #1a2614;
+  --color-text-muted: #48563f;
+  --color-text-subtle: #6e7b65;
+  --color-text-inverse: #ffffff;
+  --color-border: #ccd8b8;
+  --color-border-strong: #1a2614;
+  --color-primary: #2b711c;
+  --color-primary-hover: #245f17;
+  --color-primary-active: #1c4d12;
+  --color-primary-soft: #dff0d0;
+  --color-primary-soft-hover: #cfe6ba;
+  --color-on-primary: #ffffff;
+  --color-accent: #ffc928;
+  --color-accent-strong: #755200;
+  --color-accent-soft: #fff3c8;
+  --color-on-accent: #1a2614;
+  --xp: #ffc928;
+  --color-on-xp: #1a2614;
+  --color-success: #0f7366;
+  --color-success-soft: #d8f1ec;
+  --color-warning: #84530a;
+  --color-warning-soft: #fdecd4;
+  --color-danger: #c0352b;
+  --color-danger-soft: #fde6e2;
+  --color-on-danger: #ffffff;
+  --color-focus-ring: #2a6fd6;
+  --type-host: #2b711c;
+  --type-host-soft: #dff0d0;
+  --type-explorer: #2a6fd6;
+  --type-explorer-soft: #e0ebfb;
+  --stat-on: #2b711c;
+  --stat-off: #dfe8cc;
+  --press-color: #1a2614;
+  --color-overlay: rgb(26 38 20 / 0.5);
+  --color-on-image: #ffffff;
+  --color-image-scrim: linear-gradient(to top, rgb(14 18 12 / 0.85), rgb(14 18 12 / 0));
+  --color-on-image-surface: rgb(255 255 255 / 0.16);
+  --color-on-image-border: rgb(255 255 255 / 0.4);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.75);
+  --color-photo-frame: #ffffff;
+  --color-surface-inverse: #1a2614;
+  --color-on-inverse: #ffffff;
+  --match-bg: #2b711c;
+  --match-fg: #ffffff;
+  --shadow-lg: 0 18px 40px rgb(26 38 20 / 0.22);
+}
+
+[data-direction="card"][data-palette="meadow"][data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #121a0f;
+  --color-surface: #1a2416;
+  --color-surface-raised: #222e1d;
+  --color-surface-sunken: #0c120a;
+  --color-text: #eef5e4;
+  --color-text-muted: #bccab0;
+  --color-text-subtle: #8d9b82;
+  --color-text-inverse: #121a0f;
+  --color-border: #33422c;
+  --color-border-strong: #cfe0bd;
+  --color-primary: #8fd16e;
+  --color-primary-hover: #a1da84;
+  --color-primary-active: #b3e29b;
+  --color-primary-soft: #22401a;
+  --color-primary-soft-hover: #2a4e20;
+  --color-on-primary: #0f1f0a;
+  --color-accent: #ffd04a;
+  --color-accent-strong: #ffdd80;
+  --color-accent-soft: #3a2f0a;
+  --color-on-accent: #121a0f;
+  --xp: #ffd04a;
+  --color-on-xp: #121a0f;
+  --color-success: #5fd1bf;
+  --color-success-soft: #0f2e2a;
+  --color-warning: #f0b866;
+  --color-warning-soft: #35260f;
+  --color-danger: #ff8a7e;
+  --color-danger-soft: #3d1a16;
+  --color-on-danger: #121a0f;
+  --color-focus-ring: #ffd04a;
+  --type-host: #8fd16e;
+  --type-host-soft: #22401a;
+  --type-explorer: #7fb0ff;
+  --type-explorer-soft: #1a2a45;
+  --stat-on: #8fd16e;
+  --stat-off: #2e3b28;
+  --press-color: #cfe0bd;
+  --color-overlay: rgb(4 7 3 / 0.7);
+  --color-on-image: #ffffff;
+  --color-image-scrim: linear-gradient(to top, rgb(8 10 7 / 0.85), rgb(8 10 7 / 0));
+  --color-on-image-surface: rgb(255 255 255 / 0.16);
+  --color-on-image-border: rgb(255 255 255 / 0.4);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.75);
+  --color-photo-frame: #eef5e4;
+  --color-surface-inverse: #eef5e4;
+  --color-on-inverse: #121a0f;
+  --match-bg: #1f4a17;
+  --match-fg: #ffffff;
+  --shadow-lg: 0 18px 40px rgb(0 0 0 / 0.5);
+}

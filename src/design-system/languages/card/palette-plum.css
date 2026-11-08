@@ -1,0 +1,112 @@
+/*
+ * Card palette: Plum & Mint (plum)
+ * A berry smoothie with a mint garnish: deep plum cards and a cool mint XP on blush paper.
+ * Main colours: plum #8a2463, mint #4fd9a6, aubergine #2a1230, blush #f5ecf2; dark: orchid #f08cc6 on #1e1220.
+ * Colour only. --press-shadow, --shadow-sm/md and --focus-ring are built by
+ * theme.css from --press-color, --color-focus-ring and --color-bg.
+ */
+[data-direction="card"][data-palette="plum"] {
+  color-scheme: light;
+  --color-bg: #f5ecf2;
+  --color-surface: #fffafc;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #ead9e4;
+  --color-text: #2a1230;
+  --color-text-muted: #5c4563;
+  --color-text-subtle: #86708c;
+  --color-text-inverse: #ffffff;
+  --color-border: #e0cdd9;
+  --color-border-strong: #2a1230;
+  --color-primary: #8a2463;
+  --color-primary-hover: #761d54;
+  --color-primary-active: #611645;
+  --color-primary-soft: #f7deec;
+  --color-primary-soft-hover: #f0cbe0;
+  --color-on-primary: #ffffff;
+  --color-accent: #4fd9a6;
+  --color-accent-strong: #146b4c;
+  --color-accent-soft: #d9f7ea;
+  --color-on-accent: #2a1230;
+  --xp: #4fd9a6;
+  --color-on-xp: #2a1230;
+  --color-success: #1b7346;
+  --color-success-soft: #ddf2e6;
+  --color-warning: #7d5500;
+  --color-warning-soft: #fbefd2;
+  --color-danger: #b8291f;
+  --color-danger-soft: #fde5e1;
+  --color-on-danger: #ffffff;
+  --color-focus-ring: #0f8a5f;
+  --type-host: #157a55;
+  --type-host-soft: #d9f7ea;
+  --type-explorer: #3d5bd1;
+  --type-explorer-soft: #e3e8fb;
+  --stat-on: #8a2463;
+  --stat-off: #ead9e4;
+  --press-color: #2a1230;
+  --color-overlay: rgb(42 18 48 / 0.5);
+  --color-on-image: #ffffff;
+  --color-image-scrim: linear-gradient(to top, rgb(20 14 22 / 0.85), rgb(20 14 22 / 0));
+  --color-on-image-surface: rgb(255 255 255 / 0.16);
+  --color-on-image-border: rgb(255 255 255 / 0.4);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.75);
+  --color-photo-frame: #ffffff;
+  --color-surface-inverse: #2a1230;
+  --color-on-inverse: #ffffff;
+  --match-bg: #8a2463;
+  --match-fg: #ffffff;
+  --shadow-lg: 0 18px 40px rgb(42 18 48 / 0.22);
+}
+
+[data-direction="card"][data-palette="plum"][data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #1e1220;
+  --color-surface: #281a2b;
+  --color-surface-raised: #322235;
+  --color-surface-sunken: #160c17;
+  --color-text: #f8ecf4;
+  --color-text-muted: #d2bdcc;
+  --color-text-subtle: #a68fa0;
+  --color-text-inverse: #1e1220;
+  --color-border: #47334a;
+  --color-border-strong: #e7c9dc;
+  --color-primary: #f08cc6;
+  --color-primary-hover: #f5a3d3;
+  --color-primary-active: #f8b9de;
+  --color-primary-soft: #4a1d3c;
+  --color-primary-soft-hover: #5a2449;
+  --color-on-primary: #2a0c20;
+  --color-accent: #5fe3b1;
+  --color-accent-strong: #8ff0cb;
+  --color-accent-soft: #113528;
+  --color-on-accent: #1e1220;
+  --xp: #5fe3b1;
+  --color-on-xp: #1e1220;
+  --color-success: #6fd69c;
+  --color-success-soft: #12301f;
+  --color-warning: #eec062;
+  --color-warning-soft: #33270e;
+  --color-danger: #ff8a7a;
+  --color-danger-soft: #3d1914;
+  --color-on-danger: #1e1220;
+  --color-focus-ring: #5fe3b1;
+  --type-host: #4fc896;
+  --type-host-soft: #113528;
+  --type-explorer: #8fa3ff;
+  --type-explorer-soft: #1f2550;
+  --stat-on: #f08cc6;
+  --stat-off: #3a2a3d;
+  --press-color: #e7c9dc;
+  --color-overlay: rgb(8 3 9 / 0.7);
+  --color-on-image: #ffffff;
+  --color-image-scrim: linear-gradient(to top, rgb(12 8 13 / 0.85), rgb(12 8 13 / 0));
+  --color-on-image-surface: rgb(255 255 255 / 0.16);
+  --color-on-image-border: rgb(255 255 255 / 0.4);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.75);
+  --color-photo-frame: #f8ecf4;
+  --color-surface-inverse: #f8ecf4;
+  --color-on-inverse: #1e1220;
+  --match-bg: #4a1640;
+  --match-fg: #ffffff;
+  --shadow-lg: 0 18px 40px rgb(0 0 0 / 0.5);
+}

@@ -394,6 +394,29 @@ test("Turkish interface and a phone-sized layout", async ({ page }) => {
   );
 });
 
+test("Settings switches the colour palette and light/dark, and keeps them after a reset", async ({
+  page,
+}) => {
+  await openApp(page);
+  const nav = page.getByRole("navigation", { name: "Main navigation" });
+  await nav.getByRole("button", { name: /My profile/ }).click();
+  await page.getByRole("button", { name: "Settings" }).click();
+  const shell = page.locator("[data-direction]").first();
+  await expect(shell).toHaveAttribute("data-palette", "classic");
+  await page.getByRole("radio", { name: /Volt/ }).click();
+  await page.getByRole("radio", { name: /^Dark/ }).click();
+  await expect(shell).toHaveAttribute("data-palette", "volt");
+  await expect(shell).toHaveAttribute("data-theme", "dark");
+  // Dark mode reaches the page and native controls
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.getByRole("button", { name: "Reset demo data" }).click();
+  await page.reload();
+  await expect(page.locator("[data-direction]").first()).toHaveAttribute(
+    "data-palette",
+    "volt",
+  );
+});
+
 test.describe("on a phone", () => {
   test.use({
     viewport: { width: 360, height: 780 },
