@@ -286,7 +286,8 @@
   document.getElementById("reset").onclick = () => {
     try {
       for (const key of Object.keys(localStorage))
-        if (key.startsWith("roompair")) localStorage.removeItem(key);
+        // Keep the look (palette, theme) and language; clear the demo data.
+        if (key.startsWith("roompair") && key !== "roompair.appearance" && key !== "roompair.locale") localStorage.removeItem(key);
     } catch (e) { /* storage blocked: nothing to reset */ }
     load("phone", true);
   };

@@ -118,8 +118,18 @@ const themeFiles = walk(join(root, "src/design-system"))
   .map((f) => relative(root, f))
   .filter((rel) => rel !== tokensFile && isTokenFile(rel))
   .sort();
+/** Rule blocks of a CSS file, split by whether they are a dark-mode block. */
+const splitModes = (css) => {
+  const clean = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  const light = [];
+  const dark = [];
+  for (const m of clean.matchAll(/([^{}]+)\{([^{}]*)\}/g))
+    (/data-theme="dark"/.test(m[1]) ? dark : light).push(m[2]);
+  return { light: parseVars(light.join(";")), dark: parseVars(dark.join(";")) };
+};
 for (const rel of themeFiles) {
-  const overrides = parseVars(readFileSync(join(root, rel), "utf8"));
+  const css = readFileSync(join(root, rel), "utf8");
+  const { light: overrides, dark } = splitModes(css);
   // A palette overrides colours on top of its language theme.
   const parent = rel.includes("/palette-")
     ? parseVars(
@@ -129,10 +139,11 @@ for (const rel of themeFiles) {
         ),
       )
     : {};
-  themes.push([
-    rel.replace("src/design-system/", ""),
-    { ...base, ...parent, ...overrides },
-  ]);
+  const name = rel.replace("src/design-system/", "");
+  themes.push([name, { ...base, ...parent, ...overrides }]);
+  // A dark block is checked as its own theme, on top of the light values.
+  if (Object.keys(dark).length)
+    themes.push([`${name} (dark)`, { ...base, ...parent, ...overrides, ...dark }]);
 }
 const resolveIn = (tokens) => {
   const resolve = (value, depth = 0) => {
@@ -142,6 +153,8 @@ const resolveIn = (tokens) => {
   return resolve;
 };
 const luminance = (hex) => {
+  if (!/^#[0-9a-f]{3,8}$/i.test(hex ?? ""))
+    throw new Error(`not a hex colour: ${hex}`);
   const n = hex.replace("#", "");
   const full =
     n.length === 3 ? [...n].map((c) => c + c).join("") : n.slice(0, 6);
@@ -156,7 +169,7 @@ const ratio = (a, b) => {
   return (l1 + 0.05) / (l2 + 0.05);
 };
 
-// [foreground, background, minimum ratio]
+// [foreground, background, minimum ratio, only when this token is defined]
 const pairs = [
   ["--color-text", "--color-bg", 4.5],
   ["--color-text", "--color-surface-sunken", 4.5],
@@ -172,11 +185,31 @@ const pairs = [
   ["--color-danger", "--color-danger-soft", 4.5],
   ["--color-success", "--color-success-soft", 4.5],
   ["--color-warning", "--color-warning-soft", 4.5],
+  // Text on the highlight and accent fills, solid badges, the match screen
+  ["--color-on-xp", "--xp", 4.5],
+  ["--color-on-accent", "--color-accent", 4.5],
+  ["--color-on-inverse", "--color-surface-inverse", 4.5],
+  ["--color-on-danger", "--color-danger", 4.5],
+  ["--match-fg", "--match-bg", 4.5],
+  // Outlines and press shadows must show on the page (themes with ink
+  // outlines, i.e. that define --press-color), and so must the focus ring.
+  ["--color-border-strong", "--color-bg", 3, "--press-color"],
+  ["--press-color", "--color-bg", 3],
+  ["--color-focus-ring", "--color-bg", 3],
 ];
 for (const [label, tokens] of themes) {
   const resolve = resolveIn(tokens);
-  for (const [fg, bg, min] of pairs) {
-    const r = ratio(resolve(tokens[fg]), resolve(tokens[bg]));
+  for (const [fg, bg, min, needs] of pairs) {
+    // A pair whose tokens this theme does not define (yet) is skipped.
+    if (!tokens[fg] || !tokens[bg] || (needs && !tokens[needs])) continue;
+    let r;
+    try {
+      r = ratio(resolve(tokens[fg]), resolve(tokens[bg]));
+    } catch (e) {
+      failed = true;
+      console.error(`✗ [${label}] ${fg} on ${bg}: ${e.message}`);
+      continue;
+    }
     if (r < min) {
       failed = true;
       console.error(

@@ -18,6 +18,7 @@ import {
 import { profiles } from "@/lib/data";
 import { getCompatibility, rankProfiles } from "@/lib/matching";
 import { missingRequired } from "@/lib/profile";
+import { useAppearance } from "@/lib/appearance";
 import { useAppState } from "@/lib/store";
 import { I18nProvider, useI18n } from "@/lib/i18n";
 import type { Preferences, Profile } from "@/lib/types";
@@ -71,6 +72,11 @@ function Translated() {
 function RoomPairApp() {
   const { t } = useI18n();
   const { state, setState, ready, reset } = useAppState();
+  const {
+    appearance,
+    theme: resolvedTheme,
+    update: setAppearance,
+  } = useAppearance();
   const [view, setView] = useState<View>("discover");
   /** A sub-page of Profile, shown with a back button in the top bar. */
   const [sub, setSub] = useState<null | "edit" | "settings">(null);
@@ -401,6 +407,8 @@ function RoomPairApp() {
 
   return (
     <AppShell
+      palette={appearance.palette}
+      theme={resolvedTheme}
       view={view}
       onNavigate={navigate}
       counts={{ likes: received.length, messages: unread }}
@@ -595,6 +603,8 @@ function RoomPairApp() {
         )}
         {view === "profile" && sub === "settings" && (
           <SettingsView
+            appearance={appearance}
+            onAppearance={setAppearance}
             onReset={() => {
               reset();
               setSub(null);

@@ -52,8 +52,8 @@
   padding: var(--space-1) var(--space-3);
   border: var(--control-border-width) solid var(--color-border-strong);
   border-radius: var(--radius-full);
-  background: var(--color-text);
-  color: var(--color-text-inverse);
+  background: var(--color-surface-inverse);
+  color: var(--color-on-inverse);
   font-size: var(--text-sm);
 }
 .who {

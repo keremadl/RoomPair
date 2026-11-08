@@ -275,6 +275,7 @@
 .stampLike {
   left: var(--space-5);
   background: var(--xp);
+  color: var(--color-on-xp);
   transform: rotate(-10deg);
 }
 .stampPass {
@@ -643,6 +644,7 @@
 }
 .banner[data-group="fit"] span {
   background: var(--xp);
+  color: var(--color-on-xp);
 }
 .tabs {
   position: sticky;

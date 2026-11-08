@@ -97,8 +97,8 @@
   height: 1.9rem;
   border: 0;
   border-radius: var(--radius-full);
-  background: var(--color-text);
-  color: var(--color-text-inverse);
+  background: var(--color-surface-inverse);
+  color: var(--color-on-inverse);
   cursor: pointer;
 }
 .remove svg {

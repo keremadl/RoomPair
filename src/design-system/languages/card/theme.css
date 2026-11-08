@@ -10,6 +10,14 @@
   --color-surface-raised: #ffffff;
   --color-surface-sunken: #d9dfeb;
   --color-overlay: rgb(24 28 48 / 0.5);
+  /* Photos: text and frames on images stay light in every theme. */
+  --color-on-image: #ffffff;
+  --color-photo-frame: #ffffff;
+  --color-image-scrim: linear-gradient(
+    to top,
+    rgb(14 16 28 / 0.85),
+    rgb(14 16 28 / 0)
+  );
   --color-border: #c7cfdf;
   --color-border-strong: #1d2240;
 
@@ -17,6 +25,9 @@
   --color-text-muted: #4b5272;
   --color-text-subtle: #767d9b;
   --color-text-inverse: #ffffff;
+  /* Small solid badges (e.g. the "50%" pill): an ink fill and its text. */
+  --color-surface-inverse: #1d2240;
+  --color-on-inverse: #ffffff;
 
   --color-primary: #5b3fd6;
   --color-primary-hover: #4a30bb;
@@ -28,6 +39,7 @@
   --color-accent: #f5a524;
   --color-accent-strong: #8a5600;
   --color-accent-soft: #fff1d6;
+  --color-on-accent: #1d2240;
 
   --color-success: #17784d;
   --color-success-soft: #ddf4e8;
@@ -35,7 +47,8 @@
   --color-warning-soft: #fff1d6;
   --color-danger: #b8322a;
   --color-danger-soft: #fde8e6;
-  --color-focus-ring: #f5a524;
+  --color-on-danger: #ffffff;
+  --color-focus-ring: #5b3fd6;
 
   /* Card "types": the frame colour says what someone is looking for. */
   --type-host: #17784d;
@@ -45,8 +58,15 @@
   --stat-on: #5b3fd6;
   --stat-off: #d9dfeb;
   --xp: #f5a524;
+  --color-on-xp: #1d2240;
+  /* The full-screen "Team up!" moment */
+  --match-bg: #5b3fd6;
+  --match-fg: #ffffff;
+  /* The ink of thick outlines' press shadows. Palettes set the colour;
+     the shadows below are built from it, so light and dark both follow. */
+  --press-color: #1d2240;
   --press-depth: 4px;
-  --press-shadow: 0 4px 0 #1d2240;
+  --press-shadow: 0 var(--press-depth) 0 var(--press-color);
 
   --font-heading: var(--font-rubik), "Rubik", system-ui, sans-serif;
   --font-body: var(--font-rubik), "Rubik", system-ui, sans-serif;
@@ -56,10 +76,10 @@
   --radius-lg: 20px;
   --radius-xl: 28px;
 
-  --shadow-sm: 0 2px 0 #1d2240;
-  --shadow-md: 0 4px 0 #1d2240;
+  --shadow-sm: 0 2px 0 var(--press-color);
+  --shadow-md: 0 4px 0 var(--press-color);
   --shadow-lg: 0 18px 40px rgb(29 34 64 / 0.22);
-  --focus-ring: 0 0 0 3px #e7ebf3, 0 0 0 6px #f5a524;
+  --focus-ring: 0 0 0 3px var(--color-bg), 0 0 0 6px var(--color-focus-ring);
 
   /* Component tokens: chunky, pressable game buttons. */
   --control-border-width: 2px;

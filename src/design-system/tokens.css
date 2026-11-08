@@ -75,6 +75,14 @@
   --color-text-muted: var(--rp-neutral-600);
   --color-text-subtle: var(--rp-neutral-500); /* large text / icons only */
   --color-text-inverse: var(--rp-neutral-0);
+  /* Text and frames on photos stay light; small solid badges use an inverse pair. */
+  --color-on-image: #ffffff;
+  --color-photo-frame: #ffffff;
+  --color-surface-inverse: var(--color-text);
+  --color-on-inverse: var(--color-text-inverse);
+  --color-on-danger: #ffffff;
+  --color-on-accent: var(--color-text);
+  --color-on-xp: var(--color-text);
 
   /* Brand */
   --color-primary: var(--rp-green-700);
@@ -97,7 +105,7 @@
   --color-danger-hover: var(--rp-red-700);
   --color-danger-soft: var(--rp-red-50);
 
-  --color-focus-ring: var(--rp-coral-500);
+  --color-focus-ring: var(--rp-coral-600);
 
   /* Content placed on top of photos */
   --color-on-image-surface: rgb(255 255 255 / 0.14);

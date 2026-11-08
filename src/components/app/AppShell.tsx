@@ -1,5 +1,5 @@
 "use client";
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import {
   Bell,
   CircleHelp,
@@ -35,6 +35,8 @@ export function AppShell({
   title,
   actions,
   onBack,
+  palette,
+  theme,
   children,
 }: {
   view: View;
@@ -48,9 +50,23 @@ export function AppShell({
   actions?: ReactNode;
   /** Set on a sub-page: shows a back button before the title. */
   onBack?: () => void;
+  /** Colour palette (Card palette id) and the theme in effect. */
+  palette: string;
+  theme: "light" | "dark";
   children: ReactNode;
 }) {
   const { t } = useI18n();
+  const root = useRef<HTMLDivElement>(null);
+  // The page around the shell (overscroll, native controls) follows too.
+  useEffect(() => {
+    const html = document.documentElement;
+    html.style.colorScheme = theme;
+    html.dataset.theme = theme;
+    if (root.current)
+      document.body.style.background = getComputedStyle(root.current)
+        .getPropertyValue("--color-bg")
+        .trim();
+  }, [palette, theme]);
   const nav: {
     id: View;
     label: string;
@@ -70,7 +86,10 @@ export function AppShell({
   return (
     <div
       className={`${s.app} ${directionFontVariables}`}
+      ref={root}
       data-direction={defaultLanguage}
+      data-palette={palette}
+      data-theme={theme}
       style={{ "--sticky-offset": "var(--shell-bar-height)" } as CSSProperties}
     >
       <a href="#main" className={s.skip}>

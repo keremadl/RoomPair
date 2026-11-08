@@ -31,7 +31,7 @@
   aspect-ratio: 3 / 4;
   margin-left: -2.625rem;
   object-fit: cover;
-  border: 3px solid var(--color-surface-raised);
+  border: 3px solid var(--color-photo-frame);
   border-radius: var(--radius-md);
   box-shadow: var(--press-shadow, var(--shadow-md));
   transform-origin: 50% 100%;

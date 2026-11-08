@@ -348,6 +348,18 @@ export const Sun = createIcon(
     <path d="M12 5.25V3.5M16.77 7.23l1.24-1.24M18.75 12h1.75M16.77 16.77l1.24 1.24M12 18.75v1.75M7.23 16.77l-1.24 1.24M5.25 12H3.5M7.23 7.23 5.99 5.99" />
   </>,
 );
+/** Follow the device's light/dark setting: a circle, half filled. */
+export const Contrast = createIcon(
+  "Contrast",
+  <>
+    <circle cx="12" cy="12" r="8.75" />
+    <path
+      d="M12 3.25a8.75 8.75 0 0 1 0 17.5z"
+      fill="currentColor"
+      stroke="none"
+    />
+  </>,
+);
 export const Moon = createIcon(
   "Moon",
   <>

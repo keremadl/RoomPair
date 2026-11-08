@@ -540,7 +540,7 @@
   border-radius: var(--radius-lg);
   background: var(--color-surface-sunken);
   box-shadow: var(--control-shadow, var(--shadow-sm));
-  color: var(--color-text-inverse);
+  color: var(--color-on-image);
   font-family: var(--font-body);
   text-align: left;
   cursor: pointer;
@@ -575,7 +575,7 @@
   z-index: 1;
   width: 2rem;
   height: 2rem;
-  border: var(--control-border-width) solid var(--color-surface);
+  border: var(--control-border-width) solid var(--color-photo-frame);
   border-radius: var(--radius-full);
 }
 .matchName {
@@ -678,7 +678,7 @@
   z-index: 1;
   width: 2.5rem;
   height: 2.5rem;
-  border: var(--control-border-width) solid var(--color-surface);
+  border: var(--control-border-width) solid var(--color-photo-frame);
   border-radius: var(--radius-full);
 }
 .likeName {
@@ -703,3 +703,15 @@
   white-space: nowrap;
 }
 
+
+/* Settings: a palette's colours as a small strip in its choice card */
+.swatches {
+  display: inline-flex;
+  overflow: hidden;
+  border: var(--control-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+}
+.swatches span {
+  width: 0.7rem;
+  height: 1.6rem;
+}
