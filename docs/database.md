@@ -73,7 +73,7 @@ Helper and trigger functions live in the `private` schema, which the Data API do
 - **Two opposite likes** create one match. Clients cannot insert matches.
 - **Undoing a like** removes the match unless the two already exchanged messages.
 - **Blocking** removes the match, its conversation and both swipes.
-- **Deleting an account** (`public.delete_account()`, callable only for yourself) removes the sign-in; the profile, room, likes, matches, messages, blocks and reports cascade from it. The app deletes the member's photo files first.
+- **Deleting an account** (`public.delete_account()`, callable only for yourself) removes the sign-in; the profile, room, likes, matches, messages, blocks and reports cascade from it. The app deletes the member's photo files first. Supabase's advisor flags it as a `security definer` function signed-in members can call; that is intended, and it only ever acts on the caller.
 - **Demo behaviour** (second migration): eleven demo accounts like every member who finishes onboarding, so a first mutual match is one swipe away. It is isolated so it can be dropped as a unit.
 
 ## Demo accounts
