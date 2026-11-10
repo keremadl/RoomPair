@@ -11,3 +11,6 @@ playwright-report/
 
 # Lab build output (published as an artifact)
 .lab/
+
+# Python
+__pycache__/
