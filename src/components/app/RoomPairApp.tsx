@@ -17,7 +17,7 @@ import {
 } from "@/design-system";
 import { profiles } from "@/lib/data";
 import { getCompatibility, rankProfiles } from "@/lib/matching";
-import { missingRequired } from "@/lib/profile";
+import { matchingPreferences, missingRequired } from "@/lib/profile";
 import { useAppearance } from "@/lib/appearance";
 import { useAppState } from "@/lib/store";
 import { I18nProvider, useI18n } from "@/lib/i18n";
@@ -81,7 +81,7 @@ function Translated() {
 
 function RoomPairApp() {
   const { t } = useI18n();
-  const { state, setState, ready, reset } = useAppState();
+  const { state, setState, ready, reset, saveFailed } = useAppState();
   const {
     appearance,
     theme: resolvedTheme,
@@ -100,7 +100,11 @@ function RoomPairApp() {
   /** Likes: the person opened from a tile, shown as a sub-page. */
   const [likeOpen, setLikeOpen] = useState<string | null>(null);
   const narrow = useNarrow();
-  const [typing, setTyping] = useState<string | null>(null);
+  // Simulated replies still on their way, per conversation, so one reply
+  // arriving does not hide the typing dots of another conversation.
+  const [pendingReplies, setPendingReplies] = useState<Record<string, number>>(
+    {},
+  );
   const [direction, setDirection] = useState(1);
   const [toast, setToast] = useState("");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -111,7 +115,8 @@ function RoomPairApp() {
     motion: "fade",
   });
 
-  const ranked = rankProfiles(profiles, state.preferences, t).filter(
+  const matchPrefs = matchingPreferences(state.me, state.preferences);
+  const ranked = rankProfiles(profiles, matchPrefs, t).filter(
     ({ profile }) => !state.blocked.includes(profile.id),
   );
   const decided = (id: string) => state.decisions.some((d) => d.id === id);
@@ -295,7 +300,10 @@ function RoomPairApp() {
           : c,
       ),
     }));
-    setTyping(id);
+    setPendingReplies((pending) => ({
+      ...pending,
+      [id]: (pending[id] ?? 0) + 1,
+    }));
     const timer = setTimeout(() => {
       const lower = body.toLowerCase();
       const answer = !body
@@ -328,7 +336,10 @@ function RoomPairApp() {
             : c,
         ),
       }));
-      setTyping(null);
+      setPendingReplies((pending) => ({
+        ...pending,
+        [id]: Math.max(0, (pending[id] ?? 1) - 1),
+      }));
     }, 1600);
     replyTimers.current.push(timer);
   }
@@ -341,6 +352,10 @@ function RoomPairApp() {
         dialog ||
         onboarding !== false ||
         view !== "discover" ||
+        sub ||
+        // With required fields missing, Discover shows a prompt instead of
+        // the card; the keys must not act on a card nobody can see.
+        missing.length > 0 ||
         ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName) ||
         el.isContentEditable ||
         el.getAttribute("role") === "tab" ||
@@ -423,7 +438,14 @@ function RoomPairApp() {
       onNavigate={navigate}
       counts={{ likes: received.length, messages: unread }}
       onHelp={() => setDialog("help")}
-      toast={toast}
+      toast={
+        toast ||
+        (saveFailed
+          ? t(
+              "Changes can’t be saved on this device. They last until you close this tab.",
+            )
+          : "")
+      }
       title={
         likePerson
           ? likePerson.name
@@ -551,7 +573,7 @@ function RoomPairApp() {
             key={likePerson.id}
             deck={{
               profile: likePerson,
-              match: getCompatibility(likePerson, state.preferences, t),
+              match: getCompatibility(likePerson, matchPrefs, t),
               cardKey: likePerson.id,
               exitDirection: direction,
               canUndo: false,
@@ -580,7 +602,7 @@ function RoomPairApp() {
         {view === "likes" && !likePerson && (
           <LikesView
             received={received.map((r) => r.profile)}
-            preferences={state.preferences}
+            preferences={matchPrefs}
             onOpen={(p) => {
               setLikeOpen(p.id);
               window.scrollTo({ top: 0 });
@@ -592,8 +614,8 @@ function RoomPairApp() {
           <MessagesView
             chats={state.chats}
             activeId={chat?.id ?? null}
-            typing={typing}
-            preferences={state.preferences}
+            typing={chat && pendingReplies[chat.id] ? chat.id : null}
+            preferences={matchPrefs}
             profileById={profileById}
             showChat={chatOpen}
             onSelect={(id) => {
@@ -616,6 +638,12 @@ function RoomPairApp() {
             appearance={appearance}
             onAppearance={setAppearance}
             onReset={() => {
+              replyTimers.current.forEach(clearTimeout);
+              replyTimers.current = [];
+              setPendingReplies({});
+              setActiveChat(null);
+              setChatOpen(false);
+              setLikeOpen(null);
               reset();
               setSub(null);
               setView("discover");
@@ -684,7 +712,7 @@ function RoomPairApp() {
           <ProfileDialog
             key="profile"
             profile={detail}
-            match={getCompatibility(detail, state.preferences, t)}
+            match={getCompatibility(detail, matchPrefs, t)}
             viewer={state.preferences}
             liked={state.decisions.some(
               (d) => d.id === detail.id && d.action === "like",
@@ -704,7 +732,7 @@ function RoomPairApp() {
               name: state.preferences.name,
               photo: state.me.photos[0] ?? "",
             }}
-            fit={getCompatibility(detail, state.preferences, t).score}
+            fit={getCompatibility(detail, matchPrefs, t).score}
             roomFirst={state.preferences.intent !== "have-room"}
             onClose={() => setDialog(null)}
             onSend={(text) => {

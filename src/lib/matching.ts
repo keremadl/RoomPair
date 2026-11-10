@@ -27,9 +27,15 @@ function parseDate(value: string): number {
  * likes and verification never improve the score. Strict filters run separately.
  * A score describes declared preferences; it is not a probability of success.
  */
+/**
+ * What the viewer is looking for. A viewer who has a room is matched on the
+ * rent they ask, not on a budget of their own.
+ */
+export type MatchPreferences = Preferences & { hostRoomPrice?: number };
+
 export function getCompatibility(
   profile: Profile,
-  prefs: Preferences,
+  prefs: MatchPreferences,
   /** Translates reasons, things to talk about and factor names. */
   t: Translate = english,
 ): MatchResult {
@@ -37,27 +43,41 @@ export function getCompatibility(
   const reasons: string[] = [];
   const considerations: string[] = [];
 
+  // A host's "budget" is the single price of their room: the other person's
+  // range has to include it.
+  const hostPrice =
+    prefs.intent === "have-room" && Number.isFinite(prefs.hostRoomPrice)
+      ? prefs.hostRoomPrice
+      : undefined;
+  const budgetMin = hostPrice ?? prefs.budgetMin;
+  const budgetMax = hostPrice ?? prefs.budgetMax;
   const validBudget =
-    Number.isFinite(prefs.budgetMin) &&
-    Number.isFinite(prefs.budgetMax) &&
-    prefs.budgetMin >= 0 &&
-    prefs.budgetMax >= prefs.budgetMin &&
+    Number.isFinite(budgetMin) &&
+    Number.isFinite(budgetMax) &&
+    budgetMin >= 0 &&
+    budgetMax >= budgetMin &&
     profile.budget.every(Number.isFinite) &&
     profile.budget[0] >= 0 &&
     profile.budget[1] >= profile.budget[0];
-  const overlapMin = Math.max(prefs.budgetMin, profile.budget[0]);
-  const overlapMax = Math.min(prefs.budgetMax, profile.budget[1]);
+  const overlapMin = Math.max(budgetMin, profile.budget[0]);
+  const overlapMax = Math.min(budgetMax, profile.budget[1]);
   const budgetOverlap = validBudget && overlapMax >= overlapMin;
   const roomPrice =
     profile.intent === "have-room" ? profile.room?.price : undefined;
   const roomInBudget =
     roomPrice === undefined ||
     (Number.isFinite(roomPrice) &&
-      roomPrice >= prefs.budgetMin &&
-      roomPrice <= prefs.budgetMax);
+      roomPrice >= budgetMin &&
+      roomPrice <= budgetMax);
   if (!validBudget) dealbreakers.push(t("A valid monthly budget is needed."));
   else if (!budgetOverlap)
-    dealbreakers.push(t("Your monthly budgets do not overlap."));
+    dealbreakers.push(
+      hostPrice !== undefined
+        ? t("Your room at {price} per month is outside their budget.", {
+            price: euros(hostPrice),
+          })
+        : t("Your monthly budgets do not overlap."),
+    );
   else if (!roomInBudget)
     dealbreakers.push(
       t("The room at {price} per month is outside your budget.", {
@@ -117,7 +137,7 @@ export function getCompatibility(
 
   // Ranges sharing one exact boundary are still valid, with a small overlap score.
   const smallerRange = Math.min(
-    prefs.budgetMax - prefs.budgetMin,
+    budgetMax - budgetMin,
     profile.budget[1] - profile.budget[0],
   );
   const budgetScore =
@@ -150,11 +170,24 @@ export function getCompatibility(
     Number.isFinite(profile.stayMonths) &&
     prefs.stayMonths > 0 &&
     profile.stayMonths > 0;
-  const stayScore = validStay
-    ? (Math.min(profile.stayMonths, prefs.stayMonths) /
-        Math.max(profile.stayMonths, prefs.stayMonths)) *
-      100
-    : 0;
+  // For whoever has the room, the number is a minimum stay: staying longer
+  // is fine, only a shorter stay is a mismatch. Two people who are both
+  // searching simply compare how long they plan to stay.
+  const minimumStay =
+    profile.intent === "have-room"
+      ? { minimum: profile.stayMonths, wanted: prefs.stayMonths }
+      : prefs.intent === "have-room"
+        ? { minimum: prefs.stayMonths, wanted: profile.stayMonths }
+        : undefined;
+  const stayScore = !validStay
+    ? 0
+    : minimumStay
+      ? clamp((minimumStay.wanted / minimumStay.minimum) * 100)
+      : (Math.min(profile.stayMonths, prefs.stayMonths) /
+          Math.max(profile.stayMonths, prefs.stayMonths)) *
+        100;
+  const staysLongEnough =
+    minimumStay !== undefined && minimumStay.wanted >= minimumStay.minimum;
   if (!validStay) dealbreakers.push(t("A valid length of stay is needed."));
   if (
     !Number.isFinite(prefs.cleanliness) ||
@@ -171,10 +204,14 @@ export function getCompatibility(
     reasons.push(
       roomPrice !== undefined
         ? t("Room at {price} fits your budget", { price: euros(roomPrice) })
-        : t("Shared budget of {min}–{max}", {
-            min: euros(overlapMin),
-            max: euros(overlapMax),
-          }),
+        : hostPrice !== undefined
+          ? t("Your room at {price} fits their budget", {
+              price: euros(hostPrice),
+            })
+          : t("Shared budget of {min}–{max}", {
+              min: euros(overlapMin),
+              max: euros(overlapMax),
+            }),
     );
   if (cleanDiff === 0) reasons.push(t("You like the same level of tidiness"));
   else if (cleanDiff >= 2)
@@ -213,7 +250,7 @@ export function getCompatibility(
         days: daysApart,
       }),
     );
-  if (validStay && profile.stayMonths !== prefs.stayMonths)
+  if (validStay && profile.stayMonths !== prefs.stayMonths && !staysLongEnough)
     considerations.push(
       t("They want a {theirs}-month stay; you selected {yours} months.", {
         theirs: profile.stayMonths,
@@ -271,7 +308,7 @@ export function getCompatibility(
       score: Math.round(budgetScore),
       detail:
         roomPrice !== undefined
-          ? `${euros(roomPrice)}/month · your budget ${euros(prefs.budgetMin)}–${euros(prefs.budgetMax)} · 25% weight`
+          ? `${euros(roomPrice)}/month · your budget ${euros(budgetMin)}–${euros(budgetMax)} · 25% weight`
           : `${euros(profile.budget[0])}–${euros(profile.budget[1])}/month · 25% weight`,
     },
     {
@@ -323,7 +360,7 @@ export function getCompatibility(
 /** Stable ordering preserves curated order when two people have equal scores. */
 export function rankProfiles(
   profiles: Profile[],
-  prefs: Preferences,
+  prefs: MatchPreferences,
   t: Translate = english,
 ): { profile: Profile; match: MatchResult }[] {
   return profiles

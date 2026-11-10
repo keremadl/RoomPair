@@ -61,7 +61,8 @@ export const palettes = [
   {
     id: "ink",
     name: "Ink",
-    description: "Black-and-white zine cards with one fluorescent-magenta accent.",
+    description:
+      "Black-and-white zine cards with one fluorescent-magenta accent.",
     swatches: {
       light: ["#f4f4f1", "#fbfbf9", "#111111", "#ff2d87", "#111111"],
       dark: ["#111111", "#1a1a1a", "#f4f4f1", "#ff4f9a", "#f4f4f1"],

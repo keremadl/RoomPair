@@ -46,7 +46,11 @@
   --press-color: #111111;
   --color-overlay: rgb(17 17 17 / 0.55);
   --color-on-image: #ffffff;
-  --color-image-scrim: linear-gradient(to top, rgb(10 10 10 / 0.85), rgb(10 10 10 / 0));
+  --color-image-scrim: linear-gradient(
+    to top,
+    rgb(10 10 10 / 0.85),
+    rgb(10 10 10 / 0)
+  );
   --color-on-image-surface: rgb(255 255 255 / 0.16);
   --color-on-image-border: rgb(255 255 255 / 0.4);
   --color-on-image-border-hover: rgb(255 255 255 / 0.75);
@@ -99,7 +103,11 @@
   --press-color: #f4f4f1;
   --color-overlay: rgb(0 0 0 / 0.72);
   --color-on-image: #ffffff;
-  --color-image-scrim: linear-gradient(to top, rgb(6 6 6 / 0.85), rgb(6 6 6 / 0));
+  --color-image-scrim: linear-gradient(
+    to top,
+    rgb(6 6 6 / 0.85),
+    rgb(6 6 6 / 0)
+  );
   --color-on-image-surface: rgb(255 255 255 / 0.16);
   --color-on-image-border: rgb(255 255 255 / 0.4);
   --color-on-image-border-hover: rgb(255 255 255 / 0.75);
