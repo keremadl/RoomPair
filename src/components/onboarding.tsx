@@ -222,6 +222,11 @@ export function Onboarding({ initial, onComplete, onClose }: OnboardingProps) {
     if (error) setError("");
   }
 
+  // Today's date in the user's time zone, as YYYY-MM-DD.
+  const now = new Date();
+  const today = new Date(now.getTime() - now.getTimezoneOffset() * 60_000)
+    .toISOString()
+    .slice(0, 10);
   function validate() {
     if (step === 0 && !values.name.trim()) return "ob.nameError";
     if (step === 1) {
@@ -238,7 +243,8 @@ export function Onboarding({ initial, onComplete, onClose }: OnboardingProps) {
       if (
         !/^\d{4}-\d{2}-\d{2}$/.test(values.moveDate) ||
         Number.isNaN(date.getTime()) ||
-        date.toISOString().slice(0, 10) !== values.moveDate
+        date.toISOString().slice(0, 10) !== values.moveDate ||
+        values.moveDate < today
       )
         return "ob.dateError";
       if (

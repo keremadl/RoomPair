@@ -26,7 +26,7 @@ export const initialState: AppState = {
   reports: [],
   viewing: "",
 };
-const KEY = "roompair-demo-v1";
+export const STORAGE_KEY = "roompair-demo-v1";
 
 type Json = Record<string, unknown>;
 const isObject = (value: unknown): value is Json =>
@@ -173,9 +173,10 @@ export function sanitizeState(input: unknown): AppState | null {
 export function useAppState() {
   const [state, setState] = useState<AppState>(initialState);
   const [ready, setReady] = useState(false);
+  const [storageFailed, setStorageFailed] = useState(false);
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(KEY);
+      const raw = localStorage.getItem(STORAGE_KEY);
       const saved = raw ? sanitizeState(JSON.parse(raw)) : null;
       if (saved) setState(saved);
     } catch {
@@ -186,9 +187,12 @@ export function useAppState() {
   useEffect(() => {
     if (ready) {
       try {
-        localStorage.setItem(KEY, JSON.stringify(state));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        setStorageFailed(false);
       } catch {
-        /* Storage is full or disabled; the session keeps working in memory. */
+        // Storage is full or disabled; the session keeps working in memory
+        // and the interface tells the user that changes will not persist.
+        setStorageFailed(true);
       }
     }
   }, [state, ready]);
@@ -196,6 +200,7 @@ export function useAppState() {
     state,
     setState,
     ready,
+    storageFailed,
     reset: () => setState(structuredClone(initialState)),
   };
 }

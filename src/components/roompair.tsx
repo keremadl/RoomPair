@@ -64,11 +64,13 @@ type Dialog =
   | "match"
   | "report"
   | null;
-const dateLabel = (date: string) =>
-  new Date(date + "T12:00:00").toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-  });
+/** Today's date in the user's time zone, as YYYY-MM-DD. */
+const today = () => {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000)
+    .toISOString()
+    .slice(0, 10);
+};
 // Stored chats are sanitized in store.ts, so every chat points at a known profile.
 const profileById = (id: string) => profiles.find((p) => p.id === id)!;
 
@@ -91,7 +93,16 @@ function RoomPairApp() {
     isLoading: languageLoading,
     error: languageError,
   } = useI18n();
-  const { state, setState, ready, reset } = useAppState();
+  const { state, setState, ready, reset, storageFailed } = useAppState();
+  const dateLabel = (date: string) => {
+    const value = new Date(date + "T12:00:00");
+    return Number.isNaN(value.getTime())
+      ? date
+      : value.toLocaleDateString(locale === "en" ? "en-GB" : locale, {
+          day: "numeric",
+          month: "short",
+        });
+  };
   const [view, setView] = useState<View>("discover");
   const [dialog, setDialog] = useState<Dialog>(null);
   const [onboarding, setOnboarding] = useState(false);
@@ -110,12 +121,16 @@ function RoomPairApp() {
   const [photoIndex, setPhotoIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const [reportReason, setReportReason] = useState("Misleading profile");
-  const [typing, setTyping] = useState<string | null>(null);
+  // Simulated replies still on their way, per chat, so the typing indicator
+  // stays visible until the last one arrives.
+  const [pendingReplies, setPendingReplies] = useState<Record<string, number>>(
+    {},
+  );
   const [mobileChat, setMobileChat] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const replyTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const chatEnd = useRef<HTMLDivElement>(null);
-  const ranked = rankProfiles(profiles, state.preferences).filter(
+  const ranked = rankProfiles(profiles, state.preferences, t).filter(
     ({ profile }) => !state.blocked.includes(profile.id),
   );
   const queue = ranked.filter(
@@ -123,7 +138,9 @@ function RoomPairApp() {
   );
   const current = queue[0]?.profile;
   const next = queue[1]?.profile;
-  const match = current ? getCompatibility(current, state.preferences) : null;
+  const match = current
+    ? getCompatibility(current, state.preferences, t)
+    : null;
   const detail = selected || current;
   const chat = state.chats.find((c) => c.id === activeChat) || state.chats[0];
   const chatPerson = chat ? profileById(chat.profileId) : null;
@@ -179,8 +196,18 @@ function RoomPairApp() {
     setPhotoIndex(0);
   }, [current?.id]);
   useEffect(() => {
+    if (storageFailed)
+      notify(
+        t(
+          "Changes can’t be saved in this browser. They will last until you close this tab.",
+        ),
+      );
+    // Only announce when saving starts failing, not on every re-render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageFailed]);
+  useEffect(() => {
     chatEnd.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [chat?.messages.length, typing]);
+  }, [chat?.messages.length, pendingReplies]);
   function changeView(v: View) {
     setView(v);
     setMobileChat(false);
@@ -329,18 +356,26 @@ function RoomPairApp() {
           : c,
       ),
     }));
-    setTyping(id);
+    setPendingReplies((pending) => ({
+      ...pending,
+      [id]: (pending[id] ?? 0) + 1,
+    }));
     const timer = setTimeout(() => {
-      const lower = body.toLowerCase();
-      const answer = lower.includes("budget")
-        ? "I’m thinking around €450–550 including bills. What feels comfortable for you?"
-        : lower.includes("coffee") || lower.includes("meet")
-          ? "Coffee sounds lovely! How about Saturday at 11? There’s a nice little place near the market."
-          : lower.includes("clean")
-            ? "A quick tidy after cooking and a shared Sunday reset works for me. What’s your routine?"
-            : lower.includes("room") || lower.includes("flat")
-              ? "Yes! I’d love to compare places together. Let’s add our favourites to Our space."
-              : "That sounds good to me! I’m looking for a home where we can be honest, respect each other’s space, and share a coffee now and then.";
+      // Keyword cues in both bundled languages; other languages get the default.
+      const lower = body.toLocaleLowerCase(locale);
+      const mentions = (...words: string[]) =>
+        words.some((word) => lower.includes(word));
+      const answer = t(
+        mentions("budget", "bütçe", "kira")
+          ? "reply.budget"
+          : mentions("coffee", "meet", "kahve", "buluş")
+            ? "reply.meet"
+            : mentions("clean", "temiz")
+              ? "reply.clean"
+              : mentions("room", "flat", "oda", "daire")
+                ? "reply.room"
+                : "reply.default",
+      );
       setState((s) => ({
         ...s,
         chats: s.chats.map((c) =>
@@ -363,7 +398,10 @@ function RoomPairApp() {
             : c,
         ),
       }));
-      setTyping(null);
+      setPendingReplies((pending) => ({
+        ...pending,
+        [id]: Math.max(0, (pending[id] ?? 1) - 1),
+      }));
     }, 1600);
     replyTimers.current.push(timer);
   }
@@ -397,7 +435,11 @@ function RoomPairApp() {
 
   if (!ready)
     return (
-      <div className="app-loading" role="status" aria-label="Loading RoomPair">
+      <div
+        className="app-loading"
+        role="status"
+        aria-label={t("Loading RoomPair")}
+      >
         <Brand />
         <span className="loading-line" />
       </div>
@@ -408,14 +450,14 @@ function RoomPairApp() {
         <button
           className="brand-button"
           onClick={() => changeView("discover")}
-          aria-label="RoomPair home"
+          aria-label={t("RoomPair home")}
         >
           <Brand />
         </button>
         <div className="sidebar-section-label">
           {t("A LITTLE MORE AT HOME")}
         </div>
-        <nav aria-label="Main navigation">
+        <nav aria-label={t("Main navigation")}>
           {nav.map(({ id, icon: Icon, label, count }) => (
             <button
               key={id}
@@ -482,7 +524,7 @@ function RoomPairApp() {
               <MapPin size={16} />
               {state.preferences.city}
               {state.preferences.city.toLowerCase() === "riga" && (
-                <span className="country-name">, Latvia</span>
+                <span className="country-name">, {t("Latvia")}</span>
               )}
               <ChevronDown size={14} />
             </button>
@@ -532,7 +574,9 @@ function RoomPairApp() {
                     ))}
                   </div>
                   <span>
-                    {ranked.length} {t("people, one new chapter")}
+                    {t("{count} people, one new chapter", {
+                      count: ranked.length,
+                    })}
                     <small>{t("Your Riga demo community")}</small>
                   </span>
                 </div>
@@ -659,7 +703,7 @@ function RoomPairApp() {
                 <div className="discovery-layout">
                   <section
                     className="swipe-column"
-                    aria-label="Roommate discovery"
+                    aria-label={t("Roommate discovery")}
                   >
                     <div className="card-stage">
                       {current && next && (
@@ -689,7 +733,9 @@ function RoomPairApp() {
                                 <button
                                   key={i}
                                   className={photoIndex === i ? "active" : ""}
-                                  aria-label={`View photo ${i + 1}`}
+                                  aria-label={t("View photo {number}", {
+                                    number: i + 1,
+                                  })}
                                   onClick={() => setPhotoIndex(i)}
                                 />
                               ))}
@@ -743,7 +789,9 @@ function RoomPairApp() {
                                 )}
                                 <button
                                   className="profile-expand"
-                                  aria-label={`View ${current.name}'s profile`}
+                                  aria-label={t("View {name}'s profile", {
+                                    name: current.name,
+                                  })}
                                   onClick={() => openProfile(current)}
                                 >
                                   <ArrowUpRight size={22} />
@@ -752,9 +800,11 @@ function RoomPairApp() {
                               <p className="profile-occupation">
                                 {current.occupation} <span>·</span>{" "}
                                 {t("Moving in")} {dateLabel(current.moveDate)}{" "}
-                                <span>·</span> €
-                                {current.room?.price || current.budget[1]} /{" "}
-                                {t("month")}
+                                <span>·</span>{" "}
+                                {current.room
+                                  ? `€${current.room.price}`
+                                  : `€${current.budget[0]}–${current.budget[1]}`}{" "}
+                                / {t("month")}
                               </p>
                               <p className="profile-bio">{current.bio}</p>
                               <div className="profile-tags">
@@ -794,11 +844,19 @@ function RoomPairApp() {
                               {t("Adjust my search")}
                               <SlidersHorizontal size={16} />
                             </button>
-                            {state.decisions.length > 0 && (
+                            {state.decisions.some(
+                              (d) => d.action === "pass",
+                            ) && (
                               <button
                                 className="text-button"
                                 onClick={() =>
-                                  setState((s) => ({ ...s, decisions: [] }))
+                                  // Likes and matches are kept; only passes return.
+                                  setState((s) => ({
+                                    ...s,
+                                    decisions: s.decisions.filter(
+                                      (d) => d.action === "like",
+                                    ),
+                                  }))
                                 }
                               >
                                 {t("Browse everyone again")}
@@ -813,7 +871,7 @@ function RoomPairApp() {
                         className="action undo"
                         disabled={!state.decisions.length}
                         aria-label={t("discover.undo")}
-                        title="Undo last swipe"
+                        title={t("discover.undo")}
                         onClick={undo}
                       >
                         <RotateCcw size={21} />
@@ -1037,7 +1095,7 @@ function RoomPairApp() {
                       <img src={p.photo} alt={p.name} />
                       <span className="tile-score">
                         <Leaf size={14} />
-                        {getCompatibility(p, state.preferences).score}%{" "}
+                        {getCompatibility(p, state.preferences, t).score}%{" "}
                         {t("fit")}
                       </span>
                     </button>
@@ -1213,9 +1271,8 @@ function RoomPairApp() {
                     </div>
                     <div className="chat-fit-strip">
                       <Leaf size={15} />
-                      {
-                        getCompatibility(chatPerson, state.preferences).score
-                      }% {t("lifestyle fit")}
+                      {getCompatibility(chatPerson, state.preferences, t).score}
+                      % {t("lifestyle fit")}
                       <button
                         onClick={() => {
                           setSelected(chatPerson);
@@ -1274,7 +1331,7 @@ function RoomPairApp() {
                           </div>
                         </div>
                       ))}
-                      {typing === chat.id && (
+                      {(pendingReplies[chat.id] ?? 0) > 0 && (
                         <div className="typing-indicator">
                           <span />
                           <span />
@@ -1673,7 +1730,7 @@ function RoomPairApp() {
             </motion.div>
           )}
         </main>
-        <nav className="mobile-nav" aria-label="Mobile navigation">
+        <nav className="mobile-nav" aria-label={t("Mobile navigation")}>
           {[
             ...nav,
             { id: "profile", icon: Smile, label: t("nav.profile") },
@@ -1706,6 +1763,10 @@ function RoomPairApp() {
                 e.preventDefault();
                 if (filterDraft.budgetMin >= filterDraft.budgetMax) {
                   notify(t("Your maximum budget must be above your minimum."));
+                  return;
+                }
+                if (filterDraft.moveDate < today()) {
+                  notify(t("ob.dateError"));
                   return;
                 }
                 setState((s) => ({
@@ -1798,6 +1859,7 @@ function RoomPairApp() {
                   <input
                     type="date"
                     required
+                    min={today()}
                     value={filterDraft.moveDate}
                     onChange={(e) =>
                       setFilterDraft({
@@ -1871,7 +1933,7 @@ function RoomPairApp() {
         )}
         {dialog === "details" && detail && (
           <Modal
-            title={`${detail.name}'s profile`}
+            title={t("{name}'s profile", { name: detail.name })}
             onClose={() => setDialog(null)}
             wide
             className="profile-detail-modal"
@@ -1886,14 +1948,16 @@ function RoomPairApp() {
                   {detail.name}, {detail.age}
                   {detail.verified && <BadgeCheck size={25} />}
                 </h2>
-                <p>{detail.occupation}</p>
+                <p>
+                  {detail.occupation} · {detail.university}
+                </p>
               </div>
             </div>
             <div className="detail-body">
               <div className="detail-intro">
                 <span className="green-pill">
                   <Leaf size={14} />
-                  {getCompatibility(detail, state.preferences).score}%{" "}
+                  {getCompatibility(detail, state.preferences, t).score}%{" "}
                   {t("lifestyle fit")}
                 </span>
                 {detail.active && (
@@ -2018,31 +2082,31 @@ function RoomPairApp() {
               <Leaf size={21} />
               {t("THE LITTLE THINGS ADD UP")}
             </div>
-            <h2>
-              {t("You &")} {detail.name}
-            </h2>
+            <h2>{t("You & {name}", { name: detail.name })}</h2>
             <p className="modal-description">
               {t("A closer look at everyday compatibility.")}
             </p>
             <div className="large-fit-score">
-              {getCompatibility(detail, state.preferences).score}
+              {getCompatibility(detail, state.preferences, t).score}
               <span>% {t("lifestyle fit")}</span>
             </div>
-            {!getCompatibility(detail, state.preferences).eligible && (
+            {!getCompatibility(detail, state.preferences, t).eligible && (
               <div className="consideration">
                 <h3>
                   <SlidersHorizontal size={17} />
                   {t("Your search requirements differ")}
                 </h3>
-                {getCompatibility(detail, state.preferences).dealbreakers.map(
-                  (reason) => (
-                    <p key={reason}>{reason}</p>
-                  ),
-                )}
+                {getCompatibility(
+                  detail,
+                  state.preferences,
+                  t,
+                ).dealbreakers.map((reason) => (
+                  <p key={reason}>{reason}</p>
+                ))}
               </div>
             )}
             <div className="breakdown-list">
-              {getCompatibility(detail, state.preferences).breakdown.map(
+              {getCompatibility(detail, state.preferences, t).breakdown.map(
                 (item) => (
                   <div key={item.label}>
                     <div>
@@ -2057,18 +2121,20 @@ function RoomPairApp() {
                 ),
               )}
             </div>
-            {getCompatibility(detail, state.preferences).considerations.length >
-              0 && (
+            {getCompatibility(detail, state.preferences, t).considerations
+              .length > 0 && (
               <div className="consideration">
                 <h3>
                   <MessageCircle size={17} />
                   {t("Worth a conversation")}
                 </h3>
-                {getCompatibility(detail, state.preferences).considerations.map(
-                  (c) => (
-                    <p key={c}>{c}</p>
-                  ),
-                )}
+                {getCompatibility(
+                  detail,
+                  state.preferences,
+                  t,
+                ).considerations.map((c) => (
+                  <p key={c}>{c}</p>
+                ))}
               </div>
             )}
             <p className="score-explanation">
@@ -2104,12 +2170,13 @@ function RoomPairApp() {
             </div>
             <h2>{t("It’s a RoomPair!")}</h2>
             <p>
-              {t("You and")} {detail.name}{" "}
-              {t("both see a little home in each other.")}
+              {t("You and {name} both see a little home in each other.", {
+                name: detail.name,
+              })}
             </p>
             <span className="green-pill">
               <Leaf size={15} />
-              {getCompatibility(detail, state.preferences).score}%{" "}
+              {getCompatibility(detail, state.preferences, t).score}%{" "}
               {t("lifestyle fit")}
             </span>
             <button
@@ -2251,7 +2318,7 @@ function RoomPairApp() {
               className="button secondary full-width"
               onClick={() => {
                 replyTimers.current.forEach(clearTimeout);
-                setTyping(null);
+                setPendingReplies({});
                 reset();
                 setDialog(null);
                 setView("discover");
@@ -2328,7 +2395,7 @@ function RoomPairApp() {
                 notify(t("Profile blocked and conversation removed."));
               }}
             >
-              {t("Block")} {detail.name}
+              {t("Block {name}", { name: detail.name })}
             </button>
           </Modal>
         )}
@@ -2347,7 +2414,9 @@ function RoomPairApp() {
             setOnboarding(false);
             setView("discover");
             notify(
-              t("Welcome to your next chapter,") + " " + preferences.name + ".",
+              t("Welcome to your next chapter, {name}.", {
+                name: preferences.name,
+              }),
             );
           }}
         />
@@ -2407,7 +2476,10 @@ function RoomCard({
   return (
     <article className="room-card">
       <div className="room-card-image">
-        <button onClick={onOpen} aria-label={`View ${room.title}`}>
+        <button
+          onClick={onOpen}
+          aria-label={t("View {title}", { title: room.title })}
+        >
           <img src={room.photo} alt={room.title} />
         </button>
         <span className="room-type">
