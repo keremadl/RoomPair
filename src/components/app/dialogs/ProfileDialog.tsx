@@ -63,7 +63,17 @@ export function ProfileDialog({
       </div>
       <div
         className={d.details}
-        style={{ "--sticky-offset": "0px" } as CSSProperties}
+        // Inside the dialog: the tabs stick to its very top and span its full
+        // width (sticky offsets start at the padding), on the dialog's own
+        // surface, and the sections take the page colour to stand out on it.
+        style={
+          {
+            "--sticky-offset": "calc(var(--space-8) * -1)",
+            "--details-bleed": "var(--space-6)",
+            "--details-bg": "var(--color-surface-raised)",
+            "--detail-section-bg": "var(--color-bg)",
+          } as CSSProperties
+        }
       >
         <Details
           profile={p}

@@ -672,15 +672,19 @@
 }
 .tabs {
   position: sticky;
-  top: calc(var(--sticky-offset, 0px) + calc(var(--space-4) * -1));
+  /* Right under whatever is stuck above it: the app's top bar on a page,
+     nothing in a dialog. Whoever sets --sticky-offset accounts for its own
+     padding; subtracting it here pushed the tabs over the top bar. */
+  top: var(--sticky-offset, 0px);
   z-index: var(--z-sticky);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-2);
-  margin: 0 calc(var(--space-4) * -1);
-  padding: var(--space-3) var(--space-4)
+  /* Bleeds to the edges of whatever pads the details (a page or a dialog). */
+  margin: 0 calc(var(--details-bleed, var(--space-4)) * -1);
+  padding: var(--space-3) var(--details-bleed, var(--space-4))
     calc(var(--space-3) + var(--press-depth));
-  background: var(--color-bg);
+  background: var(--details-bg, var(--color-bg));
 }
 .tab {
   min-height: var(--control-md);
