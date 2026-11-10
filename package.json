@@ -18,6 +18,7 @@
     "i18n:sync": "bash scripts/i18n/run-n8n.sh",
     "test:e2e": "playwright test",
     "test:db": "supabase/tests/run-local.sh",
+    "db:seed": "tsx scripts/db/generate-seed.ts",
     "format": "prettier --write src tests *.ts *.json",
     "lab": "node lab/build.mjs"
   },
