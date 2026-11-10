@@ -254,9 +254,12 @@ export function getCompatibility(
     );
   if (validStay && profile.stayMonths !== prefs.stayMonths && !staysLongEnough)
     considerations.push(
-      t("They want a {theirs}-month stay; you selected {yours} months.", {
+      t("They want a {theirs}-month stay; you selected {yours}.", {
         theirs: profile.stayMonths,
-        yours: prefs.stayMonths,
+        yours:
+          prefs.stayMonths === 1
+            ? t("1 month")
+            : t("{count} months", { count: prefs.stayMonths }),
       }),
     );
   if (profile.habits.pets && prefs.petsOkay)
@@ -338,7 +341,7 @@ export function getCompatibility(
     {
       label: t("Length of stay"),
       score: Math.round(stayScore),
-      detail: `You ${prefs.stayMonths} months · ${profile.name} ${profile.stayMonths} months · 10% weight`,
+      detail: `You ${months(prefs.stayMonths)} · ${profile.name} ${months(profile.stayMonths)} · 10% weight`,
     },
   ];
   const score = Math.round(
@@ -370,3 +373,5 @@ export function rankProfiles(
     .filter(({ match }) => match.eligible)
     .sort((a, b) => b.match.score - a.match.score);
 }
+
+const months = (count: number) => (count === 1 ? "1 month" : `${count} months`);

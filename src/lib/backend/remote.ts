@@ -228,6 +228,47 @@ export async function deleteAccount(
 }
 
 // ---------------------------------------------------------------------------
+// Moderation. The database decides who is a moderator; for everyone else the
+// queue is empty and closing a report is refused.
+// ---------------------------------------------------------------------------
+
+export type ReportRow = {
+  id: string;
+  created_at: string;
+  reason: string;
+  status: "open" | "reviewed" | "dismissed";
+  reporter_name: string;
+  reported_id: string;
+  reported_name: string;
+  reports_against: number;
+  suspended: boolean;
+};
+
+/** The review queue, or null when the signed-in member is not a moderator. */
+export async function loadModeration(
+  client: SupabaseClient,
+): Promise<ReportRow[] | null> {
+  const { data: moderator, error } = await client.rpc("is_moderator");
+  if (error || moderator !== true) return null;
+  return rows<ReportRow>(client.rpc("moderation_queue"));
+}
+
+/** Closes a report; `suspend` also hides the reported member from everyone. */
+export async function reviewReport(
+  client: SupabaseClient,
+  report: string,
+  outcome: "reviewed" | "dismissed",
+  suspend: boolean,
+): Promise<void> {
+  const { error } = await client.rpc("review_report", {
+    report,
+    outcome,
+    suspend,
+  });
+  if (error) throw new Error(error.message);
+}
+
+// ---------------------------------------------------------------------------
 // Writes
 // ---------------------------------------------------------------------------
 

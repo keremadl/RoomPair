@@ -36,6 +36,7 @@ import { HelpDialog } from "./dialogs/HelpDialog";
 import { ReportDialog } from "./dialogs/ReportDialog";
 import { BlockedDialog } from "./dialogs/BlockedDialog";
 import { DeleteAccountDialog } from "./dialogs/DeleteAccountDialog";
+import { ModerationDialog } from "./dialogs/ModerationDialog";
 import { Onboarding } from "./Onboarding";
 import { Brand } from "./Brand";
 import { AuthScreen } from "./AuthScreen";
@@ -50,6 +51,7 @@ type Dialog =
   | "report"
   | "blocked"
   | "delete-account"
+  | "moderation"
   | null;
 
 /**
@@ -98,6 +100,7 @@ function RoomPairApp() {
     saveFailed,
     profiles,
     account,
+    moderation,
     simulatesReplies,
   } = useAppData();
   // Conversations only ever point at people the member can see: saved demo
@@ -708,6 +711,12 @@ function RoomPairApp() {
             account={account}
             onSignOut={signOut}
             onDeleteAccount={() => setDialog("delete-account")}
+            openReports={
+              moderation
+                ? moderation.reports.filter((r) => r.status === "open").length
+                : null
+            }
+            onModerate={() => setDialog("moderation")}
             onReset={() => {
               replyTimers.current.forEach(clearTimeout);
               replyTimers.current = [];
@@ -826,6 +835,13 @@ function RoomPairApp() {
             }}
           />
         )}
+        {dialog === "moderation" && moderation && (
+          <ModerationDialog
+            key="moderation"
+            moderation={moderation}
+            onClose={() => setDialog(null)}
+          />
+        )}
         {dialog === "delete-account" && account && (
           <DeleteAccountDialog
             key="delete-account"
@@ -855,6 +871,7 @@ function RoomPairApp() {
           <ReportDialog
             key="report"
             profile={detail}
+            demo={!account}
             onClose={() => setDialog(null)}
             onReport={(reason) => {
               setState((st) => ({
@@ -868,9 +885,11 @@ function RoomPairApp() {
               }));
               setDialog(null);
               notify(
-                t(
-                  "Demo report saved locally. No moderation service is connected.",
-                ),
+                account
+                  ? t("Report sent. A moderator will look at it.")
+                  : t(
+                      "Demo report saved locally. No moderation service is connected.",
+                    ),
               );
             }}
             onBlock={() => {

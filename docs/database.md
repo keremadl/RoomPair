@@ -67,6 +67,19 @@ Three layers, all in the database, so a modified client cannot bypass them:
 
 Helper and trigger functions live in the `private` schema, which the Data API does not expose. They run as `security definer` with an empty `search_path`.
 
+## Moderation
+
+Reports are reviewed inside the app by moderators. The list of moderators and the list of suspended members live in the `private` schema, so members can neither read them nor add themselves. A moderator is added by hand:
+
+```sql
+insert into private.moderators (user_id)
+  select id from auth.users where email = 'someone@example.com';
+```
+
+- `public.moderation_queue()` returns every report with both names; it is empty for anyone who is not a moderator.
+- `public.review_report(report, outcome, suspend)` closes a report as `reviewed` or `dismissed` and can suspend the reported member. Everyone else is refused.
+- A suspended member's profile and listing are hidden from everyone but themselves by restrictive policies, which narrow whatever the other policies allow. To lift it: `delete from private.suspended_members where user_id = '…';`
+
 ## Behaviour implemented by triggers
 
 - **Sign-up** creates the profile row; onboarding fills it in. A profile cannot be marked onboarded with answers missing.
@@ -77,6 +90,8 @@ Helper and trigger functions live in the `private` schema, which the Data API do
 - **Demo behaviour** (second migration): eleven demo accounts like every member who finishes onboarding, so a first mutual match is one swipe away. It is isolated so it can be dropped as a unit.
 
 ## Demo accounts
+
+Demo move-in dates are written relative to the day the seed runs (the first of the month at least two months ahead), the same rule the browser demo uses. Re-running `supabase/seed.sql` refreshes them.
 
 The 22 people from the demo are real rows in `auth.users` with `is_demo = true`. Nobody can sign in as them: each has a random password that is not stored anywhere, and their `@demo.roompair.example` addresses are reserved and receive no mail. They never reply to messages.
 

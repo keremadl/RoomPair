@@ -15,11 +15,14 @@ const reasons = [
 
 export function ReportDialog({
   profile: p,
+  demo,
   onClose,
   onReport,
   onBlock,
 }: {
   profile: Profile;
+  /** In the browser-only demo a report goes nowhere, and the dialog says so. */
+  demo: boolean;
   onClose: () => void;
   onReport: (reason: string) => void;
   onBlock: () => void;
@@ -32,9 +35,13 @@ export function ReportDialog({
         {t("Report or block {name}", { name: p.name })}
       </Heading>
       <Text tone="muted" className={d.spaced}>
-        {t(
-          "Blocking hides them and removes your chat. Reports are only saved in this demo.",
-        )}
+        {demo
+          ? t(
+              "Blocking hides them and removes your chat. Reports are only saved in this demo.",
+            )
+          : t(
+              "Blocking hides them and removes your chat. Reports are read by the moderators.",
+            )}
       </Text>
       <Select
         className={d.spaced}
@@ -50,7 +57,7 @@ export function ReportDialog({
           onClick={() => onReport(reason)}
           fullWidth
         >
-          {t("Save a demo report")}
+          {demo ? t("Save a demo report") : t("Send report")}
         </Button>
         <Button
           variant="danger"

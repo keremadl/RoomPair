@@ -143,7 +143,10 @@ for (const rel of themeFiles) {
   themes.push([name, { ...base, ...parent, ...overrides }]);
   // A dark block is checked as its own theme, on top of the light values.
   if (Object.keys(dark).length)
-    themes.push([`${name} (dark)`, { ...base, ...parent, ...overrides, ...dark }]);
+    themes.push([
+      `${name} (dark)`,
+      { ...base, ...parent, ...overrides, ...dark },
+    ]);
 }
 const resolveIn = (tokens) => {
   const resolve = (value, depth = 0) => {

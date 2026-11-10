@@ -73,7 +73,12 @@ function readPreferences(input: unknown): Preferences {
     city: text(saved.city, base.city, 70),
     budgetMin: number(saved.budgetMin, base.budgetMin),
     budgetMax: number(saved.budgetMax, base.budgetMax),
-    moveDate: text(saved.moveDate, base.moveDate, 10),
+    // A saved date that has passed would hide everyone; start from the default.
+    moveDate:
+      typeof saved.moveDate === "string" &&
+      saved.moveDate >= new Date().toISOString().slice(0, 10)
+        ? saved.moveDate.slice(0, 10)
+        : base.moveDate,
     stayMonths: number(saved.stayMonths, base.stayMonths),
     // "Either" is no longer offered; treat it as looking for a room.
     intent: saved.intent === "have-room" ? "have-room" : "find-room",

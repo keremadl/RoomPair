@@ -16,20 +16,20 @@ duran demo olarak açılır.
 
 ## 2. Bilinen eksikler
 
-- [ ] **Tarihler Şubat 2027'ye sabit.** 45 günden uzak bir taşınma tarihi
-      seçilince deste boşalıyor; o tarihten sonra demo eskir. Tarihleri bugüne
-      göre üretmek testleri ve veritabanı demo verisini de değiştirir; bu
-      yüzden bilerek ertelendi. Hazır mesajlarda "Hey Alex!" ve "Yesterday" de
-      sabit.
+- [ ] **Veritabanındaki demo tarihleri tohum çalıştığı güne göre yazılır.**
+      Tarayıcı demosunda tarihler her gün bugüne göre hesaplanır; veritabanında
+      ise `supabase/seed.sql` yeniden çalıştırılınca yenilenir. Sunumdan önce
+      bir kez çalıştırmak yeterli.
 - [ ] **Öğrenci doğrulaması bağlı değil;** hesap modunda düğme yalnızca bunu
-      söylüyor.
+      söylüyor. Gerçek doğrulama, e-posta onayı açıkken okul e-postasına
+      bağlantı göndermeyi gerektirir; onay kapalıyken yapılırsa herkes sahte
+      bir okul adresi yazıp "doğrulanmış" görünür.
 - [ ] **Yeni beğeniler anlık değil,** 15 saniyede bir yoklanıyor (mesajlar ve
       eşleşmeler anlık). Bilerek: silinen bir beğeni kimin kimi beğendiğini
       herkese duyururdu.
-- [ ] **Moderasyon kuyruğu yok:** şikâyetler veritabanına yazılıyor ama
-      inceleyecek bir ekran yok.
-- [ ] **Çoğul ekleri:** eşleşme gerekçelerindeki "you selected 1 months" gibi
-      nadir kalıplar duruyor.
+- [ ] **Moderatör eklemek elle yapılır:** Supabase SQL editöründe
+      `private.moderators` tablosuna satır eklenir (bkz. `docs/database.md`).
+      Gizlenen üyeyi geri açmak da şimdilik SQL ile.
 
 ## 3. Temizlik
 
