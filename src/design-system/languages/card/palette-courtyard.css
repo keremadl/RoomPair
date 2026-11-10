@@ -1,0 +1,112 @@
+/*
+ * Card palette: Courtyard (courtyard)
+ * A tiled courtyard with a painted teal door, clay pots and linen: calm and grown-up.
+ * Main colours: teal #1c6863, clay #e08355, apricot #f2a35f, ink #1e2b29, linen #eee8de; dark: sea-glass #5ec4b7 on #121a19.
+ * Colour only. --press-shadow, --shadow-sm/md and --focus-ring are built by
+ * theme.css from --press-color, --color-focus-ring and --color-bg.
+ */
+[data-direction="card"][data-palette="courtyard"] {
+  color-scheme: light;
+  --color-bg: #eee8de;
+  --color-surface: #fffbf4;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #e1d8ca;
+  --color-text: #1e2b29;
+  --color-text-muted: #4a5754;
+  --color-text-subtle: #73807c;
+  --color-text-inverse: #ffffff;
+  --color-border: #d3cbbd;
+  --color-border-strong: #1e2b29;
+  --color-primary: #1c6863;
+  --color-primary-hover: #165753;
+  --color-primary-active: #114642;
+  --color-primary-soft: #dbeeea;
+  --color-primary-soft-hover: #c8e4de;
+  --color-on-primary: #ffffff;
+  --color-accent: #e08355;
+  --color-accent-strong: #97431f;
+  --color-accent-soft: #fbe5d8;
+  --color-on-accent: #1e2b29;
+  --xp: #f2a35f;
+  --color-on-xp: #1e2b29;
+  --color-success: #2f6b3a;
+  --color-success-soft: #e0eedf;
+  --color-warning: #7f5410;
+  --color-warning-soft: #faeed6;
+  --color-danger: #ad3326;
+  --color-danger-soft: #fbe6e2;
+  --color-on-danger: #ffffff;
+  --color-focus-ring: #c25a24;
+  --type-host: #a24c28;
+  --type-host-soft: #fbe5d8;
+  --type-explorer: #1c6863;
+  --type-explorer-soft: #dbeeea;
+  --stat-on: #1c6863;
+  --stat-off: #e1d8ca;
+  --press-color: #1e2b29;
+  --color-overlay: rgb(30 43 41 / 0.5);
+  --color-on-image: #ffffff;
+  --color-image-scrim: linear-gradient(to top, rgb(14 26 24 / 0.85), rgb(14 26 24 / 0));
+  --color-on-image-surface: rgb(255 255 255 / 0.16);
+  --color-on-image-border: rgb(255 255 255 / 0.4);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.75);
+  --color-photo-frame: #ffffff;
+  --color-surface-inverse: #1e2b29;
+  --color-on-inverse: #ffffff;
+  --match-bg: #1c6863;
+  --match-fg: #ffffff;
+  --shadow-lg: 0 18px 40px rgb(30 43 41 / 0.22);
+}
+
+[data-direction="card"][data-palette="courtyard"][data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #121a19;
+  --color-surface: #1a2423;
+  --color-surface-raised: #222e2d;
+  --color-surface-sunken: #0c1211;
+  --color-text: #efe8dd;
+  --color-text-muted: #b9c1bc;
+  --color-text-subtle: #8d9893;
+  --color-text-inverse: #121a19;
+  --color-border: #33433f;
+  --color-border-strong: #cfdcd5;
+  --color-primary: #5ec4b7;
+  --color-primary-hover: #76d0c5;
+  --color-primary-active: #8fdad1;
+  --color-primary-soft: #173a37;
+  --color-primary-soft-hover: #1d4743;
+  --color-on-primary: #0b1f1d;
+  --color-accent: #ec8d62;
+  --color-accent-strong: #f5b393;
+  --color-accent-soft: #3a2218;
+  --color-on-accent: #121a19;
+  --xp: #f4a96a;
+  --color-on-xp: #121a19;
+  --color-success: #8bcf98;
+  --color-success-soft: #18301f;
+  --color-warning: #e8bb6a;
+  --color-warning-soft: #33280f;
+  --color-danger: #f39286;
+  --color-danger-soft: #3d1d19;
+  --color-on-danger: #121a19;
+  --color-focus-ring: #f4a96a;
+  --type-host: #d77a52;
+  --type-host-soft: #3a2218;
+  --type-explorer: #4fb3a7;
+  --type-explorer-soft: #173a37;
+  --stat-on: #5ec4b7;
+  --stat-off: #33433f;
+  --press-color: #6b8a84;
+  --color-overlay: rgb(4 8 8 / 0.66);
+  --color-on-image: #ffffff;
+  --color-image-scrim: linear-gradient(to top, rgb(6 14 13 / 0.85), rgb(6 14 13 / 0));
+  --color-on-image-surface: rgb(255 255 255 / 0.16);
+  --color-on-image-border: rgb(255 255 255 / 0.4);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.75);
+  --color-photo-frame: #efe8dd;
+  --color-surface-inverse: #efe8dd;
+  --color-on-inverse: #121a19;
+  --match-bg: #173a37;
+  --match-fg: #efe8dd;
+  --shadow-lg: 0 18px 40px rgb(0 0 0 / 0.5);
+}

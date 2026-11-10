@@ -1,0 +1,112 @@
+/*
+ * Card palette: Ink (ink)
+ * A risograph zine: pure black-and-white cards with one fluorescent-magenta accent for XP and fit.
+ * Main colours: ink #111111, paper #f4f4f1, magenta #ff2d87; dark: paper-white buttons and outlines on #111111.
+ * Colour only. --press-shadow, --shadow-sm/md and --focus-ring are built by
+ * theme.css from --press-color, --color-focus-ring and --color-bg.
+ */
+[data-direction="card"][data-palette="ink"] {
+  color-scheme: light;
+  --color-bg: #f4f4f1;
+  --color-surface: #fbfbf9;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #e6e6e1;
+  --color-text: #111111;
+  --color-text-muted: #4a4a48;
+  --color-text-subtle: #757571;
+  --color-text-inverse: #ffffff;
+  --color-border: #d3d3cd;
+  --color-border-strong: #111111;
+  --color-primary: #111111;
+  --color-primary-hover: #333331;
+  --color-primary-active: #000000;
+  --color-primary-soft: #e8e8e3;
+  --color-primary-soft-hover: #dcdcd6;
+  --color-on-primary: #ffffff;
+  --color-accent: #ff2d87;
+  --color-accent-strong: #b0005a;
+  --color-accent-soft: #ffe1ee;
+  --color-on-accent: #111111;
+  --xp: #ff2d87;
+  --color-on-xp: #111111;
+  --color-success: #1f7a3d;
+  --color-success-soft: #e1f2e6;
+  --color-warning: #7a5a00;
+  --color-warning-soft: #fbf0cc;
+  --color-danger: #c4221a;
+  --color-danger-soft: #fde6e3;
+  --color-on-danger: #ffffff;
+  --color-focus-ring: #d6006f;
+  --type-host: #1f7a3d;
+  --type-host-soft: #e1f2e6;
+  --type-explorer: #3346d3;
+  --type-explorer-soft: #e4e7fb;
+  --stat-on: #111111;
+  --stat-off: #dcdcd6;
+  --press-color: #111111;
+  --color-overlay: rgb(17 17 17 / 0.55);
+  --color-on-image: #ffffff;
+  --color-image-scrim: linear-gradient(to top, rgb(10 10 10 / 0.85), rgb(10 10 10 / 0));
+  --color-on-image-surface: rgb(255 255 255 / 0.16);
+  --color-on-image-border: rgb(255 255 255 / 0.4);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.75);
+  --color-photo-frame: #ffffff;
+  --color-surface-inverse: #111111;
+  --color-on-inverse: #ffffff;
+  --match-bg: #ff2d87;
+  --match-fg: #111111;
+  --shadow-lg: 0 18px 40px rgb(0 0 0 / 0.2);
+}
+
+[data-direction="card"][data-palette="ink"][data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #111111;
+  --color-surface: #1a1a1a;
+  --color-surface-raised: #232323;
+  --color-surface-sunken: #0a0a0a;
+  --color-text: #f4f4f1;
+  --color-text-muted: #bdbdb8;
+  --color-text-subtle: #8c8c88;
+  --color-text-inverse: #111111;
+  --color-border: #3a3a38;
+  --color-border-strong: #f4f4f1;
+  --color-primary: #f4f4f1;
+  --color-primary-hover: #ffffff;
+  --color-primary-active: #dcdcd6;
+  --color-primary-soft: #2c2c2b;
+  --color-primary-soft-hover: #383836;
+  --color-on-primary: #111111;
+  --color-accent: #ff4f9a;
+  --color-accent-strong: #ff8fc0;
+  --color-accent-soft: #3a1027;
+  --color-on-accent: #111111;
+  --xp: #ff4f9a;
+  --color-on-xp: #111111;
+  --color-success: #5fd38a;
+  --color-success-soft: #0f2c1a;
+  --color-warning: #f2c55c;
+  --color-warning-soft: #2e2508;
+  --color-danger: #ff7a6e;
+  --color-danger-soft: #3a1512;
+  --color-on-danger: #111111;
+  --color-focus-ring: #ff4f9a;
+  --type-host: #5fd38a;
+  --type-host-soft: #0f2c1a;
+  --type-explorer: #8a9bff;
+  --type-explorer-soft: #1c2150;
+  --stat-on: #f4f4f1;
+  --stat-off: #383836;
+  --press-color: #f4f4f1;
+  --color-overlay: rgb(0 0 0 / 0.72);
+  --color-on-image: #ffffff;
+  --color-image-scrim: linear-gradient(to top, rgb(6 6 6 / 0.85), rgb(6 6 6 / 0));
+  --color-on-image-surface: rgb(255 255 255 / 0.16);
+  --color-on-image-border: rgb(255 255 255 / 0.4);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.75);
+  --color-photo-frame: #f4f4f1;
+  --color-surface-inverse: #f4f4f1;
+  --color-on-inverse: #111111;
+  --match-bg: #4a0f2c;
+  --match-fg: #ffffff;
+  --shadow-lg: 0 18px 40px rgb(0 0 0 / 0.6);
+}

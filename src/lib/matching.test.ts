@@ -50,20 +50,20 @@ test("actual room price is checked even when profile budget ranges overlap", () 
 });
 
 test("budget ranges support exact boundaries and reject disjoint ranges", () => {
+  // A host comparing budgets with a room seeker.
+  const host = withPrefs({ intent: "have-room" });
   const seeker = withProfile({
     intent: "find-room",
     room: undefined,
     budget: [650, 800],
   });
-  assert.equal(getCompatibility(seeker, defaultPreferences).eligible, true);
+  assert.equal(getCompatibility(seeker, host).eligible, true);
   assert.equal(
-    getCompatibility({ ...seeker, budget: [651, 800] }, defaultPreferences)
-      .eligible,
+    getCompatibility({ ...seeker, budget: [651, 800] }, host).eligible,
     false,
   );
   assert.equal(
-    getCompatibility({ ...seeker, budget: [500, 500] }, defaultPreferences)
-      .eligible,
+    getCompatibility({ ...seeker, budget: [500, 500] }, host).eligible,
     true,
   );
 });
@@ -92,14 +92,15 @@ test("move dates are inclusive at 45 days, strict beyond it, and calendar-valid"
   );
 });
 
-test("find-room viewers can team up, while room hosts see only people searching", () => {
+test("room seekers see only people with a room; hosts see only room seekers", () => {
   const seeker = withProfile({ intent: "find-room", room: undefined });
-  assert.equal(getCompatibility(seeker, defaultPreferences).eligible, true);
-  assert.ok(
-    getCompatibility(seeker, defaultPreferences).considerations.some((text) =>
-      text.includes("both searching"),
-    ),
+  // Looking for a room (the default): hosts yes, other seekers no.
+  assert.equal(
+    getCompatibility(baseProfile, defaultPreferences).eligible,
+    true,
   );
+  assert.equal(getCompatibility(seeker, defaultPreferences).eligible, false);
+  // Having a room: seekers yes, other hosts no.
   assert.equal(
     getCompatibility(baseProfile, withPrefs({ intent: "have-room" })).eligible,
     false,
@@ -168,8 +169,7 @@ test("ranking is descending, stable, excludes ineligible profiles and leaves inp
   );
   assert.ok(
     seedRanked.every(
-      // Lucas smokes; the default preferences require a smoke-free home.
-      ({ profile }) => profile.id !== "lucas",
+      ({ profile }) => !["lucas", "nora", "james"].includes(profile.id),
     ),
   );
 });
@@ -195,4 +195,52 @@ test("city matching ignores whitespace, case and diacritical spelling difference
     getCompatibility(baseProfile, withPrefs({ city: " RĪGA " })).eligible,
     true,
   );
+});
+
+test("living with women or men only hides others, and people who did not say", () => {
+  const ella = baseProfile; // a woman
+  assert.equal(
+    getCompatibility(ella, withPrefs({ livingWith: "women" })).eligible,
+    true,
+  );
+  assert.equal(
+    getCompatibility(ella, withPrefs({ livingWith: "men" })).eligible,
+    false,
+  );
+  const unsaid = withProfile({ gender: undefined });
+  assert.equal(
+    getCompatibility(unsaid, withPrefs({ livingWith: "women" })).eligible,
+    false,
+  );
+  assert.equal(
+    getCompatibility(unsaid, withPrefs({ livingWith: "anyone" })).eligible,
+    true,
+  );
+});
+
+test("everyday answers never change the score, but big gaps become things to talk about", () => {
+  const same = getCompatibility(
+    baseProfile,
+    withPrefs({ social: baseProfile.habits.social }),
+  );
+  const apart = getCompatibility(
+    withProfile({
+      habits: {
+        ...baseProfile.habits,
+        guests: "often",
+        noise: "high",
+        sharing: "most",
+      },
+    }),
+    withPrefs({
+      social: baseProfile.habits.social,
+      guests: "rarely",
+      noise: "low",
+      sharing: "separate",
+    }),
+  );
+  assert.equal(apart.score, same.score);
+  assert.ok(apart.considerations.some((c) => c.includes("guests")));
+  assert.ok(apart.considerations.some((c) => c.includes("quiet home")));
+  assert.ok(apart.considerations.some((c) => c.includes("sharing")));
 });

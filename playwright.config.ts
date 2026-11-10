@@ -9,9 +9,10 @@ const channel = existsSync(
     ? "msedge"
     : undefined;
 
-// Optional: point at an existing Chromium build instead of a downloaded one,
-// e.g. PLAYWRIGHT_CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e
-const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
+/** Cloud sandboxes ship a single preinstalled Chromium; use it when present. */
+const sandboxChromium = "/opt/pw-browsers/chromium";
+const launchOptions =
+  !channel && existsSync(sandboxChromium) ? { executablePath: sandboxChromium } : undefined;
 
 export default defineConfig({
   testDir: "./tests",
@@ -22,8 +23,8 @@ export default defineConfig({
   reporter: "list",
   use: {
     baseURL: "http://localhost:3000",
-    channel: executablePath ? undefined : channel,
-    launchOptions: executablePath ? { executablePath } : undefined,
+    channel,
+    launchOptions,
     viewport: { width: 1440, height: 1050 },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",

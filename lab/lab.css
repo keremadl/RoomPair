@@ -1,0 +1,4 @@
+/* Points the Rubik variable at the Google Fonts face loaded by the lab page. */
+.lab-font-rubik {
+  --font-rubik: "Rubik";
+}

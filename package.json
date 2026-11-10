@@ -11,13 +11,17 @@
     "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "check:design": "node scripts/check-design.mjs",
     "test": "tsx --test \"src/**/*.test.ts\"",
     "translate": "node scripts/generate-locale.mjs",
+    "i18n:check": "node scripts/i18n/extract.mjs --check --summary",
+    "i18n:sync": "bash scripts/i18n/run-n8n.sh",
     "test:e2e": "playwright test",
-    "format": "prettier --write src tests *.ts *.json"
+    "test:db": "supabase/tests/run-local.sh",
+    "format": "prettier --write src tests *.ts *.json",
+    "lab": "node lab/build.mjs"
   },
   "dependencies": {
-    "lucide-react": "^0.468.0",
     "motion": "^12.0.0",
     "next": "^16.0.0",
     "react": "^19.2.0",
@@ -31,6 +35,7 @@
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.6",
     "prettier": "^3.9.10",
+    "supabase": "^3.1.0",
     "tsx": "^4.20.0",
     "typescript": "^5.7.0"
   }

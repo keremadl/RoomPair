@@ -1,0 +1,104 @@
+/*
+ * Language F — Kart (Character card)
+ * Each person is a collectible character card: age is the level, habits are
+ * stats, tags are abilities, compatibility is a % score with quests. Chunky, rounded,
+ * game-like, but set in a plain readable sans (Rubik) at full size.
+ */
+[data-direction="card"] {
+  --color-bg: #e7ebf3;
+  --color-surface: #fffdf8;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #d9dfeb;
+  --color-overlay: rgb(24 28 48 / 0.5);
+  /* Photos: text and frames on images stay light in every theme. */
+  --color-on-image: #ffffff;
+  --color-photo-frame: #ffffff;
+  --color-image-scrim: linear-gradient(
+    to top,
+    rgb(14 16 28 / 0.85),
+    rgb(14 16 28 / 0)
+  );
+  --color-border: #c7cfdf;
+  --color-border-strong: #1d2240;
+
+  --color-text: #1d2240;
+  --color-text-muted: #4b5272;
+  --color-text-subtle: #767d9b;
+  --color-text-inverse: #ffffff;
+  /* Small solid badges (e.g. the "50%" pill): an ink fill and its text. */
+  --color-surface-inverse: #1d2240;
+  --color-on-inverse: #ffffff;
+
+  --color-primary: #5b3fd6;
+  --color-primary-hover: #4a30bb;
+  --color-primary-active: #3b2599;
+  --color-primary-soft: #ebe6ff;
+  --color-primary-soft-hover: #ddd4ff;
+  --color-on-primary: #ffffff;
+
+  --color-accent: #f5a524;
+  --color-accent-strong: #8a5600;
+  --color-accent-soft: #fff1d6;
+  --color-on-accent: #1d2240;
+
+  --color-success: #17784d;
+  --color-success-soft: #ddf4e8;
+  --color-warning: #85570e;
+  --color-warning-soft: #fff1d6;
+  --color-danger: #b8322a;
+  --color-danger-soft: #fde8e6;
+  --color-on-danger: #ffffff;
+  --color-focus-ring: #b86a00;
+
+  /* Card "types": the frame colour says what someone is looking for. */
+  --type-host: #17784d;
+  --type-host-soft: #ddf4e8;
+  --type-explorer: #2d62c9;
+  --type-explorer-soft: #e2ebfc;
+  --stat-on: #5b3fd6;
+  --stat-off: #d9dfeb;
+  --xp: #f5a524;
+  --color-on-xp: #1d2240;
+  /* The full-screen "Team up!" moment */
+  --match-bg: #5b3fd6;
+  --match-fg: #ffffff;
+  /* The ink of thick outlines' press shadows. Palettes set the colour;
+     the shadows below are built from it, so light and dark both follow. */
+  --press-color: #1d2240;
+  --press-depth: 4px;
+  --press-shadow: 0 var(--press-depth) 0 var(--press-color);
+
+  --font-heading: var(--font-rubik), "Rubik", system-ui, sans-serif;
+  --font-body: var(--font-rubik), "Rubik", system-ui, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --shadow-sm: 0 2px 0 var(--press-color);
+  --shadow-md: 0 4px 0 var(--press-color);
+  --shadow-lg: 0 18px 40px rgb(29 34 64 / 0.22);
+  --focus-ring: 0 0 0 3px var(--color-bg), 0 0 0 6px var(--color-focus-ring);
+
+  /* Component tokens: chunky, pressable game buttons. */
+  --control-border-width: 2px;
+  --control-border: var(--color-border-strong);
+  --control-primary-border: var(--color-border-strong);
+  --control-shadow: var(--press-shadow);
+  --control-shadow-active: none;
+  --control-press: translateY(var(--press-depth));
+  --control-weight: 700;
+  --heading-weight: 800;
+  --surface-border: var(--color-border-strong);
+  --surface-border-width: 2px;
+  --icon-stroke: 2.5; /* matches the 2px outlines at 20–24px icons */
+  /* Motion: playful, a small overshoot when a page lands. */
+  --ease-page: cubic-bezier(0.3, 1.3, 0.5, 1);
+
+  /* Shell: the wordmark is a pressed badge. */
+  --logo-bg: var(--color-surface-raised);
+  --logo-fg: var(--color-primary);
+  --logo-border: 2px solid var(--color-border-strong);
+  --logo-shadow: var(--press-shadow);
+}

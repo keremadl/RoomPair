@@ -1,6 +1,6 @@
 # RoomPair database
 
-The schema for accounts and shared data lives in `supabase/` and is applied to a hosted Supabase project (Postgres 17, region `eu-central-1`). **The app does not read from it yet:** the interface still runs on the browser-local demo state. Connecting the two is the next step and is tracked in [BACKLOG.md](BACKLOG.md).
+The schema for accounts and shared data lives in `supabase/` and is applied to a hosted Supabase project (Postgres 17, region `eu-central-1`). **The app does not read from it yet:** the interface still runs on the browser-local demo state. Connecting the two is the next step. The schema was written before the redesign: it does not yet hold the newer profile fields (languages, guests, noise, sharing, room details, several prompts) or photos, so it needs a follow-up migration first.
 
 ## Layout
 

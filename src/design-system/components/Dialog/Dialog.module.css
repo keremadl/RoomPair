@@ -1,0 +1,92 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) max(var(--space-4), env(safe-area-inset-left, 0px));
+  background: var(--color-overlay);
+  overflow-y: auto;
+}
+.dialog {
+  position: relative;
+  width: 100%;
+  max-height: calc(100dvh - var(--space-12));
+  overflow-y: auto;
+  /* A step sliding in (PageTransition) must not add a horizontal scrollbar. */
+  overflow-x: hidden;
+  padding: var(--space-8) var(--space-6) var(--space-6);
+  border: var(--surface-border-width) solid
+    var(--surface-border, var(--color-border));
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  box-shadow: var(--shadow-overlay);
+  outline: none;
+}
+.md {
+  max-width: 480px;
+}
+.lg {
+  max-width: 720px;
+}
+.close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: grid;
+  place-items: center;
+  width: var(--control-md);
+  height: var(--control-md);
+  border: var(--control-border-width) solid
+    var(--control-border, var(--color-border));
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+.close svg {
+  width: 20px;
+  height: 20px;
+}
+.close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.title {
+  margin: 0 var(--space-10) var(--space-4) 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--heading-weight);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+@media (max-width: 560px) {
+  .backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .dialog {
+    max-height: 92dvh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Full screen: the content (e.g. a match screen) brings its own surface. */
+.fullBackdrop {
+  align-items: stretch;
+  padding: 0;
+}
+.dialog.full {
+  max-width: none;
+  max-height: none;
+  height: 100dvh;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}

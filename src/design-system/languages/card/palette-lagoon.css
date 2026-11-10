@@ -1,0 +1,112 @@
+/*
+ * Card palette: Lagoon (lagoon)
+ * A summer-pool card: deep teal, a hot coral-pink XP and sea-ink outlines on a mint-ice page.
+ * Main colours: teal #00736c, coral-pink #ff5c7c, sea ink #0a2a2d, mint ice #e1f1ee; dark: aqua #45dccb on #123034.
+ * Colour only. --press-shadow, --shadow-sm/md and --focus-ring are built by
+ * theme.css from --press-color, --color-focus-ring and --color-bg.
+ */
+[data-direction="card"][data-palette="lagoon"] {
+  color-scheme: light;
+  --color-bg: #e1f1ee;
+  --color-surface: #fafefd;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #cbe3df;
+  --color-text: #0a2a2d;
+  --color-text-muted: #33585a;
+  --color-text-subtle: #5b7e7e;
+  --color-text-inverse: #ffffff;
+  --color-border: #b4d2cd;
+  --color-border-strong: #0a2a2d;
+  --color-primary: #00736c;
+  --color-primary-hover: #005f59;
+  --color-primary-active: #004c47;
+  --color-primary-soft: #d2f0ea;
+  --color-primary-soft-hover: #bae6de;
+  --color-on-primary: #ffffff;
+  --color-accent: #ff5c7c;
+  --color-accent-strong: #a3143a;
+  --color-accent-soft: #ffe2e8;
+  --color-on-accent: #0a2a2d;
+  --xp: #ff5c7c;
+  --color-on-xp: #0a2a2d;
+  --color-success: #127443;
+  --color-success-soft: #d9f2e3;
+  --color-warning: #7d5500;
+  --color-warning-soft: #fff0c4;
+  --color-danger: #b8320f;
+  --color-danger-soft: #fde6dd;
+  --color-on-danger: #ffffff;
+  --color-focus-ring: #5a3fd0;
+  --type-host: #127443;
+  --type-host-soft: #d9f2e3;
+  --type-explorer: #4a4fd6;
+  --type-explorer-soft: #e4e5ff;
+  --stat-on: #00736c;
+  --stat-off: #cbe3df;
+  --press-color: #0a2a2d;
+  --color-overlay: rgb(10 42 45 / 0.5);
+  --color-on-image: #ffffff;
+  --color-image-scrim: linear-gradient(to top, rgb(6 32 31 / 0.88), rgb(6 32 31 / 0));
+  --color-on-image-surface: rgb(255 255 255 / 0.16);
+  --color-on-image-border: rgb(255 255 255 / 0.4);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.75);
+  --color-photo-frame: #ffffff;
+  --color-surface-inverse: #0a2a2d;
+  --color-on-inverse: #ffffff;
+  --match-bg: #00736c;
+  --match-fg: #ffffff;
+  --shadow-lg: 0 18px 40px rgb(10 42 45 / 0.22);
+}
+
+[data-direction="card"][data-palette="lagoon"][data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #123034;
+  --color-surface: #1a3e43;
+  --color-surface-raised: #21494f;
+  --color-surface-sunken: #0c2427;
+  --color-text: #ecfaf8;
+  --color-text-muted: #b2d4d0;
+  --color-text-subtle: #8fb5b1;
+  --color-text-inverse: #123034;
+  --color-border: #2f5a5f;
+  --color-border-strong: #c4ede7;
+  --color-primary: #45dccb;
+  --color-primary-hover: #68e4d6;
+  --color-primary-active: #8aebe0;
+  --color-primary-soft: #0f4a49;
+  --color-primary-soft-hover: #145a58;
+  --color-on-primary: #04201f;
+  --color-accent: #ff7d97;
+  --color-accent-strong: #ffa5b6;
+  --color-accent-soft: #45192a;
+  --color-on-accent: #1a0a10;
+  --xp: #ff7d97;
+  --color-on-xp: #1a0a10;
+  --color-success: #5fdc9f;
+  --color-success-soft: #0d3526;
+  --color-warning: #f5c451;
+  --color-warning-soft: #36290a;
+  --color-danger: #ff9873;
+  --color-danger-soft: #451c10;
+  --color-on-danger: #1a0a10;
+  --color-focus-ring: #ffd84d;
+  --type-host: #1f8a57;
+  --type-host-soft: #0d3526;
+  --type-explorer: #6f74ee;
+  --type-explorer-soft: #22264f;
+  --stat-on: #45dccb;
+  --stat-off: #30585d;
+  --press-color: #23a596;
+  --color-overlay: rgb(1 9 8 / 0.7);
+  --color-on-image: #ffffff;
+  --color-image-scrim: linear-gradient(to top, rgb(2 12 12 / 0.88), rgb(2 12 12 / 0));
+  --color-on-image-surface: rgb(255 255 255 / 0.16);
+  --color-on-image-border: rgb(255 255 255 / 0.4);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.75);
+  --color-photo-frame: #ecfaf8;
+  --color-surface-inverse: #ecfaf8;
+  --color-on-inverse: #123034;
+  --match-bg: #0f4a49;
+  --match-fg: #ffffff;
+  --shadow-lg: 0 18px 40px rgb(1 9 8 / 0.6);
+}

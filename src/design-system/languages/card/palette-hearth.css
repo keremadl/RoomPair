@@ -1,0 +1,112 @@
+/*
+ * Card palette: Hearth (hearth)
+ * A clay-tiled kitchen with herbs on the sill: terracotta, sage and honey on warm oat paper.
+ * Main colours: terracotta #a9472a, sage #9bb592, honey #ebb34a, espresso #2e211a, oat #f3ece1; dark: sand outlines on #1d1612.
+ * Colour only. --press-shadow, --shadow-sm/md and --focus-ring are built by
+ * theme.css from --press-color, --color-focus-ring and --color-bg.
+ */
+[data-direction="card"][data-palette="hearth"] {
+  color-scheme: light;
+  --color-bg: #f3ece1;
+  --color-surface: #fffaf3;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #e8dccb;
+  --color-text: #2e211a;
+  --color-text-muted: #5c4a3e;
+  --color-text-subtle: #86705f;
+  --color-text-inverse: #ffffff;
+  --color-border: #dccdb9;
+  --color-border-strong: #2e211a;
+  --color-primary: #a9472a;
+  --color-primary-hover: #923b21;
+  --color-primary-active: #7a301a;
+  --color-primary-soft: #f8e3d8;
+  --color-primary-soft-hover: #f2d3c2;
+  --color-on-primary: #ffffff;
+  --color-accent: #9bb592;
+  --color-accent-strong: #3f5c3a;
+  --color-accent-soft: #e5eedf;
+  --color-on-accent: #2e211a;
+  --xp: #ebb34a;
+  --color-on-xp: #2e211a;
+  --color-success: #2c6e46;
+  --color-success-soft: #dfefe3;
+  --color-warning: #81530c;
+  --color-warning-soft: #fcefd5;
+  --color-danger: #a3263a;
+  --color-danger-soft: #fbe4e7;
+  --color-on-danger: #ffffff;
+  --color-focus-ring: #b36a0d;
+  --type-host: #4f7a4a;
+  --type-host-soft: #e5eedf;
+  --type-explorer: #3f6a8a;
+  --type-explorer-soft: #e1ebf2;
+  --stat-on: #a9472a;
+  --stat-off: #e8dccb;
+  --press-color: #2e211a;
+  --color-overlay: rgb(46 33 26 / 0.5);
+  --color-on-image: #ffffff;
+  --color-image-scrim: linear-gradient(to top, rgb(36 22 14 / 0.85), rgb(36 22 14 / 0));
+  --color-on-image-surface: rgb(255 255 255 / 0.16);
+  --color-on-image-border: rgb(255 255 255 / 0.4);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.75);
+  --color-photo-frame: #ffffff;
+  --color-surface-inverse: #2e211a;
+  --color-on-inverse: #ffffff;
+  --match-bg: #a9472a;
+  --match-fg: #ffffff;
+  --shadow-lg: 0 18px 40px rgb(46 33 26 / 0.22);
+}
+
+[data-direction="card"][data-palette="hearth"][data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #1d1612;
+  --color-surface: #271e19;
+  --color-surface-raised: #30251f;
+  --color-surface-sunken: #15100d;
+  --color-text: #f6ece1;
+  --color-text-muted: #cdbcac;
+  --color-text-subtle: #a08e7f;
+  --color-text-inverse: #1d1612;
+  --color-border: #4a3b31;
+  --color-border-strong: #d6c1aa;
+  --color-primary: #e98a63;
+  --color-primary-hover: #f09a76;
+  --color-primary-active: #f5ab8b;
+  --color-primary-soft: #47291d;
+  --color-primary-soft-hover: #57321f;
+  --color-on-primary: #22140e;
+  --color-accent: #a9c39f;
+  --color-accent-strong: #bcd4b2;
+  --color-accent-soft: #27321f;
+  --color-on-accent: #1d1612;
+  --xp: #f0bd5a;
+  --color-on-xp: #1d1612;
+  --color-success: #86c99a;
+  --color-success-soft: #1c2e22;
+  --color-warning: #e9b864;
+  --color-warning-soft: #352713;
+  --color-danger: #f08a95;
+  --color-danger-soft: #3d1d22;
+  --color-on-danger: #1d1612;
+  --color-focus-ring: #f0bd5a;
+  --type-host: #7fa676;
+  --type-host-soft: #27321f;
+  --type-explorer: #7aa6c6;
+  --type-explorer-soft: #1d2a35;
+  --stat-on: #e98a63;
+  --stat-off: #3d3029;
+  --press-color: #d6c1aa;
+  --color-overlay: rgb(8 5 3 / 0.66);
+  --color-on-image: #ffffff;
+  --color-image-scrim: linear-gradient(to top, rgb(20 12 8 / 0.85), rgb(20 12 8 / 0));
+  --color-on-image-surface: rgb(255 255 255 / 0.16);
+  --color-on-image-border: rgb(255 255 255 / 0.4);
+  --color-on-image-border-hover: rgb(255 255 255 / 0.75);
+  --color-photo-frame: #f6ece1;
+  --color-surface-inverse: #f6ece1;
+  --color-on-inverse: #1d1612;
+  --match-bg: #57321f;
+  --match-fg: #ffffff;
+  --shadow-lg: 0 18px 40px rgb(0 0 0 / 0.5);
+}

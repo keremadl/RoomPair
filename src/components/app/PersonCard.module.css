@@ -1,0 +1,235 @@
+/* Compact character card, in the Card language: a frame in the person's
+   type colour (host / explorer), stat pips, chunky outline. */
+.card {
+  --frame: var(--type-explorer, var(--color-primary));
+  --frame-soft: var(--type-explorer-soft, var(--color-primary-soft));
+  display: grid;
+  grid-template-columns: 9.5rem 1fr;
+  gap: var(--space-4);
+  padding: var(--space-3);
+  border: var(--surface-border-width) solid
+    var(--surface-border, var(--color-border));
+  border-radius: var(--radius-lg);
+  background: var(--frame);
+  box-shadow: var(--control-shadow, var(--shadow-sm));
+}
+.card[data-type="host"] {
+  --frame: var(--type-host, var(--color-success));
+  --frame-soft: var(--type-host-soft, var(--color-success-soft));
+}
+.card[data-compact] {
+  grid-template-columns: 4.5rem 1fr;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+}
+
+.photoButton {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+}
+.photoButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.photo {
+  display: block;
+  height: 100%;
+  min-height: 9.5rem;
+  overflow: hidden;
+  border: var(--control-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+.card[data-compact] .photo {
+  min-height: 4.5rem;
+  border-radius: var(--radius-sm);
+}
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: var(--control-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.card[data-compact] .body {
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--heading-weight);
+  line-height: var(--leading-tight);
+}
+.card[data-compact] .name {
+  font-size: var(--text-lg);
+}
+.name svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--color-primary);
+}
+.age {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--color-primary);
+}
+.age small {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+}
+
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+.type,
+.fit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border: var(--control-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+}
+.type {
+  background: var(--frame-soft);
+}
+.type svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+.fit {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.meta {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  font-size: var(--text-sm);
+}
+.facts strong {
+  font-weight: var(--weight-bold);
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.pips {
+  display: inline-flex;
+  gap: var(--space-1);
+}
+.pips i {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: var(--radius-sm);
+  background: var(--stat-off, var(--color-surface-sunken));
+}
+.pips i[data-on="true"] {
+  background: var(--stat-on, var(--color-primary));
+}
+.sleep {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.sleep svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-1);
+}
+
+/* Phones: photo as a wide band on top, details below. */
+@media (max-width: 559px) {
+  .card:not([data-compact]) {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+    padding: var(--space-2);
+  }
+  .card:not([data-compact]) .photo {
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+  }
+  .card:not([data-compact]) .photo img {
+    object-position: center 25%;
+  }
+  .card:not([data-compact]) .body {
+    padding: var(--space-3);
+  }
+}
+
+/* data-stack: one column, no photo column (your own card on My profile).
+   Three-part selector so it beats the phone rule above. */
+.card[data-stack][data-stack] {
+  grid-template-columns: 1fr;
+  padding: var(--space-3);
+}
+.card[data-stack][data-stack] .body {
+  padding: var(--space-4);
+}

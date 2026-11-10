@@ -1,0 +1,95 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: var(--control-border-width) solid transparent;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: var(--control-weight);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-base) var(--ease-standard),
+    border-color var(--duration-base) var(--ease-standard),
+    color var(--duration-base) var(--ease-standard),
+    var(--transition-press);
+}
+.button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.button:not(:disabled):active {
+  transform: var(--control-press);
+  box-shadow: var(--control-shadow-active);
+}
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.button svg {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+/* Sizes */
+.sm {
+  min-height: var(--control-sm);
+  padding: 0 var(--space-3);
+  font-size: var(--text-xs);
+}
+.md {
+  min-height: var(--control-md);
+  padding: 0 var(--space-5);
+  font-size: var(--text-sm);
+}
+.lg {
+  min-height: var(--control-lg);
+  padding: 0 var(--space-6);
+  font-size: var(--text-md);
+}
+
+/* Variants */
+.primary {
+  background: var(--color-primary);
+  border-color: var(--control-primary-border, transparent);
+  color: var(--color-on-primary);
+  box-shadow: var(--control-shadow);
+}
+.primary:not(:disabled):hover {
+  background: var(--color-primary-hover);
+}
+
+.secondary {
+  background: var(--color-surface-raised);
+  border-color: var(--control-border, var(--color-border-strong));
+  color: var(--color-text);
+  box-shadow: var(--control-shadow);
+}
+.secondary:not(:disabled):hover {
+  background: var(--color-primary-soft);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--color-primary);
+}
+.ghost:not(:disabled):hover {
+  background: var(--color-primary-soft);
+}
+
+.danger {
+  background: var(--color-danger-soft);
+  border-color: var(--control-border, transparent);
+  box-shadow: var(--control-shadow);
+  color: var(--color-danger);
+}
+.danger:not(:disabled):hover {
+  background: var(--color-danger);
+  color: var(--color-on-danger);
+}
+
+.fullWidth {
+  width: 100%;
+}

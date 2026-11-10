@@ -1,0 +1,5 @@
+/* Stroke weight comes from the theme; see --icon-stroke in tokens.css. */
+.icon {
+  stroke-width: var(--icon-stroke);
+  flex-shrink: 0;
+}

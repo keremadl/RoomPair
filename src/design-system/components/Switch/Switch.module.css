@@ -1,0 +1,60 @@
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  cursor: pointer;
+}
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.label {
+  font-weight: var(--control-weight);
+}
+.description {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.track {
+  position: relative;
+  flex-shrink: 0;
+  width: 48px;
+  height: 28px;
+  border: var(--control-border-width) solid
+    var(--control-border, var(--color-border-strong));
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  transition: background-color var(--duration-base) var(--ease-standard);
+}
+.thumb {
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+.input:checked + .track {
+  background: var(--color-primary);
+  border-color: var(--control-primary-border, var(--color-primary));
+}
+.input:checked + .track .thumb {
+  transform: translateX(19px);
+}
+.input:focus-visible + .track {
+  box-shadow: var(--focus-ring);
+}
