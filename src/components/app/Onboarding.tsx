@@ -20,6 +20,7 @@ import {
   Sparkles,
   Star,
   Sun,
+  Tag,
   UserRound,
   Users,
   Volume2,
@@ -32,6 +33,7 @@ import {
   Chip,
   ChoiceCards,
   Dialog,
+  Eyebrow,
   FactGrid,
   Heading,
   IconButton,
@@ -58,30 +60,31 @@ import type {
 import { PhotoGrid } from "./profile/PhotoGrid";
 import o from "./Onboarding.module.css";
 
-/** One screen of setup. Each asks a single thing. */
+/** One screen of setup, or one answer opened on its own from Edit profile. */
 export type SetupQuestion =
   | "name"
-  | "age"
   | "intent"
   | "gender"
   | "city"
   | "budget"
+  | "room"
+  | "roomPhotos"
   | "moveDate"
   | "stay"
+  | "photos"
   | "work"
-  | "languages"
+  | "smoke"
+  | "pets"
   | "cleanliness"
-  | "social"
   | "sleep"
   | "guests"
-  | "homeDays"
   | "noise"
-  | "sharing"
-  | "smokeFree"
-  | "pets"
   | "livingWith"
+  | "social"
+  | "homeDays"
+  | "sharing"
+  | "languages"
   | "interests"
-  | "photos"
   | "bio"
   | "done";
 
@@ -93,105 +96,175 @@ export type SetupProfile = Pick<
   | "status"
   | "occupation"
   | "school"
+  | "neighborhood"
+  | "smokes"
+  | "hasPets"
   | "languages"
   | "interests"
   | "photos"
   | "bio"
+  | "room"
 >;
 
+type Section = "The basics" | "About you" | "At home";
 type Question = {
   id: SetupQuestion;
   icon: IconComponent;
   title: string;
   hint?: string;
+  /** The chapter shown above the question during the walk-through. */
+  section?: Section;
+  /** Only people who look for a room, or only people who have one. */
+  for?: "seeker" | "host";
   /** Can be skipped: the answer is not needed to find people. */
   optional?: boolean;
 };
 
-const questions: Question[] = [
-  { id: "name", icon: Smile, title: "What should we call you?" },
+/**
+ * The walk-through, in order. It asks what matching and a visible profile
+ * need, and nothing else: everything a person must have to be shown to others
+ * is required here, and what only makes a profile richer waits in Edit profile.
+ */
+const walkthrough: Question[] = [
   {
-    id: "age",
-    icon: Star,
-    title: "How old are you?",
-    hint: "Your age is shown on your profile. RoomPair is for adults.",
+    id: "name",
+    icon: Smile,
+    title: "What is your name and age?",
+    hint: "Both are shown on your profile. RoomPair is for adults.",
+    section: "The basics",
   },
-  { id: "intent", icon: Key, title: "What brings you here?" },
+  {
+    id: "intent",
+    icon: Key,
+    title: "What brings you here?",
+    section: "The basics",
+  },
   {
     id: "gender",
     icon: UserRound,
     title: "Which describes you?",
     hint: "Only used when someone wants to live with women or men only.",
+    section: "The basics",
     optional: true,
   },
-  { id: "city", icon: MapPin, title: "Which city do you want to live in?" },
+  {
+    id: "city",
+    icon: MapPin,
+    title: "Where do you want to live?",
+    section: "The basics",
+  },
   {
     id: "budget",
     icon: Wallet,
     title: "What is your monthly budget?",
     hint: "Per person, per month, before bills.",
+    section: "The basics",
+    for: "seeker",
   },
-  { id: "moveDate", icon: CalendarDays, title: "When do you want to move in?" },
-  { id: "stay", icon: Clock, title: "How long do you plan to stay?" },
+  {
+    id: "room",
+    icon: Tag,
+    title: "Tell us about the room",
+    hint: "The title and the rent are the first things people see.",
+    section: "The basics",
+    for: "host",
+  },
+  {
+    id: "roomPhotos",
+    icon: ImagePlus,
+    title: "Show the room",
+    hint: "A listing needs at least one photo of the room.",
+    section: "The basics",
+    for: "host",
+  },
+  {
+    id: "moveDate",
+    icon: CalendarDays,
+    title: "When, and for how long?",
+    section: "The basics",
+  },
+  {
+    id: "photos",
+    icon: ImagePlus,
+    title: "Add a photo of yourself",
+    hint: "Others only see profiles with at least one photo.",
+    section: "About you",
+  },
   {
     id: "work",
     icon: Backpack,
     title: "What do you do?",
     hint: "People like to know who they would be living with.",
-    optional: true,
+    section: "About you",
   },
   {
-    id: "languages",
-    icon: Languages,
-    title: "Which languages do you speak?",
-    optional: true,
-  },
-  { id: "cleanliness", icon: Sparkles, title: "How tidy do you keep things?" },
-  { id: "social", icon: Users, title: "How social are you at home?" },
-  { id: "sleep", icon: Moon, title: "When does your day start and end?" },
-  {
-    id: "guests",
-    icon: PartyPopper,
-    title: "How often do you have guests over?",
-  },
-  { id: "homeDays", icon: Sun, title: "Are you home in the day?" },
-  { id: "noise", icon: Volume2, title: "How much noise is fine?" },
-  { id: "sharing", icon: Sofa, title: "What do you like to share?" },
-  {
-    id: "smokeFree",
+    id: "smoke",
     icon: Cigarette,
-    title: "Is smoking at home okay?",
-    hint: "If not, people who smoke at home are hidden.",
+    title: "Do you smoke?",
+    section: "About you",
   },
   {
     id: "pets",
     icon: PawPrint,
-    title: "Are pets okay?",
-    hint: "If not, people with pets are hidden.",
+    title: "Do you have a pet?",
+    section: "About you",
   },
-  { id: "livingWith", icon: Home, title: "Who would you like to live with?" },
+  {
+    id: "cleanliness",
+    icon: Sparkles,
+    title: "How tidy do you keep things?",
+    section: "At home",
+  },
+  {
+    id: "sleep",
+    icon: Moon,
+    title: "When does your day start and end?",
+    section: "At home",
+  },
+  {
+    id: "guests",
+    icon: PartyPopper,
+    title: "How often do you have guests over?",
+    section: "At home",
+  },
+  {
+    id: "noise",
+    icon: Volume2,
+    title: "How much noise is fine?",
+    section: "At home",
+  },
+  {
+    id: "livingWith",
+    icon: Home,
+    title: "Who would you like to live with?",
+    section: "At home",
+  },
+  { id: "done", icon: PartyPopper, title: "You are all set!" },
+];
+
+/** Answers that are not part of the walk-through; Edit profile opens them one at a time. */
+const extras: Question[] = [
+  { id: "stay", icon: Clock, title: "How long do you plan to stay?" },
+  { id: "social", icon: Users, title: "How social are you at home?" },
+  { id: "homeDays", icon: Sun, title: "Are you home in the day?" },
+  { id: "sharing", icon: Sofa, title: "What do you like to share?" },
+  {
+    id: "languages",
+    icon: Languages,
+    title: "Which languages do you speak?",
+  },
   {
     id: "interests",
     icon: Star,
     title: "What are you into?",
     hint: "Pick up to 8. They help you find your kind of people.",
-    optional: true,
-  },
-  {
-    id: "photos",
-    icon: ImagePlus,
-    title: "Add your photos",
-    hint: "Others only see profiles with at least one photo.",
-    optional: true,
   },
   {
     id: "bio",
     icon: MessageSquareQuote,
     title: "Anything else people should know?",
     hint: "A few words in your own voice.",
-    optional: true,
   },
-  { id: "done", icon: PartyPopper, title: "You are all set!" },
 ];
 
 const MIN_AGE = 18;
@@ -203,18 +276,21 @@ const stays = [3, 6, 12, 24];
 /** One question's answers as a list of rows; exactly one is chosen. */
 function Options<T extends string>({
   legend,
+  showLegend = false,
   value,
   options,
   onChange,
 }: {
   legend: string;
+  /** Show the group's name: for a second group under the screen's question. */
+  showLegend?: boolean;
   value: T;
   options: ChoiceCardOption<T>[];
   onChange: (value: T) => void;
 }) {
   return (
     <ChoiceCards
-      className={o.options}
+      className={showLegend ? o.named : o.options}
       label={legend}
       value={value}
       options={options}
@@ -254,10 +330,9 @@ export function Onboarding({
   const [error, setError] = useState("");
   const [direction, setDirection] = useState(1);
   const host = values.intent === "have-room";
-  // People with a room are matched on its rent, so they are not asked for a budget.
   const flow = only
-    ? questions.filter((q) => q.id === only)
-    : questions.filter((q) => !(q.id === "budget" && host));
+    ? [...walkthrough, ...extras].filter((q) => q.id === only)
+    : walkthrough.filter((q) => !q.for || q.for === (host ? "host" : "seeker"));
   const [index, setIndex] = useState(0);
   const question = flow[Math.min(index, flow.length - 1)];
   const last = index >= flow.length - 1;
@@ -270,6 +345,8 @@ export function Onboarding({
     setProfile((p) => ({ ...p, ...patch }));
     setError("");
   };
+  const setRoom = (patch: Partial<SetupProfile["room"]>) =>
+    setMe({ room: { ...profile.room, ...patch } });
   const ageValue = Number(ageText);
   const ageValid =
     Number.isInteger(ageValue) && ageValue >= MIN_AGE && ageValue <= MAX_AGE;
@@ -280,9 +357,10 @@ export function Onboarding({
     .toISOString()
     .slice(0, 10);
   function validate(id: SetupQuestion): string {
-    if (id === "name" && !values.name.trim()) return t("ob.nameError");
-    if (id === "age" && !ageValid)
-      return t("You need to be 18 or older to use RoomPair.");
+    if (id === "name") {
+      if (!values.name.trim()) return t("ob.nameError");
+      if (!ageValid) return t("You need to be 18 or older to use RoomPair.");
+    }
     if (id === "city" && !values.city.trim()) return t("ob.cityError");
     if (
       id === "budget" &&
@@ -293,6 +371,17 @@ export function Onboarding({
         values.budgetMax <= values.budgetMin)
     )
       return t("ob.budgetError");
+    if (id === "room") {
+      if (!profile.room.title.trim()) return t("Give the room a title.");
+      if (
+        !Number.isFinite(profile.room.price) ||
+        profile.room.price < 100 ||
+        profile.room.price > 5000
+      )
+        return t("Enter a monthly rent from €100 to €5,000.");
+    }
+    if (id === "roomPhotos" && !profile.room.photos.length)
+      return t("Add at least one photo of the room.");
     if (id === "moveDate") {
       const date = new Date(`${values.moveDate}T12:00:00Z`);
       if (
@@ -303,6 +392,10 @@ export function Onboarding({
       )
         return t("ob.dateError");
     }
+    if (id === "photos" && !profile.photos.length)
+      return t("Add at least one photo so people can see you.");
+    if (id === "work" && !profile.occupation.trim())
+      return t("Say what you study or do.");
     return "";
   }
   function finish() {
@@ -313,7 +406,9 @@ export function Onboarding({
         age: ageValid ? ageValue : initialProfile.age,
         occupation: profile.occupation.trim(),
         school: profile.school.trim(),
+        neighborhood: profile.neighborhood.trim(),
         bio: profile.bio.trim(),
+        room: { ...profile.room, title: profile.room.title.trim() },
       },
     );
   }
@@ -341,11 +436,13 @@ export function Onboarding({
         ? [...list, item]
         : list;
 
+  const months = (count: number) =>
+    count === 1 ? t("1 month") : t("{count} months", { count });
   const title =
-    question.id === "moveDate" && host
-      ? t("When is the room free?")
-      : question.id === "done"
-        ? t("You are all set, {name}!", { name: values.name.trim() })
+    question.id === "done"
+      ? t("You are all set, {name}!", { name: values.name.trim() })
+      : question.id === "city" && host
+        ? t("Where is the room?")
         : t(question.title);
   const frequency = (labels: [string, string, string]) =>
     (["rarely", "sometimes", "often"] as Frequency[]).map((value, i) => ({
@@ -354,37 +451,50 @@ export function Onboarding({
     }));
   const scale = (labels: string[]) =>
     labels.map((label, i) => ({ value: String(i + 1), title: label }));
+  const stayOptions = [
+    ...stays.map((count) => ({ value: String(count), title: months(count) })),
+    // An answer from before that is not one of the usual lengths.
+    ...(stays.includes(values.stayMonths)
+      ? []
+      : [
+          {
+            value: String(values.stayMonths),
+            title: months(values.stayMonths),
+          },
+        ]),
+  ];
+  const problem = error && (
+    <Text tone="danger" role="alert">
+      {error}
+    </Text>
+  );
 
   let body: ReactNode;
   switch (question.id) {
     case "name":
       body = (
-        <Input
-          label={t("ob.namePlaceholder")}
-          value={values.name}
-          onChange={(e) => set("name", e.target.value)}
-          autoComplete="given-name"
-          maxLength={48}
-          error={error || undefined}
-          aria-label={t("ob.yourName")}
-        />
-      );
-      break;
-    case "age":
-      body = (
-        <Input
-          label={t("Your age")}
-          type="number"
-          inputMode="numeric"
-          min={MIN_AGE}
-          max={MAX_AGE}
-          value={ageText}
-          onChange={(e) => {
-            setAgeText(e.target.value);
-            setError("");
-          }}
-          error={error || undefined}
-        />
+        <>
+          <Input
+            label={t("ob.namePlaceholder")}
+            value={values.name}
+            onChange={(e) => set("name", e.target.value)}
+            autoComplete="given-name"
+            maxLength={48}
+          />
+          <Input
+            label={t("Your age")}
+            type="number"
+            inputMode="numeric"
+            min={MIN_AGE}
+            max={MAX_AGE}
+            value={ageText}
+            onChange={(e) => {
+              setAgeText(e.target.value);
+              setError("");
+            }}
+          />
+          {problem}
+        </>
       );
       break;
     case "intent":
@@ -427,13 +537,26 @@ export function Onboarding({
       break;
     case "city":
       body = (
-        <Input
-          label={t("ob.city")}
-          value={values.city}
-          onChange={(e) => set("city", e.target.value)}
-          maxLength={70}
-          error={error || undefined}
-        />
+        <>
+          <Input
+            label={t("ob.city")}
+            value={values.city}
+            onChange={(e) => set("city", e.target.value)}
+            maxLength={70}
+            error={error || undefined}
+          />
+          <Input
+            label={t("Area (optional)")}
+            hint={
+              host
+                ? t("The part of town the room is in.")
+                : t("A part of town you would like, if you have one.")
+            }
+            value={profile.neighborhood}
+            onChange={(e) => setMe({ neighborhood: e.target.value })}
+            maxLength={70}
+          />
+        </>
       );
       break;
     case "budget":
@@ -459,16 +582,74 @@ export function Onboarding({
         </div>
       );
       break;
+    case "room":
+      body = (
+        <>
+          <Input
+            label={t("Title")}
+            hint={t("For example: Sunny room near the park")}
+            value={profile.room.title}
+            onChange={(e) => setRoom({ title: e.target.value })}
+            maxLength={120}
+          />
+          <Input
+            label={t("Rent per month")}
+            type="number"
+            inputMode="numeric"
+            prefix="€"
+            value={profile.room.price}
+            onChange={(e) => setRoom({ price: Number(e.target.value) })}
+          />
+          <Options<"yes" | "no">
+            legend={t("Are bills included?")}
+            showLegend
+            value={profile.room.billsIncluded ? "yes" : "no"}
+            onChange={(v) => setRoom({ billsIncluded: v === "yes" })}
+            options={[
+              { value: "yes", title: t("Yes, bills are included") },
+              { value: "no", title: t("No, bills are extra") },
+            ]}
+          />
+          {problem}
+        </>
+      );
+      break;
+    case "roomPhotos":
+      body = (
+        <>
+          <PhotoGrid
+            photos={profile.room.photos}
+            max={MAX_PHOTOS}
+            label={t("Room photos")}
+            addLabel={t("Add photos")}
+            onChange={(photos) => setRoom({ photos })}
+            onError={setError}
+          />
+          {problem}
+        </>
+      );
+      break;
     case "moveDate":
       body = (
-        <Input
-          label={t("ob.moveDate")}
-          type="date"
-          min={today}
-          value={values.moveDate}
-          onChange={(e) => set("moveDate", e.target.value)}
-          error={error || undefined}
-        />
+        <>
+          <Input
+            label={host ? t("Available from") : t("ob.moveDate")}
+            type="date"
+            min={today}
+            value={values.moveDate}
+            onChange={(e) => set("moveDate", e.target.value)}
+            error={error || undefined}
+          />
+          {!only && (
+            <Options
+              legend={host ? t("Minimum stay") : t("How long you plan to stay")}
+              showLegend
+              value={String(values.stayMonths)}
+              onChange={(v) => set("stayMonths", Number(v))}
+              options={stayOptions}
+            />
+          )}
+        </>
       );
       break;
     case "stay":
@@ -477,25 +658,23 @@ export function Onboarding({
           legend={title}
           value={String(values.stayMonths)}
           onChange={(v) => set("stayMonths", Number(v))}
-          options={[
-            ...stays.map((months) => ({
-              value: String(months),
-              title: t("{count} months", { count: months }),
-            })),
-            // An answer from before that is not one of the usual lengths.
-            ...(stays.includes(values.stayMonths)
-              ? []
-              : [
-                  {
-                    value: String(values.stayMonths),
-                    title:
-                      values.stayMonths === 1
-                        ? t("1 month")
-                        : t("{count} months", { count: values.stayMonths }),
-                  },
-                ]),
-          ]}
+          options={stayOptions}
         />
+      );
+      break;
+    case "photos":
+      body = (
+        <>
+          <PhotoGrid
+            photos={profile.photos}
+            max={MAX_PHOTOS}
+            label={t("My photos")}
+            addLabel={t("Add photos")}
+            onChange={(photos) => setMe({ photos })}
+            onError={setError}
+          />
+          {problem}
+        </>
       );
       break;
     case "work":
@@ -516,6 +695,7 @@ export function Onboarding({
             value={profile.occupation}
             onChange={(e) => setMe({ occupation: e.target.value })}
             maxLength={80}
+            error={error || undefined}
           />
           <Input
             label={t("School or workplace")}
@@ -527,23 +707,51 @@ export function Onboarding({
         </>
       );
       break;
-    case "languages":
+    case "smoke":
+      // One question covers both sides: what you do, and what you accept.
       body = (
-        <div className={o.chips} role="group" aria-label={title}>
-          {languageOptions.map((language) => (
-            <Chip
-              key={language}
-              type="button"
-              selected={profile.languages.includes(language)}
-              aria-pressed={profile.languages.includes(language)}
-              onClick={() =>
-                setMe({ languages: toggle(profile.languages, language, 12) })
-              }
-            >
-              {t(language)}
-            </Chip>
-          ))}
-        </div>
+        <Options<"no-free" | "no-fine" | "yes">
+          legend={title}
+          value={
+            profile.smokes ? "yes" : values.smokeFree ? "no-free" : "no-fine"
+          }
+          onChange={(v) => {
+            setMe({ smokes: v === "yes" });
+            set("smokeFree", v === "no-free");
+          }}
+          options={[
+            {
+              value: "no-free",
+              title: t("No, and I want a smoke-free home"),
+              hint: t("People who smoke are hidden."),
+            },
+            { value: "no-fine", title: t("No, but I do not mind it") },
+            { value: "yes", title: t("Yes, I smoke") },
+          ]}
+        />
+      );
+      break;
+    case "pets":
+      body = (
+        <Options<"have" | "welcome" | "none">
+          legend={title}
+          value={
+            profile.hasPets ? "have" : values.petsOkay ? "welcome" : "none"
+          }
+          onChange={(v) => {
+            setMe({ hasPets: v === "have" });
+            set("petsOkay", v !== "none");
+          }}
+          options={[
+            { value: "have", title: t("Yes, I have a pet") },
+            { value: "welcome", title: t("No, but pets are welcome") },
+            {
+              value: "none",
+              title: t("No, and no pets please"),
+              hint: t("People with pets are hidden."),
+            },
+          ]}
+        />
       );
       break;
     case "cleanliness":
@@ -644,32 +852,6 @@ export function Onboarding({
         />
       );
       break;
-    case "smokeFree":
-      body = (
-        <Options<"no" | "yes">
-          legend={title}
-          value={values.smokeFree ? "no" : "yes"}
-          onChange={(v) => set("smokeFree", v === "no")}
-          options={[
-            { value: "no", title: t("No, a smoke-free home") },
-            { value: "yes", title: t("Yes, smoking is fine") },
-          ]}
-        />
-      );
-      break;
-    case "pets":
-      body = (
-        <Options<"yes" | "no">
-          legend={title}
-          value={values.petsOkay ? "yes" : "no"}
-          onChange={(v) => set("petsOkay", v === "yes")}
-          options={[
-            { value: "yes", title: t("Yes, pets are welcome") },
-            { value: "no", title: t("No pets, please") },
-          ]}
-        />
-      );
-      break;
     case "livingWith":
       body = (
         <Options<Preferences["livingWith"]>
@@ -682,6 +864,25 @@ export function Onboarding({
             { value: "men", title: t("Men only") },
           ]}
         />
+      );
+      break;
+    case "languages":
+      body = (
+        <div className={o.chips} role="group" aria-label={title}>
+          {languageOptions.map((language) => (
+            <Chip
+              key={language}
+              type="button"
+              selected={profile.languages.includes(language)}
+              aria-pressed={profile.languages.includes(language)}
+              onClick={() =>
+                setMe({ languages: toggle(profile.languages, language, 12) })
+              }
+            >
+              {t(language)}
+            </Chip>
+          ))}
+        </div>
       );
       break;
     case "interests":
@@ -717,25 +918,6 @@ export function Onboarding({
         </>
       );
       break;
-    case "photos":
-      body = (
-        <>
-          <PhotoGrid
-            photos={profile.photos}
-            max={MAX_PHOTOS}
-            label={t("My photos")}
-            addLabel={t("Add photos")}
-            onChange={(photos) => setMe({ photos })}
-            onError={setError}
-          />
-          {error && (
-            <Text tone="danger" role="alert">
-              {error}
-            </Text>
-          )}
-        </>
-      );
-      break;
     case "bio":
       body = (
         <Textarea
@@ -758,26 +940,33 @@ export function Onboarding({
             facts={[
               {
                 label: t("ob.city"),
-                value: values.city,
+                value: profile.neighborhood.trim()
+                  ? `${profile.neighborhood.trim()}, ${values.city}`
+                  : values.city,
               },
               host
-                ? { label: t("Looking for"), value: t("A flatmate") }
+                ? {
+                    label: t("Rent per month"),
+                    value: `€${profile.room.price}`,
+                  }
                 : {
                     label: t("ob.budget"),
                     value: `€${values.budgetMin}–${values.budgetMax}`,
                   },
-              { label: t("ob.moveDate"), value: dateLabel(values.moveDate) },
               {
-                label: t("Stay"),
-                value:
-                  values.stayMonths === 1
-                    ? t("1 month")
-                    : t("{count} months", { count: values.stayMonths }),
+                label: host ? t("Available from") : t("ob.moveDate"),
+                value: dateLabel(values.moveDate),
+              },
+              {
+                label: host ? t("Minimum stay") : t("Stay"),
+                value: months(values.stayMonths),
               },
             ]}
           />
           <Text size="sm" tone="muted">
-            {t("ob.editHint")}
+            {t(
+              "Languages, interests and a few words about you make your profile stronger. Add them any time in My profile.",
+            )}
           </Text>
         </>
       );
@@ -840,6 +1029,9 @@ export function Onboarding({
             <div className={o.sticker} aria-hidden="true">
               <Icon />
             </div>
+            {!only && question.section && (
+              <Eyebrow>{t(question.section)}</Eyebrow>
+            )}
             <Heading level={2} size="2xl">
               {title}
             </Heading>

@@ -29,6 +29,7 @@ import {
   Tag,
   Text as TextIcon,
   Users,
+  MapPin,
   Wallet,
 } from "@/design-system/icons";
 import { Button, ChoiceCards, Dialog, ListRow } from "@/design-system";
@@ -317,6 +318,12 @@ export function EditProfileView({
 
           <Section id="me-living" title={t("Living together")}>
             <ul className={p.rows}>
+              <ListRow
+                icon={<MapPin />}
+                label={t("City and area")}
+                value={[me.neighborhood, prefs.city].filter(Boolean).join(", ")}
+                onClick={() => onEditBasics("city")}
+              />
               {!host && (
                 <>
                   <ListRow
@@ -393,7 +400,7 @@ export function EditProfileView({
                 icon={<Cigarette />}
                 label={t("Smoking at home")}
                 value={prefs.smokeFree ? t("No") : t("Fine")}
-                onClick={() => onEditBasics("smokeFree")}
+                onClick={() => onEditBasics("smoke")}
               />
               <ListRow
                 icon={<PawPrint />}

@@ -82,6 +82,9 @@ export const defaultMe: MyProfile = {
   occupation: "Computer science student",
   school: "Riga Technical University",
   languages: ["English"],
+  neighborhood: "",
+  smokes: false,
+  hasPets: false,
   bio: "",
   prompts: [
     {
@@ -216,7 +219,7 @@ export function asProfile(me: MyProfile, prefs: Preferences): Profile {
     languages: me.languages,
     gender: me.gender,
     city: prefs.city,
-    neighborhood: prefs.city,
+    neighborhood: me.neighborhood.trim() || prefs.city,
     bio: me.bio,
     photo: me.photos[0] ?? "",
     photos: me.photos,
@@ -230,11 +233,8 @@ export function asProfile(me: MyProfile, prefs: Preferences): Profile {
       cleanliness: prefs.cleanliness as Profile["habits"]["cleanliness"],
       social: prefs.social as Profile["habits"]["social"],
       sleep: prefs.sleep,
-      // The profile does not ask whether you smoke or have a pet. Wanting a
-      // smoke-free home is a wish about others, not a statement about you,
-      // so neither is claimed here.
-      smoking: false,
-      pets: false,
+      smoking: me.smokes,
+      pets: me.hasPets,
       guests: prefs.guests,
       homeDays: prefs.homeDays,
       noise: prefs.noise,

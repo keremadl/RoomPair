@@ -207,16 +207,12 @@ test("filters validate, onboarding updates the profile, report and block work", 
   await page.getByRole("button", { name: "Help" }).click();
   await page.getByRole("button", { name: "Set up my profile" }).click();
   const setup = page.getByRole("dialog", { name: "Your profile" });
-  await setup
-    .getByRole("textbox", { name: "What should we call you?" })
-    .fill("");
+  await setup.getByRole("textbox", { name: "Your first name" }).fill("");
   await setup.getByRole("button", { name: "Continue" }).click();
   await expect(setup.getByRole("alert")).toContainText(
     "Please enter your name",
   );
-  await setup
-    .getByRole("textbox", { name: "What should we call you?" })
-    .fill("Deniz");
+  await setup.getByRole("textbox", { name: "Your first name" }).fill("Deniz");
   // One question per screen: walk on to the one about guests.
   const question = setup.getByRole("heading", { level: 2 });
   for (let i = 0; i < 20; i++) {
@@ -241,6 +237,16 @@ test("filters validate, onboarding updates the profile, report and block work", 
     ).click();
   }
   await expect(question).toHaveText("You are all set, Deniz!");
+  // One answer says both what you do and what you accept.
+  for (let i = 0; i < 12; i++) {
+    if ((await question.textContent()) === "Do you smoke?") break;
+    await setup.getByRole("button", { name: "Back" }).click();
+  }
+  await setup.getByRole("radio", { name: /Yes, I smoke/ }).click();
+  for (let i = 0; i < 12; i++) {
+    if ((await question.textContent())?.startsWith("You are all set")) break;
+    await setup.getByRole("button", { name: "Continue" }).click();
+  }
   await setup.getByRole("button", { name: "Save and show people" }).click();
   await expect(page.getByRole("status")).toContainText("Deniz");
   // Discover puts its filters at the top right, where other pages show your initial.

@@ -215,7 +215,16 @@ test("a member without answers yet gets the default search", () => {
 });
 
 test("what is written never includes the verified flag, and a room is published only when ready", () => {
-  const patch = profilePatch(defaultPreferences, defaultMe, true, ["a/b.jpg"]);
+  const patch = profilePatch(
+    defaultPreferences,
+    { ...defaultMe, smokes: true, hasPets: true, neighborhood: " Centrs " },
+    true,
+    ["a/b.jpg"],
+  );
+  // What a member says about themselves is stored, not only what they accept.
+  assert.equal(patch.smokes, true);
+  assert.equal(patch.has_pets, true);
+  assert.equal(patch.neighborhood, "Centrs");
   assert.equal("verified" in patch, false);
   assert.equal(patch.photo_url, "a/b.jpg");
   assert.equal(patch.university, defaultMe.school);
