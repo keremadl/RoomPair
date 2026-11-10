@@ -35,6 +35,9 @@
 }
 html {
   scroll-behavior: smooth;
+  /* Phones flash a blue box over anything tapped (labels, links, rows).
+     Every pressable thing shows its own pressed state instead. */
+  -webkit-tap-highlight-color: transparent;
 }
 body {
   margin: 0;
@@ -50,7 +53,6 @@ select,
 textarea {
   font: inherit;
   color: inherit;
-  -webkit-tap-highlight-color: transparent;
 }
 button {
   cursor: pointer;

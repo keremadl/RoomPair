@@ -31,6 +31,15 @@
   box-shadow: var(--control-shadow);
   color: var(--color-text);
   cursor: pointer;
+  /* A long press must not select the answer's text. */
+  -webkit-user-select: none;
+  user-select: none;
+  transition: var(--transition-press);
+}
+/* Pressed like a button: it sinks onto its edge. */
+.choice:active {
+  transform: var(--control-press);
+  box-shadow: var(--control-shadow-active);
 }
 .choice[data-checked="true"] {
   border-color: var(--color-primary);
