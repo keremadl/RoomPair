@@ -12,11 +12,23 @@
   font-size: var(--text-md);
   line-height: var(--leading-normal);
 }
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 1.75rem;
+  margin-bottom: var(--space-3);
+}
+/* A section with nothing under its label needs no gap there. */
+.head:last-child {
+  margin-bottom: 0;
+}
 .label {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin: 0 0 var(--space-3);
+  margin: 0;
   font-family: var(--font-body);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
@@ -58,6 +70,45 @@
   height: 1.05rem;
   color: var(--color-primary);
 }
+/* A pill that can be pressed (to change that answer) is the button itself:
+   the item only holds it, and it gets the pressable bottom edge. */
+.chips li:has(> button) {
+  padding: 0;
+  background: none;
+}
+.chips button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: color-mix(
+    in srgb,
+    var(--color-surface-sunken) 45%,
+    var(--color-surface-raised)
+  );
+  box-shadow: 0 2px 0 var(--surface-border, var(--color-border));
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition-press);
+}
+.chips button:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+.chips button:focus-visible,
+.rows button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.chips li[data-tone="interest"] > button {
+  padding-left: var(--space-4);
+  background: var(--color-primary-soft);
+}
 .chips li[data-tone="match"] {
   background: var(--color-success-soft);
 }
@@ -96,6 +147,30 @@
 }
 .rows li + li {
   border-top: var(--border-width) solid var(--color-border);
+}
+.rows li:has(> button) {
+  padding: 0;
+}
+.rows button {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.rows li:first-child > button {
+  padding-top: 0;
+}
+.rows li:last-child > button {
+  padding-bottom: 0;
 }
 .rows svg {
   flex-shrink: 0;

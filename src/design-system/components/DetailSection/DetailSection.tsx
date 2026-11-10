@@ -11,20 +11,26 @@ import s from "./DetailSection.module.css";
 export function DetailSection({
   icon,
   label,
+  action,
   children,
   className,
 }: {
   icon?: ReactNode;
   label: string;
-  children: ReactNode;
+  /** A small control at the end of the label row, e.g. an Edit button. */
+  action?: ReactNode;
+  children?: ReactNode;
   className?: string;
 }) {
   return (
     <section className={cx(s.section, className)}>
-      <h4 className={s.label}>
-        {icon}
-        {label}
-      </h4>
+      <div className={s.head}>
+        <h4 className={s.label}>
+          {icon}
+          {label}
+        </h4>
+        {action}
+      </div>
       {children}
     </section>
   );
@@ -35,6 +41,10 @@ export type FactChip = {
   icon?: ReactNode;
   /** `match` and `differ` compare two people; `interest` is a hobby. */
   tone?: "neutral" | "match" | "differ" | "interest";
+  /** Makes the pill a button, e.g. to change that one answer. */
+  onClick?: () => void;
+  /** What the pill is about, read out before its text when it is a button. */
+  label?: string;
 };
 
 /** Short facts as pills, each with its own icon. */
@@ -43,8 +53,23 @@ export function FactChips({ items }: { items: FactChip[] }) {
     <ul className={s.chips}>
       {items.map((item) => (
         <li key={item.text} data-tone={item.tone ?? "neutral"}>
-          {item.icon}
-          {item.text}
+          {item.onClick ? (
+            <button
+              type="button"
+              onClick={item.onClick}
+              aria-label={
+                item.label ? `${item.label}: ${item.text}` : undefined
+              }
+            >
+              {item.icon}
+              {item.text}
+            </button>
+          ) : (
+            <>
+              {item.icon}
+              {item.text}
+            </>
+          )}
         </li>
       ))}
     </ul>
@@ -55,14 +80,23 @@ export function FactChips({ items }: { items: FactChip[] }) {
 export function FactRows({
   items,
 }: {
-  items: { text: string; icon?: ReactNode }[];
+  items: { text: string; icon?: ReactNode; onClick?: () => void }[];
 }) {
   return (
     <ul className={s.rows}>
       {items.map((item) => (
         <li key={item.text}>
-          {item.icon}
-          {item.text}
+          {item.onClick ? (
+            <button type="button" onClick={item.onClick}>
+              {item.icon}
+              {item.text}
+            </button>
+          ) : (
+            <>
+              {item.icon}
+              {item.text}
+            </>
+          )}
         </li>
       ))}
     </ul>

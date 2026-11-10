@@ -141,7 +141,10 @@ test("a new member sets up, uploads a photo, matches a demo member and keeps eve
     .click();
   await page.getByRole("button", { name: "Edit profile", exact: true }).click();
   await expect(page.getByText("Main", { exact: true })).toBeVisible();
-  await expect(page.getByText("Test engineer, RoomPair QA")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Test engineer" }),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "RoomPair QA" })).toBeVisible();
   // The age came from the date of birth, worked out by the server.
   await expect(
     page.getByRole("button", { name: new RegExp(`^Ada${run}, 27`) }),
