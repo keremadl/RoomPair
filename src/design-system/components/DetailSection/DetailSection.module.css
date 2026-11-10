@@ -2,7 +2,9 @@
 .section {
   padding: var(--space-5);
   border-radius: var(--radius-lg);
-  background: var(--color-surface-raised);
+  /* On a raised surface (a dialog) the sections take the page colour instead,
+     so they still read as separate boxes. */
+  background: var(--detail-section-bg, var(--color-surface-raised));
   box-shadow: var(--shadow-md);
 }
 .section > p:not(.quote) {

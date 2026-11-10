@@ -632,3 +632,22 @@ test("in Turkish, a conversation starter gets a Turkish reply", async ({
   // The reply shows in the conversation and as the list preview.
   await expect(page.getByText(/Faturalar dahil 450–550/).first()).toBeVisible();
 });
+
+test("scrolling Discover keeps the detail tabs under the top bar, not over it", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 780 });
+  await openApp(page);
+  await page.mouse.move(200, 500);
+  await page.mouse.wheel(0, 1200);
+  const tabs = page.getByRole("tablist").first();
+  await expect(tabs).toBeVisible();
+  const bar = page.getByRole("banner").first();
+  // The tabs stick; their top edge must sit at the bar's bottom edge.
+  await expect
+    .poll(async () => {
+      const [t, b] = await Promise.all([tabs.boundingBox(), bar.boundingBox()]);
+      return Math.round(t!.y - (b!.y + b!.height));
+    })
+    .toBe(0);
+});
