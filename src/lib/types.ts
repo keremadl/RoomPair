@@ -124,6 +124,9 @@ export interface Conversation {
 export interface MyProfile {
   /** Data URLs or /images paths. The first is the main photo. */
   photos: string[];
+  /** YYYY-MM-DD, or "" while not given. Never shown to others; only the age is. */
+  birthDate: string;
+  /** Follows from the date of birth. */
   age: number;
   status: WorkStatus;
   occupation: string;

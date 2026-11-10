@@ -33,6 +33,17 @@ type Field =
   | {
       key: string;
       label: string;
+      type: "date";
+      /** YYYY-MM-DD. */
+      value: string;
+      hint?: string;
+      /** The earliest and latest day allowed, as YYYY-MM-DD. */
+      min?: string;
+      max?: string;
+    }
+  | {
+      key: string;
+      label: string;
       type: "textarea";
       value: string;
       hint?: string;
@@ -75,6 +86,14 @@ export function FieldsDialog({
   // Inline errors (no browser pop-ups): empty required fields and numbers
   // outside their range. Shown once you try to save.
   const errorOf = (f: Field): string => {
+    if (f.type === "date") {
+      const day = String(values[f.key] ?? "");
+      return !/^\d{4}-\d{2}-\d{2}$/.test(day) ||
+        (f.min !== undefined && day < f.min) ||
+        (f.max !== undefined && day > f.max)
+        ? t("Choose a valid date.")
+        : "";
+    }
     if (f.type !== "text" && f.type !== "number") return "";
     const raw = String(values[f.key] ?? "").trim();
     if (f.type === "text")

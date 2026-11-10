@@ -1,5 +1,16 @@
 # Kurulum ekranı çizimleri — yapılacak iş
 
+> **Durum: yapıldı.** 25 çizimin hepsi Codex CLI'ın görsel üreticisiyle,
+> aşağıdaki ortak istem ve "Subject" satırlarıyla üretildi ve
+> `public/images/onboarding/<kimlik>.webp` olarak eklendi (720 × 480, saydam
+> zemin, dosya başına yaklaşık 50 KB). Kurulum ekranı çizimi gösterir; dosyası
+> olmayan bir soru ikonlu çıkartmaya döner. Yeni bir soru eklenirse aynı
+> istemle bir çizim daha üretmek yeterli. Bu dosyanın geri kalanı o işin
+> brifidir ve yeniden üretim için duruyor.
+>
+> Brife göre iki fark: ortak istemden "sert kaymış gölge" çıkarıldı (arayüz
+> yumuşak 3D'ye geçti) ve dosyalar PNG yerine WebP.
+
 Kurulumda her sorunun üstünde şu an ikonlu bir "çıkartma" karosu var
 (`src/components/app/Onboarding.tsx`, `.sticker`). Bunun yerine her soruya özel
 bir çizim koymak istiyoruz. Bu dosya o iş için brif: ne çizilecek, hangi tarzda,

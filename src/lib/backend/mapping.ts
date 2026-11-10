@@ -101,6 +101,8 @@ export interface Snapshot {
   reads: { match_id: string; last_read_at: string }[];
   blocks: { blocked_id: string }[];
   reports: { reported_id: string; reason: string }[];
+  /** The member's own date of birth; nobody else's is ever sent. */
+  birthDate: string | null;
 }
 
 /**
@@ -158,10 +160,12 @@ export function meFromRow(
   row: ProfileRow,
   room: RoomRow | undefined,
   url: PhotoUrl,
+  birthDate: string | null = null,
 ): MyProfile {
   const base = defaultMe;
   return {
     photos: row.photos.map(url),
+    birthDate: birthDate ?? "",
     age: row.age ?? base.age,
     status: row.status ?? base.status,
     occupation: row.occupation ?? "",
@@ -197,7 +201,8 @@ export function meFromRow(
 /**
  * The columns a member may write about themselves. `photos` must already be
  * stored references (uploaded paths or bundled images), never data URLs.
- * `verified` is deliberately absent: only the server can set it.
+ * `verified` is deliberately absent: only the server can set it. So is the
+ * age: it follows from the date of birth, which is saved separately.
  */
 export function profilePatch(
   preferences: Preferences,
@@ -224,7 +229,6 @@ export function profilePatch(
     accepts_pets: preferences.petsOkay,
     wants_verified_only: preferences.verifiedOnly,
     living_with: preferences.livingWith,
-    age: me.age,
     status: me.status,
     occupation: me.occupation,
     university: me.school,
@@ -407,7 +411,12 @@ export function appDataFromSnapshot(
     matchIds,
     state: {
       preferences: preferencesFromRow(snapshot.me),
-      me: meFromRow(snapshot.me, roomByOwner.get(userId), url),
+      me: meFromRow(
+        snapshot.me,
+        roomByOwner.get(userId),
+        url,
+        snapshot.birthDate,
+      ),
       onboarded: snapshot.me.onboarded,
       decisions: snapshot.swipes
         .filter(

@@ -67,6 +67,10 @@ Three layers, all in the database, so a modified client cannot bypass them:
 
 Helper and trigger functions live in the `private` schema, which the Data API does not expose. They run as `security definer` with an empty `search_path`.
 
+## Date of birth
+
+Members give a date of birth; others only ever see the age. The date lives in `private.birth_dates`, outside the Data API. `public.set_birth_date(date)` saves the caller's own date, refuses anyone under 18 and sets `profiles.age`; `public.my_birth_date()` returns the caller's own date and moves the age on after a birthday. Members can no longer write `age` directly.
+
 ## Moderation
 
 Reports are reviewed inside the app by moderators. The list of moderators and the list of suspended members live in the `private` schema, so members can neither read them nor add themselves. A moderator is added by hand:

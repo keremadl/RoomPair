@@ -33,7 +33,6 @@ import {
   Chip,
   ChoiceCards,
   Dialog,
-  Eyebrow,
   FactGrid,
   Heading,
   IconButton,
@@ -46,7 +45,15 @@ import {
 } from "@/design-system";
 import { dateLabel } from "@/lib/discover/deck";
 import { useI18n } from "@/lib/i18n";
-import { interestOptions, languageOptions, MAX_PHOTOS } from "@/lib/profile";
+import {
+  ageFrom,
+  interestOptions,
+  isAdultBirthDate,
+  languageOptions,
+  MAX_AGE,
+  MAX_PHOTOS,
+  MIN_AGE,
+} from "@/lib/profile";
 import type {
   Frequency,
   Gender,
@@ -91,6 +98,7 @@ export type SetupQuestion =
 /** The parts of the member's own profile that setup asks about. */
 export type SetupProfile = Pick<
   MyProfile,
+  | "birthDate"
   | "age"
   | "gender"
   | "status"
@@ -106,14 +114,11 @@ export type SetupProfile = Pick<
   | "room"
 >;
 
-type Section = "The basics" | "About you" | "At home";
 type Question = {
   id: SetupQuestion;
   icon: IconComponent;
   title: string;
   hint?: string;
-  /** The chapter shown above the question during the walk-through. */
-  section?: Section;
   /** Only people who look for a room, or only people who have one. */
   for?: "seeker" | "host";
   /** Can be skipped: the answer is not needed to find people. */
@@ -129,36 +134,31 @@ const walkthrough: Question[] = [
   {
     id: "name",
     icon: Smile,
-    title: "What is your name and age?",
-    hint: "Both are shown on your profile. RoomPair is for adults.",
-    section: "The basics",
+    title: "What is your name and date of birth?",
+    hint: "Your profile shows your name and age, never the date. RoomPair is for adults.",
   },
   {
     id: "intent",
     icon: Key,
     title: "What brings you here?",
-    section: "The basics",
   },
   {
     id: "gender",
     icon: UserRound,
     title: "Which describes you?",
     hint: "Only used when someone wants to live with women or men only.",
-    section: "The basics",
     optional: true,
   },
   {
     id: "city",
     icon: MapPin,
     title: "Where do you want to live?",
-    section: "The basics",
   },
   {
     id: "budget",
     icon: Wallet,
     title: "What is your monthly budget?",
     hint: "Per person, per month, before bills.",
-    section: "The basics",
     for: "seeker",
   },
   {
@@ -166,7 +166,6 @@ const walkthrough: Question[] = [
     icon: Tag,
     title: "Tell us about the room",
     hint: "The title and the rent are the first things people see.",
-    section: "The basics",
     for: "host",
   },
   {
@@ -174,70 +173,59 @@ const walkthrough: Question[] = [
     icon: ImagePlus,
     title: "Show the room",
     hint: "A listing needs at least one photo of the room.",
-    section: "The basics",
     for: "host",
   },
   {
     id: "moveDate",
     icon: CalendarDays,
     title: "When, and for how long?",
-    section: "The basics",
   },
   {
     id: "photos",
     icon: ImagePlus,
     title: "Add a photo of yourself",
     hint: "Others only see profiles with at least one photo.",
-    section: "About you",
   },
   {
     id: "work",
     icon: Backpack,
     title: "What do you do?",
     hint: "People like to know who they would be living with.",
-    section: "About you",
   },
   {
     id: "smoke",
     icon: Cigarette,
     title: "Do you smoke?",
-    section: "About you",
   },
   {
     id: "pets",
     icon: PawPrint,
     title: "Do you have a pet?",
-    section: "About you",
   },
   {
     id: "cleanliness",
     icon: Sparkles,
     title: "How tidy do you keep things?",
-    section: "At home",
   },
   {
     id: "sleep",
     icon: Moon,
     title: "When does your day start and end?",
-    section: "At home",
   },
   {
     id: "guests",
     icon: PartyPopper,
     title: "How often do you have guests over?",
-    section: "At home",
   },
   {
     id: "noise",
     icon: Volume2,
     title: "How much noise is fine?",
-    section: "At home",
   },
   {
     id: "livingWith",
     icon: Home,
     title: "Who would you like to live with?",
-    section: "At home",
   },
   { id: "done", icon: PartyPopper, title: "You are all set!" },
 ];
@@ -267,8 +255,6 @@ const extras: Question[] = [
   },
 ];
 
-const MIN_AGE = 18;
-const MAX_AGE = 99;
 const MAX_INTERESTS = 8;
 const MAX_BIO = 600;
 const stays = [3, 6, 12, 24];
@@ -324,10 +310,13 @@ export function Onboarding({
   const { t } = useI18n();
   const [values, setValues] = useState<Preferences>({ ...initial });
   const [profile, setProfile] = useState<SetupProfile>({ ...initialProfile });
-  const [ageText, setAgeText] = useState(
-    askAge ? "" : String(initialProfile.age),
+  // A member who has not said when they were born starts with an empty field.
+  const [birthDate, setBirthDate] = useState(
+    askAge ? "" : initialProfile.birthDate,
   );
   const [error, setError] = useState("");
+  // A question without its illustration falls back to the icon sticker.
+  const [missingArt, setMissingArt] = useState<Record<string, boolean>>({});
   const [direction, setDirection] = useState(1);
   const host = values.intent === "have-room";
   const flow = only
@@ -347,19 +336,20 @@ export function Onboarding({
   };
   const setRoom = (patch: Partial<SetupProfile["room"]>) =>
     setMe({ room: { ...profile.room, ...patch } });
-  const ageValue = Number(ageText);
-  const ageValid =
-    Number.isInteger(ageValue) && ageValue >= MIN_AGE && ageValue <= MAX_AGE;
 
   // Today in the user's time zone, as YYYY-MM-DD, to refuse dates in the past.
   const now = new Date();
   const today = new Date(now.getTime() - now.getTimezoneOffset() * 60_000)
     .toISOString()
     .slice(0, 10);
+  const yearsAgo = (years: number) =>
+    `${Number(today.slice(0, 4)) - years}${today.slice(4)}`;
   function validate(id: SetupQuestion): string {
     if (id === "name") {
       if (!values.name.trim()) return t("ob.nameError");
-      if (!ageValid) return t("You need to be 18 or older to use RoomPair.");
+      if (!ageFrom(birthDate)) return t("Enter your date of birth.");
+      if (!isAdultBirthDate(birthDate))
+        return t("You need to be 18 or older to use RoomPair.");
     }
     if (id === "city" && !values.city.trim()) return t("ob.cityError");
     if (
@@ -403,7 +393,9 @@ export function Onboarding({
       { ...values, name: values.name.trim(), city: values.city.trim() },
       {
         ...profile,
-        age: ageValid ? ageValue : initialProfile.age,
+        ...(isAdultBirthDate(birthDate)
+          ? { birthDate, age: ageFrom(birthDate) }
+          : { birthDate: initialProfile.birthDate, age: initialProfile.age }),
         occupation: profile.occupation.trim(),
         school: profile.school.trim(),
         neighborhood: profile.neighborhood.trim(),
@@ -482,14 +474,14 @@ export function Onboarding({
             maxLength={48}
           />
           <Input
-            label={t("Your age")}
-            type="number"
-            inputMode="numeric"
-            min={MIN_AGE}
-            max={MAX_AGE}
-            value={ageText}
+            label={t("Date of birth")}
+            type="date"
+            min={yearsAgo(MAX_AGE + 1)}
+            max={yearsAgo(MIN_AGE)}
+            autoComplete="bday"
+            value={birthDate}
             onChange={(e) => {
-              setAgeText(e.target.value);
+              setBirthDate(e.target.value);
               setError("");
             }}
           />
@@ -1026,11 +1018,22 @@ export function Onboarding({
           className={o.page}
         >
           <div key={question.id} className={o.question}>
-            <div className={o.sticker} aria-hidden="true">
-              <Icon />
-            </div>
-            {!only && question.section && (
-              <Eyebrow>{t(question.section)}</Eyebrow>
+            {missingArt[question.id] ? (
+              <div className={o.sticker} aria-hidden="true">
+                <Icon />
+              </div>
+            ) : (
+              // Decorative: the heading below asks the question.
+              <img
+                className={o.art}
+                src={`/images/onboarding/${question.id}.webp`}
+                alt=""
+                width={360}
+                height={240}
+                onError={() =>
+                  setMissingArt((m) => ({ ...m, [question.id]: true }))
+                }
+              />
             )}
             <Heading level={2} size="2xl">
               {title}

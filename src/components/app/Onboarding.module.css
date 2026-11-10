@@ -53,6 +53,27 @@
   transform: rotate(-6deg);
   animation: stick var(--duration-slow) var(--ease-page) backwards;
 }
+/* The question's illustration; it lands the same way the sticker does. */
+.art {
+  display: block;
+  /* Centred over the question, which stays left-aligned with its answers. */
+  align-self: center;
+  width: min(100%, 17rem);
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: contain;
+  margin: 0 0 var(--space-2);
+  animation: land var(--duration-slow) var(--ease-page) backwards;
+}
+@keyframes land {
+  from {
+    opacity: 0;
+    transform: rotate(-8deg) scale(0.7);
+  }
+  60% {
+    transform: rotate(1deg) scale(1.04);
+  }
+}
 .sticker svg {
   width: 3rem;
   height: 3rem;
