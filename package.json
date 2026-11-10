@@ -17,12 +17,14 @@
     "i18n:check": "node scripts/i18n/extract.mjs --check --summary",
     "i18n:sync": "bash scripts/i18n/run-n8n.sh",
     "test:e2e": "playwright test",
+    "test:accounts": "playwright test -c playwright.accounts.config.ts",
     "test:db": "supabase/tests/run-local.sh",
     "db:seed": "tsx scripts/db/generate-seed.ts",
     "format": "prettier --write src tests *.ts *.json",
     "lab": "node lab/build.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
     "motion": "^12.0.0",
     "next": "^16.0.0",
     "react": "^19.2.0",

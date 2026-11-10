@@ -1,5 +1,6 @@
 "use client";
 import { Contrast, Moon, RotateCcw, Sun } from "@/design-system/icons";
+import type { Account } from "@/lib/app-data";
 import { Button, ChoiceCards, Select, Text } from "@/design-system";
 import {
   palettes,
@@ -25,10 +26,15 @@ export function SettingsView({
   appearance,
   onAppearance,
   onReset,
+  account,
+  onSignOut,
 }: {
   appearance: Appearance;
   onAppearance: (next: Partial<Appearance>) => void;
   onReset: () => void;
+  /** Present when the app runs with accounts; then there is no demo to reset. */
+  account: Account | null;
+  onSignOut: () => void;
 }) {
   const { t, locale, setLocale, locales, isLoading, error } = useI18n();
   return (
@@ -74,22 +80,38 @@ export function SettingsView({
           error={error ?? undefined}
         />
       </section>
-      <section className={v.panel}>
-        <Text tone="muted" size="sm">
-          {t(
-            "Reset brings back the example likes, chats and answers. It only clears RoomPair data in this browser.",
-          )}
-        </Text>
-        <Button
-          variant="danger"
-          leadingIcon={<RotateCcw />}
-          onClick={onReset}
-          fullWidth
-          className={v.spaced}
-        >
-          {t("Reset demo data")}
-        </Button>
-      </section>
+      {account ? (
+        <section className={v.panel}>
+          <Text tone="muted" size="sm">
+            {t("Signed in as {email}.", { email: account.email })}
+          </Text>
+          <Button
+            variant="secondary"
+            onClick={onSignOut}
+            fullWidth
+            className={v.spaced}
+          >
+            {t("Sign out")}
+          </Button>
+        </section>
+      ) : (
+        <section className={v.panel}>
+          <Text tone="muted" size="sm">
+            {t(
+              "Reset brings back the example likes, chats and answers. It only clears RoomPair data in this browser.",
+            )}
+          </Text>
+          <Button
+            variant="danger"
+            leadingIcon={<RotateCcw />}
+            onClick={onReset}
+            fullWidth
+            className={v.spaced}
+          >
+            {t("Reset demo data")}
+          </Button>
+        </section>
+      )}
     </div>
   );
 }

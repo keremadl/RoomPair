@@ -4,25 +4,32 @@ Yeni tasarımın kod incelemesinden kalan, henüz yapılmamış işler. Bir madd
 tamamlandığında listeden silin. Uygulama şu an hesapsız bir demodur; veriler
 tarayıcıda durur.
 
-## 1. Hesaplar ve veritabanı (en büyük kalan iş)
+## 1. Hesaplar ve veritabanı
 
-Veritabanı tarafı hazır ve gerçek Supabase projesinde kurulu (bkz.
-`docs/database.md`). Kalan iş arayüzü ona bağlamak.
+**Yapıldı:** giriş/kayıt, profil ve oda ilanı, fotoğraf yükleme, beğeni,
+eşleşme, gerçek mesajlaşma, engelleme ve şikâyet veritabanına bağlı (bkz.
+`docs/database.md`). Ortam değişkenleri yoksa uygulama eskisi gibi tarayıcı
+demosu olarak çalışır. Canlı sitede **henüz açık değil**.
 
-- [ ] **Giriş/kayıt ekranı**, yeni tasarım diliyle (`src/design-system`).
-- [ ] **Veri eşitleme:** profil, beğeni, eşleşme, mesaj, engel ve şikâyetlerin
-      `localStorage` yerine veritabanından okunup yazılması. Eski tasarım için
-      yazılmış bir sürümü git geçmişinde duruyor (commit `edba29d`,
-      `src/lib/backend/`); mantığı aynı, veri yapısı yeni tasarıma uyarlanmalı.
-- [ ] **Fotoğraf yükleme:** fotoğraflar şu an tarayıcıda veri olarak tutuluyor
-      ve depolama kotasını hızla dolduruyor. Supabase'deki özel klasörlere
-      (`profile-photos`, `chat-photos`) yüklenmeli.
-- [ ] **Gerçek mesajlaşma;** simüle yanıtlar kalkacak. Demo hesapları cevap
-      vermez; sunumda iki hesap gerekir.
-- [ ] **Supabase Auth ayarları:** sızdırılmış şifre koruması kapalı; demo için
-      e-posta onayı kapatılmalı.
-- [ ] **Vercel ortam değişkenleri** (`NEXT_PUBLIC_SUPABASE_URL` ve yayınlanabilir
-      anahtar). Eklendiğinde canlı site giriş ister.
+Canlıya almak için kalanlar:
+
+- [ ] **Vercel ortam değişkenleri:** `NEXT_PUBLIC_SUPABASE_URL` ve
+      `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Eklenip yeniden yayınlanınca canlı
+      site giriş ister ve hazır demo sohbetleri kaybolur.
+- [ ] **Supabase Auth ayarları:** e-posta onayı açıkken kayıt olan kişi önce
+      e-postasındaki bağlantıya tıklamak zorunda ve ücretsiz planda saatte
+      birkaç e-posta gönderilebiliyor. Demo için onayı kapatın; sızdırılmış
+      şifre korumasını açın.
+- [ ] **Gerçek projede uçtan uca deneme.** Hesap testleri yerel Supabase'de
+      geçiyor; gerçek projede henüz denenmedi.
+- [ ] **Yeni mesajlar 6 saniyede bir yoklanarak geliyor.** Anlık olması için
+      Supabase Realtime'a geçilebilir.
+- [ ] **Öğrenci doğrulaması bağlı değil;** hesap modunda düğme yalnızca bunu
+      söylüyor.
+- [ ] **Yeni üyenin yaşı sorulmuyor** (varsayılan 22 görünüyor); profil
+      düzenlemede değiştirilebiliyor ama kurulumda adım yok.
+- [ ] **Silinen fotoğrafların dosyası depoda kalıyor.**
+- [ ] **Demo hesapları cevap vermez;** sunumda iki gerçek hesap gerekir.
 - [ ] **Gizlilik metni, KVKK/GDPR rızası, yaş sınırı, moderasyon kuyruğu.**
 
 ## 2. Doğrulanmış ama düzeltilmemiş bulgular

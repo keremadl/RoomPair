@@ -65,7 +65,8 @@ Eligible profiles receive a weighted comparison: budget 25%, tidiness 20%, sleep
 | `src/lib/data.ts` / `types.ts`                   | Fictional people, homes, messages and data types                                                |
 | `src/lib/matching.ts`                            | Eligibility and transparent compatibility weights                                               |
 | `src/lib/store.ts`                               | Browser-local demo state, validated field by field when it is loaded                            |
-| `supabase/`                                      | Database schema, access rules and demo accounts (not yet used by the app; see docs/database.md)  |
+| `supabase/`                                      | Database schema, access rules and demo accounts (see docs/database.md)                           |
+| `src/lib/app-data.ts` / `src/lib/backend/`       | Account mode: sign-in, syncing the interface with the database, photo uploads                    |
 | `src/lib/locales/en.json` / `tr.json`            | Interface copy                                                                                  |
 | `public/images` / `public/fonts`                 | Local assets                                                                                    |
 
@@ -110,12 +111,12 @@ npm run test:e2e
 npm run build
 ```
 
-`npm test` runs the unit tests (matching rules, stored-state validation, the translation endpoint). `npm run test:db` builds the database schema on a throwaway PostgreSQL database and runs the authorization tests; it needs `psql` and a server (see docs/database.md). `npm run test:e2e` drives the app in a browser: it uses installed Chrome/Edge on Windows, otherwise run `npx playwright install chromium` once. It starts the dev server automatically, or uses an existing server on port 3000. The same checks run on every pull request (`.github/workflows/ci.yml`).
+`npm test` runs the unit tests (matching rules, stored-state validation, the translation endpoint). `npm run test:db` builds the database schema on a throwaway PostgreSQL database and runs the authorization tests; it needs `psql` and a server (see docs/database.md). `npm run test:accounts` runs the sign-in and two-member tests against a local Supabase stack (`npx supabase start`). `npm run test:e2e` drives the demo in a browser: it uses installed Chrome/Edge on Windows, otherwise run `npx playwright install chromium` once. It starts the dev server automatically, or uses an existing server on port 3000. The same checks run on every pull request (`.github/workflows/ci.yml`).
 
 ## Research and honest demo limits
 
 The design study covers Tinder, Bumble, Hinge, Feeld, happn, RoomSync, Diggz and Badi using official pages and public app screenshots. See [research and design decisions](docs/interface-research.md) and [asset sources](docs/assets.md).
 
-All people, properties, chat replies and student verification statuses are fictional presentation data. Stock photos do not depict actual users or available Riga rentals. No authentication, real-time multi-user messaging, identity verification, property verification, moderation delivery or rental booking is connected to the interface. Reports, likes, messages and photos stay in this browser's local storage and do not synchronize between users. A database schema with access rules and photo storage exists in `supabase/` and on a hosted project, ready for that step, but the app does not use it yet.
+All people, properties, chat replies and student verification statuses are fictional presentation data. Stock photos do not depict actual users or available Riga rentals. No authentication, real-time multi-user messaging, identity verification, property verification, moderation delivery or rental booking is connected to the interface. Reports, likes, messages and photos stay in this browser's local storage and do not synchronize between users. Accounts are built but switched off here: with the two `NEXT_PUBLIC_SUPABASE_*` variables set (see `.env.example` and `docs/database.md`), the same interface asks people to sign in and keeps profiles, likes, matches, messages and photos in a database with row level security.
 
-For a real pilot, the next step is connecting the interface to that database (sign-in, server persistence, real messaging), followed by moderation and verification providers. The typed data model, matching engine and UI catalogs are separated so those services can replace the demo layer without redesigning the interface.
+For a real pilot, the next steps are turning that mode on for the hosted site, live message delivery, and moderation and verification providers. The typed data model, matching engine and UI catalogs are separated so those services can replace the demo layer without redesigning the interface.

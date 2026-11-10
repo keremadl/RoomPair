@@ -15,11 +15,10 @@ import {
   TextProvider,
   type PageMotion,
 } from "@/design-system";
-import { profiles } from "@/lib/data";
 import { getCompatibility, rankProfiles } from "@/lib/matching";
 import { matchingPreferences, missingRequired } from "@/lib/profile";
 import { useAppearance } from "@/lib/appearance";
-import { useAppState } from "@/lib/store";
+import { useAppData } from "@/lib/app-data";
 import { I18nProvider, useI18n } from "@/lib/i18n";
 import type { Preferences, Profile } from "@/lib/types";
 import type { DiscoverDeck } from "@/lib/discover/deck";
@@ -38,6 +37,7 @@ import { ReportDialog } from "./dialogs/ReportDialog";
 import { BlockedDialog } from "./dialogs/BlockedDialog";
 import { Onboarding } from "./Onboarding";
 import { Brand } from "./Brand";
+import { AuthScreen } from "./AuthScreen";
 import s from "./AppShell.module.css";
 
 type Dialog =
@@ -60,7 +60,6 @@ const newId = () =>
     ? crypto.randomUUID()
     : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
-const profileById = (id: string) => profiles.find((p) => p.id === id)!;
 const clock = () =>
   new Date().toLocaleTimeString("en-GB", {
     hour: "2-digit",
@@ -89,7 +88,19 @@ function Translated() {
 
 function RoomPairApp() {
   const { t } = useI18n();
-  const { state, setState, ready, reset, saveFailed } = useAppState();
+  const {
+    state,
+    setState,
+    ready,
+    reset,
+    saveFailed,
+    profiles,
+    account,
+    simulatesReplies,
+  } = useAppData();
+  // Conversations only ever point at people the member can see: saved demo
+  // state is validated on load, and the server hides everyone else.
+  const profileById = (id: string) => profiles.find((p) => p.id === id)!;
   const {
     appearance,
     theme: resolvedTheme,
@@ -101,6 +112,7 @@ function RoomPairApp() {
   const [dialog, setDialog] = useState<Dialog>(null);
   // false = closed; a number = open at that step.
   const [onboarding, setOnboarding] = useState<false | number>(false);
+  const [setupSkipped, setSetupSkipped] = useState(false);
   const [selected, setSelected] = useState<Profile | null>(null);
   const [activeChat, setActiveChat] = useState<string | null>(null);
   /** On phones an open conversation is a sub-page: back and name in the top bar. */
@@ -168,6 +180,22 @@ function RoomPairApp() {
       chats: st.chats.map((c) => (c.id === id ? { ...c, unread: 0 } : c)),
     }));
 
+  /** Leaves nothing of one member's session on screen for the next one. */
+  function signOut() {
+    replyTimers.current.forEach(clearTimeout);
+    replyTimers.current = [];
+    setPendingReplies({});
+    setView("discover");
+    setSub(null);
+    setDialog(null);
+    setOnboarding(false);
+    setSetupSkipped(false);
+    setSelected(null);
+    setActiveChat(null);
+    setChatOpen(false);
+    setLikeOpen(null);
+    account?.signOut();
+  }
   function changeIntent(intent: "find-room" | "have-room") {
     setState((st) => ({
       ...st,
@@ -312,6 +340,8 @@ function RoomPairApp() {
       ...pending,
       [id]: (pending[id] ?? 0) + 1,
     }));
+    // Real members answer for themselves; only demo people get canned replies.
+    if (!simulatesReplies) return;
     const timer = setTimeout(() => {
       // Canned answers, in the app's language. The cue words cover both
       // bundled languages; anything else gets the general answer.
@@ -403,6 +433,11 @@ function RoomPairApp() {
         <Brand />
       </div>
     );
+  if (account?.status === "signed-out") return <AuthScreen account={account} />;
+  // A new member answers the living-together questions first; until then
+  // nobody else can see them. They may close it and look around.
+  const mustOnboard =
+    account?.status === "signed-in" && !state.onboarded && !setupSkipped;
 
   const deck: DiscoverDeck | null = current
     ? {
@@ -463,9 +498,11 @@ function RoomPairApp() {
       toast={
         toast ||
         (saveFailed
-          ? t(
-              "Changes can’t be saved on this device. They last until you close this tab.",
-            )
+          ? account
+            ? t("Some changes could not be saved. Check your connection.")
+            : t(
+                "Changes can’t be saved on this device. They last until you close this tab.",
+              )
           : "")
       }
       title={
@@ -659,6 +696,8 @@ function RoomPairApp() {
           <SettingsView
             appearance={appearance}
             onAppearance={setAppearance}
+            account={account}
+            onSignOut={signOut}
             onReset={() => {
               replyTimers.current.forEach(clearTimeout);
               replyTimers.current = [];
@@ -706,10 +745,13 @@ function RoomPairApp() {
             onBlocked={() => setDialog("blocked")}
             onIntent={changeIntent}
             onVerify={() =>
-              setState((st) => ({
-                ...st,
-                me: { ...st.me, verified: !st.me.verified },
-              }))
+              // With accounts, only the server can mark someone verified.
+              account
+                ? notify(t("Student verification is not connected yet."))
+                : setState((st) => ({
+                    ...st,
+                    me: { ...st.me, verified: !st.me.verified },
+                  }))
             }
             onLikes={() => navigate("likes")}
             onMatches={() => navigate("messages")}
@@ -829,12 +871,15 @@ function RoomPairApp() {
             }}
           />
         )}
-        {onboarding !== false && (
+        {(onboarding !== false || mustOnboard) && (
           <Onboarding
             key="onboarding"
-            startStep={onboarding}
+            startStep={onboarding === false ? 0 : onboarding}
             initial={state.preferences}
-            onClose={() => setOnboarding(false)}
+            onClose={() => {
+              setOnboarding(false);
+              setSetupSkipped(true);
+            }}
             onComplete={(preferences) => {
               setState((st) => ({ ...st, preferences, onboarded: true }));
               setOnboarding(false);
