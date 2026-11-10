@@ -217,15 +217,30 @@ test("filters validate, onboarding updates the profile, report and block work", 
   await setup
     .getByRole("textbox", { name: "What should we call you?" })
     .fill("Deniz");
-  for (let i = 0; i < 3; i++)
+  // One question per screen: walk on to the one about guests.
+  const question = setup.getByRole("heading", { level: 2 });
+  for (let i = 0; i < 20; i++) {
+    if ((await question.textContent())?.startsWith("How often")) break;
     await setup.getByRole("button", { name: "Continue" }).click();
-  // Everyday at home: guests, days at home, noise and sharing
+  }
+  await expect(question).toHaveText("How often do you have guests over?");
   await setup.getByRole("radio", { name: "Often" }).click();
   await expect(setup.getByRole("radio", { name: "Often" })).toBeChecked();
+  // Going back keeps the answer.
+  await setup.getByRole("button", { name: "Back" }).click();
   await setup.getByRole("button", { name: "Continue" }).click();
-  await expect(
-    setup.getByRole("group", { name: "Who would you like to live with?" }),
-  ).toBeVisible();
+  await expect(setup.getByRole("radio", { name: "Often" })).toBeChecked();
+  for (let i = 0; i < 12; i++) {
+    if ((await question.textContent())?.startsWith("You are all set")) break;
+    // Optional questions can be skipped.
+    const skip = setup.getByRole("button", { name: "Skip", exact: true });
+    await (
+      (await skip.count())
+        ? skip
+        : setup.getByRole("button", { name: "Continue" })
+    ).click();
+  }
+  await expect(question).toHaveText("You are all set, Deniz!");
   await setup.getByRole("button", { name: "Save and show people" }).click();
   await expect(page.getByRole("status")).toContainText("Deniz");
   // Discover puts its filters at the top right, where other pages show your initial.
@@ -519,7 +534,7 @@ test("closing one dialog into another leaves the page scrollable", async ({
     .toBe("");
 });
 
-test("finishing setup from Edit profile lands on Discover, not on a half-open sub-page", async ({
+test("an answer opened from Edit profile is saved on its own; full setup lands on Discover", async ({
   page,
 }) => {
   await openApp(page);
@@ -533,7 +548,23 @@ test("finishing setup from Edit profile lands on Discover, not on a half-open su
     .first()
     .click();
   const setup = page.getByRole("dialog", { name: "Your profile" });
-  for (let step = 0; step < 6; step++) {
+  // Only that question is shown, with Save instead of a walk through the rest.
+  await expect(setup.getByRole("heading", { level: 2 })).toHaveText(
+    "How tidy do you keep things?",
+  );
+  await setup.getByRole("radio", { name: "Spotless" }).click();
+  await setup.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(setup).toBeHidden();
+  await expect(page.getByRole("status")).toContainText("Saved.");
+  await expect(
+    page.getByRole("banner").getByRole("heading", { name: "Edit profile" }),
+  ).toBeVisible();
+
+  // The whole setup, started again, ends on Discover.
+  await page.reload();
+  await page.getByRole("button", { name: "Help" }).click();
+  await page.getByRole("button", { name: "Set up my profile" }).click();
+  for (let step = 0; step < 30; step++) {
     const finish = setup.getByRole("button", { name: /Save and show people/ });
     if (await finish.count()) {
       await finish.click();
@@ -542,9 +573,6 @@ test("finishing setup from Edit profile lands on Discover, not on a half-open su
     await setup.getByRole("button", { name: "Continue" }).click();
   }
   await expect(setup).toBeHidden();
-  await expect(
-    page.getByRole("banner").getByRole("heading", { name: "Edit profile" }),
-  ).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Filters" })).toBeVisible();
 });
 

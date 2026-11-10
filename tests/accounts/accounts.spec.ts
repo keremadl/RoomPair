@@ -39,12 +39,13 @@ async function join(page: Page, name: string) {
   ).toHaveValue(name);
   // A new member's age is asked, not assumed, and minors are refused.
   await setup.getByRole("button", { name: "Continue" }).click();
+  await setup.getByRole("button", { name: "Continue" }).click();
   await expect(setup.getByText(/18 or older to use RoomPair/)).toBeVisible();
   await setup.getByLabel("Your age").fill("17");
   await setup.getByRole("button", { name: "Continue" }).click();
   await expect(setup.getByText(/18 or older to use RoomPair/)).toBeVisible();
   await setup.getByLabel("Your age").fill("27");
-  for (let step = 0; step < 6; step++) {
+  for (let step = 0; step < 30; step++) {
     const finish = setup.getByRole("button", { name: /Save and show people/ });
     if (await finish.count()) {
       await finish.click();

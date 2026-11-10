@@ -1,136 +1,133 @@
-.head {
+/* Setup: one question per screen. Tokens only. */
+.screen {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  margin: 0 var(--space-10) var(--space-6) 0;
+  width: min(100%, 34rem);
+  height: 100dvh;
+  margin: 0 auto;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
-.progress {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-1);
-  margin-bottom: var(--space-2);
-}
-.progress span {
-  height: 6px;
-  border-radius: var(--radius-full);
-  background: var(--color-surface-sunken);
-}
-.progress span[data-done="true"] {
-  background: var(--color-primary);
-}
-.step {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-}
-.row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-3);
-}
-.choices {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-.choices legend {
-  margin-bottom: var(--space-2);
-  font-weight: var(--control-weight);
-}
-.choice {
-  position: relative;
+
+/* Back, progress and close stay put while the questions slide under them. */
+.top {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  border: var(--control-border-width) solid
-    var(--control-border, var(--color-border-strong));
-  border-radius: var(--radius-md);
-  background: var(--color-surface-raised);
-  cursor: pointer;
+  padding-top: max(var(--space-3), env(safe-area-inset-top));
 }
-.choice[data-checked="true"] {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
-  box-shadow: var(--control-shadow);
+.grow {
+  flex: 1;
 }
-.choice:focus-within,
-.pill:focus-within {
-  box-shadow: var(--focus-ring);
+.spacer {
+  width: var(--control-height, 2.75rem);
+  flex-shrink: 0;
 }
-.choice input,
-.pill input {
+
+.page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-5) var(--space-6);
+}
+.question {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* The sticker: the question's icon on a tilted, pressable-looking tile. */
+.sticker {
+  display: grid;
+  place-items: center;
+  width: 6rem;
+  height: 6rem;
+  margin: var(--space-2) 0 var(--space-4);
+  border: var(--control-border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-accent);
+  color: var(--color-on-accent, var(--color-text));
+  box-shadow: var(--press-shadow, var(--shadow-md));
+  transform: rotate(-6deg);
+  animation: stick var(--duration-slow) var(--ease-page) backwards;
+}
+.sticker svg {
+  width: 3rem;
+  height: 3rem;
+}
+@keyframes stick {
+  from {
+    opacity: 0;
+    transform: rotate(-24deg) scale(0.5);
+  }
+  60% {
+    transform: rotate(2deg) scale(1.08);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-6deg) scale(1);
+  }
+}
+
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+/* The heading already asks the question; the group keeps it as its name only. */
+.options legend {
   position: absolute;
-  opacity: 0;
   width: 1px;
   height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
-.choice > svg {
-  flex-shrink: 0;
-  width: 22px;
-  height: 22px;
-  color: var(--color-primary);
+/* Answers arrive one after another. */
+.options label,
+.chips > * {
+  animation: rise var(--duration-slow) var(--ease-page) backwards;
 }
-.choice span {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+.options label:nth-child(2),
+.chips > :nth-child(3n + 2) {
+  animation-delay: calc(var(--duration-fast) * 0.5);
 }
-.choice small {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
+.options label:nth-child(3),
+.chips > :nth-child(3n) {
+  animation-delay: var(--duration-fast);
 }
-.tick {
-  width: 20px;
-  height: 20px;
-  color: var(--color-primary);
+.options label:nth-child(4) {
+  animation-delay: calc(var(--duration-fast) * 1.5);
 }
-.pills {
+.options label:nth-child(n + 5) {
+  animation-delay: calc(var(--duration-fast) * 2);
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance-rise));
+  }
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.chips {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
 }
-.pill {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-md);
-  padding: 0 var(--space-4);
-  border: var(--control-border-width) solid
-    var(--control-border, var(--color-border-strong));
-  border-radius: var(--radius-full);
-  background: var(--color-surface-raised);
-  font-weight: var(--control-weight);
-  cursor: pointer;
-}
-.pill[data-checked="true"] {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-}
-.switches {
-  display: flex;
-  flex-direction: column;
-  border-top: var(--border-width) solid var(--color-border);
-  border-bottom: var(--border-width) solid var(--color-border);
-}
-.switches > * + * {
-  border-top: var(--border-width) solid var(--color-border);
-}
-.summary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-5);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-sunken);
-}
+
 .footer {
   display: flex;
-  justify-content: space-between;
-  gap: var(--space-3);
-  margin-top: var(--space-8);
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  border-top: var(--border-width) solid var(--color-border);
+  background: var(--color-bg);
 }

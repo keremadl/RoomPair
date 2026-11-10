@@ -6,9 +6,8 @@ duran demo olarak açılır.
 
 ## 1. Sizin yapmanız gerekenler
 
-- [ ] **Sızdırılmış şifre koruması** kapalı. Supabase panelinde
-      Authentication → Sign In / Providers → Email altından açılır (ücretli
-      plan isteyebilir).
+- [ ] **Sızdırılmış şifre koruması** kapalı. Supabase'de yalnızca Pro planda
+      açılabiliyor; ücretsiz planda kaldığımız sürece sonraya bırakıldı.
 - [ ] **Sunumda iki gerçek hesap gerekir:** demo üyeler cevap vermez.
 - [ ] **Gizlilik bildirimi hukukçu metni değildir.** `/privacy` sayfası
       uygulamanın gerçekte ne sakladığını anlatır; KVKK/GDPR için veri

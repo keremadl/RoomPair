@@ -1,4 +1,5 @@
 "use client";
+import type { SetupQuestion } from "../Onboarding";
 import { useState, type ReactNode } from "react";
 import {
   ChevronRight,
@@ -142,7 +143,7 @@ export function EditProfileView({
   me: MyProfile;
   onMe: (next: Partial<MyProfile>) => void;
   /** Opens the setup steps (0 = name, 1 = budget and dates, 2 = habits, 3 = everyday at home, 4 = must-haves). */
-  onEditBasics: (step: number) => void;
+  onEditBasics: (question: SetupQuestion) => void;
   onIntent: (intent: "find-room" | "have-room") => void;
   onError: (message: string) => void;
   onName: (name: string) => void;
@@ -286,7 +287,7 @@ export function EditProfileView({
                   icon={<CalendarDays />}
                   label={t("Available from")}
                   value={dateLabel(prefs.moveDate)}
-                  onClick={() => onEditBasics(1)}
+                  onClick={() => onEditBasics("moveDate")}
                 />
                 <ListRow
                   icon={<Clock />}
@@ -296,7 +297,7 @@ export function EditProfileView({
                       ? t("1 month")
                       : `${prefs.stayMonths} ${t("months")}`
                   }
-                  onClick={() => onEditBasics(1)}
+                  onClick={() => onEditBasics("stay")}
                 />
                 <ListRow
                   icon={<MessageSquareQuote />}
@@ -322,13 +323,13 @@ export function EditProfileView({
                     icon={<Wallet />}
                     label={t("Monthly budget")}
                     value={`€${prefs.budgetMin}–${prefs.budgetMax}`}
-                    onClick={() => onEditBasics(1)}
+                    onClick={() => onEditBasics("budget")}
                   />
                   <ListRow
                     icon={<CalendarDays />}
                     label={t("Move-in")}
                     value={dateLabel(prefs.moveDate)}
-                    onClick={() => onEditBasics(1)}
+                    onClick={() => onEditBasics("moveDate")}
                   />
                   <ListRow
                     icon={<Clock />}
@@ -338,7 +339,7 @@ export function EditProfileView({
                         ? t("1 month")
                         : `${prefs.stayMonths} ${t("months")}`
                     }
-                    onClick={() => onEditBasics(1)}
+                    onClick={() => onEditBasics("stay")}
                   />
                 </>
               )}
@@ -348,7 +349,7 @@ export function EditProfileView({
                 value={
                   <Pips bare label={t("Tidiness")} value={prefs.cleanliness} />
                 }
-                onClick={() => onEditBasics(2)}
+                onClick={() => onEditBasics("cleanliness")}
               />
               <ListRow
                 icon={<Users />}
@@ -356,55 +357,55 @@ export function EditProfileView({
                 value={
                   <Pips bare label={t("Social energy")} value={prefs.social} />
                 }
-                onClick={() => onEditBasics(2)}
+                onClick={() => onEditBasics("social")}
               />
               <ListRow
                 icon={<Moon />}
                 label={t("Sleep")}
                 value={t(sleepLabel[prefs.sleep])}
-                onClick={() => onEditBasics(2)}
+                onClick={() => onEditBasics("sleep")}
               />
               <ListRow
                 icon={<PartyPopper />}
                 label={t("Guests")}
                 value={t(answer.guests[prefs.guests])}
-                onClick={() => onEditBasics(3)}
+                onClick={() => onEditBasics("guests")}
               />
               <ListRow
                 icon={<Sun />}
                 label={t("In the day")}
                 value={t(answer.homeDays[prefs.homeDays])}
-                onClick={() => onEditBasics(3)}
+                onClick={() => onEditBasics("homeDays")}
               />
               <ListRow
                 icon={<Volume2 />}
                 label={t("Noise")}
                 value={t(answer.noise[prefs.noise])}
-                onClick={() => onEditBasics(3)}
+                onClick={() => onEditBasics("noise")}
               />
               <ListRow
                 icon={<Handshake />}
                 label={t("Sharing")}
                 value={t(answer.sharing[prefs.sharing])}
-                onClick={() => onEditBasics(3)}
+                onClick={() => onEditBasics("sharing")}
               />
               <ListRow
                 icon={<Cigarette />}
                 label={t("Smoking at home")}
                 value={prefs.smokeFree ? t("No") : t("Fine")}
-                onClick={() => onEditBasics(4)}
+                onClick={() => onEditBasics("smokeFree")}
               />
               <ListRow
                 icon={<PawPrint />}
                 label={t("Pets")}
                 value={prefs.petsOkay ? t("Fine") : t("No")}
-                onClick={() => onEditBasics(4)}
+                onClick={() => onEditBasics("pets")}
               />
               <ListRow
                 icon={<UserRound />}
                 label={t("Living with")}
                 value={t(livingWithLabel[prefs.livingWith])}
-                onClick={() => onEditBasics(4)}
+                onClick={() => onEditBasics("livingWith")}
               />
             </ul>
           </Section>
