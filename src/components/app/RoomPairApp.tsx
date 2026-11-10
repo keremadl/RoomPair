@@ -42,6 +42,16 @@ import s from "./AppShell.module.css";
 type Dialog =
   "filters" | "profile" | "match" | "help" | "settings" | "report" | null;
 
+/**
+ * A unique id for a message. crypto.randomUUID only exists on HTTPS and
+ * localhost, and the app is also opened from phones over plain HTTP on the
+ * local network, where calling it would crash the conversation.
+ */
+const newId = () =>
+  typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+
 const profileById = (id: string) => profiles.find((p) => p.id === id)!;
 const clock = () =>
   new Date().toLocaleTimeString("en-GB", {
@@ -274,7 +284,7 @@ function RoomPairApp() {
               messages: [
                 ...c.messages,
                 {
-                  id: crypto.randomUUID(),
+                  id: newId(),
                   sender: "me",
                   text: body,
                   ...(photo ? { photo } : {}),
@@ -308,7 +318,7 @@ function RoomPairApp() {
                 messages: [
                   ...c.messages,
                   {
-                    id: crypto.randomUUID(),
+                    id: newId(),
                     sender: "them",
                     text: answer,
                     time: clock(),
@@ -756,6 +766,9 @@ function RoomPairApp() {
             onComplete={(preferences) => {
               setState((st) => ({ ...st, preferences, onboarded: true }));
               setOnboarding(false);
+              // Setup can be opened from Edit profile; leave that sub-page,
+              // or its title and back button would sit above Discover.
+              setSub(null);
               setView("discover");
               notify(`${t("Profile saved. Hi,")} ${preferences.name}!`);
             }}

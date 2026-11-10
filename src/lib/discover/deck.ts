@@ -92,7 +92,9 @@ export const dateLabel = (iso: string) => {
     typeof document !== "undefined" ? document.documentElement.lang : "";
   return new Date(iso).toLocaleDateString(
     lang && lang !== "en" ? lang : "en-GB",
-    { day: "numeric", month: "short", year: "numeric" },
+    // The value is a calendar date, not a moment: without this, people west
+    // of UTC would see the day before.
+    { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" },
   );
 };
 

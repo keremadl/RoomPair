@@ -502,3 +502,48 @@ test.describe("on a phone", () => {
     ).toBe(360);
   });
 });
+
+test("closing one dialog into another leaves the page scrollable", async ({
+  page,
+}) => {
+  await openApp(page);
+  await page.getByRole("button", { name: "Help" }).click();
+  await page.getByRole("button", { name: "Set up my profile" }).click();
+  await expect(
+    page.getByRole("dialog", { name: "Your profile" }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect
+    .poll(() => page.evaluate(() => document.body.style.overflow))
+    .toBe("");
+});
+
+test("finishing setup from Edit profile lands on Discover, not on a half-open sub-page", async ({
+  page,
+}) => {
+  await openApp(page);
+  await page
+    .getByRole("button", { name: /My profile/ })
+    .first()
+    .click();
+  await page.getByRole("button", { name: "Edit profile", exact: true }).click();
+  await page
+    .getByRole("button", { name: /Tidiness/ })
+    .first()
+    .click();
+  const setup = page.getByRole("dialog", { name: "Your profile" });
+  for (let step = 0; step < 6; step++) {
+    const finish = setup.getByRole("button", { name: /Save and show people/ });
+    if (await finish.count()) {
+      await finish.click();
+      break;
+    }
+    await setup.getByRole("button", { name: "Continue" }).click();
+  }
+  await expect(setup).toBeHidden();
+  await expect(
+    page.getByRole("banner").getByRole("heading", { name: "Edit profile" }),
+  ).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Filters" })).toBeVisible();
+});

@@ -7,6 +7,26 @@ import { cx } from "../../cx";
 import { useText } from "../../text/TextProvider";
 import styles from "./Dialog.module.css";
 
+/**
+ * How many dialogs are open. Two overlap whenever one opens while another is
+ * still animating out; if each remembered and restored the page's scroll
+ * setting on its own, the second would remember "locked" and leave the page
+ * unscrollable for good. So only the first lock and the last unlock count.
+ */
+let openDialogs = 0;
+let overflowBeforeLock = "";
+function lockPageScroll() {
+  if (openDialogs === 0) {
+    overflowBeforeLock = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+  }
+  openDialogs += 1;
+}
+function unlockPageScroll() {
+  openDialogs = Math.max(0, openDialogs - 1);
+  if (openDialogs === 0) document.body.style.overflow = overflowBeforeLock;
+}
+
 export type DialogProps = {
   /** Accessible name; also shown as the heading unless `hideTitle`. */
   title: string;
@@ -40,8 +60,7 @@ export function Dialog({
   close.current = onClose;
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    lockPageScroll();
     ref.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close.current();
@@ -66,7 +85,7 @@ export function Dialog({
     };
     document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = overflow;
+      unlockPageScroll();
       document.removeEventListener("keydown", onKey);
       previous?.focus();
     };
