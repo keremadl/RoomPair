@@ -2,49 +2,60 @@
 import type { SetupQuestion } from "../Onboarding";
 import { useState, type ReactNode } from "react";
 import {
-  ChevronRight,
+  Backpack,
   BadgeCheck,
   Bath,
   Building2,
   Bus,
-  DoorOpen,
-  Handshake,
-  PartyPopper,
-  PiggyBank,
-  ScrollText,
-  Sofa,
-  Sun,
-  UserRound,
-  Volume2,
   CalendarDays,
   Cigarette,
   Clock,
+  Handshake,
+  Home,
+  Key,
+  Languages,
+  ListChecks,
+  MapPin,
   MessageSquareQuote,
   Moon,
+  PartyPopper,
   PawPrint,
+  PiggyBank,
   Plus,
   Receipt,
+  ScrollText,
   ShieldCheck,
+  Smile,
+  Sofa,
   Sparkles,
-  Tag,
-  Text as TextIcon,
+  Sun,
+  UserRound,
   Users,
-  MapPin,
+  Volume2,
   Wallet,
 } from "@/design-system/icons";
-import { Button, ChoiceCards, Dialog, ListRow } from "@/design-system";
+import {
+  Button,
+  ChoiceCards,
+  DetailSection,
+  Dialog,
+  FactChips,
+  FactRows,
+  PullQuote,
+} from "@/design-system";
 
-import { dateLabel, sleepLabel } from "@/lib/discover/deck";
+import { dateLabel } from "@/lib/discover/deck";
+import { personSection } from "@/lib/discover/sections";
 import { useI18n } from "@/lib/i18n";
 import {
   ageFrom,
+  asProfile,
   birthDateRange,
   MAX_PHOTOS,
   MAX_PROMPTS,
   languageOptions,
 } from "@/lib/profile";
 import type { Gender, MyProfile, Preferences, WorkStatus } from "@/lib/types";
-import { Pips } from "../PersonCard";
 import { PhotoGrid } from "../profile/PhotoGrid";
 import {
   FieldsDialog,
@@ -65,73 +76,35 @@ type Editing =
   | "rules"
   | { prompt: number };
 
-/** Short answers, as asked in setup; the row label already names the topic. */
-const answer = {
-  guests: { rarely: "Rarely", sometimes: "Sometimes", often: "Often" },
-  homeDays: {
-    rarely: "Out most days",
-    sometimes: "Some days",
-    often: "Most days",
-  },
-  noise: {
-    low: "I need it quiet",
-    medium: "Some is fine",
-    high: "It doesn't bother me",
-  },
-  sharing: {
-    separate: "Keep things separate",
-    some: "The basics",
-    most: "Most things",
-  },
-} as const;
-
 const livingWithLabel: Record<Preferences["livingWith"], string> = {
   anyone: "Anyone",
   women: "Women only",
   men: "Men only",
 };
 
-/** A white section card. With `onClick` the whole card opens an editor. */
-function Section({
-  title,
-  hint,
-  value,
-  onClick,
-  children,
-  id,
-}: {
-  title: string;
-  hint?: string;
-  value?: ReactNode;
-  onClick?: () => void;
-  children?: ReactNode;
-  id?: string;
-}) {
-  const head = (
-    <>
-      <span className={p.sectionText}>
-        <h2 className={p.sectionTitle} id={id}>
-          {title}
-        </h2>
-        {hint && <span className={p.sectionHint}>{hint}</span>}
-        {value !== undefined && <span className={p.sectionValue}>{value}</span>}
-      </span>
-      {onClick && <ChevronRight className={p.chevron} aria-hidden="true" />}
-    </>
-  );
-  return (
-    <section className={p.card} aria-labelledby={id}>
-      {onClick ? (
-        <button type="button" className={p.cardButton} onClick={onClick}>
-          {head}
-        </button>
-      ) : (
-        <div className={p.cardHead}>{head}</div>
-      )}
-      {children}
-    </section>
-  );
-}
+/** The setup question that changes each habit, and its icon. */
+const habitQuestion: Record<string, SetupQuestion> = {
+  tidiness: "cleanliness",
+  social: "social",
+  sleep: "sleep",
+  smoking: "smoke",
+  pets: "pets",
+  guests: "guests",
+  homeDays: "homeDays",
+  noise: "noise",
+  sharing: "sharing",
+};
+const habitIcon: Record<string, ReactNode> = {
+  tidiness: <Sparkles />,
+  social: <Users />,
+  sleep: <Moon />,
+  smoking: <Cigarette />,
+  pets: <PawPrint />,
+  guests: <PartyPopper />,
+  homeDays: <Sun />,
+  noise: <Volume2 />,
+  sharing: <Handshake />,
+};
 
 /**
  * Edit profile, opened from the profile page: photos, who you are, why you are here, and one card per
@@ -159,6 +132,18 @@ export function EditProfileView({
   const [editing, setEditing] = useState<Editing>(null);
   const host = prefs.intent === "have-room";
   const close = () => setEditing(null);
+  // The same words others read about you on Discover.
+  const self = personSection(asProfile(me, prefs), prefs, t);
+  const months =
+    prefs.stayMonths === 1
+      ? t("1 month")
+      : t("{count} months", { count: prefs.stayMonths });
+  const place = [me.neighborhood, prefs.city].filter(Boolean).join(", ");
+  const editButton = (onClick: () => void, filled: boolean) => (
+    <Button variant="ghost" size="sm" onClick={onClick}>
+      {filled ? t("Edit") : t("Add")}
+    </Button>
+  );
 
   return (
     <>
@@ -172,346 +157,394 @@ export function EditProfileView({
           onError={onError}
         />
 
-        <div className={p.cards}>
-          <Section
-            id="me-name"
-            title={`${prefs.name}, ${me.age}`}
-            value={[me.occupation, me.school, prefs.city]
-              .filter(Boolean)
-              .join(", ")}
-            onClick={() => setEditing("basics")}
+        <DetailSection icon={<UserRound />} label={t("About you")}>
+          <FactRows
+            items={[
+              {
+                icon: <Smile />,
+                text: `${prefs.name}, ${me.age}`,
+                onClick: () => setEditing("basics"),
+              },
+              {
+                icon: <Backpack />,
+                text: me.occupation || t("Add what you study or do"),
+                onClick: () => setEditing("basics"),
+              },
+              ...(me.school
+                ? [
+                    {
+                      icon: <Building2 />,
+                      text: me.school,
+                      onClick: () => setEditing("basics"),
+                    },
+                  ]
+                : []),
+            ]}
           />
+        </DetailSection>
 
-          <Section
-            id="me-intent"
-            title={t("Why you're here")}
-            value={
-              host
-                ? t("I have a room, I need a flatmate")
-                : t("I’m looking for a room")
-            }
-            onClick={() => setEditing("intent")}
+        <DetailSection icon={<Key />} label={t("Why you're here")}>
+          <FactChips
+            items={[
+              {
+                icon: host ? <Key /> : <Home />,
+                label: t("Why you're here"),
+                text: host
+                  ? t("I have a room, I need a flatmate")
+                  : t("I’m looking for a room"),
+                onClick: () => setEditing("intent"),
+              },
+            ]}
           />
+        </DetailSection>
 
-          <Section
-            id="me-bio"
-            title={t("About me")}
-            value={me.bio || undefined}
-            hint={
-              me.bio
-                ? undefined
-                : t("A few lines about you and how you like to live.")
-            }
-            onClick={() => setEditing("bio")}
-          />
-
-          <Section
-            id="me-languages"
-            title={t("Languages")}
-            value={
-              me.languages.length
-                ? me.languages.map((l) => t(l)).join(", ")
-                : undefined
-            }
-            hint={
-              me.languages.length
-                ? undefined
-                : t("Which languages can you talk in at home?")
-            }
-            onClick={() => setEditing("languages")}
-          />
-
-          {host && (
-            <Section
-              id="me-room"
-              title={t("My room")}
-              hint={t("Room seekers see the main room photo first.")}
-            >
-              <PhotoGrid
-                photos={me.room.photos}
-                max={MAX_PHOTOS}
-                label={t("Room photos")}
-                addLabel={t("Add room photos")}
-                onChange={(photos) => onMe({ room: { ...me.room, photos } })}
-                onError={onError}
-              />
-              <ul className={p.rows}>
-                <ListRow
-                  icon={<TextIcon />}
-                  label={t("Title")}
-                  value={me.room.title}
-                  onClick={() => setEditing("room")}
-                />
-                <ListRow
-                  icon={<Wallet />}
-                  label={t("Rent")}
-                  value={`€${me.room.price} / ${t("month")}`}
-                  onClick={() => setEditing("room")}
-                />
-                <ListRow
-                  icon={<Receipt />}
-                  label={t("Bills")}
-                  value={
-                    me.room.billsIncluded ? t("Included") : t("Not included")
-                  }
-                  onClick={() => setEditing("room")}
-                />
-                <ListRow
-                  icon={<PiggyBank />}
-                  label={t("Deposit")}
-                  value={`€${me.room.deposit}`}
-                  onClick={() => setEditing("room")}
-                />
-                <ListRow
-                  icon={<Bath />}
-                  label={t("Bathroom")}
-                  value={me.room.privateBathroom ? t("Your own") : t("Shared")}
-                  onClick={() => setEditing("room")}
-                />
-                <ListRow
-                  icon={<Sofa />}
-                  label={t("Furniture")}
-                  value={me.room.furnished ? t("Furnished") : t("Unfurnished")}
-                  onClick={() => setEditing("room")}
-                />
-                <ListRow
-                  icon={<DoorOpen />}
-                  label={t("Living there now")}
-                  value={
-                    me.room.flatmates === 1
-                      ? t("1 person")
-                      : t("{count} people", { count: me.room.flatmates })
-                  }
-                  onClick={() => setEditing("room")}
-                />
-                <ListRow
-                  icon={<Bus />}
-                  label={t("Getting there")}
-                  value={me.room.transport || undefined}
-                  onClick={() => setEditing("room")}
-                />
-                <ListRow
-                  icon={<CalendarDays />}
-                  label={t("Available from")}
-                  value={dateLabel(prefs.moveDate)}
-                  onClick={() => onEditBasics("moveDate")}
-                />
-                <ListRow
-                  icon={<Clock />}
-                  label={t("Minimum stay")}
-                  value={
-                    prefs.stayMonths === 1
-                      ? t("1 month")
-                      : `${prefs.stayMonths} ${t("months")}`
-                  }
-                  onClick={() => onEditBasics("stay")}
-                />
-                <ListRow
-                  icon={<MessageSquareQuote />}
-                  label={t("About the room")}
-                  value={me.room.description || undefined}
-                  onClick={() => setEditing("roomText")}
-                />
-                <ListRow
-                  icon={<ScrollText />}
-                  label={t("House rules")}
-                  value={me.room.houseRules || undefined}
-                  onClick={() => setEditing("rules")}
-                />
-              </ul>
-            </Section>
+        <DetailSection
+          icon={<MessageSquareQuote />}
+          label={t("About me")}
+          action={editButton(() => setEditing("bio"), Boolean(me.bio))}
+        >
+          {me.bio ? (
+            <p>{me.bio}</p>
+          ) : (
+            <p className={p.empty}>
+              {t("A few lines about you and how you like to live.")}
+            </p>
           )}
+        </DetailSection>
 
-          <Section id="me-living" title={t("Living together")}>
-            <ul className={p.rows}>
-              <ListRow
-                icon={<MapPin />}
-                label={t("City and area")}
-                value={[me.neighborhood, prefs.city].filter(Boolean).join(", ")}
-                onClick={() => onEditBasics("city")}
-              />
-              {!host && (
-                <>
-                  <ListRow
-                    icon={<Wallet />}
-                    label={t("Monthly budget")}
-                    value={`€${prefs.budgetMin}–${prefs.budgetMax}`}
-                    onClick={() => onEditBasics("budget")}
-                  />
-                  <ListRow
-                    icon={<CalendarDays />}
-                    label={t("Move-in")}
-                    value={dateLabel(prefs.moveDate)}
-                    onClick={() => onEditBasics("moveDate")}
-                  />
-                  <ListRow
-                    icon={<Clock />}
-                    label={t("Stay")}
-                    value={
-                      prefs.stayMonths === 1
-                        ? t("1 month")
-                        : `${prefs.stayMonths} ${t("months")}`
-                    }
-                    onClick={() => onEditBasics("stay")}
-                  />
-                </>
+        {host && (
+          <section className={p.group} aria-labelledby="me-room">
+            <h2 className={p.groupTitle} id="me-room">
+              {t("My room")}
+            </h2>
+            <PhotoGrid
+              photos={me.room.photos}
+              max={MAX_PHOTOS}
+              label={t("Room photos")}
+              addLabel={t("Add room photos")}
+              onChange={(photos) => onMe({ room: { ...me.room, photos } })}
+              onError={onError}
+            />
+            <DetailSection
+              icon={<Home />}
+              label={t("The room")}
+              action={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`${t("Title")}: ${me.room.title || t("Add")}`}
+                  onClick={() => setEditing("room")}
+                >
+                  {me.room.title ? t("Edit") : t("Add")}
+                </Button>
+              }
+            >
+              {me.room.title ? (
+                <PullQuote>{me.room.title}</PullQuote>
+              ) : (
+                <p className={p.empty}>
+                  {t("Give the room a title so it can be listed.")}
+                </p>
               )}
-              <ListRow
-                icon={<Sparkles />}
-                label={t("Tidiness")}
-                value={
-                  <Pips bare label={t("Tidiness")} value={prefs.cleanliness} />
-                }
-                onClick={() => onEditBasics("cleanliness")}
+            </DetailSection>
+            <DetailSection icon={<Wallet />} label={t("Rent and dates")}>
+              <FactChips
+                items={[
+                  {
+                    icon: <Wallet />,
+                    label: t("Rent"),
+                    text: t("€{price} a month", { price: me.room.price }),
+                    onClick: () => setEditing("room"),
+                  },
+                  {
+                    icon: <Receipt />,
+                    label: t("Bills"),
+                    text: me.room.billsIncluded
+                      ? t("Bills included")
+                      : t("Bills extra"),
+                    onClick: () => setEditing("room"),
+                  },
+                  {
+                    icon: <PiggyBank />,
+                    label: t("Deposit"),
+                    text: t("€{amount} deposit", { amount: me.room.deposit }),
+                    onClick: () => setEditing("room"),
+                  },
+                  {
+                    icon: <CalendarDays />,
+                    label: t("Available from"),
+                    text: t("From {date}", { date: dateLabel(prefs.moveDate) }),
+                    onClick: () => onEditBasics("moveDate"),
+                  },
+                  {
+                    icon: <Clock />,
+                    label: t("Minimum stay"),
+                    text: t("{duration} or more", { duration: months }),
+                    onClick: () => onEditBasics("stay"),
+                  },
+                ]}
               />
-              <ListRow
-                icon={<Users />}
-                label={t("Social energy")}
-                value={
-                  <Pips bare label={t("Social energy")} value={prefs.social} />
-                }
-                onClick={() => onEditBasics("social")}
+            </DetailSection>
+            <DetailSection icon={<Sofa />} label={t("The home")}>
+              <FactChips
+                items={[
+                  {
+                    icon: <Sofa />,
+                    label: t("Furniture"),
+                    text: me.room.furnished ? t("Furnished") : t("Unfurnished"),
+                    onClick: () => setEditing("room"),
+                  },
+                  {
+                    icon: <Bath />,
+                    label: t("Bathroom"),
+                    text: me.room.privateBathroom
+                      ? t("Own bathroom")
+                      : t("Shared bathroom"),
+                    onClick: () => setEditing("room"),
+                  },
+                  {
+                    icon: <Users />,
+                    label: t("Living there now"),
+                    text:
+                      me.room.flatmates === 0
+                        ? t("No flatmates yet")
+                        : me.room.flatmates === 1
+                          ? t("1 flatmate")
+                          : t("{count} flatmates", {
+                              count: me.room.flatmates,
+                            }),
+                    onClick: () => setEditing("room"),
+                  },
+                  {
+                    icon: <MapPin />,
+                    label: t("City and area"),
+                    text: place,
+                    onClick: () => onEditBasics("city"),
+                  },
+                ]}
               />
-              <ListRow
-                icon={<Moon />}
-                label={t("Sleep")}
-                value={t(sleepLabel[prefs.sleep])}
-                onClick={() => onEditBasics("sleep")}
-              />
-              <ListRow
-                icon={<PartyPopper />}
-                label={t("Guests")}
-                value={t(answer.guests[prefs.guests])}
-                onClick={() => onEditBasics("guests")}
-              />
-              <ListRow
-                icon={<Sun />}
-                label={t("In the day")}
-                value={t(answer.homeDays[prefs.homeDays])}
-                onClick={() => onEditBasics("homeDays")}
-              />
-              <ListRow
-                icon={<Volume2 />}
-                label={t("Noise")}
-                value={t(answer.noise[prefs.noise])}
-                onClick={() => onEditBasics("noise")}
-              />
-              <ListRow
-                icon={<Handshake />}
-                label={t("Sharing")}
-                value={t(answer.sharing[prefs.sharing])}
-                onClick={() => onEditBasics("sharing")}
-              />
-              <ListRow
-                icon={<Cigarette />}
-                label={t("Smoking at home")}
-                value={prefs.smokeFree ? t("No") : t("Fine")}
-                onClick={() => onEditBasics("smoke")}
-              />
-              <ListRow
-                icon={<PawPrint />}
-                label={t("Pets")}
-                value={prefs.petsOkay ? t("Fine") : t("No")}
-                onClick={() => onEditBasics("pets")}
-              />
-              <ListRow
-                icon={<UserRound />}
-                label={t("Living with")}
-                value={t(livingWithLabel[prefs.livingWith])}
-                onClick={() => onEditBasics("livingWith")}
-              />
-            </ul>
-          </Section>
+            </DetailSection>
+            <DetailSection
+              icon={<Bus />}
+              label={t("Getting there")}
+              action={editButton(
+                () => setEditing("room"),
+                Boolean(me.room.transport),
+              )}
+            >
+              {me.room.transport && <p>{me.room.transport}</p>}
+            </DetailSection>
+            <DetailSection
+              icon={<ScrollText />}
+              label={t("About the room")}
+              action={editButton(
+                () => setEditing("roomText"),
+                Boolean(me.room.description),
+              )}
+            >
+              {me.room.description && <p>{me.room.description}</p>}
+            </DetailSection>
+            <DetailSection
+              icon={<ListChecks />}
+              label={t("House rules")}
+              action={editButton(
+                () => setEditing("rules"),
+                Boolean(me.room.houseRules),
+              )}
+            >
+              {me.room.houseRules && <p>{me.room.houseRules}</p>}
+            </DetailSection>
+          </section>
+        )}
 
-          <Section
-            id="me-prompts"
-            title={t("Profile questions")}
-            hint={
-              me.prompts.length
-                ? undefined
-                : t(
-                    "Answer a few questions so people know what living with you is like.",
-                  )
-            }
-          >
-            {me.prompts.length > 0 && (
-              <div className={p.prompts}>
-                {me.prompts.map((pr, i) => (
-                  <button
-                    key={pr.question}
-                    type="button"
-                    className={p.prompt}
-                    onClick={() => setEditing({ prompt: i })}
-                  >
-                    <span className={p.cardLabel}>{t(pr.question)}</span>
-                    <span className={p.answer}>{pr.answer}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-            {me.prompts.length < MAX_PROMPTS && (
-              <Button
-                leadingIcon={<Plus />}
-                variant={me.prompts.length ? "secondary" : "primary"}
-                onClick={() => setEditing({ prompt: me.prompts.length })}
-                fullWidth
-              >
-                {t("Add a question")}
-              </Button>
-            )}
-          </Section>
+        {!host && (
+          <DetailSection icon={<MapPin />} label={t("Where and when")}>
+            <FactChips
+              items={[
+                {
+                  icon: <MapPin />,
+                  label: t("City and area"),
+                  text: place,
+                  onClick: () => onEditBasics("city"),
+                },
+                {
+                  icon: <Wallet />,
+                  label: t("Monthly budget"),
+                  text: t("€{min}–{max} a month", {
+                    min: prefs.budgetMin,
+                    max: prefs.budgetMax,
+                  }),
+                  onClick: () => onEditBasics("budget"),
+                },
+                {
+                  icon: <CalendarDays />,
+                  label: t("Move-in"),
+                  text: t("From {date}", { date: dateLabel(prefs.moveDate) }),
+                  onClick: () => onEditBasics("moveDate"),
+                },
+                {
+                  icon: <Clock />,
+                  label: t("Stay"),
+                  text: t("For {duration}", { duration: months }),
+                  onClick: () => onEditBasics("stay"),
+                },
+              ]}
+            />
+          </DetailSection>
+        )}
 
-          <Section
-            id="me-interests"
-            title={t("Interests")}
-            hint={
-              me.interests.length
-                ? undefined
-                : t("Show what you like doing, so shared interests stand out.")
-            }
-          >
-            {me.interests.length > 0 && (
-              <ul className={p.tags}>
-                {me.interests.map((i) => (
-                  <li key={i}>{t(i)}</li>
-                ))}
-              </ul>
-            )}
+        <DetailSection icon={<Sofa />} label={t("At home, I am")}>
+          <FactChips
+            items={self.habits.map((h) => ({
+              icon: habitIcon[h.id],
+              label: h.label,
+              // "Sometimes" or "Flexible" alone would not say what about.
+              text: ["social", "sleep", "guests"].includes(h.id)
+                ? `${h.label}: ${h.them}`
+                : h.them,
+              onClick: () => onEditBasics(habitQuestion[h.id]),
+            }))}
+          />
+        </DetailSection>
+
+        <DetailSection icon={<Handshake />} label={t("I am looking for")}>
+          <FactChips
+            items={[
+              {
+                icon: <Users />,
+                label: t("Living with"),
+                text: t(livingWithLabel[prefs.livingWith]),
+                onClick: () => onEditBasics("livingWith"),
+              },
+              {
+                icon: <Cigarette />,
+                label: t("Smoking at home"),
+                text: prefs.smokeFree
+                  ? t("A smoke-free home")
+                  : t("Smoking at home is fine"),
+                onClick: () => onEditBasics("smoke"),
+              },
+              {
+                icon: <PawPrint />,
+                label: t("Pets"),
+                text: prefs.petsOkay
+                  ? t("Pets welcome")
+                  : t("A home without pets"),
+                onClick: () => onEditBasics("pets"),
+              },
+            ]}
+          />
+        </DetailSection>
+
+        <DetailSection
+          icon={<Languages />}
+          label={t("Languages")}
+          action={editButton(
+            () => setEditing("languages"),
+            me.languages.length > 0,
+          )}
+        >
+          {me.languages.length > 0 ? (
+            <FactChips
+              items={me.languages.map((l) => ({
+                text: t(l),
+                tone: "interest" as const,
+              }))}
+            />
+          ) : (
+            <p className={p.empty}>
+              {t("Which languages can you talk in at home?")}
+            </p>
+          )}
+        </DetailSection>
+
+        <DetailSection
+          icon={<Sparkles />}
+          label={t("Interests")}
+          action={
             <Button
-              leadingIcon={<Tag />}
-              variant={me.interests.length ? "secondary" : "primary"}
+              variant="ghost"
+              size="sm"
               onClick={() => setEditing("interests")}
-              fullWidth
             >
               {me.interests.length ? t("Edit interests") : t("Add interests")}
             </Button>
-          </Section>
+          }
+        >
+          {me.interests.length > 0 ? (
+            <FactChips
+              items={me.interests.map((i) => ({
+                text: t(i),
+                tone: "interest" as const,
+              }))}
+            />
+          ) : (
+            <p className={p.empty}>
+              {t("Show what you like doing, so shared interests stand out.")}
+            </p>
+          )}
+        </DetailSection>
 
-          <Section
-            id="me-verify"
-            title={t("Get verified")}
-            hint={
-              me.verified
-                ? undefined
-                : t("A checked student email shows people you are who you say.")
-            }
+        {me.prompts.map((pr, i) => (
+          <DetailSection
+            key={pr.question}
+            icon={<MessageSquareQuote />}
+            label={t(pr.question)}
+            action={editButton(() => setEditing({ prompt: i }), true)}
           >
-            {me.verified ? (
-              <p className={p.verified}>
-                <BadgeCheck aria-hidden="true" />{" "}
-                {t("Student email verified (demo)")}
+            <PullQuote>{pr.answer}</PullQuote>
+          </DetailSection>
+        ))}
+        {me.prompts.length < MAX_PROMPTS && (
+          <DetailSection
+            icon={<MessageSquareQuote />}
+            label={t("Profile questions")}
+          >
+            {me.prompts.length === 0 && (
+              <p className={p.empty}>
+                {t(
+                  "Answer a few questions so people know what living with you is like.",
+                )}
               </p>
-            ) : (
+            )}
+            <Button
+              className={p.sectionButton}
+              leadingIcon={<Plus />}
+              variant={me.prompts.length ? "secondary" : "primary"}
+              onClick={() => setEditing({ prompt: me.prompts.length })}
+              fullWidth
+            >
+              {t("Add a question")}
+            </Button>
+          </DetailSection>
+        )}
+
+        <DetailSection icon={<ShieldCheck />} label={t("Get verified")}>
+          {me.verified ? (
+            <FactRows
+              items={[
+                {
+                  icon: <BadgeCheck />,
+                  text: t("Student email verified (demo)"),
+                },
+              ]}
+            />
+          ) : (
+            <>
+              <p className={p.empty}>
+                {t("A checked student email shows people you are who you say.")}
+              </p>
               <Button
+                className={p.sectionButton}
                 leadingIcon={<ShieldCheck />}
                 onClick={() => onMe({ verified: true })}
                 fullWidth
               >
                 {t("Verify student email")}
               </Button>
-            )}
-          </Section>
-        </div>
+            </>
+          )}
+        </DetailSection>
       </div>
 
       {editing === "intent" && (
