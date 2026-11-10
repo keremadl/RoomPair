@@ -52,22 +52,23 @@ Eligible profiles receive a weighted comparison: budget 25%, tidiness 20%, sleep
 
 ## Editing guide
 
-| File                                               | Purpose                                                               |
-| -------------------------------------------------- | --------------------------------------------------------------------- |
-| `src/components/roompair.tsx`                      | Providers and the app frame: sidebar, top bar, navigation, toast      |
-| `src/components/app/controller.tsx`                | Interface state and actions shared by every page (`useApp()`)         |
-| `src/components/views/*.tsx`                       | One file per page: discover, likes, messages, my space, profile       |
-| `src/components/dialogs/*.tsx`                     | One file per dialog: filters, details, fit, match, room, help, report |
-| `src/components/shared.tsx`                        | Page heading and room card used by several pages                      |
-| `src/components/swipe-surface.tsx`                 | Independent card motion and swipe thresholds                          |
-| `src/components/onboarding.tsx` / `onboarding.css` | Four-step setup and custom SVG room illustration                      |
-| `src/components/ui.tsx`                            | Brand, shared illustration, modal and empty-state components          |
-| `src/app/globals.css`                              | Colors, type, component styling and responsive breakpoints            |
-| `src/lib/data.ts` / `types.ts`                     | Fictional people, homes, messages and data types                      |
-| `src/lib/matching.ts`                              | Eligibility and transparent compatibility weights                     |
-| `src/lib/store.ts`                                 | Browser-local demo state                                              |
-| `src/lib/locales/en.json` / `tr.json`              | Interface copy                                                        |
-| `public/images` / `public/fonts`                   | Local assets                                                          |
+| File                                               | Purpose                                                                                |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `src/components/roompair.tsx`                      | Providers and the app frame: sidebar, top bar, navigation, toast                       |
+| `src/components/app/controller.tsx`                | Interface state and actions shared by every page (`useApp()`)                          |
+| `src/components/views/*.tsx`                       | One file per page: discover, likes, messages, my space, profile                        |
+| `src/components/dialogs/*.tsx`                     | One file per dialog: filters, details, fit, match, room, help, report                  |
+| `src/components/shared.tsx`                        | Page heading and room card used by several pages                                       |
+| `src/components/swipe-surface.tsx`                 | Independent card motion and swipe thresholds                                           |
+| `src/components/onboarding.tsx` / `onboarding.css` | Four-step setup and custom SVG room illustration                                       |
+| `src/components/ui.tsx`                            | Brand, shared illustration, modal and empty-state components                           |
+| `src/app/globals.css`                              | Colors, type, component styling and responsive breakpoints                             |
+| `src/lib/data.ts` / `types.ts`                     | Fictional people, homes, messages and data types                                       |
+| `src/lib/matching.ts`                              | Eligibility and transparent compatibility weights                                      |
+| `src/lib/store.ts`                                 | Browser-local demo state                                                               |
+| `src/lib/locales/en.json` / `tr.json`              | Interface copy                                                                         |
+| `supabase/`                                        | Database schema, access rules, demo accounts and their tests (not yet used by the app) |
+| `public/images` / `public/fonts`                   | Local assets                                                                           |
 
 ## Languages and n8n
 
