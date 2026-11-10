@@ -110,10 +110,10 @@ test("a new member sets up, uploads a photo, matches a demo member and keeps eve
   page.on("pageerror", (error) => errors.push(error.message));
   await join(page, `Ada${run}`);
 
-  // Demo members like every newcomer; five of them fit the default search.
+  // Demo members like every newcomer; nine of them fit the default search.
   // The count comes from the server.
   await expect(nav(page).getByRole("button", { name: /Likes/ })).toContainText(
-    "5",
+    "9",
   );
   await expect(card(page)).toHaveText(/^Ella/);
 

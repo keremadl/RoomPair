@@ -24,7 +24,7 @@ New messages and matches are pushed live (Supabase Realtime, filtered by the sam
 | ------------------------------- | ------------------------------------------------------------------------------- |
 | `supabase/migrations/*.sql`     | Schema, privileges, row level security and triggers, in order                   |
 | `scripts/db/generate-seed.ts`   | Writes `seed.sql` from the demo people in `src/lib/data.ts` (`npm run db:seed`) |
-| `supabase/seed.sql`             | The 22 demo people as accounts, plus their 11 rooms; generated, safe to re-run  |
+| `supabase/seed.sql`             | The 72 demo people as accounts, plus their 32 rooms; generated, safe to re-run  |
 | `supabase/tests/policies.sql`   | Authorization tests; runs in one transaction and rolls everything back          |
 | `supabase/tests/local-stub.sql` | Stand-in for Supabase's `auth` schema so the tests run on plain Postgres        |
 | `supabase/tests/run-local.sh`   | Builds a throwaway database, applies everything and runs the tests              |
@@ -91,13 +91,13 @@ insert into private.moderators (user_id)
 - **Undoing a like** removes the match unless the two already exchanged messages.
 - **Blocking** removes the match, its conversation and both swipes.
 - **Deleting an account** (`public.delete_account()`, callable only for yourself) removes the sign-in; the profile, room, likes, matches, messages, blocks and reports cascade from it. The app deletes the member's photo files first. Supabase's advisor flags it as a `security definer` function signed-in members can call; that is intended, and it only ever acts on the caller.
-- **Demo behaviour** (second migration): eleven demo accounts like every member who finishes onboarding, so a first mutual match is one swipe away. It is isolated so it can be dropped as a unit.
+- **Demo behaviour** (second migration): nineteen demo accounts like every member who finishes onboarding, so a first mutual match is one swipe away. It is isolated so it can be dropped as a unit.
 
 ## Demo accounts
 
 Demo move-in dates are written relative to the day the seed runs (the first of the month at least two months ahead), the same rule the browser demo uses. Re-running `supabase/seed.sql` refreshes them.
 
-The 22 people from the demo are real rows in `auth.users` with `is_demo = true`. Nobody can sign in as them: each has a random password that is not stored anywhere, and their `@demo.roompair.example` addresses are reserved and receive no mail. They never reply to messages.
+The 72 people from the demo are real rows in `auth.users` with `is_demo = true`. Nobody can sign in as them: each has a random password that is not stored anywhere, and their `@demo.roompair.example` addresses are reserved and receive no mail. They never reply to messages.
 
 ## Running the tests
 

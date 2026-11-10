@@ -1,20 +1,8 @@
 import { localDay } from "./chat-time";
+import { DAY, demoMoveMonth, iso, moveIn } from "./demo-dates";
+import { morePeople } from "./demo-people";
 import type { Conversation, Preferences, Profile } from "./types";
 
-const DAY = 86_400_000;
-const iso = (time: number) => new Date(time).toISOString().slice(0, 10);
-
-/**
- * The month the demo people plan to move: the first of the month that starts
- * at least two months from today. Their dates are counted from it, so the
- * demo never goes stale.
- */
-export function demoMoveMonth(now = new Date()): number {
-  const lead = new Date(now.getTime() + 60 * DAY);
-  return Date.UTC(lead.getUTCFullYear(), lead.getUTCMonth() + 1, 1);
-}
-/** A move-in date, as days before or after the start of the demo's move month. */
-export const moveIn = (days: number) => iso(demoMoveMonth() + days * DAY);
 const daysAgo = (days: number) => iso(Date.now() - days * DAY);
 /** The reader's own calendar day, which is what a chat's "Today" means. */
 const sentDaysAgo = (days: number) =>
@@ -1262,6 +1250,8 @@ export const profiles: Profile[] = [
     active: true,
     likesYou: true,
   },
+  // Fifty more, with photos made for the demo (scripts/demo).
+  ...morePeople,
 ];
 
 export const conversations: Conversation[] = [
@@ -1339,3 +1329,5 @@ export const conversations: Conversation[] = [
     ],
   },
 ];
+
+export { demoMoveMonth, moveIn };
