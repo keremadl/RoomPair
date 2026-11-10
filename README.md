@@ -42,6 +42,7 @@ The app opens directly in discovery for a strong first impression. Onboarding is
 - Local blocking/report recording and a resettable demo state.
 - English/Turkish UI, persistent language selection and extensible locale catalogs.
 - Responsive layouts, focus-managed dialogs, accessible form labels, reduced-motion preference, local imagery and install metadata.
+- Baseline hardening: a same-origin Content Security Policy and standard security headers (`next.config.ts`), and validation of browser-stored state before use (`src/lib/store.ts`).
 
 ## Matching rules
 

@@ -69,6 +69,7 @@ const dateLabel = (date: string) =>
     day: "numeric",
     month: "short",
   });
+// Stored chats are sanitized in store.ts, so every chat points at a known profile.
 const profileById = (id: string) => profiles.find((p) => p.id === id)!;
 
 export default function RoomPair() {
@@ -136,6 +137,31 @@ function RoomPairApp() {
       !state.blocked.includes(p.id),
   );
   const unread = state.chats.reduce((n, c) => n + c.unread, 0);
+  // Counts only the must-haves that actually narrow the feed.
+  const activeFilters = [
+    state.preferences.smokeFree,
+    !state.preferences.petsOkay,
+    state.preferences.verifiedOnly,
+  ].filter(Boolean).length;
+  // Rooms follow the same must-haves as people: budget, smoking, pets, blocks.
+  const roomFits = (room: Room) => {
+    const host = profiles.find((p) => `room-${p.id}` === room.id);
+    const prefs = state.preferences;
+    return (
+      !!host &&
+      !state.blocked.includes(host.id) &&
+      room.price >= prefs.budgetMin &&
+      room.price <= prefs.budgetMax &&
+      !(prefs.smokeFree && host.habits.smoking) &&
+      !(!prefs.petsOkay && host.habits.pets)
+    );
+  };
+  const visibleRooms = rooms.filter(roomFits);
+  const savedRooms = rooms.filter(
+    (room) =>
+      state.savedRooms.includes(room.id) &&
+      !state.blocked.includes(room.id.replace(/^room-/, "")),
+  );
 
   const notify = (text: string) => {
     setToast(text);
@@ -550,7 +576,7 @@ function RoomPairApp() {
                   <button className="filter-button" onClick={openFilters}>
                     <SlidersHorizontal size={16} />
                     {t("discover.filters")}
-                    <span>3</span>
+                    {activeFilters > 0 && <span>{activeFilters}</span>}
                   </button>
                 </div>
               </div>
@@ -565,7 +591,7 @@ function RoomPairApp() {
                     </p>
                   </div>
                   <div className="room-grid">
-                    {rooms.map((room) => (
+                    {visibleRooms.map((room) => (
                       <RoomCard
                         key={room.id}
                         room={room}
@@ -577,6 +603,17 @@ function RoomPairApp() {
                         }}
                       />
                     ))}
+                    {visibleRooms.length === 0 && (
+                      <EmptyState
+                        icon={DoorOpen}
+                        title={t("No rooms fit your must-haves yet.")}
+                        body={t(
+                          "Rooms follow your budget, smoking and pet preferences. Adjust them to see more.",
+                        )}
+                        action={openFilters}
+                        label={t("discover.filters")}
+                      />
+                    )}
                   </div>
                 </>
               ) : listView ? (
@@ -596,7 +633,7 @@ function RoomPairApp() {
                       </div>
                       <h3>
                         {profile.name}, {profile.age}
-                        <BadgeCheck size={18} />
+                        {profile.verified && <BadgeCheck size={18} />}
                       </h3>
                       <p>
                         {profile.occupation} · {profile.neighborhood}
@@ -1156,7 +1193,7 @@ function RoomPairApp() {
                       >
                         <strong>
                           {chatPerson.name}
-                          <BadgeCheck size={16} />
+                          {chatPerson.verified && <BadgeCheck size={16} />}
                         </strong>
                         <small>
                           <span />
@@ -1343,7 +1380,7 @@ function RoomPairApp() {
                   <div className="section-header">
                     <h2>
                       {t("Places worth a look")}
-                      <span>{state.savedRooms.length}</span>
+                      <span>{savedRooms.length}</span>
                     </h2>
                     <button
                       className="text-button"
@@ -1357,21 +1394,19 @@ function RoomPairApp() {
                     </button>
                   </div>
                   <div className="saved-rooms">
-                    {rooms
-                      .filter((r) => state.savedRooms.includes(r.id))
-                      .map((room) => (
-                        <RoomCard
-                          key={room.id}
-                          room={room}
-                          saved
-                          onSave={() => toggleRoom(room.id)}
-                          onOpen={() => {
-                            setSelectedRoom(room);
-                            setDialog("room");
-                          }}
-                        />
-                      ))}
-                    {state.savedRooms.length === 0 && (
+                    {savedRooms.map((room) => (
+                      <RoomCard
+                        key={room.id}
+                        room={room}
+                        saved
+                        onSave={() => toggleRoom(room.id)}
+                        onOpen={() => {
+                          setSelectedRoom(room);
+                          setDialog("room");
+                        }}
+                      />
+                    ))}
+                    {savedRooms.length === 0 && (
                       <EmptyState
                         icon={Bookmark}
                         title={t("Room for a favourite.")}
@@ -1669,13 +1704,16 @@ function RoomPairApp() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (filterDraft.budgetMin > filterDraft.budgetMax) {
+                if (filterDraft.budgetMin >= filterDraft.budgetMax) {
                   notify(t("Your maximum budget must be above your minimum."));
                   return;
                 }
                 setState((s) => ({
                   ...s,
-                  preferences: filterDraft,
+                  preferences: {
+                    ...filterDraft,
+                    city: filterDraft.city.trim(),
+                  },
                   decisions: s.decisions.filter((d) => d.action === "like"),
                 }));
                 setDialog(null);
@@ -1687,6 +1725,7 @@ function RoomPairApp() {
                 {t("City")}
                 <input
                   required
+                  maxLength={70}
                   value={filterDraft.city}
                   onChange={(e) =>
                     setFilterDraft({ ...filterDraft, city: e.target.value })
@@ -1721,7 +1760,7 @@ function RoomPairApp() {
                     <input
                       type="number"
                       min="100"
-                      max="5000"
+                      max="4999"
                       required
                       value={filterDraft.budgetMin}
                       onChange={(e) =>
@@ -1739,7 +1778,7 @@ function RoomPairApp() {
                     <span>€</span>
                     <input
                       type="number"
-                      min="100"
+                      min="101"
                       max="5000"
                       required
                       value={filterDraft.budgetMax}
@@ -1773,7 +1812,9 @@ function RoomPairApp() {
                   <input
                     type="number"
                     min="1"
-                    max="36"
+                    max="24"
+                    step="1"
+                    required
                     value={filterDraft.stayMonths}
                     onChange={(e) =>
                       setFilterDraft({
@@ -1843,7 +1884,7 @@ function RoomPairApp() {
                 </span>
                 <h2>
                   {detail.name}, {detail.age}
-                  <BadgeCheck size={25} />
+                  {detail.verified && <BadgeCheck size={25} />}
                 </h2>
                 <p>{detail.occupation}</p>
               </div>
@@ -1855,10 +1896,12 @@ function RoomPairApp() {
                   {getCompatibility(detail, state.preferences).score}%{" "}
                   {t("lifestyle fit")}
                 </span>
-                <span className="small-status">
-                  <i />
-                  {t("Actively looking")}
-                </span>
+                {detail.active && (
+                  <span className="small-status">
+                    <i />
+                    {t("Actively looking")}
+                  </span>
+                )}
               </div>
               <h3>{t("A little about me")}</h3>
               <p>{detail.bio}</p>
@@ -1948,6 +1991,13 @@ function RoomPairApp() {
                   >
                     <MessageCircle size={17} />
                     {t("Say hello")}
+                  </button>
+                ) : state.decisions.some(
+                    (d) => d.id === detail.id && d.action === "like",
+                  ) ? (
+                  <button className="button secondary" disabled>
+                    <Check size={17} />
+                    {t("Like sent")}
                   </button>
                 ) : (
                   <button
@@ -2089,7 +2139,7 @@ function RoomPairApp() {
             <div className="room-detail-body">
               <span className="eyebrow">
                 <MapPin size={14} />
-                {selectedRoom.neighborhood}, Riga
+                {selectedRoom.neighborhood}, {selectedRoom.city}
               </span>
               <h2>{selectedRoom.title}</h2>
               <strong className="room-detail-price">
@@ -2375,7 +2425,7 @@ function RoomCard({
       <div className="room-card-body">
         <span className="room-location">
           <MapPin size={13} />
-          {room.neighborhood}, Riga
+          {room.neighborhood}, {room.city}
         </span>
         <button className="room-title-button" onClick={onOpen}>
           <h3>{room.title}</h3>

@@ -82,7 +82,7 @@ The route uses constant-time token comparison, a bounded request body, a fixed e
 
 ## Validation and limits
 
-Local validation covers catalog parity, placeholder preservation, CLI imports, workflow Code-node logic, and API authentication/error handling. Browser checks cover English/Turkish switching and persistence, extra manifest languages, English fallback for malformed or missing strings, and keeping the previous language after a failed download.
+The catalog loader, the CLI, the n8n Code nodes and the API route each validate catalog parity and placeholder preservation at runtime. Automated tests do not cover localization yet: the unit tests exercise the matching rules and stored-state validation, and the six browser tests run the English interface only. Language switching, extra manifest languages, English fallback, failed downloads and the API route's authentication were checked manually and still need automated tests.
 
 The workflow accepts up to 600 entries and 150,000 source JSON characters, with a 30,000-token output ceiling. These are explicit batch limits, not a guarantee that every language or future catalog fits. Incomplete responses, missing keys, and changed placeholders fail before any local files are changed; the CLI does not silently retry a paid call. If a larger catalog reaches the limit, translate reviewed sections manually, combine them into a complete catalog, and use `--from`, or extend the workflow to process smaller batches before increasing the guards.
 

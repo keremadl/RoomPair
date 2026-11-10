@@ -76,6 +76,7 @@ export interface Conversation {
 export interface Room {
   id: string;
   title: string;
+  city: string;
   neighborhood: string;
   price: number;
   photo: string;

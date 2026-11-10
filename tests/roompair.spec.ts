@@ -158,12 +158,10 @@ test("saved rooms, checklist and notes persist; reset restores the original demo
     .getByRole("button", { name: "My space", exact: true })
     .click();
   await expect(
-    page
-      .locator(".saved-rooms")
-      .getByRole("heading", {
-        name: "A peaceful corner in Avoti",
-        exact: true,
-      }),
+    page.locator(".saved-rooms").getByRole("heading", {
+      name: "A peaceful corner in Avoti",
+      exact: true,
+    }),
   ).toBeVisible();
   const cleaning = page.getByRole("button", {
     name: /Find your cleaning rhythm/,
@@ -184,12 +182,10 @@ test("saved rooms, checklist and notes persist; reset restores the original demo
     page.getByRole("button", { name: /Find your cleaning rhythm/ }),
   ).toHaveClass(/checked/);
   await expect(
-    page
-      .locator(".saved-rooms")
-      .getByRole("heading", {
-        name: "A peaceful corner in Avoti",
-        exact: true,
-      }),
+    page.locator(".saved-rooms").getByRole("heading", {
+      name: "A peaceful corner in Avoti",
+      exact: true,
+    }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "View your profile", exact: true })
@@ -214,12 +210,10 @@ test("saved rooms, checklist and notes persist; reset restores the original demo
     page.getByRole("button", { name: /Find your cleaning rhythm/ }),
   ).not.toHaveClass(/checked/);
   await expect(
-    page
-      .locator(".saved-rooms")
-      .getByRole("heading", {
-        name: "A peaceful corner in Avoti",
-        exact: true,
-      }),
+    page.locator(".saved-rooms").getByRole("heading", {
+      name: "A peaceful corner in Avoti",
+      exact: true,
+    }),
   ).toHaveCount(0);
   await expect(page.locator(".saved-rooms .room-card")).toHaveCount(1);
 });
