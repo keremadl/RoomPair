@@ -16,8 +16,11 @@ import { appDataFromSnapshot, type AppData } from "./backend/mapping";
 import {
   applyOperation,
   deleteAccount,
+  loadModeration,
   loadSnapshot,
   photoUrls,
+  reviewReport,
+  type ReportRow,
 } from "./backend/remote";
 import { diffState, enqueue, type Operation } from "./backend/sync";
 
@@ -37,6 +40,18 @@ export interface Account {
   deleteAccount: () => Promise<boolean>;
 }
 
+/** A report waiting for, or closed by, a moderator. */
+export type ReviewItem = ReportRow;
+export interface Moderation {
+  reports: ReviewItem[];
+  /** Closes a report; `suspend` also hides the reported member. False if it failed. */
+  review: (
+    report: string,
+    outcome: "reviewed" | "dismissed",
+    suspend: boolean,
+  ) => Promise<boolean>;
+}
+
 /** What the interface needs, whichever place the data lives in. */
 export interface AppDataSource {
   state: AppState;
@@ -48,6 +63,8 @@ export interface AppDataSource {
   profiles: Profile[];
   /** Null in the browser-only demo, which has no accounts. */
   account: Account | null;
+  /** Present only for signed-in moderators. */
+  moderation: Moderation | null;
   /** Demo people answer with canned replies; real members answer for themselves. */
   simulatesReplies: boolean;
   reset: () => void;
@@ -63,6 +80,7 @@ function useLocalData(): AppDataSource {
     saveFailed,
     profiles: demoProfiles,
     account: null,
+    moderation: null,
     simulatesReplies: true,
     reset,
   };
@@ -92,6 +110,7 @@ function useRemoteData(): AppDataSource {
   const [data, setData] = useState<AppData>(emptyData);
   const [loaded, setLoaded] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
+  const [reports, setReports] = useState<ReviewItem[] | null>(null);
   const current = useRef(data);
   const userId = useRef<string | null>(null);
   const queue = useRef<Operation[]>([]);
@@ -227,6 +246,37 @@ function useRemoteData(): AppDataSource {
     };
   }, [client, user, refresh]);
 
+  // Moderators get the review queue once after signing in, and after each review.
+  const loadReports = useCallback(async () => {
+    try {
+      setReports(await loadModeration(client));
+    } catch {
+      setReports(null);
+    }
+  }, [client]);
+  useEffect(() => {
+    if (user) void loadReports();
+    else setReports(null);
+  }, [user, loadReports]);
+  const moderation = useMemo<Moderation | null>(
+    () =>
+      reports && {
+        reports,
+        review: async (report, outcome, suspend) => {
+          try {
+            await reviewReport(client, report, outcome, suspend);
+          } catch {
+            return false;
+          }
+          await loadReports();
+          // A hidden member disappears from this moderator's own lists too.
+          void refresh();
+          return true;
+        },
+      },
+    [client, reports, loadReports, refresh],
+  );
+
   const account = useMemo<Account>(
     () => ({
       status: user ? "signed-in" : "signed-out",
@@ -277,6 +327,7 @@ function useRemoteData(): AppDataSource {
     saveFailed,
     profiles: data.profiles,
     account,
+    moderation,
     simulatesReplies: false,
     reset: () => {},
   };

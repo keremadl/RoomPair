@@ -29,6 +29,8 @@ export function SettingsView({
   account,
   onSignOut,
   onDeleteAccount,
+  openReports,
+  onModerate,
 }: {
   appearance: Appearance;
   onAppearance: (next: Partial<Appearance>) => void;
@@ -37,6 +39,9 @@ export function SettingsView({
   account: Account | null;
   onSignOut: () => void;
   onDeleteAccount: () => void;
+  /** Open reports waiting for this moderator; null for everyone else. */
+  openReports: number | null;
+  onModerate: () => void;
 }) {
   const { t, locale, setLocale, locales, isLoading, error } = useI18n();
   return (
@@ -82,6 +87,21 @@ export function SettingsView({
           error={error ?? undefined}
         />
       </section>
+      {openReports !== null && (
+        <section className={v.panel}>
+          <Text tone="muted" size="sm">
+            {t("You are a moderator.")}
+          </Text>
+          <Button
+            variant="secondary"
+            onClick={onModerate}
+            fullWidth
+            className={v.spaced}
+          >
+            {t("Review reports ({count} open)", { count: openReports })}
+          </Button>
+        </section>
+      )}
       {account ? (
         <section className={v.panel}>
           <Text tone="muted" size="sm">

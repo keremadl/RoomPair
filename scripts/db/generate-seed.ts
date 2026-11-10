@@ -6,7 +6,16 @@
  */
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { profiles } from "../../src/lib/data";
+import { demoMoveMonth, profiles } from "../../src/lib/data";
+
+// Dates are written relative to the day the seed runs, with the same rule as
+// the browser demo (see demoMoveMonth): re-running the seed refreshes them.
+const MOVE_MONTH =
+  "(date_trunc('month', current_date + 60) + interval '1 month')::date";
+const moveDate = (date: string) => {
+  const days = Math.round((Date.parse(date) - demoMoveMonth()) / 86_400_000);
+  return `${MOVE_MONTH} ${days < 0 ? "-" : "+"} ${Math.abs(days)}`;
+};
 
 const text = (value: string | null | undefined) =>
   value == null ? "null" : `'${value.replace(/'/g, "''")}'`;
@@ -36,7 +45,7 @@ const people = profiles
    ${text(p.bio)},
    ${text(p.photo)}, ${list(p.photos)}, ${list(p.tags)},
    ${json(p.prompts)},
-   ${text(p.intent)}, ${p.budget[0]}, ${p.budget[1]}, date '${p.moveDate}', ${p.stayMonths},
+   ${text(p.intent)}, ${p.budget[0]}, ${p.budget[1]}, ${moveDate(p.moveDate)}, ${p.stayMonths},
    ${p.habits.cleanliness}, ${p.habits.social}, ${text(p.habits.sleep)}, ${p.habits.smoking}, ${p.habits.pets},
    ${text(p.habits.guests)}, ${text(p.habits.homeDays)}, ${text(p.habits.noise)}, ${text(p.habits.sharing)},
    ${p.verified}, ${p.active}, ${p.likesYou})`,

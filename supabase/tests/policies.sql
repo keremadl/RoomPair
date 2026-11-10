@@ -317,6 +317,58 @@ begin
   assert (select count(*) from public.reports) = 0, 'a reported member cannot see the report';
 end $$;
 
+-- Moderation: only listed moderators see the queue or close a report.
+do $$
+begin
+  assert not public.is_moderator(), 'members are not moderators by default';
+  assert (select count(*) from public.moderation_queue()) = 0,
+    'the review queue is empty for members';
+end $$;
+select pg_temp.must_fail(
+  $$select public.review_report((select id from public.reports limit 1), 'reviewed')$$,
+  'members cannot close reports');
+select pg_temp.must_fail('select 1 from private.moderators', 'members cannot read the moderator list');
+select pg_temp.must_fail(
+  $$insert into private.moderators (user_id) values ('22222222-2222-4222-8222-222222222222')$$,
+  'members cannot make themselves moderators');
+
+reset role;
+insert into private.moderators (user_id) values ('33333333-3333-4333-8333-333333333333');
+set local role authenticated;
+select pg_temp.sign_in('cem');
+do $$
+declare
+  queued record;
+begin
+  assert public.is_moderator(), 'a listed moderator is recognised';
+  select * into queued from public.moderation_queue();
+  assert queued.reported_name = 'Ben' and queued.status = 'open' and queued.reports_against = 1,
+    'a moderator sees who was reported and how often';
+  perform public.review_report(queued.id, 'reviewed', true);
+  assert (select status from public.moderation_queue()) = 'reviewed', 'a moderator can close a report';
+  assert (select suspended from public.moderation_queue()), 'closing a report can suspend the member';
+end $$;
+select pg_temp.must_fail(
+  $$select public.review_report((select id from public.moderation_queue() limit 1), 'approved')$$,
+  'report outcomes come from a fixed list');
+select pg_temp.sign_in('ada');
+do $$
+begin
+  assert (select count(*) from public.profiles where name = 'Ben') = 0,
+    'a suspended member is hidden, even from a match';
+  assert (select count(*) from public.rooms where title = 'Ben''s spare room') = 0,
+    'a suspended member''s room is hidden';
+end $$;
+select pg_temp.sign_in('ben');
+do $$
+begin
+  assert (select count(*) from public.profiles where name = 'Ben') = 1,
+    'a suspended member still sees their own profile';
+end $$;
+reset role;
+delete from private.suspended_members where true;
+set local role authenticated;
+
 select pg_temp.sign_in('ada');
 insert into public.blocks (blocked_id) values ('22222222-2222-4222-8222-222222222222');
 do $$

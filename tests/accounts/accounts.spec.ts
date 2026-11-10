@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { test, expect, type Browser, type Page } from "@playwright/test";
 
 /**
@@ -265,4 +266,65 @@ test("the privacy notice is readable without signing in", async ({ page }) => {
     page.getByRole("heading", { level: 1, name: "Privacy notice" }),
   ).toBeVisible();
   await expect(page.getByText(/removed for good/)).toBeVisible();
+});
+
+test("a report reaches a moderator, who can hide the reported member", async ({
+  browser,
+}) => {
+  const moderator = await member(browser, `Fay${run}`);
+  const reporter = await member(browser, `Gus${run}`);
+
+  // Members who are not moderators see no review entry in Settings.
+  await nav(reporter)
+    .getByRole("button", { name: /My profile/ })
+    .click();
+  await reporter.getByRole("button", { name: "Settings" }).first().click();
+  await expect(
+    reporter.getByRole("button", { name: /Review reports/ }),
+  ).toHaveCount(0);
+
+  // Gus reports the first person in Discover.
+  await nav(reporter)
+    .getByRole("button", { name: /Discover/ })
+    .click();
+  const reported = ((await card(reporter).textContent()) ?? "").split(",")[0];
+  await reporter
+    .getByRole("region", { name: `About ${reported}` })
+    .getByRole("button", { name: "Report" })
+    .click();
+  await reporter
+    .getByRole("dialog", { name: "Profile options" })
+    .getByRole("button", { name: "Send report" })
+    .click();
+  await expect(reporter.getByRole("status")).toContainText("Report sent");
+
+  // Moderators are listed by hand in the database; nobody can add themselves.
+  execFileSync("psql", [
+    process.env.SUPABASE_DB_URL ??
+      "postgresql://postgres:postgres@127.0.0.1:54322/postgres",
+    "-X",
+    "-q",
+    "-c",
+    `insert into private.moderators (user_id) select id from auth.users where email = '${emailOf(`Fay${run}`)}'`,
+  ]);
+  await moderator.reload();
+  await nav(moderator)
+    .getByRole("button", { name: /My profile/ })
+    .click();
+  await moderator.getByRole("button", { name: "Settings" }).first().click();
+  await moderator
+    .getByRole("button", { name: "Review reports (1 open)" })
+    .click();
+  const queue = moderator.getByRole("dialog", { name: "Reports to review" });
+  await expect(queue.getByText(`Gus${run} reported ${reported}`)).toBeVisible();
+  await queue.getByRole("button", { name: "Hide this member" }).click();
+  await expect(queue.getByText("Hidden from other members.")).toBeVisible();
+  await expect(queue.getByText("Reviewed", { exact: true })).toBeVisible();
+
+  // The hidden member is gone for everyone else.
+  await reporter.reload();
+  await expect(card(reporter)).toBeVisible();
+  await expect(card(reporter)).not.toHaveText(new RegExp(`^${reported},`));
+  await moderator.context().close();
+  await reporter.context().close();
 });
