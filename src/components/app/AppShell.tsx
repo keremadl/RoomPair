@@ -1,11 +1,9 @@
 "use client";
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import {
-  Bell,
   CircleHelp,
   Compass,
   Heart,
-  MapPin,
   MessageCircle,
   Smile,
 } from "@/design-system/icons";

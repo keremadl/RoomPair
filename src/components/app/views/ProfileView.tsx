@@ -9,19 +9,12 @@ import {
   Flag,
   Heart,
   KeyRound,
-  Settings,
   ShieldBan,
   ShieldCheck,
   UserPen,
   Users,
 } from "@/design-system/icons";
-import {
-  ChoiceCards,
-  Dialog,
-  IconButton,
-  ListGroup,
-  ListRow,
-} from "@/design-system";
+import { ChoiceCards, Dialog, ListGroup, ListRow } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
 import { defaultLanguage, discoverParts } from "@/design-system/languages";
 import { asProfile, completion, profileSteps } from "@/lib/profile";
@@ -38,6 +31,7 @@ export function ProfileView({
   counts,
   onEdit,
   onHelp,
+  onBlocked,
   onIntent,
   onVerify,
   onLikes,
@@ -48,6 +42,8 @@ export function ProfileView({
   counts: { likes: number; matches: number; blocked: number; reports: number };
   onEdit: () => void;
   onHelp: () => void;
+  /** Opens the list of blocked people. */
+  onBlocked: () => void;
   onIntent: (intent: "find-room" | "have-room") => void;
   onVerify: () => void;
   onLikes: () => void;
@@ -151,6 +147,8 @@ export function ProfileView({
           icon={<ShieldBan />}
           label={t("Blocked people")}
           value={counts.blocked}
+          onClick={onBlocked}
+          link
         />
         <ListRow
           icon={<Flag />}

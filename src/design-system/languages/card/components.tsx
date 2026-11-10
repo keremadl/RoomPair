@@ -1,6 +1,5 @@
 "use client";
 import { Check, Circle, KeyRound, Star, Trophy } from "../../icons";
-import { you } from "@/lib/discover/deck";
 import { useText } from "@/design-system/text/TextProvider";
 import { type GroupId } from "@/design-system/components/ProfileDetails/ProfileDetails";
 import { type HomeSection } from "@/lib/discover/sections";

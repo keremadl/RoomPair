@@ -793,5 +793,18 @@
   "Leaf green and sunflower yellow on fresh spring paper.": "Ferah bahar kâğıdında yaprak yeşili ve ayçiçeği sarısı.",
   "Changes can’t be saved on this device. They last until you close this tab.": "Değişiklikler bu cihaza kaydedilemiyor. Bu sekmeyi kapatana kadar geçerli kalır.",
   "Your room at {price} per month is outside their budget.": "Aylık {price} olan odan onun bütçesinin dışında.",
-  "Your room at {price} fits their budget": "{price} tutarındaki odan onun bütçesine uyuyor"
+  "Your room at {price} fits their budget": "{price} tutarındaki odan onun bütçesine uyuyor",
+  "They cannot see you and you do not see them. Unblocking does not bring back the chat.": "Onlar seni, sen de onları görmezsin. Engeli kaldırmak sohbeti geri getirmez.",
+  "You have not blocked anyone.": "Kimseyi engellemedin.",
+  "Unblock": "Engeli kaldır",
+  "{name} is unblocked.": "{name} için engel kaldırıldı.",
+  "Profile saved. Hi, {name}!": "Profil kaydedildi. Merhaba, {name}!",
+  "Report or block {name}": "{name} adlı kişiyi şikâyet et veya engelle",
+  "Block {name}": "{name} adlı kişiyi engelle",
+  "Thanks for the photo! That helps a lot.": "Fotoğraf için teşekkürler! Çok yardımcı oldu.",
+  "I’m thinking around €450–550 including bills. What feels comfortable for you?": "Faturalar dahil 450–550 € civarı düşünüyorum. Senin için rahat olan aralık ne?",
+  "Coffee sounds lovely! How about Saturday at 11? There’s a nice little place near the market.": "Kahve harika olur! Cumartesi 11’e ne dersin? Pazarın yakınında güzel, küçük bir yer var.",
+  "A quick tidy after cooking and a shared Sunday reset works for me. What’s your routine?": "Yemekten sonra hızlı bir toparlama ve pazar günü ortak bir temizlik bana uyar. Senin düzenin nasıl?",
+  "Happy to tell you more about the place. What would you like to know?": "Ev hakkında daha fazlasını seve seve anlatırım. Neyi merak ediyorsun?",
+  "That sounds good to me! I’m looking for a home where we can be honest, respect each other’s space, and share a coffee now and then.": "Bana uyar! Birbirimize dürüst olabileceğimiz, alanımıza saygı duyacağımız ve ara sıra bir kahve paylaşacağımız bir ev arıyorum."
 }

@@ -35,12 +35,20 @@ import { ProfileDialog } from "./dialogs/ProfileDialog";
 import { MatchDialog } from "./dialogs/MatchDialog";
 import { HelpDialog } from "./dialogs/HelpDialog";
 import { ReportDialog } from "./dialogs/ReportDialog";
+import { BlockedDialog } from "./dialogs/BlockedDialog";
 import { Onboarding } from "./Onboarding";
 import { Brand } from "./Brand";
 import s from "./AppShell.module.css";
 
 type Dialog =
-  "filters" | "profile" | "match" | "help" | "settings" | "report" | null;
+  | "filters"
+  | "profile"
+  | "match"
+  | "help"
+  | "settings"
+  | "report"
+  | "blocked"
+  | null;
 
 /**
  * A unique id for a message. crypto.randomUUID only exists on HTTPS and
@@ -305,18 +313,32 @@ function RoomPairApp() {
       [id]: (pending[id] ?? 0) + 1,
     }));
     const timer = setTimeout(() => {
-      const lower = body.toLowerCase();
+      // Canned answers, in the app's language. The cue words cover both
+      // bundled languages; anything else gets the general answer.
+      const lower = body.toLocaleLowerCase();
+      const mentions = (...words: string[]) =>
+        words.some((word) => lower.includes(word));
       const answer = !body
-        ? "Thanks for the photo! That helps a lot."
-        : lower.includes("budget")
-          ? "I’m thinking around €450–550 including bills. What feels comfortable for you?"
-          : lower.includes("coffee") || lower.includes("meet")
-            ? "Coffee sounds lovely! How about Saturday at 11? There’s a nice little place near the market."
-            : lower.includes("clean")
-              ? "A quick tidy after cooking and a shared Sunday reset works for me. What’s your routine?"
-              : lower.includes("room") || lower.includes("flat")
-                ? "Yes! I’d love to compare places together. Let’s add our favourites to Our space."
-                : "That sounds good to me! I’m looking for a home where we can be honest, respect each other’s space, and share a coffee now and then.";
+        ? t("Thanks for the photo! That helps a lot.")
+        : mentions("budget", "rent", "bütçe", "kira")
+          ? t(
+              "I’m thinking around €450–550 including bills. What feels comfortable for you?",
+            )
+          : mentions("coffee", "meet", "kahve", "buluş", "görüş")
+            ? t(
+                "Coffee sounds lovely! How about Saturday at 11? There’s a nice little place near the market.",
+              )
+            : mentions("clean", "tidy", "temiz", "düzen")
+              ? t(
+                  "A quick tidy after cooking and a shared Sunday reset works for me. What’s your routine?",
+                )
+              : mentions("room", "flat", "oda", "daire", "ev")
+                ? t(
+                    "Happy to tell you more about the place. What would you like to know?",
+                  )
+                : t(
+                    "That sounds good to me! I’m looking for a home where we can be honest, respect each other’s space, and share a coffee now and then.",
+                  );
       setState((st) => ({
         ...st,
         chats: st.chats.map((c) =>
@@ -681,6 +703,7 @@ function RoomPairApp() {
             }}
             onEdit={() => openSub("edit")}
             onHelp={() => setDialog("help")}
+            onBlocked={() => setDialog("blocked")}
             onIntent={changeIntent}
             onVerify={() =>
               setState((st) => ({
@@ -751,6 +774,20 @@ function RoomPairApp() {
             }}
           />
         )}
+        {dialog === "blocked" && (
+          <BlockedDialog
+            key="blocked"
+            people={profiles.filter((p) => state.blocked.includes(p.id))}
+            onClose={() => setDialog(null)}
+            onUnblock={(person) => {
+              setState((st) => ({
+                ...st,
+                blocked: st.blocked.filter((id) => id !== person.id),
+              }));
+              notify(t("{name} is unblocked.", { name: person.name }));
+            }}
+          />
+        )}
         {dialog === "report" && detail && (
           <ReportDialog
             key="report"
@@ -759,7 +796,12 @@ function RoomPairApp() {
             onReport={(reason) => {
               setState((st) => ({
                 ...st,
-                reports: [...st.reports, { profileId: detail.id, reason }],
+                // Reporting the same person for the same reason twice adds nothing.
+                reports: st.reports.some(
+                  (r) => r.profileId === detail.id && r.reason === reason,
+                )
+                  ? st.reports
+                  : [...st.reports, { profileId: detail.id, reason }],
               }));
               setDialog(null);
               notify(
@@ -771,8 +813,10 @@ function RoomPairApp() {
             onBlock={() => {
               setState((st) => ({
                 ...st,
-                blocked: [...st.blocked, detail.id],
+                blocked: [...new Set([...st.blocked, detail.id])],
                 chats: st.chats.filter((c) => c.profileId !== detail.id),
+                // Forget the swipe too, so Undo never targets someone hidden.
+                decisions: st.decisions.filter((d) => d.id !== detail.id),
               }));
               // Leave any page that still shows the blocked person.
               if (likeOpen === detail.id) setLikeOpen(null);
@@ -798,7 +842,9 @@ function RoomPairApp() {
               // or its title and back button would sit above Discover.
               setSub(null);
               setView("discover");
-              notify(`${t("Profile saved. Hi,")} ${preferences.name}!`);
+              notify(
+                t("Profile saved. Hi, {name}!", { name: preferences.name }),
+              );
             }}
           />
         )}

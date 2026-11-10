@@ -8,7 +8,6 @@ import {
   Bus,
   DoorOpen,
   Handshake,
-  Languages,
   PartyPopper,
   PiggyBank,
   ScrollText,

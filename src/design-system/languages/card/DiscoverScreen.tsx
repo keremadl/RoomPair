@@ -12,10 +12,7 @@ import {
   Compass,
   Heart,
   Home,
-  KeyRound,
   MessageCircle,
-  Moon,
-  Backpack,
   RotateCcw,
   Smile,
   Sparkles,
@@ -25,13 +22,7 @@ import {
 import { SwipeHero } from "@/design-system/components/SwipeCard/SwipeCard";
 import { Reveal } from "@/design-system/components/Motion/Motion";
 import { useText } from "@/design-system/text/TextProvider";
-import {
-  dateLabel,
-  sleepLabel,
-  useDeck,
-  you,
-  type Mode,
-} from "@/lib/discover/deck";
+import { dateLabel, useDeck, you, type Mode } from "@/lib/discover/deck";
 import {
   ProfileDetails,
   type DetailsLayout,
@@ -43,7 +34,7 @@ import {
 } from "@/lib/discover/sections";
 import s from "./styles.module.css";
 import w from "./swipe.module.css";
-import { Stat, Versus, Trait, Banner, HomeItem } from "./components";
+import { Versus, Trait, Banner, HomeItem } from "./components";
 
 /**
  * The swipeable card and its actions. Controlled: pass a deck.

@@ -147,3 +147,20 @@
 .notice p {
   margin: var(--space-1) 0 0;
 }
+.people {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.people > li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+.people > li + li {
+  border-top: var(--border-width) solid var(--color-border);
+}
