@@ -29,6 +29,7 @@ export function ProfileView() {
     dateLabel,
     setDialog,
     setOnboarding,
+    account,
   } = useApp();
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -166,7 +167,7 @@ export function ProfileView() {
             onClick={() => setDialog("settings")}
           >
             <Settings2 size={16} />
-            {t("Demo settings & data")}
+            {account ? t("auth.account") : t("Demo settings & data")}
           </button>
         </section>
       </div>

@@ -174,7 +174,8 @@ export function DiscoverView() {
                 </span>
               </div>
               <h3>
-                {profile.name}, {profile.age}
+                {profile.name}
+                {profile.age > 0 && `, ${profile.age}`}
                 {profile.verified && <BadgeCheck size={18} />}
               </h3>
               <p>
@@ -277,7 +278,7 @@ export function DiscoverView() {
                       <div className="profile-name">
                         <h2>
                           {current.name}
-                          <span>, {current.age}</span>
+                          {current.age > 0 && <span>, {current.age}</span>}
                         </h2>
                         {current.verified && (
                           <BadgeCheck className="verified-icon" size={25} />

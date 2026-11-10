@@ -34,7 +34,8 @@ export function DetailsDialog({ detail }: { detail: Profile }) {
             {detail.neighborhood}, {detail.city}
           </span>
           <h2>
-            {detail.name}, {detail.age}
+            {detail.name}
+            {detail.age > 0 && `, ${detail.age}`}
             {detail.verified && <BadgeCheck size={25} />}
           </h2>
           <p>

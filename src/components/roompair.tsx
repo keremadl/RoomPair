@@ -14,6 +14,7 @@ import {
   Settings2,
   Smile,
 } from "lucide-react";
+import { useState } from "react";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { I18nProvider } from "@/lib/i18n";
 import { AppProvider, useApp, type View } from "./app/controller";
@@ -30,6 +31,7 @@ import { RoomDialog } from "./dialogs/room-dialog";
 import { HelpDialog } from "./dialogs/help-dialog";
 import { SettingsDialog } from "./dialogs/settings-dialog";
 import { ReportDialog } from "./dialogs/report-dialog";
+import { AuthScreen } from "./auth-screen";
 import { Onboarding } from "./onboarding";
 import { Brand, HomeIllustration } from "./ui";
 
@@ -52,7 +54,8 @@ function Shell() {
     state,
     setState,
     ready,
-    storageFailed,
+    saveFailed,
+    account,
     view,
     setView,
     dialog,
@@ -68,6 +71,14 @@ function Shell() {
     changeView,
     openFilters,
   } = useApp();
+  // A new member answers the living-style questions before anything else;
+  // until then nobody else can see them. They may still skip and look around.
+  const [onboardingSkipped, setOnboardingSkipped] = useState(false);
+  const mustOnboard =
+    account?.status === "signed-in" &&
+    ready &&
+    !state.onboarded &&
+    !onboardingSkipped;
   const nav = [
     { id: "discover", icon: Compass, label: t("nav.discover") },
     { id: "likes", icon: Heart, label: t("nav.likes"), count: received.length },
@@ -91,6 +102,7 @@ function Shell() {
         <span className="loading-line" />
       </div>
     );
+  if (account?.status === "signed-out") return <AuthScreen account={account} />;
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -196,11 +208,13 @@ function Shell() {
             </button>
           </div>
         </header>
-        {storageFailed && (
+        {saveFailed && (
           <p className="storage-warning" role="status">
-            {t(
-              "Changes can’t be saved in this browser. They will last until you close this tab.",
-            )}
+            {account
+              ? t("sync.failed")
+              : t(
+                  "Changes can’t be saved in this browser. They will last until you close this tab.",
+                )}
           </p>
         )}
         <main
@@ -243,10 +257,13 @@ function Shell() {
         {dialog === "settings" && <SettingsDialog />}
         {dialog === "report" && detail && <ReportDialog detail={detail} />}
       </AnimatePresence>
-      {onboarding && (
+      {(onboarding || mustOnboard) && (
         <Onboarding
           initial={state.preferences}
-          onClose={() => setOnboarding(false)}
+          onClose={() => {
+            setOnboarding(false);
+            setOnboardingSkipped(true);
+          }}
           onComplete={(preferences) => {
             setState((s) => ({
               ...s,

@@ -372,6 +372,7 @@ export const rooms: Room[] = profiles
   .filter((profile) => profile.room)
   .map((profile) => ({
     id: `room-${profile.id}`,
+    ownerId: profile.id,
     title: profile.room!.title,
     city: profile.city,
     neighborhood: profile.neighborhood,

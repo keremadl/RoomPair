@@ -21,13 +21,14 @@ import { motion } from "motion/react";
 import { getCompatibility } from "@/lib/matching";
 import { EmptyState } from "../ui";
 import { PageHeading } from "../shared";
-import { useApp, profileById } from "../app/controller";
+import { useApp } from "../app/controller";
 
 export function MessagesView() {
   const {
     t,
     state,
     setState,
+    profileById,
     setDialog,
     setSelected,
     setActiveChat,
@@ -79,6 +80,7 @@ export function MessagesView() {
             )
             .map((c) => {
               const p = profileById(c.profileId);
+              if (!p) return null;
               return (
                 <button
                   key={c.id}

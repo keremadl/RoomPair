@@ -75,6 +75,8 @@ export interface Conversation {
 
 export interface Room {
   id: string;
+  /** The profile that offers the room. */
+  ownerId: string;
   title: string;
   city: string;
   neighborhood: string;

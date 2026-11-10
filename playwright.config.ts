@@ -15,6 +15,8 @@ const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
 
 export default defineConfig({
   testDir: "./tests",
+  // tests/accounts needs a database; see playwright.accounts.config.ts.
+  testIgnore: "**/accounts/**",
   fullyParallel: true,
   workers: 2,
   timeout: 30_000,

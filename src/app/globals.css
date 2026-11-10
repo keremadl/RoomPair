@@ -353,6 +353,57 @@ select {
 .workspace {
   margin-left: 230px;
 }
+.auth-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: var(--paper);
+}
+.auth-card {
+  width: min(100%, 420px);
+  padding: 34px 30px 26px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  box-shadow: 0 18px 50px #20342414;
+  text-align: center;
+}
+.auth-card .home-illustration {
+  width: 190px;
+  margin: 14px auto 6px;
+  display: block;
+}
+.auth-card h1 {
+  font-family: var(--font-heading);
+  font-size: 27px;
+  color: var(--ink);
+  margin: 6px 0 6px;
+}
+.auth-intro {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 0 18px;
+}
+.auth-card .filters-form {
+  text-align: left;
+}
+.auth-message {
+  margin: 0;
+  font-size: 13px;
+  color: var(--green);
+}
+.auth-error {
+  color: #b4532f;
+}
+.auth-card > .text-button {
+  margin: 14px auto 0;
+}
+.auth-footnote {
+  margin: 16px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+}
 .storage-warning {
   margin: 0;
   padding: 9px 20px;

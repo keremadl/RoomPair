@@ -1,12 +1,14 @@
 "use client";
 
-import { RotateCcw, Settings2 } from "lucide-react";
+import { LogOut, RotateCcw, Settings2 } from "lucide-react";
 import { Modal } from "../ui";
 import { useApp } from "../app/controller";
 
 export function SettingsDialog() {
   const {
     t,
+    account,
+    signOut,
     reset,
     setView,
     setDialog,
@@ -16,6 +18,26 @@ export function SettingsDialog() {
     replyTimers,
     notify,
   } = useApp();
+  if (account)
+    return (
+      <Modal title={t("auth.account")} onClose={() => setDialog(null)}>
+        <div className="modal-eyebrow">
+          <Settings2 size={20} />
+          {t("YOUR ROOMPAIR")}
+        </div>
+        <h2>{t("auth.account")}</h2>
+        <p className="modal-description">
+          {t("auth.signedInAs", { email: account.email })}
+        </p>
+        <button className="button secondary full-width" onClick={signOut}>
+          <LogOut size={17} />
+          {t("auth.signOut")}
+        </button>
+        <button className="text-button" onClick={() => setDialog(null)}>
+          {t("common.cancel")}
+        </button>
+      </Modal>
+    );
   return (
     <Modal title={t("Demo settings & data")} onClose={() => setDialog(null)}>
       <div className="modal-eyebrow">

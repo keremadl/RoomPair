@@ -8,9 +8,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { profiles, rooms } from "@/lib/data";
 import { getCompatibility, rankProfiles } from "@/lib/matching";
-import { useAppState } from "@/lib/store";
+import { useAppData } from "@/lib/app-data";
 import { useI18n } from "@/lib/i18n";
 import type { Profile, Preferences, Room } from "@/lib/types";
 
@@ -32,8 +31,6 @@ export const today = () => {
     .toISOString()
     .slice(0, 10);
 };
-// Stored chats are sanitized in store.ts, so every chat points at a known profile.
-export const profileById = (id: string) => profiles.find((p) => p.id === id)!;
 
 /**
  * All interface state and actions of the demo: navigation, the discovery
@@ -49,7 +46,20 @@ function useRoomPairController() {
     isLoading: languageLoading,
     error: languageError,
   } = useI18n();
-  const { state, setState, ready, reset, storageFailed } = useAppState();
+  const {
+    state,
+    setState,
+    ready,
+    reset,
+    saveFailed,
+    profiles,
+    rooms,
+    account,
+    simulatesReplies,
+  } = useAppData();
+  // Chats only ever reference people the member can see: stored demo state is
+  // sanitized on load, and the server hides everyone else.
+  const profileById = (id: string) => profiles.find((p) => p.id === id);
   const dateLabel = (date: string) => {
     const value = new Date(date + "T12:00:00");
     return Number.isNaN(value.getTime())
@@ -100,7 +110,7 @@ function useRoomPairController() {
     : null;
   const detail = selected || current;
   const chat = state.chats.find((c) => c.id === activeChat) || state.chats[0];
-  const chatPerson = chat ? profileById(chat.profileId) : null;
+  const chatPerson = chat ? (profileById(chat.profileId) ?? null) : null;
   const received = ranked.filter(
     ({ profile }) =>
       profile.likesYou && !state.decisions.some((d) => d.id === profile.id),
@@ -119,7 +129,7 @@ function useRoomPairController() {
   ].filter(Boolean).length;
   // Rooms follow the same must-haves as people: budget, smoking, pets, blocks.
   const roomFits = (room: Room) => {
-    const host = profiles.find((p) => `room-${p.id}` === room.id);
+    const host = profiles.find((p) => p.id === room.ownerId);
     const prefs = state.preferences;
     return (
       !!host &&
@@ -134,7 +144,7 @@ function useRoomPairController() {
   const savedRooms = rooms.filter(
     (room) =>
       state.savedRooms.includes(room.id) &&
-      !state.blocked.includes(room.id.replace(/^room-/, "")),
+      !state.blocked.includes(room.ownerId),
   );
 
   const notify = (text: string) => {
@@ -155,6 +165,23 @@ function useRoomPairController() {
   useEffect(() => {
     chatEnd.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [chat?.messages.length, pendingReplies]);
+  /** Leaves nothing of one member's session on screen for the next one. */
+  function signOut() {
+    replyTimers.current.forEach(clearTimeout);
+    setPendingReplies({});
+    setView("discover");
+    setDialog(null);
+    setOnboarding(false);
+    setSelected(null);
+    setSelectedRoom(null);
+    setActiveChat(null);
+    setMessage("");
+    setChatSearch("");
+    setMode("people");
+    setListView(false);
+    setMobileChat(false);
+    account?.signOut();
+  }
   function changeView(v: View) {
     setView(v);
     setMobileChat(false);
@@ -303,6 +330,8 @@ function useRoomPairController() {
           : c,
       ),
     }));
+    // Real members answer for themselves; only demo people get canned replies.
+    if (!simulatesReplies) return;
     setPendingReplies((pending) => ({
       ...pending,
       [id]: (pending[id] ?? 0) + 1,
@@ -379,7 +408,10 @@ function useRoomPairController() {
     setState,
     ready,
     reset,
-    storageFailed,
+    saveFailed,
+    account,
+    signOut,
+    profileById,
     dateLabel,
     view,
     setView,

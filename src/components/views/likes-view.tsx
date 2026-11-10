@@ -64,7 +64,8 @@ export function LikesView() {
               </button>
               <div className="like-info">
                 <h3>
-                  {p.name}, {p.age}
+                  {p.name}
+                  {p.age > 0 && `, ${p.age}`}
                   {p.verified && <BadgeCheck size={18} />}
                 </h3>
                 <p>{p.occupation}</p>
