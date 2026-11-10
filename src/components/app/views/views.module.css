@@ -101,7 +101,7 @@
   padding: 0 var(--space-3);
   min-height: var(--control-md);
   border: var(--control-border-width) solid
-    var(--control-border, var(--color-border-strong));
+    var(--control-border, var(--surface-border, var(--color-border-strong)));
   border-radius: var(--radius-md);
   background: var(--color-surface-raised);
 }
@@ -149,7 +149,7 @@
   }
 }
 .conversation[aria-current="true"] {
-  border-color: var(--color-border-strong);
+  border-color: var(--surface-border, var(--color-border-strong));
   background: var(--color-primary-soft);
 }
 .conversation:focus-visible,
@@ -242,7 +242,8 @@
 }
 .fitChip {
   padding: 0 var(--space-2);
-  border: var(--control-border-width) solid var(--color-border-strong);
+  border: var(--control-border-width) solid
+    var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-full);
   background: var(--color-accent-soft);
   color: var(--color-accent-strong);
@@ -279,7 +280,8 @@
 .bubble {
   max-width: min(78%, 34rem);
   padding: var(--space-2) var(--space-3);
-  border: var(--control-border-width) solid var(--color-border-strong);
+  border: var(--control-border-width) solid
+    var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-lg);
   background: var(--color-surface-raised);
 }
@@ -351,7 +353,7 @@
   gap: var(--space-1);
   padding: var(--space-1);
   border: var(--control-border-width) solid
-    var(--control-border, var(--color-border-strong));
+    var(--control-border, var(--surface-border, var(--color-border-strong)));
   border-radius: var(--radius-full);
   background: var(--color-surface-raised);
   box-shadow: var(--control-shadow, var(--shadow-sm));
@@ -401,7 +403,8 @@
 }
 .progress {
   height: 0.75rem;
-  border: var(--control-border-width) solid var(--color-border-strong);
+  border: var(--control-border-width) solid
+    var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-full);
   background: var(--stat-off, var(--color-surface-sunken));
   overflow: hidden;
@@ -426,7 +429,8 @@
 }
 .myFacts div {
   padding: var(--space-2) var(--space-3);
-  border: var(--control-border-width) solid var(--color-border-strong);
+  border: var(--control-border-width) solid
+    var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-sm);
   background: var(--color-surface-raised);
 }
@@ -448,7 +452,8 @@
 }
 .mustHaves li {
   padding: var(--space-1) var(--space-3);
-  border: var(--control-border-width) solid var(--color-border-strong);
+  border: var(--control-border-width) solid
+    var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-full);
   background: var(--color-surface-raised);
   font-size: var(--text-sm);
@@ -538,7 +543,8 @@
   aspect-ratio: 3 / 4;
   padding: 0;
   overflow: hidden;
-  border: var(--surface-border-width) solid var(--color-border-strong);
+  border: var(--surface-border-width) solid
+    var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-lg);
   background: var(--color-surface-sunken);
   box-shadow: var(--control-shadow, var(--shadow-sm));
@@ -664,7 +670,8 @@
   align-items: center;
   gap: var(--space-1);
   padding: 0 var(--space-2);
-  border: var(--control-border-width) solid var(--color-border-strong);
+  border: var(--control-border-width) solid
+    var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
   font-weight: var(--weight-bold);
@@ -709,7 +716,8 @@
 .swatches {
   display: inline-flex;
   overflow: hidden;
-  border: var(--control-border-width) solid var(--color-border-strong);
+  border: var(--control-border-width) solid
+    var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-sm);
 }
 .swatches span {

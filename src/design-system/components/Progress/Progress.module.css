@@ -12,7 +12,8 @@
 .track {
   flex: 1;
   height: 0.75rem;
-  border: var(--control-border-width) solid var(--color-border-strong);
+  border: var(--control-border-width) solid
+    var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-full);
   background: var(--stat-off, var(--color-surface-sunken));
   overflow: hidden;

@@ -65,7 +65,10 @@
 
 .secondary {
   background: var(--color-surface-raised);
-  border-color: var(--control-border, var(--color-border-strong));
+  border-color: var(
+    --control-border,
+    var(--surface-border, var(--color-border-strong))
+  );
   color: var(--color-text);
   box-shadow: var(--control-shadow);
 }

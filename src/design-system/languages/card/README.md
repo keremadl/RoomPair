@@ -10,7 +10,7 @@ Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/d
 | ----------- | --------------------------------------------------------------------------------------- |
 | **Layout**  | A card framed in its type colour; you-vs-them stats below and the room as an item card. |
 | **Type**    | Rubik: rounded and bold, yet readable at full size.                                     |
-| **Shape**   | Thick outlines, pressable 3D buttons, stat pips and a fit bar.                          |
+| **Shape**   | Soft 3D: quiet outlines with a thicker bottom edge, pressable buttons, stat pips.       |
 | **Motion**  | Playful and bouncy; buttons sink when pressed.                                          |
 | **Details** | Fit is a % score; match reasons are completed quests, things to discuss are open ones.  |
 
@@ -20,8 +20,10 @@ Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/d
 
 - The card front shows the person only: age, type, class, stats. Rent and dates are Home, on the `HomeItem`.
 - Frame colour encodes type: `--type-host` (has a room), `--type-explorer` (looking together).
+- Soft 3D: outlines and the thick bottom edge of anything pressable use `--soft-edge`, a quiet tone mixed from the palette's ink and the page. Nothing is outlined in ink. In component and app styles write `var(--surface-border, …)` or `var(--control-border, …)`, never `--color-border-strong` directly.
 - Buttons press down by `--press-depth` and lose their `--press-shadow`; keep that on every pressable.
-- Filled buttons (primary, Like, Team up, the selected answer) are outlined and shadowed in a darker tone of their own colour (`--control-primary-border`, `--control-primary-shadow`), never in ink. Ink outlines and shadows are for light surfaces.
+- Inputs sit slightly into the page (`--field-bg`) and turn white with a primary outline while typed in. A selected chip or answer is tinted with a primary outline, not filled.
+- Filled buttons (primary, Like, Team up) sit on a darker tone of their own colour (`--control-primary-shadow`).
 - The focus ring is for the keyboard only: use `:focus-visible` (or `:has(:focus-visible)` on a wrapper), never `:focus` or `:focus-within`, so a click or a tap does not draw a ring.
 - Put every `:hover` rule inside `@media (hover: hover)`; on touch screens a hover style otherwise sticks after a tap.
 - Game words stay light (quests, abilities); numbers stay plain: "Age 23", "96% fit", "€420 per month". No levels or XP.
@@ -57,8 +59,8 @@ Beyond the shared semantic tokens (`--color-*`, `--text-*`, `--space-*`, `--radi
 | `--stat-on`       | `#5b3fd6`                                                              |
 | `--stat-off`      | `#d9dfeb`                                                              |
 | `--xp`            | `#f5a524`                                                              |
-| `--press-depth`   | `4px`                                                                  |
-| `--press-shadow`  | `0 4px 0 #1d2240`                                                      |
+| `--press-depth`   | `3px`                                                                  |
+| `--press-shadow`  | `0 3px 0` in `--soft-edge`                                             |
 | `--icon-stroke`   | `2.5`                                                                  |
 | `--ease-page`     | `cubic-bezier(0.3, 1.3, 0.5, 1)` (a small overshoot when a page lands) |
 
