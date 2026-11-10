@@ -30,11 +30,20 @@ import {
 /** `id` lets a layout find a fact without matching its (translated) label. */
 export type Fact = { id?: string; label: string; value: string; note?: string };
 
+/** A short fact shown as a pill; `id` picks its icon. */
+export type Chip = { id: string; text: string };
+
 export type HomeSection = {
   kind: "listing" | "search";
   heading: string;
   summary: string;
   facts: Fact[];
+  /** Rent and dates, as short pills. */
+  money: Chip[];
+  /** What the place is like, as short pills. */
+  place: Chip[];
+  transport?: string;
+  rules?: string;
   photo?: string;
   /** Every room photo, the main one first. */
   photos?: string[];
@@ -43,6 +52,7 @@ export type HomeSection = {
 };
 
 export type HabitRow = {
+  id: string;
   label: string;
   them: string;
   you: string;
@@ -121,6 +131,41 @@ export function homeSection(p: Profile, t: Translate = english): HomeSection {
           ? [{ label: t("House rules"), value: r.houseRules }]
           : []),
       ],
+      money: [
+        { id: "rent", text: t("€{price} a month", { price: r.price }) },
+        {
+          id: "bills",
+          text: r.billsIncluded ? t("Bills included") : t("Bills extra"),
+        },
+        { id: "deposit", text: t("€{amount} deposit", { amount: r.deposit }) },
+        { id: "date", text: t("From {date}", { date: dateLabel(p.moveDate) }) },
+        {
+          id: "stay",
+          text: t("{duration} or more", { duration: months(p.stayMonths) }),
+        },
+      ],
+      place: [
+        {
+          id: "furniture",
+          text: r.furnished ? t("Furnished") : t("Unfurnished"),
+        },
+        {
+          id: "bathroom",
+          text: r.privateBathroom ? t("Own bathroom") : t("Shared bathroom"),
+        },
+        {
+          id: "flatmates",
+          text:
+            r.flatmates === 0
+              ? t("No flatmates yet")
+              : r.flatmates === 1
+                ? t("1 flatmate")
+                : t("{count} flatmates", { count: r.flatmates }),
+        },
+        { id: "area", text: p.neighborhood },
+      ],
+      transport: r.transport || undefined,
+      rules: r.houseRules || undefined,
       photo: r.photo,
       photos: r.photos?.length ? r.photos : [r.photo],
       title: r.title,
@@ -148,6 +193,20 @@ export function homeSection(p: Profile, t: Translate = english): HomeSection {
         value: t("{area} or nearby", { area: p.neighborhood }),
       },
     ],
+    money: [
+      {
+        id: "rent",
+        text: t("€{min}–{max} a month", { min: p.budget[0], max: p.budget[1] }),
+      },
+      { id: "date", text: t("From {date}", { date: dateLabel(p.moveDate) }) },
+      {
+        id: "stay",
+        text: t("For {duration}", { duration: months(p.stayMonths) }),
+      },
+    ],
+    place: [
+      { id: "area", text: t("{area} or nearby", { area: p.neighborhood }) },
+    ],
     description: t(
       "{name} doesn't have a room yet and would like to find a place together with a flatmate.",
       { name: p.name },
@@ -163,7 +222,14 @@ export function personSection(
 ): PersonSection {
   const v = viewer;
   // Callers pass translated text, so the extractor sees every t() argument.
-  const row = (label: string, them: string, mine: string, same: boolean) => ({
+  const row = (
+    id: string,
+    label: string,
+    them: string,
+    mine: string,
+    same: boolean,
+  ) => ({
+    id,
     label,
     them,
     you: mine,
@@ -200,54 +266,63 @@ export function personSection(
     prompts: p.prompts.map((pr) => ({ ...pr, question: t(pr.question) })),
     habits: [
       row(
+        "tidiness",
         t("Tidiness"),
         t(tidinessLabel[p.habits.cleanliness]),
         t(tidinessLabel[v.cleanliness]),
         p.habits.cleanliness === v.cleanliness,
       ),
       row(
+        "social",
         t("Social energy"),
         t(socialLabel[p.habits.social]),
         t(socialLabel[v.social]),
         p.habits.social === v.social,
       ),
       row(
+        "sleep",
         t("Sleep"),
         t(sleepLabel[p.habits.sleep]),
         t(sleepLabel[v.sleep]),
         p.habits.sleep === v.sleep,
       ),
       row(
+        "smoking",
         t("Smoking"),
         t(p.habits.smoking ? "Smokes" : "Smoke-free"),
         t(v.smokeFree ? "Smoke-free" : "Either is fine"),
         !(p.habits.smoking && v.smokeFree),
       ),
       row(
+        "pets",
         t("Pets"),
         t(p.habits.pets ? "Has a pet" : "No pets"),
         t(v.petsOkay ? "Pets welcome" : "No pets"),
         !(p.habits.pets && !v.petsOkay),
       ),
       row(
+        "guests",
         t("Guests"),
         t(guestsLabel[p.habits.guests]),
         t(guestsLabel[v.guests]),
         p.habits.guests === v.guests,
       ),
       row(
+        "homeDays",
         t("In the day"),
         t(homeDaysLabel[p.habits.homeDays]),
         t(homeDaysLabel[v.homeDays]),
         p.habits.homeDays === v.homeDays,
       ),
       row(
+        "noise",
         t("Noise"),
         t(noiseLabel[p.habits.noise]),
         t(noiseLabel[v.noise]),
         p.habits.noise === v.noise,
       ),
       row(
+        "sharing",
         t("Sharing"),
         t(sharingLabel[p.habits.sharing]),
         t(sharingLabel[v.sharing]),

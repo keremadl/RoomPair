@@ -47,7 +47,11 @@ import {
   Text,
   Textarea,
   SectionHeader,
+  DetailSection,
+  FactChips,
   FactGrid,
+  FactRows,
+  PullQuote,
   CompareTable,
   ScoreBars,
   ReasonList,
@@ -789,6 +793,39 @@ export function Showcase() {
                 { value: "rooms", label: "Find a room", icon: <Building2 /> },
               ]}
             />
+          </Specimen>
+          <Specimen label="DetailSection · FactChips, FactRows, PullQuote (profile sections)">
+            <Stack gap={3}>
+              <DetailSection icon={<Icons.Wallet />} label="Rent and dates">
+                <FactChips
+                  items={[
+                    { icon: <Icons.Wallet />, text: "€420 a month" },
+                    { icon: <Icons.CalendarDays />, text: "From 1 Feb" },
+                    { icon: <Icons.Check />, text: "Budget", tone: "match" },
+                    {
+                      icon: <Icons.Circle />,
+                      text: "Social energy",
+                      tone: "differ",
+                    },
+                    { text: "Slow mornings", tone: "interest" },
+                  ]}
+                />
+              </DetailSection>
+              <DetailSection icon={<Icons.UserRound />} label="Essentials">
+                <FactRows
+                  items={[
+                    { icon: <Icons.Backpack />, text: "Design student" },
+                    { icon: <Icons.Languages />, text: "Latvian, English" },
+                  ]}
+                />
+              </DetailSection>
+              <DetailSection
+                icon={<Icons.MessageSquareQuote />}
+                label="The best thing about living here…"
+              >
+                <PullQuote>A kitchen you can linger in.</PullQuote>
+              </DetailSection>
+            </Stack>
           </Specimen>
           <Specimen label="ListRow / ListGroup">
             <ListGroup title="About you" id="spec-about">
