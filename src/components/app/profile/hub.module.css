@@ -103,6 +103,13 @@
   height: 1.1rem;
 }
 
+/* Edit and preview, side by side */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
 /* Nudge card */
 .nudge {
   display: flex;
@@ -250,4 +257,8 @@
 }
 .preview > div > div:first-child {
   height: min(32rem, 62dvh);
+}
+.previewDetails {
+  min-width: 0;
+  margin-top: var(--space-4);
 }

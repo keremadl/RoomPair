@@ -5,7 +5,7 @@ import {
   MessageCircle,
   Building2,
   ChevronRight,
-  CircleHelp,
+  Eye,
   Flag,
   Heart,
   KeyRound,
@@ -14,12 +14,32 @@ import {
   UserPen,
   Users,
 } from "@/design-system/icons";
-import { ChoiceCards, Dialog, ListGroup, ListRow } from "@/design-system";
+import {
+  Button,
+  ChoiceCards,
+  Dialog,
+  ListGroup,
+  ListRow,
+} from "@/design-system";
 import { useI18n } from "@/lib/i18n";
-import { defaultLanguage, discoverParts } from "@/design-system/languages";
+import {
+  defaultLanguage,
+  defaultLayout,
+  discoverParts,
+} from "@/design-system/languages";
 import { asProfile, completion, profileSteps } from "@/lib/profile";
-import type { MyProfile, Preferences } from "@/lib/types";
+import type { MatchResult, MyProfile, Preferences } from "@/lib/types";
 import h from "../profile/hub.module.css";
+
+/** Your own card has nobody to be compared with. */
+const noMatch: MatchResult = {
+  score: 0,
+  eligible: true,
+  reasons: [],
+  considerations: [],
+  breakdown: [],
+  dealbreakers: [],
+};
 
 /**
  * The profile page: who you are at a glance, how complete your profile
@@ -30,7 +50,6 @@ export function ProfileView({
   me,
   counts,
   onEdit,
-  onHelp,
   onBlocked,
   onIntent,
   onVerify,
@@ -41,7 +60,6 @@ export function ProfileView({
   me: MyProfile;
   counts: { likes: number; matches: number; blocked: number; reports: number };
   onEdit: () => void;
-  onHelp: () => void;
   /** Opens the list of blocked people. */
   onBlocked: () => void;
   onIntent: (intent: "find-room" | "have-room") => void;
@@ -53,7 +71,7 @@ export function ProfileView({
   const { t } = useI18n();
   const [choosing, setChoosing] = useState(false);
   const [previewing, setPreviewing] = useState(false);
-  const { Card } = discoverParts[defaultLanguage];
+  const { Card, Details } = discoverParts[defaultLanguage];
   const host = prefs.intent === "have-room";
   const steps = profileSteps(me, prefs);
   const percent = completion(steps);
@@ -99,6 +117,20 @@ export function ProfileView({
           </button>
         </div>
       </section>
+
+      <div className={h.actions}>
+        <Button leadingIcon={<UserPen />} onClick={onEdit} fullWidth>
+          {t("Edit profile")}
+        </Button>
+        <Button
+          variant="secondary"
+          leadingIcon={<Eye />}
+          onClick={() => setPreviewing(true)}
+          fullWidth
+        >
+          {t("Preview")}
+        </Button>
+      </div>
 
       {next && (
         <button type="button" className={h.nudge} onClick={onEdit}>
@@ -150,25 +182,23 @@ export function ProfileView({
           onClick={onBlocked}
           link
         />
-        <ListRow
-          icon={<Flag />}
-          label={t("Reports you sent")}
-          value={counts.reports}
-        />
-        <ListRow
-          icon={<CircleHelp />}
-          label={t("How RoomPair works")}
-          onClick={onHelp}
-          link
-        />
+        {counts.reports > 0 && (
+          <ListRow
+            icon={<Flag />}
+            label={t("Reports you sent")}
+            value={counts.reports}
+          />
+        )}
       </ListGroup>
 
       {previewing && (
         <Dialog title={t("Your card")} onClose={() => setPreviewing(false)}>
           <p className={h.lead}>
             {host
-              ? t("Room seekers see this card.")
-              : t("People with a room see this card.")}
+              ? t("Room seekers see this card, and the details under it.")
+              : t(
+                  "People with a room see this card, and the details under it.",
+                )}
           </p>
           <div className={h.preview}>
             <Card
@@ -176,14 +206,7 @@ export function ProfileView({
               roomFirst={host}
               deck={{
                 profile: asProfile(me, prefs),
-                match: {
-                  score: 0,
-                  eligible: true,
-                  reasons: [],
-                  considerations: [],
-                  breakdown: [],
-                  dealbreakers: [],
-                },
+                match: noMatch,
                 cardKey: "me",
                 exitDirection: 0,
                 canUndo: false,
@@ -192,6 +215,25 @@ export function ProfileView({
                 index: 0,
                 total: 1,
               }}
+            />
+          </div>
+          <div
+            className={h.previewDetails}
+            style={
+              {
+                "--sticky-offset": "calc(var(--space-8) * -1)",
+                "--details-bleed": "var(--space-6)",
+                "--details-bg": "var(--color-surface-raised)",
+                "--detail-section-bg": "var(--color-bg)",
+              } as React.CSSProperties
+            }
+          >
+            <Details
+              profile={asProfile(me, prefs)}
+              match={noMatch}
+              layout={defaultLayout}
+              viewer={prefs}
+              groups={["home", "person"]}
             />
           </div>
         </Dialog>

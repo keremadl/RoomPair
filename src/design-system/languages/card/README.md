@@ -20,6 +20,8 @@ Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/d
 
 - The card front shows the person only: age, type, class, stats. Rent and dates are Home.
 - Under the card, each tab (Room, the person, Fit) is a column of `DetailSection`s from the design system, all the same shape: a small label with an icon, then one kind of content. Short facts are `FactChips`, who someone is goes in `FactRows`, an answer in their own words is a `PullQuote`, a description is plain text, and photos sit between sections as `DetailPhoto`. Do not nest boxes inside a section or invent a new shape for one tab.
+- A profile opened on its own (from a conversation or a like) starts with `DetailHero`: the photo, large, with the name and one line on it, and the options button on the photo. Opened from that person's conversation it has no Message button.
+- An open conversation on a phone is a focused page: the top bar shows the person (`TopBar` `person`: photo, name, fit and area; pressing it opens their profile) and the tab bar is hidden (`AppShell` `focused`). The time is shown once under a run of messages from one person, and a new day gets its own line.
 - "You vs them" lives in Fit only: matching things are green chips, differing ones amber.
 - Frame colour encodes type: `--type-host` (has a room), `--type-explorer` (looking together).
 - Soft 3D: outlines and the thick bottom edge of anything pressable use `--soft-edge`, a quiet tone mixed from the palette's ink and the page. Nothing is outlined in ink. In component and app styles write `var(--surface-border, …)` or `var(--control-border, …)`, never `--color-border-strong` directly.

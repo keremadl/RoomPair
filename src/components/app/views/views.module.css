@@ -45,25 +45,16 @@
 
 /* Messages: full height, list + conversation */
 .messenger {
-  /* The page minus the top bar and main's padding (space-8 top, space-16 bottom). */
+  /* The page minus the top bar and main's padding (set by the shell). */
   --messenger-height: calc(
-    100dvh - var(--shell-bar-height) - var(--space-8) - var(--space-16)
+    100dvh - var(--shell-bar-height) - var(--main-pad-top, var(--space-8)) -
+      var(--main-pad-bottom, var(--space-16))
   );
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   height: var(--messenger-height);
   min-height: 26rem;
   /* No frame: the list and the chat sit on the page itself. */
-}
-@media (max-width: 979px) {
-  /* Phones: leave room for the tab bar. */
-  .messenger {
-    /* main's phone padding: space-6 top, space-16 + space-12 bottom. */
-    --messenger-height: calc(
-      100dvh - var(--shell-bar-height) - var(--space-6) - var(--space-16) -
-        var(--space-12)
-    );
-  }
 }
 .chatList,
 .chat {
@@ -78,7 +69,7 @@
 }
 @media (min-width: 860px) {
   .messenger {
-    grid-template-columns: 18rem minmax(0, 1fr);
+    grid-template-columns: 22rem minmax(0, 1fr);
   }
   .messenger[data-show] .chat,
   .messenger[data-show] .chatList {
@@ -122,19 +113,30 @@
   color: var(--color-text);
   font: inherit;
 }
+/* One box of rows, like every other list in the app. */
 .conversations {
-  flex: 1;
+  flex: 0 1 auto;
   margin: 0;
-  padding: 0;
+  padding: var(--space-1);
   overflow-y: auto;
+  border: var(--surface-border-width) solid
+    var(--surface-border, var(--color-border));
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
   list-style: none;
+}
+.conversations:empty {
+  display: none;
+}
+.conversations > li + li {
+  margin-top: var(--space-1);
 }
 .conversation {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   width: 100%;
-  padding: var(--space-3) var(--space-2);
+  padding: var(--space-3);
   border: var(--control-border-width) solid transparent;
   border-radius: var(--radius-md);
   background: none;
@@ -273,9 +275,43 @@
 }
 .messageRow {
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
 }
 .messageRow[data-mine="true"] {
-  justify-content: flex-end;
+  align-items: flex-end;
+}
+/* The end of one person's run of messages: a little air before the next. */
+.messageRow[data-closes] {
+  margin-bottom: var(--space-2);
+}
+/* The time, once under a run of messages. */
+.sent {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+.sent svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+/* A new day in the conversation. */
+.day {
+  display: flex;
+  justify-content: center;
+  margin: var(--space-3) 0 var(--space-2);
+}
+.day span {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
 }
 .bubble {
   max-width: min(78%, 34rem);
@@ -292,18 +328,6 @@
 .bubble p {
   margin: 0;
   overflow-wrap: anywhere;
-}
-.bubble small {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-  opacity: 0.85;
-}
-.bubble small svg {
-  width: 0.9rem;
-  height: 0.9rem;
 }
 .typing {
   display: flex;
@@ -380,8 +404,7 @@
 .bubble[data-photo] {
   padding: var(--space-1);
 }
-.bubble[data-photo] p,
-.bubble[data-photo] small {
+.bubble[data-photo] p {
   padding: 0 var(--space-2);
 }
 
@@ -619,21 +642,8 @@
   .stream {
     padding-top: 0;
   }
-  /* The composer stays put just above the tab bar; messages scroll under. */
-  .composer {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: calc(var(--shell-tab-height) + env(safe-area-inset-bottom, 0px));
-    z-index: var(--z-sticky);
-    padding: var(--space-2) var(--space-4);
-    background: var(--color-bg);
-  }
-  /* The column already ends above the tab bar; this keeps the last
-     message clear of the composer's own height. */
-  .chat {
-    padding-bottom: var(--space-4);
-  }
+  /* The tab bar is hidden here (AppShell `focused`), so the conversation
+     runs to the bottom of the screen and the composer closes the column. */
 }
 
 /* Likes: a two-column grid of photo tiles (the match tile, bigger) */

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import {
   BadgeCheck,
   CheckCheck,
@@ -17,6 +17,7 @@ import {
   Stagger,
   VisuallyHidden,
 } from "@/design-system";
+import { dayLabel, localDay } from "@/lib/chat-time";
 import { getCompatibility } from "@/lib/matching";
 import { useI18n } from "@/lib/i18n";
 import type { Conversation, Preferences, Profile } from "@/lib/types";
@@ -189,10 +190,18 @@ export function MessagesView({
                       <span className={v.conversationText}>
                         <strong>
                           {p.name}
-                          <small>{last?.time ?? t("New")}</small>
+                          <small>
+                            {!last
+                              ? t("New")
+                              : last.day && last.day !== localDay()
+                                ? dayLabel(last.day, t)
+                                : last.time}
+                          </small>
                         </strong>
                         <span>
-                          {last?.text ?? t("New match, no messages yet")}
+                          {last
+                            ? last.text || t("Photo")
+                            : t("New match, no messages yet")}
                         </span>
                       </span>
                       {c.unread > 0 && (
@@ -209,7 +218,7 @@ export function MessagesView({
         </aside>
 
         <section className={v.chat} aria-label={person.name}>
-          {/* Wide screens only; on phones the top bar holds back, name and options. */}
+          {/* Wide screens only; on phones the top bar holds the same things. */}
           <header className={v.chatHeader}>
             <button
               type="button"
@@ -256,28 +265,51 @@ export function MessagesView({
                 ))}
               </div>
             )}
-            {chat.messages.map((m) => (
-              <div
-                key={m.id}
-                className={v.messageRow}
-                data-mine={m.sender === "me"}
-              >
-                <div className={v.bubble} data-photo={m.photo ? "" : undefined}>
-                  {m.photo && (
-                    <img
-                      className={v.bubblePhoto}
-                      src={m.photo}
-                      alt={t("Photo")}
-                    />
+            {chat.messages.map((m, i) => {
+              const before = chat.messages[i - 1];
+              const after = chat.messages[i + 1];
+              // A new day gets a line; the time closes a run of messages
+              // from one person, rather than sitting on every bubble.
+              const newDay = Boolean(m.day) && m.day !== before?.day;
+              const closes =
+                !after || after.sender !== m.sender || after.day !== m.day;
+              return (
+                <Fragment key={m.id}>
+                  {newDay && m.day && (
+                    <p className={v.day}>
+                      <span>{dayLabel(m.day, t)}</span>
+                    </p>
                   )}
-                  {m.text && <p>{m.text}</p>}
-                  <small>
-                    {m.time}
-                    {m.sender === "me" && <CheckCheck aria-label={t("Sent")} />}
-                  </small>
-                </div>
-              </div>
-            ))}
+                  <div
+                    className={v.messageRow}
+                    data-mine={m.sender === "me"}
+                    data-closes={closes ? "" : undefined}
+                  >
+                    <div
+                      className={v.bubble}
+                      data-photo={m.photo ? "" : undefined}
+                    >
+                      {m.photo && (
+                        <img
+                          className={v.bubblePhoto}
+                          src={m.photo}
+                          alt={t("Photo")}
+                        />
+                      )}
+                      {m.text && <p>{m.text}</p>}
+                    </div>
+                    {closes && (
+                      <small className={v.sent}>
+                        {m.time}
+                        {m.sender === "me" && (
+                          <CheckCheck aria-label={t("Sent")} />
+                        )}
+                      </small>
+                    )}
+                  </div>
+                </Fragment>
+              );
+            })}
             {typing === chat.id && (
               <div className={v.typing} aria-label={t("messages.typing")}>
                 <span />

@@ -112,3 +112,32 @@ export function PullQuote({ children }: { children: ReactNode }) {
 export function DetailPhoto({ src, alt }: { src: string; alt: string }) {
   return <img className={s.photo} src={src} alt={alt} loading="lazy" />;
 }
+
+/**
+ * The top of a profile opened on its own (from a chat or a like): the photo,
+ * large, with the name and one line about the person on it.
+ */
+export function DetailHero({
+  src,
+  title,
+  subtitle,
+  action,
+}: {
+  src: string;
+  /** The name line; it is the profile's heading. */
+  title: ReactNode;
+  subtitle?: ReactNode;
+  /** A round button in the photo's top left corner, e.g. options. */
+  action?: ReactNode;
+}) {
+  return (
+    <header className={s.hero}>
+      <img src={src} alt="" />
+      {action && <div className={s.heroAction}>{action}</div>}
+      <div className={s.heroText}>
+        <h2>{title}</h2>
+        {subtitle && <p>{subtitle}</p>}
+      </div>
+    </header>
+  );
+}

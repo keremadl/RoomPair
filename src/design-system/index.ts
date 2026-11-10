@@ -108,6 +108,7 @@ export {
 export { Toast } from "./components/Toast/Toast";
 export {
   DetailSection,
+  DetailHero,
   DetailPhoto,
   FactChips,
   FactRows,

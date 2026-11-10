@@ -1,3 +1,4 @@
+import { localDay } from "../chat-time";
 import { defaultPreferences } from "../data";
 import { defaultMe } from "../profile";
 import type { AppState } from "../store";
@@ -401,6 +402,7 @@ export function appDataFromSnapshot(
         text: message.body,
         ...(message.photo_path ? { photo: url(message.photo_path) } : {}),
         time: clock(message.created_at),
+        day: localDay(new Date(message.created_at)),
       })),
     });
   }

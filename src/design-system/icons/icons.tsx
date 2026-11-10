@@ -71,6 +71,13 @@ export const Info = createIcon(
     <Dot x={12} y={7.9} r={1.45} />
   </>,
 );
+export const Eye = createIcon(
+  "Eye",
+  <>
+    <path d="M2.75 12S6 5.75 12 5.75 21.25 12 21.25 12 18 18.25 12 18.25 2.75 12 2.75 12Z" />
+    <circle cx="12" cy="12" r="2.75" />
+  </>,
+);
 export const CircleHelp = createIcon(
   "CircleHelp",
   <>

@@ -46,3 +46,52 @@
   align-items: center;
   gap: var(--space-2);
 }
+
+/* A person's page: photo, name and one line under it; all of it opens them. */
+.person {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.personOpen {
+  display: grid;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  cursor: pointer;
+}
+.personOpen::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--space-1) * -1);
+  border-radius: var(--radius-md);
+}
+.personOpen:focus-visible {
+  outline: none;
+}
+.personOpen:focus-visible::after {
+  box-shadow: var(--focus-ring);
+}
+.personText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.person .title {
+  flex: none;
+  font-size: var(--text-lg);
+}
+.subtitle {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

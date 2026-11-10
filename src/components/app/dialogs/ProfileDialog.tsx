@@ -6,7 +6,7 @@ import {
   MessageCircle,
   MoreHorizontal,
 } from "@/design-system/icons";
-import { Avatar, Button, Dialog, IconButton, Text } from "@/design-system";
+import { Button, DetailHero, Dialog, IconButton } from "@/design-system";
 import {
   defaultLanguage,
   defaultLayout,
@@ -23,6 +23,7 @@ export function ProfileDialog({
   viewer,
   liked,
   hasChat,
+  inChat = false,
   onClose,
   onLike,
   onChat,
@@ -34,6 +35,8 @@ export function ProfileDialog({
   viewer: Preferences;
   liked: boolean;
   hasChat: boolean;
+  /** Their conversation is the page behind this dialog: no Message button. */
+  inChat?: boolean;
   onClose: () => void;
   onLike: () => void;
   onChat: () => void;
@@ -43,22 +46,24 @@ export function ProfileDialog({
   const { Details } = discoverParts[defaultLanguage];
   return (
     <Dialog title={`${p.name}, ${p.age}`} onClose={onClose} size="lg" hideTitle>
-      <div className={d.person}>
-        <Avatar name={p.name} src={p.photo} size="lg" />
-        <div>
-          <h2 className={d.personName}>
-            {p.name}, {p.age}{" "}
-            {p.verified && <BadgeCheck aria-label={t("discover.verified")} />}
-          </h2>
-          <Text size="sm" tone="muted">
-            {p.occupation} · {p.neighborhood}
-          </Text>
-        </div>
-        <IconButton
-          label={t("Profile options")}
-          icon={<MoreHorizontal />}
-          onClick={onReport}
-          className={d.personMenu}
+      <div className={d.hero}>
+        <DetailHero
+          src={p.photo}
+          title={
+            <>
+              {p.name}, {p.age}
+              {p.verified && <BadgeCheck aria-label={t("discover.verified")} />}
+            </>
+          }
+          subtitle={`${p.intent === "have-room" ? t("Host") : t("Explorer")} · ${p.neighborhood}`}
+          action={
+            <IconButton
+              variant="outline"
+              label={t("Profile options")}
+              icon={<MoreHorizontal />}
+              onClick={onReport}
+            />
+          }
         />
       </div>
       <div
@@ -83,22 +88,25 @@ export function ProfileDialog({
           onReport={onReport}
         />
       </div>
-      <div className={d.footer}>
-        {hasChat || p.likesYou ? (
-          <Button leadingIcon={<MessageCircle />} onClick={onChat} fullWidth>
-            {t("Message")}
-          </Button>
-        ) : (
-          <Button
-            leadingIcon={<Heart />}
-            onClick={onLike}
-            disabled={liked}
-            fullWidth
-          >
-            {liked ? t("Waiting for them") : t("Team up")}
-          </Button>
-        )}
-      </div>
+      {/* Opened from their conversation: you are already talking. */}
+      {!inChat && (
+        <div className={d.footer}>
+          {hasChat || p.likesYou ? (
+            <Button leadingIcon={<MessageCircle />} onClick={onChat} fullWidth>
+              {t("Message")}
+            </Button>
+          ) : (
+            <Button
+              leadingIcon={<Heart />}
+              onClick={onLike}
+              disabled={liked}
+              fullWidth
+            >
+              {liked ? t("Waiting for them") : t("Team up")}
+            </Button>
+          )}
+        </div>
+      )}
     </Dialog>
   );
 }

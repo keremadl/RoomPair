@@ -48,6 +48,7 @@ import {
   Textarea,
   SectionHeader,
   DetailSection,
+  DetailHero,
   FactChips,
   FactGrid,
   FactRows,
@@ -910,6 +911,43 @@ export function Showcase() {
               label="Profile complete"
               text="20% complete"
               value={20}
+            />
+          </Specimen>
+          <Specimen label="TopBar · a person's page (photo, name, one line; opens them)">
+            <div className={styles.pageFrame}>
+              <TopBar
+                title="Maya"
+                onBack={() => {}}
+                person={{
+                  avatar: (
+                    <Avatar name="Maya" src="/images/maya-1.jpg" size="sm" />
+                  ),
+                  subtitle: "87% fit · Host · Āgenskalns",
+                  label: "View profile: Maya",
+                  onOpen: () => {},
+                }}
+                actions={
+                  <IconButton
+                    variant="outline"
+                    label="Conversation options"
+                    icon={<Icons.MoreHorizontal />}
+                  />
+                }
+              />
+            </div>
+          </Specimen>
+          <Specimen label="DetailHero (a profile opened on its own)">
+            <DetailHero
+              src="/images/maya-1.jpg"
+              title="Maya, 22"
+              subtitle="Host · Āgenskalns"
+              action={
+                <IconButton
+                  variant="outline"
+                  label="Profile options"
+                  icon={<Icons.MoreHorizontal />}
+                />
+              }
             />
           </Specimen>
           <Specimen label="TopBar · sub-page template (back, title)">
