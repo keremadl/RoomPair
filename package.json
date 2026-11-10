@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/lib/*.test.ts",
+    "test": "tsx --test \"src/**/*.test.ts\"",
     "translate": "node scripts/generate-locale.mjs",
     "test:e2e": "playwright test",
     "format": "prettier --write src tests *.ts *.json"
