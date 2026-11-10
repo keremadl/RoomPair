@@ -127,7 +127,43 @@ select pg_temp.must_fail(
     values ('11111111-1111-4111-8111-111111111111', 'Fake listing', 300, 'Riga')$$,
   'members cannot list a room in someone else''s name');
 
+select pg_temp.must_fail(
+  $$insert into public.rooms (owner_id, title, price, city)
+    values ('22222222-2222-4222-8222-222222222222', 'A second listing', 500, 'Riga')$$,
+  'a host has one room listing');
+update public.rooms set
+  deposit = 400, bills_included = true, flatmates = 1,
+  photos = array['22222222-2222-4222-8222-222222222222/room.jpg']
+where title = 'Ben''s spare room';
+select pg_temp.must_fail(
+  $$update public.profiles set prompts = '[{},{},{},{}]'
+    where id = '22222222-2222-4222-8222-222222222222'$$,
+  'a profile has at most three prompts');
+select pg_temp.must_fail(
+  $$update public.profiles set living_with = 'nobody'
+    where id = '22222222-2222-4222-8222-222222222222'$$,
+  'living-with preference comes from a fixed list');
+
+-- Profile photos: only inside your own folder.
+insert into storage.objects (bucket_id, name)
+values ('profile-photos', '22222222-2222-4222-8222-222222222222/me.jpg');
+select pg_temp.must_fail(
+  $$insert into storage.objects (bucket_id, name)
+    values ('profile-photos', '11111111-1111-4111-8111-111111111111/fake.jpg')$$,
+  'members cannot upload into someone else''s photo folder');
+select pg_temp.must_fail(
+  $$insert into storage.objects (bucket_id, name) values ('profile-photos', 'loose.jpg')$$,
+  'photos must live in a member folder');
+
 select pg_temp.sign_in('ada');
+do $$
+begin
+  assert (select count(*) from storage.objects where name like '22222222%') = 1,
+    'members can view another member''s profile photos';
+end $$;
+select pg_temp.must_fail(
+  $$delete from storage.objects where name like '22222222%'$$,
+  'members cannot delete someone else''s photos');
 do $$
 begin
   assert (select count(*) from public.rooms where title = 'Ben''s spare room') = 1,
@@ -218,11 +254,20 @@ select pg_temp.must_fail(
 select pg_temp.must_fail(
   $$delete from public.messages$$, 'messages cannot be deleted');
 
+select pg_temp.must_fail(
+  $$insert into public.messages (match_id, body) select id, '' from public.matches$$,
+  'a message needs text or a photo');
+
 select pg_temp.sign_in('ben');
 do $$
 begin
   assert (select body from public.messages) = 'Hello Ben', 'the other participant reads the message';
 end $$;
+-- A photo message: the file goes in the match's folder, the text may be empty.
+insert into storage.objects (bucket_id, name)
+select 'chat-photos', id || '/balcony.jpg' from public.matches;
+insert into public.messages (match_id, body, photo_path)
+select id, '', id || '/balcony.jpg' from public.matches;
 insert into public.conversation_reads (match_id) select id from public.matches;
 
 reset role;
@@ -232,12 +277,18 @@ select pg_temp.sign_in('cem');
 do $$
 begin
   assert (select count(*) from public.messages) = 0, 'outsiders cannot read a conversation';
+  assert (select count(*) from storage.objects where bucket_id = 'chat-photos') = 0,
+    'outsiders cannot see photos shared in a conversation';
   assert (select count(*) from public.conversation_reads) = 0, 'read markers are private';
 end $$;
 select pg_temp.must_fail(
   format($$insert into public.messages (match_id, body) values (%L, 'Let me in')$$,
          current_setting('test.match_id')),
   'outsiders cannot write into a conversation');
+select pg_temp.must_fail(
+  format($$insert into storage.objects (bucket_id, name) values ('chat-photos', %L)$$,
+         current_setting('test.match_id') || '/intruder.jpg'),
+  'outsiders cannot add photos to a conversation');
 
 -- Undoing a like keeps a match that already has messages.
 select pg_temp.sign_in('ada');
@@ -275,6 +326,8 @@ begin
   assert (select count(*) from public.profiles where name = 'Ben') = 0, 'a blocked profile is hidden';
   assert (select count(*) from public.rooms where title = 'Ben''s spare room') = 0,
     'a blocked member''s room is hidden';
+  assert (select count(*) from storage.objects where name like '22222222%') = 0,
+    'a blocked member''s photos are hidden';
 end $$;
 
 select pg_temp.sign_in('ben');
