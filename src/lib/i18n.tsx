@@ -112,7 +112,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const [dictionary, setDictionary] = useState<Dictionary>(english);
   const [locales, updateLocales] = useState(DEFAULT_LOCALES);
   const [isLoading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failed, setError] = useState(false);
   const localeOptions = useRef(DEFAULT_LOCALES);
   const cache = useRef<Record<string, Dictionary>>({ ...BUNDLED });
   const activeRequest = useRef<AbortController | null>(null);
@@ -126,7 +126,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     const requestGeneration = ++generation.current;
     const controller = new AbortController();
     activeRequest.current = controller;
-    setError(null);
+    setError(false);
     setLoading(!cache.current[code]);
 
     const load = async () => {
@@ -162,7 +162,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         }
       } catch {
         if (generation.current === requestGeneration) {
-          setError(english["settings.languageError"]);
+          setError(true);
         }
       } finally {
         window.clearTimeout(timeout);
@@ -235,6 +235,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     },
     [dictionary],
   );
+  // Reported in the language that is still active after the failed switch.
+  const error = failed ? t("settings.languageError") : null;
   const value = useMemo(
     () => ({ t, locale, setLocale, locales, isLoading, error }),
     [t, locale, setLocale, locales, isLoading, error],

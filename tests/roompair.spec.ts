@@ -158,12 +158,10 @@ test("saved rooms, checklist and notes persist; reset restores the original demo
     .getByRole("button", { name: "My space", exact: true })
     .click();
   await expect(
-    page
-      .locator(".saved-rooms")
-      .getByRole("heading", {
-        name: "A peaceful corner in Avoti",
-        exact: true,
-      }),
+    page.locator(".saved-rooms").getByRole("heading", {
+      name: "A peaceful corner in Avoti",
+      exact: true,
+    }),
   ).toBeVisible();
   const cleaning = page.getByRole("button", {
     name: /Find your cleaning rhythm/,
@@ -184,12 +182,10 @@ test("saved rooms, checklist and notes persist; reset restores the original demo
     page.getByRole("button", { name: /Find your cleaning rhythm/ }),
   ).toHaveClass(/checked/);
   await expect(
-    page
-      .locator(".saved-rooms")
-      .getByRole("heading", {
-        name: "A peaceful corner in Avoti",
-        exact: true,
-      }),
+    page.locator(".saved-rooms").getByRole("heading", {
+      name: "A peaceful corner in Avoti",
+      exact: true,
+    }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "View your profile", exact: true })
@@ -214,12 +210,10 @@ test("saved rooms, checklist and notes persist; reset restores the original demo
     page.getByRole("button", { name: /Find your cleaning rhythm/ }),
   ).not.toHaveClass(/checked/);
   await expect(
-    page
-      .locator(".saved-rooms")
-      .getByRole("heading", {
-        name: "A peaceful corner in Avoti",
-        exact: true,
-      }),
+    page.locator(".saved-rooms").getByRole("heading", {
+      name: "A peaceful corner in Avoti",
+      exact: true,
+    }),
   ).toHaveCount(0);
   await expect(page.locator(".saved-rooms .room-card")).toHaveCount(1);
 });
@@ -348,4 +342,42 @@ test("mobile navigation and conversation work without horizontal overflow", asyn
     page.getByRole("button", { name: "Edit my profile", exact: true }),
   ).toBeVisible();
   await fitsViewport();
+});
+
+test("switching to Turkish translates navigation, fit explanations and replies, and persists", async ({
+  page,
+}) => {
+  await openApp(page);
+  await page.getByRole("button", { name: "View your profile" }).first().click();
+  await page.getByRole("combobox", { name: "Language" }).selectOption("tr");
+  await expect(page.locator("html")).toHaveAttribute("lang", "tr");
+  const nav = page.getByRole("navigation", {
+    name: "Ana gezinme",
+    exact: true,
+  });
+  await expect(nav.getByRole("button", { name: /Keşfet/ })).toBeVisible();
+
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "tr");
+  await page
+    .getByRole("button", { name: "Neden uyumlusunuz?", exact: true })
+    .click();
+  const compatibility = page.getByRole("dialog", {
+    name: "Neden uyumlusunuz?",
+    exact: true,
+  });
+  await expect(compatibility.getByText("Bütçe", { exact: true })).toBeVisible();
+  await expect(
+    compatibility.getByText("Uyku düzeni", { exact: true }),
+  ).toBeVisible();
+  await expect(compatibility.getByText(/ağırlık %25/)).toBeVisible();
+  await expect(compatibility.getByText(/weight|Budget/)).toHaveCount(0);
+  await page.keyboard.press("Escape");
+
+  await nav.getByRole("button", { name: /Mesajlar/ }).click();
+  await page.locator(".message-composer input").fill("Bütçen ne kadar?");
+  await page.keyboard.press("Enter");
+  await expect(page.locator(".message-row:not(.mine)").last()).toContainText(
+    "Faturalar dahil",
+  );
 });

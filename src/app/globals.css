@@ -353,6 +353,15 @@ select {
 .workspace {
   margin-left: 230px;
 }
+.storage-warning {
+  margin: 0;
+  padding: 9px 20px;
+  background: #fbefe4;
+  border-bottom: 1px solid #ecd2bd;
+  color: #7a4a2b;
+  font-size: 13px;
+  text-align: center;
+}
 .topbar {
   height: 85px;
   border-bottom: 1px solid var(--line);

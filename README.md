@@ -6,7 +6,7 @@
 
 Use Node.js 22 or newer. From this folder:
 
-```powershell
+```bash
 npm install
 npm run dev
 ```
@@ -15,7 +15,7 @@ Open **http://localhost:3000**. Editing a component or stylesheet updates the pr
 
 For a production build:
 
-```powershell
+```bash
 npm run build
 npm start
 ```
@@ -42,6 +42,7 @@ The app opens directly in discovery for a strong first impression. Onboarding is
 - Local blocking/report recording and a resettable demo state.
 - English/Turkish UI, persistent language selection and extensible locale catalogs.
 - Responsive layouts, focus-managed dialogs, accessible form labels, reduced-motion preference, local imagery and install metadata.
+- Baseline hardening: a same-origin Content Security Policy and standard security headers (`next.config.ts`), and validation of browser-stored state before use (`src/lib/store.ts`).
 
 ## Matching rules
 
@@ -51,24 +52,28 @@ Eligible profiles receive a weighted comparison: budget 25%, tidiness 20%, sleep
 
 ## Editing guide
 
-| File                                               | Purpose                                                                   |
-| -------------------------------------------------- | ------------------------------------------------------------------------- |
-| `src/components/roompair.tsx`                      | App navigation, discovery, likes, messages, planning, profile and dialogs |
-| `src/components/swipe-surface.tsx`                 | Independent card motion and swipe thresholds                              |
-| `src/components/onboarding.tsx` / `onboarding.css` | Four-step setup and custom SVG room illustration                          |
-| `src/components/ui.tsx`                            | Brand, shared illustration, modal and empty-state components              |
-| `src/app/globals.css`                              | Colors, type, component styling and responsive breakpoints                |
-| `src/lib/data.ts` / `types.ts`                     | Fictional people, homes, messages and data types                          |
-| `src/lib/matching.ts`                              | Eligibility and transparent compatibility weights                         |
-| `src/lib/store.ts`                                 | Browser-local demo state                                                  |
-| `src/lib/locales/en.json` / `tr.json`              | Interface copy                                                            |
-| `public/images` / `public/fonts`                   | Local assets                                                              |
+| File                                               | Purpose                                                               |
+| -------------------------------------------------- | --------------------------------------------------------------------- |
+| `src/components/roompair.tsx`                      | Providers and the app frame: sidebar, top bar, navigation, toast      |
+| `src/components/app/controller.tsx`                | Interface state and actions shared by every page (`useApp()`)         |
+| `src/components/views/*.tsx`                       | One file per page: discover, likes, messages, my space, profile       |
+| `src/components/dialogs/*.tsx`                     | One file per dialog: filters, details, fit, match, room, help, report |
+| `src/components/shared.tsx`                        | Page heading and room card used by several pages                      |
+| `src/components/swipe-surface.tsx`                 | Independent card motion and swipe thresholds                          |
+| `src/components/onboarding.tsx` / `onboarding.css` | Four-step setup and custom SVG room illustration                      |
+| `src/components/ui.tsx`                            | Brand, shared illustration, modal and empty-state components          |
+| `src/app/globals.css`                              | Colors, type, component styling and responsive breakpoints            |
+| `src/lib/data.ts` / `types.ts`                     | Fictional people, homes, messages and data types                      |
+| `src/lib/matching.ts`                              | Eligibility and transparent compatibility weights                     |
+| `src/lib/store.ts`                                 | Browser-local demo state                                              |
+| `src/lib/locales/en.json` / `tr.json`              | Interface copy                                                        |
+| `public/images` / `public/fonts`                   | Local assets                                                          |
 
 ## Languages and n8n
 
 The application runs independently of automation. Import `n8n/translation-workflow.json` into your own n8n instance, configure credentials, and run a translation job only when adding a language:
 
-```powershell
+```bash
 npm run translate -- lv "Latviešu"
 ```
 
@@ -76,14 +81,17 @@ The CLI validates the result and adds a static language pack. Switching language
 
 ## Checks
 
-```powershell
+```bash
+npm run lint
 npm run typecheck
 npm test
 npm run test:e2e
 npm run build
 ```
 
-The E2E configuration uses installed Chrome/Edge on Windows. On another machine, install Playwright Chromium with `npx playwright install chromium` if needed. It starts the dev server automatically, or uses an existing server on port 3000.
+`npm test` runs the unit tests: matching rules, stored-state validation, translation catalogs and the translation endpoint. `npm run test:e2e` drives the app in a browser, including the Turkish interface. It uses installed Chrome/Edge on Windows; elsewhere run `npx playwright install chromium` once, or set `PLAYWRIGHT_CHROMIUM_PATH` to an existing Chromium binary. It starts the dev server automatically, or uses an existing server on port 3000.
+
+The same checks run on every pull request through GitHub Actions (`.github/workflows/ci.yml`).
 
 ## Research and honest demo limits
 

@@ -373,6 +373,7 @@ export const rooms: Room[] = profiles
   .map((profile) => ({
     id: `room-${profile.id}`,
     title: profile.room!.title,
+    city: profile.city,
     neighborhood: profile.neighborhood,
     price: profile.room!.price,
     photo: profile.room!.photo,

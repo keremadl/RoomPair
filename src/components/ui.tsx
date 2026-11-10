@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import { X, ArrowUpRight } from "lucide-react";
 import { motion } from "motion/react";
+import { useI18n } from "@/lib/i18n";
 export function Brand({ small = false }: { small?: boolean }) {
   return (
     <span className={`brand ${small ? "brand-small" : ""}`}>
@@ -84,9 +85,12 @@ export function Modal({
   wide?: boolean;
   className?: string;
 }) {
+  const { t } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
-  close.current = onClose;
+  useEffect(() => {
+    close.current = onClose;
+  });
   useEffect(() => {
     const previous = document.activeElement as HTMLElement;
     const old = document.body.style.overflow;
@@ -143,7 +147,7 @@ export function Modal({
         exit={{ y: 20, opacity: 0 }}
       >
         <button
-          aria-label="Close dialog"
+          aria-label={t("Close dialog")}
           className="icon-button modal-close"
           onClick={onClose}
         >

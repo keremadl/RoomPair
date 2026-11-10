@@ -1,4 +1,19 @@
+import english from "./locales/en.json";
 import type { MatchResult, Preferences, Profile } from "./types";
+
+/** Same contract as the interface translator, so explanations follow the UI language. */
+export type Translate = (
+  key: string,
+  vars?: Record<string, string | number>,
+) => string;
+const catalog: Record<string, string> = english;
+/** English fallback used by tests and any caller without a translator. */
+export const englishText: Translate = (key, vars) =>
+  (catalog[key] ?? key).replace(
+    /\{([a-zA-Z][a-zA-Z0-9_]*)\}/g,
+    (token, name: string) =>
+      vars && Object.hasOwn(vars, name) ? String(vars[name]) : token,
+  );
 
 const DAY = 86_400_000;
 const clamp = (value: number, min = 0, max = 100) =>
@@ -29,6 +44,7 @@ function parseDate(value: string): number {
 export function getCompatibility(
   profile: Profile,
   prefs: Preferences,
+  t: Translate = englishText,
 ): MatchResult {
   const dealbreakers: string[] = [];
   const reasons: string[] = [];
@@ -52,41 +68,32 @@ export function getCompatibility(
     (Number.isFinite(roomPrice) &&
       roomPrice >= prefs.budgetMin &&
       roomPrice <= prefs.budgetMax);
-  if (!validBudget) dealbreakers.push("A valid monthly budget is needed.");
-  else if (!budgetOverlap)
-    dealbreakers.push("Your monthly budgets do not overlap.");
+  if (!validBudget) dealbreakers.push(t("fit.needBudget"));
+  else if (!budgetOverlap) dealbreakers.push(t("fit.noOverlap"));
   else if (!roomInBudget)
-    dealbreakers.push(
-      `The room at ${euros(roomPrice!)} per month is outside your budget.`,
-    );
+    dealbreakers.push(t("fit.roomOutside", { price: euros(roomPrice!) }));
 
   if (
     !normalize(prefs.city) ||
     normalize(profile.city) !== normalize(prefs.city)
   )
-    dealbreakers.push(
-      `Looking in ${profile.city}, outside your selected city.`,
-    );
+    dealbreakers.push(t("fit.otherCity", { city: profile.city }));
   if (prefs.intent === "have-room" && profile.intent === "have-room")
-    dealbreakers.push("You both have a room; neither is looking to move in.");
-  if (!profile.active)
-    dealbreakers.push("This person has paused their search.");
+    dealbreakers.push(t("fit.bothHaveRoom"));
+  if (!profile.active) dealbreakers.push(t("fit.paused"));
   if (prefs.smokeFree && profile.habits.smoking)
-    dealbreakers.push("You selected a smoke-free home.");
+    dealbreakers.push(t("fit.smokeFree"));
   if (!prefs.petsOkay && profile.habits.pets)
-    dealbreakers.push("You selected a home without pets.");
+    dealbreakers.push(t("fit.noPets"));
   if (prefs.verifiedOnly && !profile.verified)
-    dealbreakers.push("This profile does not have a demo verification badge.");
+    dealbreakers.push(t("fit.notVerified"));
 
   const daysApart =
     Math.abs(parseDate(profile.moveDate) - parseDate(prefs.moveDate)) / DAY;
   const validDates = Number.isFinite(daysApart);
-  if (!validDates)
-    dealbreakers.push("Valid move-in dates are needed to compare timing.");
+  if (!validDates) dealbreakers.push(t("fit.needDates"));
   else if (daysApart > 45)
-    dealbreakers.push(
-      `Your move-in dates are ${daysApart} days apart (maximum 45).`,
-    );
+    dealbreakers.push(t("fit.datesTooFar", { days: daysApart }));
 
   // Ranges sharing one exact boundary are still valid, with a small overlap score.
   const smallerRange = Math.min(
@@ -128,7 +135,7 @@ export function getCompatibility(
         Math.max(profile.stayMonths, prefs.stayMonths)) *
       100
     : 0;
-  if (!validStay) dealbreakers.push("A valid length of stay is needed.");
+  if (!validStay) dealbreakers.push(t("fit.needStay"));
   if (
     !Number.isFinite(prefs.cleanliness) ||
     prefs.cleanliness < 1 ||
@@ -137,94 +144,109 @@ export function getCompatibility(
     prefs.social < 1 ||
     prefs.social > 5
   ) {
-    dealbreakers.push("Lifestyle preferences must be between 1 and 5.");
+    dealbreakers.push(t("fit.lifestyleRange"));
   }
 
   if (budgetOverlap && roomInBudget)
     reasons.push(
       roomPrice !== undefined
-        ? `Room at ${euros(roomPrice)} fits your budget`
-        : `Shared budget of ${euros(overlapMin)}–${euros(overlapMax)}`,
+        ? t("fit.roomFits", { price: euros(roomPrice) })
+        : t("fit.sharedBudget", {
+            min: euros(overlapMin),
+            max: euros(overlapMax),
+          }),
     );
-  if (cleanDiff === 0) reasons.push("You like the same level of tidiness");
+  if (cleanDiff === 0) reasons.push(t("fit.sameTidiness"));
   else if (cleanDiff >= 2)
     considerations.push(
       profile.habits.cleanliness > prefs.cleanliness
-        ? "They prefer a tidier home; agree on cleaning expectations."
-        : "You prefer a tidier home; agree on cleaning expectations.",
+        ? t("fit.theyTidier")
+        : t("fit.youTidier"),
     );
-  if (profile.habits.sleep === prefs.sleep)
-    reasons.push("Your daily rhythms line up");
-  else if (sleepScore === 35)
-    considerations.push(
-      "You keep different sleep schedules; talk about quiet hours.",
-    );
-  else
-    considerations.push(
-      "One of you has a flexible sleep schedule; compare your usual quiet hours.",
-    );
+  if (profile.habits.sleep === prefs.sleep) reasons.push(t("fit.sameRhythm"));
+  else if (sleepScore === 35) considerations.push(t("fit.differentSleep"));
+  else considerations.push(t("fit.flexibleSleep"));
   if (socialDiff >= 2)
     considerations.push(
       profile.habits.social > prefs.social
-        ? "They enjoy a more social home; talk about guests and downtime."
-        : "They prefer a quieter home; talk about guests and downtime.",
+        ? t("fit.theyMoreSocial")
+        : t("fit.theyQuieter"),
     );
   if (validDates && daysApart <= 7)
-    reasons.push(
-      daysApart === 0
-        ? "Same planned move-in date"
-        : "You plan to move in the same week",
-    );
+    reasons.push(daysApart === 0 ? t("fit.sameDate") : t("fit.sameWeek"));
   else if (validDates && daysApart <= 45)
-    considerations.push(
-      `Move-in dates differ by ${daysApart} days; check flexibility.`,
-    );
+    considerations.push(t("fit.datesDiffer", { days: daysApart }));
   if (validStay && profile.stayMonths !== prefs.stayMonths)
     considerations.push(
-      `They want a ${profile.stayMonths}-month stay; you selected ${prefs.stayMonths} months.`,
+      t("fit.stayDiffers", {
+        theirs: profile.stayMonths,
+        yours: prefs.stayMonths,
+      }),
     );
-  if (profile.habits.pets && prefs.petsOkay)
-    considerations.push("They have a pet; meet it and discuss shared spaces.");
+  if (profile.habits.pets && prefs.petsOkay) considerations.push(t("fit.pet"));
   if (prefs.intent === "find-room" && profile.intent === "find-room")
-    considerations.push(
-      "You are both searching: team up to find a home together.",
-    );
+    considerations.push(t("fit.bothSearching"));
 
   const breakdown: MatchResult["breakdown"] = [
     {
-      label: "Budget",
+      label: t("fit.label.budget"),
       score: Math.round(budgetScore),
       detail:
         roomPrice !== undefined
-          ? `${euros(roomPrice)}/month · your budget ${euros(prefs.budgetMin)}–${euros(prefs.budgetMax)} · 25% weight`
-          : `${euros(profile.budget[0])}–${euros(profile.budget[1])}/month · 25% weight`,
+          ? t("fit.detail.room", {
+              price: euros(roomPrice),
+              min: euros(prefs.budgetMin),
+              max: euros(prefs.budgetMax),
+            })
+          : t("fit.detail.budget", {
+              min: euros(profile.budget[0]),
+              max: euros(profile.budget[1]),
+            }),
     },
     {
-      label: "Tidiness",
+      label: t("fit.label.tidiness"),
       score: Math.round(cleanScore),
-      detail: `You ${prefs.cleanliness}/5 · ${profile.name} ${profile.habits.cleanliness}/5 · 20% weight`,
+      detail: t("fit.detail.scale", {
+        you: prefs.cleanliness,
+        name: profile.name,
+        them: profile.habits.cleanliness,
+        weight: 20,
+      }),
     },
     {
-      label: "Sleep schedule",
+      label: t("fit.label.sleep"),
       score: sleepScore,
-      detail: `You: ${prefs.sleep} · ${profile.name}: ${profile.habits.sleep} · 15% weight`,
+      detail: t("fit.detail.sleep", {
+        you: t(`fit.sleep.${prefs.sleep}`),
+        name: profile.name,
+        them: t(`fit.sleep.${profile.habits.sleep}`),
+      }),
     },
     {
-      label: "Social energy",
+      label: t("fit.label.social"),
       score: Math.round(socialScore),
-      detail: `You ${prefs.social}/5 · ${profile.name} ${profile.habits.social}/5 · 15% weight`,
+      detail: t("fit.detail.scale", {
+        you: prefs.social,
+        name: profile.name,
+        them: profile.habits.social,
+        weight: 15,
+      }),
     },
     {
-      label: "Move-in timing",
+      label: t("fit.label.timing"),
       score: Math.round(dateScore),
       detail: validDates
-        ? `${daysApart} days apart · 15% weight`
-        : "Dates unavailable · 15% weight",
+        ? t("fit.detail.days", { days: daysApart })
+        : t("fit.detail.noDates"),
     },
     {
-      label: "Length of stay",
+      label: t("fit.label.stay"),
       score: Math.round(stayScore),
-      detail: `You ${prefs.stayMonths} months · ${profile.name} ${profile.stayMonths} months · 10% weight`,
+      detail: t("fit.detail.stay", {
+        you: prefs.stayMonths,
+        name: profile.name,
+        them: profile.stayMonths,
+      }),
     },
   ];
   const score = Math.round(
@@ -249,9 +271,10 @@ export function getCompatibility(
 export function rankProfiles(
   profiles: Profile[],
   prefs: Preferences,
+  t: Translate = englishText,
 ): { profile: Profile; match: MatchResult }[] {
   return profiles
-    .map((profile) => ({ profile, match: getCompatibility(profile, prefs) }))
+    .map((profile) => ({ profile, match: getCompatibility(profile, prefs, t) }))
     .filter(({ match }) => match.eligible)
     .sort((a, b) => b.match.score - a.match.score);
 }

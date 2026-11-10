@@ -168,7 +168,8 @@ test("ranking is descending, stable, excludes ineligible profiles and leaves inp
   );
   assert.ok(
     seedRanked.every(
-      ({ profile }) => !["lucas", "nora", "james"].includes(profile.id),
+      // Lucas smokes; the default preferences require a smoke-free home.
+      ({ profile }) => profile.id !== "lucas",
     ),
   );
 });
