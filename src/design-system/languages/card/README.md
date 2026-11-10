@@ -36,6 +36,10 @@ Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/d
 - Tokens with one job each, so dark mode works: `--color-on-image` and `--color-photo-frame` (stay light on photos), `--color-on-xp` / `--color-on-accent` (text on the highlight), `--color-surface-inverse` / `--color-on-inverse` (small solid badges), `--color-on-danger`, `--match-bg` / `--match-fg`. Use these instead of `--color-text-inverse` or `--color-surface-raised` for those jobs.
 - `npm run check:design` checks every palette's light and dark block separately, including text on the highlight, badges, the match screen, outlines, press shadows and the focus ring.
 
+## Illustrations
+
+Setup illustrations are stored as layers (`public/images/onboarding/<id>.{base,ink,primary,accent}.webp`, made by `scripts/illustrations/split.py`). The three mask layers are filled with `--art-ink`, `--art-primary` and `--art-accent`, so a drawing follows the palette and the theme. Each palette sets `--art-ink` to its light-theme ink; a palette whose primary equals its ink (Ink) also sets a softer `--art-primary`.
+
 ## Files
 
 | File                 | What                                                                                                                                                                                                           |
