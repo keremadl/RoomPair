@@ -1,5 +1,5 @@
 "use client";
-import { useState, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import {
   ArrowLeft,
   Backpack,
@@ -1023,17 +1023,30 @@ export function Onboarding({
                 <Icon />
               </div>
             ) : (
-              // Decorative: the heading below asks the question.
-              <img
-                className={o.art}
-                src={`/images/onboarding/${question.id}.webp`}
-                alt=""
-                width={360}
-                height={240}
-                onError={() =>
-                  setMissingArt((m) => ({ ...m, [question.id]: true }))
-                }
-              />
+              // Decorative: the heading below asks the question. The drawing is
+              // layered so its outline and two main colours follow the palette.
+              <div className={o.art} aria-hidden="true">
+                <img
+                  src={`/images/onboarding/${question.id}.base.webp`}
+                  alt=""
+                  width={300}
+                  height={200}
+                  onError={() =>
+                    setMissingArt((m) => ({ ...m, [question.id]: true }))
+                  }
+                />
+                {(["ink", "primary", "accent"] as const).map((layer) => (
+                  <span
+                    key={layer}
+                    data-layer={layer}
+                    style={
+                      {
+                        "--mask": `url(/images/onboarding/${question.id}.${layer}.webp)`,
+                      } as CSSProperties
+                    }
+                  />
+                ))}
+              </div>
             )}
             <Heading level={2} size="2xl">
               {title}

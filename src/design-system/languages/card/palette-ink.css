@@ -44,6 +44,9 @@
   --stat-on: #111111;
   --stat-off: #dcdcd6;
   --press-color: #111111;
+  --art-ink: #111111;
+  /* Black shapes on black outlines would lose their detail. */
+  --art-primary: #4d4d4d;
   --color-overlay: rgb(17 17 17 / 0.55);
   --color-on-image: #ffffff;
   --color-image-scrim: linear-gradient(
@@ -101,6 +104,7 @@
   --stat-on: #f4f4f1;
   --stat-off: #383836;
   --press-color: #f4f4f1;
+  --art-primary: var(--color-primary);
   --color-overlay: rgb(0 0 0 / 0.72);
   --color-on-image: #ffffff;
   --color-image-scrim: linear-gradient(

@@ -1,15 +1,24 @@
 # Kurulum ekranı çizimleri — yapılacak iş
 
 > **Durum: yapıldı.** 25 çizimin hepsi Codex CLI'ın görsel üreticisiyle,
-> aşağıdaki ortak istem ve "Subject" satırlarıyla üretildi ve
-> `public/images/onboarding/<kimlik>.webp` olarak eklendi (720 × 480, saydam
-> zemin, dosya başına yaklaşık 50 KB). Kurulum ekranı çizimi gösterir; dosyası
-> olmayan bir soru ikonlu çıkartmaya döner. Yeni bir soru eklenirse aynı
-> istemle bir çizim daha üretmek yeterli. Bu dosyanın geri kalanı o işin
-> brifidir ve yeniden üretim için duruyor.
+> aşağıdaki ortak istem ve "Subject" satırlarıyla üretildi. Kaynakları
+> `source/<kimlik>.webp` (720 × 480, saydam zemin, kayıpsız).
 >
-> Brife göre iki fark: ortak istemden "sert kaymış gölge" çıkarıldı (arayüz
-> yumuşak 3D'ye geçti) ve dosyalar PNG yerine WebP.
+> **Çizimler seçili renk paletini izler.** Kaynaklar klasik paletle (mor,
+> turuncu, lacivert çizgi) çizildi; uygulama onları olduğu gibi göstermez.
+> `python3 scripts/illustrations/split.py` her çizimi dört katmana ayırır ve
+> `public/images/onboarding/` altına yazar: kendi rengini koruyan `base` ile
+> yalnızca saydamlık taşıyan `ink`, `primary`, `accent`. Kurulum ekranı bu üç
+> katmanı `--art-ink`, `--art-primary` ve `--art-accent` renkleriyle boyar
+> (`theme.css` ve palet dosyaları). Böylece 8 paletin ve koyu temanın hepsinde
+> çizim arayüzle aynı renklerde durur ve yeniden üretmek gerekmez.
+>
+> Yeni bir soru eklenirse: aynı istemle bir çizim üretin, `source/` altına
+> koyun ve betiği çalıştırın. Dosyası olmayan soru ikonlu çıkartmaya döner.
+> Bu dosyanın geri kalanı o işin brifidir.
+>
+> Brife göre farklar: ortak istemden "sert kaymış gölge" çıkarıldı (arayüz
+> yumuşak 3D'ye geçti); dosyalar PNG yerine WebP; çizim başına dört katman.
 
 Kurulumda her sorunun üstünde şu an ikonlu bir "çıkartma" karosu var
 (`src/components/app/Onboarding.tsx`, `.sticker`). Bunun yerine her soruya özel
