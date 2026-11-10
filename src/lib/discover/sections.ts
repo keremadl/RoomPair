@@ -73,7 +73,8 @@ const withoutPrice = (text: string) =>
   text.replace(/\s*€\d+\/month[^.]*\.\s*$/, "").trim();
 
 export function homeSection(p: Profile, t: Translate = english): HomeSection {
-  const months = (n: number) => t("{count} months", { count: n });
+  const months = (n: number) =>
+    n === 1 ? t("1 month") : t("{count} months", { count: n });
   if (p.room) {
     const r = p.room;
     return {
@@ -265,7 +266,9 @@ export function fitSection(m: MatchResult, t: Translate = english): FitSection {
           lineUp: m.reasons.length,
           discuss: m.considerations.length,
         })
-      : t("{lineUp} things line up", { lineUp: m.reasons.length }),
+      : m.reasons.length === 1
+        ? t("1 thing lines up")
+        : t("{lineUp} things line up", { lineUp: m.reasons.length }),
     reasons: m.reasons,
     discuss: m.considerations,
     breakdown: m.breakdown.map((b) => ({

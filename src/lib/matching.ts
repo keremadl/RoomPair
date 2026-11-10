@@ -246,9 +246,11 @@ export function getCompatibility(
     );
   else if (validDates && daysApart <= 45)
     considerations.push(
-      t("Move-in dates differ by {days} days; check flexibility.", {
-        days: daysApart,
-      }),
+      daysApart === 1
+        ? t("Move-in dates differ by 1 day; check flexibility.")
+        : t("Move-in dates differ by {days} days; check flexibility.", {
+            days: daysApart,
+          }),
     );
   if (validStay && profile.stayMonths !== prefs.stayMonths && !staysLongEnough)
     considerations.push(

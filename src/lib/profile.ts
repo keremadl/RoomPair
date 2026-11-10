@@ -48,6 +48,10 @@ export const languageOptions = [
   "Arabic",
   "Chinese",
   "Ukrainian",
+  "Polish",
+  "Lithuanian",
+  "Japanese",
+  "Hindi",
 ];
 
 export const interestOptions = [

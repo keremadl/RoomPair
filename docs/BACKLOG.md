@@ -27,33 +27,26 @@ Veritabanı tarafı hazır ve gerçek Supabase projesinde kurulu (bkz.
 
 ## 2. Doğrulanmış ama düzeltilmemiş bulgular
 
-- [ ] **Profil eksikken "Skip" hâlâ çalışıyor mu?** Ok tuşları kapatıldı;
-      düğmeyle geçiş ayrıca kontrol edilmeli.
-- [ ] **Filtreler ve kurulum farklı kurallar uyguluyor.** Kurulum bütçeyi
-      100–5000 ile sınırlıyor, Filtreler 0'dan sınırsıza kabul ediyor. İkisi de
-      geçmiş tarihi reddetmiyor.
 - [ ] **Tarihler Şubat 2027'ye sabit.** 45 günden uzak bir taşınma tarihi
-      seçilince deste boşalıyor; o tarihten sonra demo eskir. Tarihler bugüne
-      göre üretilmeli. Hazır mesajlarda "Hey Alex!" ve "Yesterday" de sabit.
-- [ ] **Çoğul ekleri:** "1 months", "1 people", "1 days" gibi çıktılar var.
+      seçilince deste boşalıyor; o tarihten sonra demo eskir. Tarihleri bugüne
+      göre üretmek testleri ve veritabanı demo verisini de değiştirir; bu
+      yüzden bilerek ertelendi. Hazır mesajlarda "Hey Alex!" ve "Yesterday" de
+      sabit.
 - [ ] **İndirilen dil paketleri arayüzün ancak yarısını çevirebilir.**
       Metinlerin yaklaşık yarısı yalnızca `tr.json`'da anahtar olarak duruyor;
       `/api/translations` ve doğrulayıcı yalnızca `en.json` anahtarlarını
       tanıyor. Türkçe etkilenmiyor.
-- [ ] **Fotoğraf seçimi:** dosya boyutu sınırı yok; çoklu seçimde tek bozuk
-      dosya hepsini reddediyor; iki seçim üst üste gelirse ilki kayboluyor.
-- [ ] **Bazı demo profillerde düzenleyicinin sunmadığı diller var** (Lehçe,
-      Litvanca, Japonca, Hintçe).
+- [ ] **Çoğul ekleri:** "1 ay", "1 kişi", "1 şey" ve "1 gün" düzeltildi; eşleşme
+      gerekçelerindeki "you selected 1 months" gibi nadir kalıplar duruyor.
 
 ## 3. Temizlik
 
-- [ ] **Kullanılmayan kod:** `PersonCard` bileşeni hiç çizilmiyor;
-      `ProfileDialog`'daki "Team up / Waiting" dalı ulaşılamaz;
-      `src/lib/discover/deck.ts`'te dört kullanılmayan dışa aktarım.
+- [ ] **`ProfileDialog`'daki "Team up / Waiting" dalı ulaşılamaz.**
 - [ ] **`en.json`'daki 386 anahtarın yaklaşık 265'i kullanılmıyor.**
 - [ ] **ESLint uyarıları:** iki React kanca kuralı uyarı düzeyinde (13 yer).
       İncelemede hiçbiri gerçek hata çıkmadı; yine de tek tek düzeltilebilir.
-- [ ] **`onboarded` ve `Conversation.matchedAt` yazılıyor ama okunmuyor.**
+- [ ] **`onboarded` ve `Conversation.matchedAt` yazılıyor ama okunmuyor;**
+      veritabanı bağlanınca ikisi de kullanılacak.
 
 ## 4. Güvenlik (küçük)
 

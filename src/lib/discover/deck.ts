@@ -147,37 +147,3 @@ export const socialLabel = [
   "Social",
   "Very social",
 ];
-
-/** Habit rows comparing the profile with you. */
-export function habitRows(p: Profile) {
-  return [
-    {
-      label: "Tidiness",
-      them: p.habits.cleanliness,
-      you: you.cleanliness,
-      scale: tidinessLabel,
-    },
-    {
-      label: "Social energy",
-      them: p.habits.social,
-      you: you.social,
-      scale: socialLabel,
-    },
-  ];
-}
-
-/** Rough clock times for a sleep schedule, used to sketch someone's day. */
-export const dayClock: Record<SleepSchedule, { wake: string; bed: string }> = {
-  early: { wake: "06:30", bed: "22:00" },
-  flexible: { wake: "08:00", bed: "23:30" },
-  late: { wake: "10:00", bed: "01:00" },
-};
-
-export const socialEvening = [
-  "",
-  "Quiet evenings in",
-  "Mostly quiet, the odd guest",
-  "Friends over now and then",
-  "Often has friends over",
-  "Something on most nights",
-];

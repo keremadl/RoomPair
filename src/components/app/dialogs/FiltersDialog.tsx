@@ -33,19 +33,29 @@ export function FiltersDialog({
   const min = Number(numbers.budgetMin);
   const max = Number(numbers.budgetMax);
   const stay = Number(numbers.stayMonths);
+  // Today in the user's time zone, as YYYY-MM-DD, to refuse dates in the past.
+  const now = new Date();
+  const today = new Date(now.getTime() - now.getTimezoneOffset() * 60_000)
+    .toISOString()
+    .slice(0, 10);
+  // The same limits as the setup steps, so both forms accept the same answers.
   const errors = {
     city: draft.city.trim() ? "" : t("Enter a city."),
     budgetMin:
-      numbers.budgetMin === "" || min < 0
-        ? t("Enter a budget of €0 or more.")
+      numbers.budgetMin === "" || min < 100 || min > 5000
+        ? t("Enter a budget between €100 and €5,000.")
         : "",
     budgetMax:
-      numbers.budgetMax === "" || max < 0
-        ? t("Enter a budget of €0 or more.")
+      numbers.budgetMax === "" || max < 100 || max > 5000
+        ? t("Enter a budget between €100 and €5,000.")
         : min >= max
           ? t("Your maximum budget must be above your minimum.")
           : "",
-    moveDate: draft.moveDate ? "" : t("Choose a move-in date."),
+    moveDate: !draft.moveDate
+      ? t("Choose a move-in date.")
+      : draft.moveDate < today
+        ? t("Choose a date that is today or later.")
+        : "",
     stayMonths:
       numbers.stayMonths === "" ||
       !Number.isInteger(stay) ||

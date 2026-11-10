@@ -291,7 +291,11 @@ export function EditProfileView({
                 <ListRow
                   icon={<Clock />}
                   label={t("Minimum stay")}
-                  value={`${prefs.stayMonths} ${t("months")}`}
+                  value={
+                    prefs.stayMonths === 1
+                      ? t("1 month")
+                      : `${prefs.stayMonths} ${t("months")}`
+                  }
                   onClick={() => onEditBasics(1)}
                 />
                 <ListRow
@@ -329,7 +333,11 @@ export function EditProfileView({
                   <ListRow
                     icon={<Clock />}
                     label={t("Stay")}
-                    value={`${prefs.stayMonths} ${t("months")}`}
+                    value={
+                      prefs.stayMonths === 1
+                        ? t("1 month")
+                        : `${prefs.stayMonths} ${t("months")}`
+                    }
                     onClick={() => onEditBasics(1)}
                   />
                 </>
