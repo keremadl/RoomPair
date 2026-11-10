@@ -29,7 +29,7 @@ export function ReportDialog({
   return (
     <Dialog title={t("Profile options")} onClose={onClose}>
       <Heading level={3}>
-        {t("Report or block")} {p.name}
+        {t("Report or block {name}", { name: p.name })}
       </Heading>
       <Text tone="muted" className={d.spaced}>
         {t(
@@ -58,7 +58,7 @@ export function ReportDialog({
           onClick={onBlock}
           fullWidth
         >
-          {t("Block")} {p.name}
+          {t("Block {name}", { name: p.name })}
         </Button>
       </div>
     </Dialog>

@@ -547,3 +547,54 @@ test("finishing setup from Edit profile lands on Discover, not on a half-open su
   ).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Filters" })).toBeVisible();
 });
+
+test("a blocked person can be unblocked from the profile page and comes back to Discover", async ({
+  page,
+}) => {
+  await openApp(page);
+  await expect(card(page)).toHaveText(/^Ella/);
+  await page
+    .getByRole("region", { name: "About Ella" })
+    .getByRole("button", { name: "Report" })
+    .click();
+  await page
+    .getByRole("dialog", { name: "Profile options" })
+    .getByRole("button", { name: /^Block Ella/ })
+    .click();
+  await expect(card(page)).not.toHaveText(/Ella/);
+
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .getByRole("button", { name: /My profile/ })
+    .click();
+  await page.getByRole("button", { name: /Blocked people/ }).click();
+  const blocked = page.getByRole("dialog", { name: "Blocked people" });
+  await expect(blocked).toContainText("Ella");
+  await blocked.getByRole("button", { name: "Unblock" }).click();
+  await expect(blocked).toContainText("You have not blocked anyone.");
+  await page.keyboard.press("Escape");
+
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .getByRole("button", { name: /Discover/ })
+    .click();
+  await expect(card(page)).toHaveText(/^Ella/);
+});
+
+test("in Turkish, a conversation starter gets a Turkish reply", async ({
+  page,
+}) => {
+  await openApp(page);
+  await page.evaluate(() => localStorage.setItem("roompair.locale", "tr"));
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "tr");
+  await page
+    .getByRole("navigation")
+    .first()
+    .getByRole("button", { name: /Mesajlar/ })
+    .click();
+  await page.getByRole("textbox").last().fill("Kira bütçen ne kadar?");
+  await page.keyboard.press("Enter");
+  // The reply shows in the conversation and as the list preview.
+  await expect(page.getByText(/Faturalar dahil 450–550/).first()).toBeVisible();
+});

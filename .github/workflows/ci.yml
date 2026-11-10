@@ -69,3 +69,24 @@ jobs:
           name: playwright-results
           path: test-results/
           retention-days: 7
+
+  accounts:
+    name: Browser tests with accounts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # A full local Supabase stack: database, sign-in, Data API and storage.
+      - run: npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit,postgres-meta
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test -c playwright.accounts.config.ts
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-accounts-results
+          path: test-results/
+          retention-days: 7

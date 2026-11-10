@@ -15,11 +15,10 @@ import {
   TextProvider,
   type PageMotion,
 } from "@/design-system";
-import { profiles } from "@/lib/data";
 import { getCompatibility, rankProfiles } from "@/lib/matching";
-import { missingRequired } from "@/lib/profile";
+import { matchingPreferences, missingRequired } from "@/lib/profile";
 import { useAppearance } from "@/lib/appearance";
-import { useAppState } from "@/lib/store";
+import { useAppData } from "@/lib/app-data";
 import { I18nProvider, useI18n } from "@/lib/i18n";
 import type { Preferences, Profile } from "@/lib/types";
 import type { DiscoverDeck } from "@/lib/discover/deck";
@@ -35,12 +34,21 @@ import { ProfileDialog } from "./dialogs/ProfileDialog";
 import { MatchDialog } from "./dialogs/MatchDialog";
 import { HelpDialog } from "./dialogs/HelpDialog";
 import { ReportDialog } from "./dialogs/ReportDialog";
+import { BlockedDialog } from "./dialogs/BlockedDialog";
 import { Onboarding } from "./Onboarding";
 import { Brand } from "./Brand";
+import { AuthScreen } from "./AuthScreen";
 import s from "./AppShell.module.css";
 
 type Dialog =
-  "filters" | "profile" | "match" | "help" | "settings" | "report" | null;
+  | "filters"
+  | "profile"
+  | "match"
+  | "help"
+  | "settings"
+  | "report"
+  | "blocked"
+  | null;
 
 /**
  * A unique id for a message. crypto.randomUUID only exists on HTTPS and
@@ -52,7 +60,6 @@ const newId = () =>
     ? crypto.randomUUID()
     : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
-const profileById = (id: string) => profiles.find((p) => p.id === id)!;
 const clock = () =>
   new Date().toLocaleTimeString("en-GB", {
     hour: "2-digit",
@@ -81,7 +88,19 @@ function Translated() {
 
 function RoomPairApp() {
   const { t } = useI18n();
-  const { state, setState, ready, reset } = useAppState();
+  const {
+    state,
+    setState,
+    ready,
+    reset,
+    saveFailed,
+    profiles,
+    account,
+    simulatesReplies,
+  } = useAppData();
+  // Conversations only ever point at people the member can see: saved demo
+  // state is validated on load, and the server hides everyone else.
+  const profileById = (id: string) => profiles.find((p) => p.id === id)!;
   const {
     appearance,
     theme: resolvedTheme,
@@ -93,6 +112,7 @@ function RoomPairApp() {
   const [dialog, setDialog] = useState<Dialog>(null);
   // false = closed; a number = open at that step.
   const [onboarding, setOnboarding] = useState<false | number>(false);
+  const [setupSkipped, setSetupSkipped] = useState(false);
   const [selected, setSelected] = useState<Profile | null>(null);
   const [activeChat, setActiveChat] = useState<string | null>(null);
   /** On phones an open conversation is a sub-page: back and name in the top bar. */
@@ -100,7 +120,11 @@ function RoomPairApp() {
   /** Likes: the person opened from a tile, shown as a sub-page. */
   const [likeOpen, setLikeOpen] = useState<string | null>(null);
   const narrow = useNarrow();
-  const [typing, setTyping] = useState<string | null>(null);
+  // Simulated replies still on their way, per conversation, so one reply
+  // arriving does not hide the typing dots of another conversation.
+  const [pendingReplies, setPendingReplies] = useState<Record<string, number>>(
+    {},
+  );
   const [direction, setDirection] = useState(1);
   const [toast, setToast] = useState("");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -111,7 +135,8 @@ function RoomPairApp() {
     motion: "fade",
   });
 
-  const ranked = rankProfiles(profiles, state.preferences, t).filter(
+  const matchPrefs = matchingPreferences(state.me, state.preferences);
+  const ranked = rankProfiles(profiles, matchPrefs, t).filter(
     ({ profile }) => !state.blocked.includes(profile.id),
   );
   const decided = (id: string) => state.decisions.some((d) => d.id === id);
@@ -155,6 +180,22 @@ function RoomPairApp() {
       chats: st.chats.map((c) => (c.id === id ? { ...c, unread: 0 } : c)),
     }));
 
+  /** Leaves nothing of one member's session on screen for the next one. */
+  function signOut() {
+    replyTimers.current.forEach(clearTimeout);
+    replyTimers.current = [];
+    setPendingReplies({});
+    setView("discover");
+    setSub(null);
+    setDialog(null);
+    setOnboarding(false);
+    setSetupSkipped(false);
+    setSelected(null);
+    setActiveChat(null);
+    setChatOpen(false);
+    setLikeOpen(null);
+    account?.signOut();
+  }
   function changeIntent(intent: "find-room" | "have-room") {
     setState((st) => ({
       ...st,
@@ -295,20 +336,39 @@ function RoomPairApp() {
           : c,
       ),
     }));
-    setTyping(id);
+    setPendingReplies((pending) => ({
+      ...pending,
+      [id]: (pending[id] ?? 0) + 1,
+    }));
+    // Real members answer for themselves; only demo people get canned replies.
+    if (!simulatesReplies) return;
     const timer = setTimeout(() => {
-      const lower = body.toLowerCase();
+      // Canned answers, in the app's language. The cue words cover both
+      // bundled languages; anything else gets the general answer.
+      const lower = body.toLocaleLowerCase();
+      const mentions = (...words: string[]) =>
+        words.some((word) => lower.includes(word));
       const answer = !body
-        ? "Thanks for the photo! That helps a lot."
-        : lower.includes("budget")
-          ? "I’m thinking around €450–550 including bills. What feels comfortable for you?"
-          : lower.includes("coffee") || lower.includes("meet")
-            ? "Coffee sounds lovely! How about Saturday at 11? There’s a nice little place near the market."
-            : lower.includes("clean")
-              ? "A quick tidy after cooking and a shared Sunday reset works for me. What’s your routine?"
-              : lower.includes("room") || lower.includes("flat")
-                ? "Yes! I’d love to compare places together. Let’s add our favourites to Our space."
-                : "That sounds good to me! I’m looking for a home where we can be honest, respect each other’s space, and share a coffee now and then.";
+        ? t("Thanks for the photo! That helps a lot.")
+        : mentions("budget", "rent", "bütçe", "kira")
+          ? t(
+              "I’m thinking around €450–550 including bills. What feels comfortable for you?",
+            )
+          : mentions("coffee", "meet", "kahve", "buluş", "görüş")
+            ? t(
+                "Coffee sounds lovely! How about Saturday at 11? There’s a nice little place near the market.",
+              )
+            : mentions("clean", "tidy", "temiz", "düzen")
+              ? t(
+                  "A quick tidy after cooking and a shared Sunday reset works for me. What’s your routine?",
+                )
+              : mentions("room", "flat", "oda", "daire", "ev")
+                ? t(
+                    "Happy to tell you more about the place. What would you like to know?",
+                  )
+                : t(
+                    "That sounds good to me! I’m looking for a home where we can be honest, respect each other’s space, and share a coffee now and then.",
+                  );
       setState((st) => ({
         ...st,
         chats: st.chats.map((c) =>
@@ -328,7 +388,10 @@ function RoomPairApp() {
             : c,
         ),
       }));
-      setTyping(null);
+      setPendingReplies((pending) => ({
+        ...pending,
+        [id]: Math.max(0, (pending[id] ?? 1) - 1),
+      }));
     }, 1600);
     replyTimers.current.push(timer);
   }
@@ -341,6 +404,10 @@ function RoomPairApp() {
         dialog ||
         onboarding !== false ||
         view !== "discover" ||
+        sub ||
+        // With required fields missing, Discover shows a prompt instead of
+        // the card; the keys must not act on a card nobody can see.
+        missing.length > 0 ||
         ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName) ||
         el.isContentEditable ||
         el.getAttribute("role") === "tab" ||
@@ -366,6 +433,11 @@ function RoomPairApp() {
         <Brand />
       </div>
     );
+  if (account?.status === "signed-out") return <AuthScreen account={account} />;
+  // A new member answers the living-together questions first; until then
+  // nobody else can see them. They may close it and look around.
+  const mustOnboard =
+    account?.status === "signed-in" && !state.onboarded && !setupSkipped;
 
   const deck: DiscoverDeck | null = current
     ? {
@@ -423,7 +495,16 @@ function RoomPairApp() {
       onNavigate={navigate}
       counts={{ likes: received.length, messages: unread }}
       onHelp={() => setDialog("help")}
-      toast={toast}
+      toast={
+        toast ||
+        (saveFailed
+          ? account
+            ? t("Some changes could not be saved. Check your connection.")
+            : t(
+                "Changes can’t be saved on this device. They last until you close this tab.",
+              )
+          : "")
+      }
       title={
         likePerson
           ? likePerson.name
@@ -551,7 +632,7 @@ function RoomPairApp() {
             key={likePerson.id}
             deck={{
               profile: likePerson,
-              match: getCompatibility(likePerson, state.preferences, t),
+              match: getCompatibility(likePerson, matchPrefs, t),
               cardKey: likePerson.id,
               exitDirection: direction,
               canUndo: false,
@@ -580,7 +661,7 @@ function RoomPairApp() {
         {view === "likes" && !likePerson && (
           <LikesView
             received={received.map((r) => r.profile)}
-            preferences={state.preferences}
+            preferences={matchPrefs}
             onOpen={(p) => {
               setLikeOpen(p.id);
               window.scrollTo({ top: 0 });
@@ -592,8 +673,8 @@ function RoomPairApp() {
           <MessagesView
             chats={state.chats}
             activeId={chat?.id ?? null}
-            typing={typing}
-            preferences={state.preferences}
+            typing={chat && pendingReplies[chat.id] ? chat.id : null}
+            preferences={matchPrefs}
             profileById={profileById}
             showChat={chatOpen}
             onSelect={(id) => {
@@ -615,7 +696,15 @@ function RoomPairApp() {
           <SettingsView
             appearance={appearance}
             onAppearance={setAppearance}
+            account={account}
+            onSignOut={signOut}
             onReset={() => {
+              replyTimers.current.forEach(clearTimeout);
+              replyTimers.current = [];
+              setPendingReplies({});
+              setActiveChat(null);
+              setChatOpen(false);
+              setLikeOpen(null);
               reset();
               setSub(null);
               setView("discover");
@@ -653,12 +742,16 @@ function RoomPairApp() {
             }}
             onEdit={() => openSub("edit")}
             onHelp={() => setDialog("help")}
+            onBlocked={() => setDialog("blocked")}
             onIntent={changeIntent}
             onVerify={() =>
-              setState((st) => ({
-                ...st,
-                me: { ...st.me, verified: !st.me.verified },
-              }))
+              // With accounts, only the server can mark someone verified.
+              account
+                ? notify(t("Student verification is not connected yet."))
+                : setState((st) => ({
+                    ...st,
+                    me: { ...st.me, verified: !st.me.verified },
+                  }))
             }
             onLikes={() => navigate("likes")}
             onMatches={() => navigate("messages")}
@@ -684,7 +777,7 @@ function RoomPairApp() {
           <ProfileDialog
             key="profile"
             profile={detail}
-            match={getCompatibility(detail, state.preferences, t)}
+            match={getCompatibility(detail, matchPrefs, t)}
             viewer={state.preferences}
             liked={state.decisions.some(
               (d) => d.id === detail.id && d.action === "like",
@@ -704,7 +797,7 @@ function RoomPairApp() {
               name: state.preferences.name,
               photo: state.me.photos[0] ?? "",
             }}
-            fit={getCompatibility(detail, state.preferences, t).score}
+            fit={getCompatibility(detail, matchPrefs, t).score}
             roomFirst={state.preferences.intent !== "have-room"}
             onClose={() => setDialog(null)}
             onSend={(text) => {
@@ -723,6 +816,20 @@ function RoomPairApp() {
             }}
           />
         )}
+        {dialog === "blocked" && (
+          <BlockedDialog
+            key="blocked"
+            people={profiles.filter((p) => state.blocked.includes(p.id))}
+            onClose={() => setDialog(null)}
+            onUnblock={(person) => {
+              setState((st) => ({
+                ...st,
+                blocked: st.blocked.filter((id) => id !== person.id),
+              }));
+              notify(t("{name} is unblocked.", { name: person.name }));
+            }}
+          />
+        )}
         {dialog === "report" && detail && (
           <ReportDialog
             key="report"
@@ -731,7 +838,12 @@ function RoomPairApp() {
             onReport={(reason) => {
               setState((st) => ({
                 ...st,
-                reports: [...st.reports, { profileId: detail.id, reason }],
+                // Reporting the same person for the same reason twice adds nothing.
+                reports: st.reports.some(
+                  (r) => r.profileId === detail.id && r.reason === reason,
+                )
+                  ? st.reports
+                  : [...st.reports, { profileId: detail.id, reason }],
               }));
               setDialog(null);
               notify(
@@ -743,8 +855,10 @@ function RoomPairApp() {
             onBlock={() => {
               setState((st) => ({
                 ...st,
-                blocked: [...st.blocked, detail.id],
+                blocked: [...new Set([...st.blocked, detail.id])],
                 chats: st.chats.filter((c) => c.profileId !== detail.id),
+                // Forget the swipe too, so Undo never targets someone hidden.
+                decisions: st.decisions.filter((d) => d.id !== detail.id),
               }));
               // Leave any page that still shows the blocked person.
               if (likeOpen === detail.id) setLikeOpen(null);
@@ -757,12 +871,15 @@ function RoomPairApp() {
             }}
           />
         )}
-        {onboarding !== false && (
+        {(onboarding !== false || mustOnboard) && (
           <Onboarding
             key="onboarding"
-            startStep={onboarding}
+            startStep={onboarding === false ? 0 : onboarding}
             initial={state.preferences}
-            onClose={() => setOnboarding(false)}
+            onClose={() => {
+              setOnboarding(false);
+              setSetupSkipped(true);
+            }}
             onComplete={(preferences) => {
               setState((st) => ({ ...st, preferences, onboarded: true }));
               setOnboarding(false);
@@ -770,7 +887,9 @@ function RoomPairApp() {
               // or its title and back button would sit above Discover.
               setSub(null);
               setView("discover");
-              notify(`${t("Profile saved. Hi,")} ${preferences.name}!`);
+              notify(
+                t("Profile saved. Hi, {name}!", { name: preferences.name }),
+              );
             }}
           />
         )}

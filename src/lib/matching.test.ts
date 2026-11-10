@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { defaultPreferences, profiles } from "./data";
+import { conversations, defaultPreferences, profiles } from "./data";
 import { getCompatibility, rankProfiles } from "./matching";
 import type { Preferences, Profile } from "./types";
 
@@ -243,4 +243,65 @@ test("everyday answers never change the score, but big gaps become things to tal
   assert.ok(apart.considerations.some((c) => c.includes("guests")));
   assert.ok(apart.considerations.some((c) => c.includes("quiet home")));
   assert.ok(apart.considerations.some((c) => c.includes("sharing")));
+});
+
+test("a host is matched on the rent they ask, not on a budget of their own", () => {
+  const seeker = withProfile({
+    intent: "find-room",
+    room: undefined,
+    budget: [400, 600],
+  });
+  const host = (price: number) =>
+    getCompatibility(seeker, {
+      ...defaultPreferences,
+      intent: "have-room",
+      // The host's own budget range is hidden from them and must not matter.
+      budgetMin: 100,
+      budgetMax: 150,
+      hostRoomPrice: price,
+    });
+  assert.equal(host(500).eligible, true);
+  assert.ok(host(500).reasons.some((reason) => reason.includes("€500")));
+  assert.equal(host(900).eligible, false);
+  assert.ok(host(900).dealbreakers.some((reason) => reason.includes("€900")));
+  assert.equal(host(600).eligible, true);
+  assert.equal(host(601).eligible, false);
+});
+
+test("a room's stay is a minimum: staying longer is fine, shorter lowers the fit", () => {
+  const stayFactor = (roomMinimum: number, wanted: number) =>
+    getCompatibility(withProfile({ stayMonths: roomMinimum }), {
+      ...defaultPreferences,
+      stayMonths: wanted,
+    }).breakdown.at(-1)!.score;
+  assert.equal(baseProfile.intent, "have-room");
+  assert.equal(stayFactor(6, 24), 100);
+  assert.equal(stayFactor(12, 12), 100);
+  assert.equal(stayFactor(12, 6), 50);
+  // The same holds the other way round, when the viewer has the room.
+  const seeker = withProfile({ intent: "find-room", room: undefined });
+  const asHost = (minimum: number, theirs: number) =>
+    getCompatibility(
+      { ...seeker, stayMonths: theirs },
+      {
+        ...defaultPreferences,
+        intent: "have-room",
+        stayMonths: minimum,
+        hostRoomPrice: 500,
+      },
+    ).breakdown.at(-1)!.score;
+  assert.equal(asHost(6, 12), 100);
+  assert.equal(asHost(12, 3), 25);
+});
+
+test("every seeded conversation is with someone the default search would show", () => {
+  for (const chat of conversations) {
+    const person = profiles.find((profile) => profile.id === chat.profileId);
+    assert.ok(person, `unknown person in ${chat.id}`);
+    assert.deepEqual(
+      getCompatibility(person, defaultPreferences).dealbreakers,
+      [],
+      `${person.name} is filtered out but has a conversation`,
+    );
+  }
 });

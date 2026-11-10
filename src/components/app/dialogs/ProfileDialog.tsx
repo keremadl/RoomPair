@@ -1,6 +1,11 @@
 "use client";
 import type { CSSProperties } from "react";
-import { BadgeCheck, Heart, MessageCircle, MoreHorizontal } from "@/design-system/icons";
+import {
+  BadgeCheck,
+  Heart,
+  MessageCircle,
+  MoreHorizontal,
+} from "@/design-system/icons";
 import { Avatar, Button, Dialog, IconButton, Text } from "@/design-system";
 import {
   defaultLanguage,

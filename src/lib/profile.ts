@@ -48,6 +48,10 @@ export const languageOptions = [
   "Arabic",
   "Chinese",
   "Ukrainian",
+  "Polish",
+  "Lithuanian",
+  "Japanese",
+  "Hindi",
 ];
 
 export const interestOptions = [
@@ -186,6 +190,19 @@ export const missingRequired = (me: MyProfile, prefs: Preferences) =>
 export const completion = (steps: Step[]) =>
   Math.round((steps.filter((s) => s.done).length / steps.length) * 100);
 
+/**
+ * The preferences to match with. Someone who has a room is compared on the
+ * rent they ask for it: their own "monthly budget" is not shown to them and
+ * must not decide who they see.
+ */
+export const matchingPreferences = (
+  me: MyProfile,
+  prefs: Preferences,
+): Preferences & { hostRoomPrice?: number } =>
+  prefs.intent === "have-room"
+    ? { ...prefs, hostRoomPrice: me.room.price }
+    : prefs;
+
 /** Builds the card others see from your own answers. */
 export function asProfile(me: MyProfile, prefs: Preferences): Profile {
   const host = prefs.intent === "have-room";
@@ -213,7 +230,10 @@ export function asProfile(me: MyProfile, prefs: Preferences): Profile {
       cleanliness: prefs.cleanliness as Profile["habits"]["cleanliness"],
       social: prefs.social as Profile["habits"]["social"],
       sleep: prefs.sleep,
-      smoking: !prefs.smokeFree,
+      // The profile does not ask whether you smoke or have a pet. Wanting a
+      // smoke-free home is a wish about others, not a statement about you,
+      // so neither is claimed here.
+      smoking: false,
       pets: false,
       guests: prefs.guests,
       homeDays: prefs.homeDays,

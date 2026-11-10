@@ -1,6 +1,22 @@
 # RoomPair database
 
-The schema for accounts and shared data lives in `supabase/` and is applied to a hosted Supabase project (Postgres 17, region `eu-central-1`). **The app does not read from it yet:** the interface still runs on the browser-local demo state. Connecting the two is the next step.
+The schema for accounts and shared data lives in `supabase/` and is applied to a hosted Supabase project (Postgres 17, region `eu-central-1`). **The app uses it only when it is configured:** with `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` set, the interface asks people to sign in and reads and writes here; without them it stays the self-contained demo that keeps everything in the browser.
+
+## How the app talks to it
+
+The interface keeps editing its state optimistically, exactly as in the demo. In account mode each edit is turned into writes and followed by a fresh read:
+
+| File                                | Role                                                                              |
+| ----------------------------------- | --------------------------------------------------------------------------------- |
+| `src/lib/app-data.ts`               | One hook for both modes; queues writes, re-reads after them and every few seconds |
+| `src/lib/backend/sync.ts`           | Pure function: two states in, the writes that reconcile them out (unit-tested)    |
+| `src/lib/backend/mapping.ts`        | Rows to app types and back (unit-tested)                                          |
+| `src/lib/backend/remote.ts`         | The actual queries, photo uploads and signed photo links                          |
+| `src/components/app/AuthScreen.tsx` | Sign in and sign up                                                               |
+
+New likes, matches and messages arrive by polling every six seconds while the tab is visible. A write the database rejects is dropped on the next read, so the screen always ends up showing what the server decided. Photos picked on the device are uploaded to the private buckets; other people's photos are shown through signed links that last an hour.
+
+`npm run test:accounts` runs the browser tests for this mode against a local Supabase stack (`npx supabase start`); CI does the same.
 
 ## Layout
 

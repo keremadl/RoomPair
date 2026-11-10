@@ -6,7 +6,7 @@ const isDev = process.env.NODE_ENV === "development";
 // limited to this origin. Next.js needs inline scripts for hydration (and eval
 // in development only); Motion sets inline styles.
 // With accounts enabled, the browser talks to the Supabase project directly:
-// HTTPS for data and sign-in, WebSocket for live updates.
+// HTTPS for data, sign-in and photos, WebSocket for live updates.
 const supabaseOrigin = (() => {
   try {
     return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").origin;
@@ -22,7 +22,8 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' blob: data:",
+  // Members' photos are private files served by the Supabase project.
+  `img-src 'self' blob: data:${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
   "font-src 'self'",
   `connect-src 'self'${backendSources}${isDev ? " ws: wss:" : ""}`,
   "object-src 'none'",

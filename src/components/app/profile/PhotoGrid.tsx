@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ImagePlus, Plus, Star, X } from "@/design-system/icons";
 import { Button } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
@@ -28,17 +28,24 @@ export function PhotoGrid({
 }) {
   const { t } = useI18n();
   const input = useRef<HTMLInputElement>(null);
+  // While one batch is being read, a second pick would be built on the old
+  // list and drop the first batch, so it waits.
+  const [reading, setReading] = useState(false);
   const add = async (files: FileList | null) => {
-    if (!files?.length) return;
-    try {
-      const room = max - photos.length;
-      const added = await Promise.all(
-        [...files].slice(0, room).map((f) => readPhoto(f)),
-      );
-      onChange([...photos, ...added]);
-    } catch {
+    if (!files?.length || reading) return;
+    setReading(true);
+    const room = max - photos.length;
+    const results = await Promise.allSettled(
+      [...files].slice(0, room).map((f) => readPhoto(f)),
+    );
+    setReading(false);
+    // Keep the photos that worked; one bad file does not reject the rest.
+    const added = results.flatMap((r) =>
+      r.status === "fulfilled" ? [r.value] : [],
+    );
+    if (added.length) onChange([...photos, ...added]);
+    if (added.length < results.length)
       onError(t("That file is not a photo. Try a JPG or PNG."));
-    }
   };
   return (
     <div>
