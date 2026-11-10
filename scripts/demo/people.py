@@ -242,7 +242,7 @@ P = [
      "chest-up, in a navy rain jacket by a city canal with a rowing boat and park trees, bright spring day",
      "half-body, in a plain grey sweatshirt, holding a tray of cinnamon buns in a student kitchen, looking proud"),
     ("adaeze", "Adaeze", 30, "woman", "working", "Product manager", "A fintech start-up in Riga", ["English", "French"], "Skanste", "have-room", (450, 650),
-     "From Abuja via London. I travel for work twice a month. Bright new flat, a proper home office, and a peloton you may use.",
+     "From Abuja via London. I travel for work twice a month. Bright new flat, a proper home office, and an exercise bike you may use.",
      ["Gym", "Travel", "Film nights"],
      "a 30-year-old Nigerian woman, dark skin, sleek shoulder-length straight hair, gold earrings, polished, confident smile",
      "chest-up, in a camel blazer over a white top in a modern office lobby with plants, daylight",
@@ -481,7 +481,9 @@ def people():
         questions = rng.sample(HOST_Q if intent == "have-room" else SEEKER_Q, 2)
         if intent == "have-room":
             # Hosts always say one thing about the place.
-            questions[0] = rng.choice(HOST_Q[9:])
+            about_place = [q for q in HOST_Q[9:] if q != questions[1]]
+            if questions[0] not in HOST_Q[9:]:
+                questions[0] = about_place[i % len(about_place)]
         prompts = []
         for q in questions:
             options = sorted(ANSWERS[q], key=lambda a: (used.get(a, 0), rng.random()))
