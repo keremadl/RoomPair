@@ -56,7 +56,9 @@
 /* The question's illustration; it lands the same way the sticker does. */
 .art {
   display: block;
-  width: min(100%, 16rem);
+  /* Centred over the question, which stays left-aligned with its answers. */
+  align-self: center;
+  width: min(100%, 17rem);
   height: auto;
   aspect-ratio: 3 / 2;
   object-fit: contain;
