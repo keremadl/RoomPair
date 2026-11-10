@@ -177,3 +177,16 @@
   border-top: var(--border-width) solid var(--color-border);
   background: var(--color-bg);
 }
+
+/* The photo grid is kept compact so the whole screen fits without scrolling. */
+.photos {
+  align-self: center;
+  width: min(100%, 17rem);
+}
+
+/* Short screens: a smaller illustration, so the answers fit without scrolling. */
+@media (max-height: 52rem) {
+  .art {
+    width: min(100%, 12rem);
+  }
+}
