@@ -143,6 +143,9 @@ function readMe(input: unknown): MyProfile {
       ? strings(saved.languages, 12, 40)
       : base.languages,
     ...(gender === "none" ? {} : { gender }),
+    neighborhood: text(saved.neighborhood, base.neighborhood, 70),
+    smokes: flag(saved.smokes, base.smokes),
+    hasPets: flag(saved.hasPets, base.hasPets),
     bio: text(saved.bio, base.bio, 600),
     prompts: "prompts" in saved ? readPrompts(saved.prompts) : base.prompts,
     interests: Array.isArray(saved.interests)

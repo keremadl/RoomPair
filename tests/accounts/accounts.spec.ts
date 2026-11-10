@@ -35,7 +35,7 @@ async function join(page: Page, name: string) {
   // Setup opens by itself for a new member.
   const setup = page.getByRole("dialog", { name: "Your profile" });
   await expect(
-    setup.getByRole("textbox", { name: "What should we call you?" }),
+    setup.getByRole("textbox", { name: "Your first name" }),
   ).toHaveValue(name);
   // A new member's age is asked, not assumed, and minors are refused.
   await setup.getByRole("button", { name: "Continue" }).click();
@@ -44,32 +44,33 @@ async function join(page: Page, name: string) {
   await setup.getByRole("button", { name: "Continue" }).click();
   await expect(setup.getByText(/18 or older to use RoomPair/)).toBeVisible();
   await setup.getByLabel("Your age").fill("27");
-  for (let step = 0; step < 6; step++) {
+
+  const question = setup.getByRole("heading", { level: 2 });
+  const proceed = setup.getByRole("button", { name: "Continue" });
+  for (let step = 0; step < 30; step++) {
     const finish = setup.getByRole("button", { name: /Save and show people/ });
     if (await finish.count()) {
       await finish.click();
       break;
     }
-    await setup.getByRole("button", { name: "Continue" }).click();
+    const asked = (await question.textContent()) ?? "";
+    if (asked === "Add a photo of yourself") {
+      // Others only see a profile with a photo, so setup insists on one.
+      await proceed.click();
+      await expect(setup.getByRole("alert")).toContainText("at least one");
+      await setup
+        .locator('input[type="file"]')
+        .setInputFiles("public/images/alex-1.jpg");
+      await expect(setup.getByText("Main", { exact: true })).toBeVisible();
+    }
+    if (asked === "What do you do?") {
+      await setup.getByLabel("What you study or do").fill("Test engineer");
+      await setup.getByLabel("School or workplace").fill("RoomPair QA");
+    }
+    await proceed.click();
+    await expect(question).not.toHaveText(asked);
   }
   await expect(setup).toBeHidden();
-
-  // Others only see a profile with a photo and what the person does.
-  await nav(page)
-    .getByRole("button", { name: /My profile/ })
-    .click();
-  await page.getByRole("button", { name: "Edit profile", exact: true }).click();
-  await page
-    .locator('input[type="file"]')
-    .first()
-    .setInputFiles("public/images/alex-1.jpg");
-  await expect(page.getByText("Main", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: `${name}, 27` }).click();
-  const basics = page.getByRole("dialog", { name: "Name and work" });
-  await basics.getByLabel("What you study or do").fill("Test engineer");
-  await basics.getByLabel("School or workplace").fill("RoomPair QA");
-  await basics.getByRole("button", { name: "Save" }).click();
-  await expect(basics).toBeHidden();
   await nav(page)
     .getByRole("button", { name: /Discover/ })
     .click();

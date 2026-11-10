@@ -37,7 +37,7 @@ import { ReportDialog } from "./dialogs/ReportDialog";
 import { BlockedDialog } from "./dialogs/BlockedDialog";
 import { DeleteAccountDialog } from "./dialogs/DeleteAccountDialog";
 import { ModerationDialog } from "./dialogs/ModerationDialog";
-import { Onboarding } from "./Onboarding";
+import { Onboarding, type SetupQuestion } from "./Onboarding";
 import { Brand } from "./Brand";
 import { AuthScreen } from "./AuthScreen";
 import s from "./AppShell.module.css";
@@ -116,7 +116,10 @@ function RoomPairApp() {
   const [sub, setSub] = useState<null | "edit" | "settings">(null);
   const [dialog, setDialog] = useState<Dialog>(null);
   // false = closed; a number = open at that step.
-  const [onboarding, setOnboarding] = useState<false | number>(false);
+  // Setup: closed, the whole walk-through, or one answer opened from Edit profile.
+  const [onboarding, setOnboarding] = useState<false | true | SetupQuestion>(
+    false,
+  );
   const [setupSkipped, setSetupSkipped] = useState(false);
   const [selected, setSelected] = useState<Profile | null>(null);
   const [activeChat, setActiveChat] = useState<string | null>(null);
@@ -738,7 +741,7 @@ function RoomPairApp() {
             onMe={(next) =>
               setState((st) => ({ ...st, me: { ...st.me, ...next } }))
             }
-            onEditBasics={(step) => setOnboarding(step)}
+            onEditBasics={(question) => setOnboarding(question)}
             onError={notify}
             onName={(name) =>
               setState((st) => ({
@@ -831,7 +834,7 @@ function RoomPairApp() {
             onClose={() => setDialog(null)}
             onStart={() => {
               setDialog(null);
-              setOnboarding(0);
+              setOnboarding(true);
             }}
           />
         )}
@@ -914,21 +917,25 @@ function RoomPairApp() {
         {(onboarding !== false || mustOnboard) && (
           <Onboarding
             key="onboarding"
-            startStep={onboarding === false ? 0 : onboarding}
+            only={typeof onboarding === "string" ? onboarding : undefined}
             initial={state.preferences}
-            age={account && !state.onboarded ? null : state.me.age}
+            profile={state.me}
+            askAge={Boolean(account) && !state.onboarded}
             onClose={() => {
               setOnboarding(false);
               setSetupSkipped(true);
             }}
-            onComplete={(preferences, age) => {
+            onComplete={(preferences, profile) => {
+              const single = typeof onboarding === "string";
               setState((st) => ({
                 ...st,
                 preferences,
-                onboarded: true,
-                me: age ? { ...st.me, age } : st.me,
+                // One edited answer does not finish setup for a new member.
+                onboarded: st.onboarded || !single,
+                me: { ...st.me, ...profile },
               }));
               setOnboarding(false);
+              if (single) return notify(t("Saved."));
               // Setup can be opened from Edit profile; leave that sub-page,
               // or its title and back button would sit above Discover.
               setSub(null);

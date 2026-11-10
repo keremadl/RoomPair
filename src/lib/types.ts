@@ -131,6 +131,11 @@ export interface MyProfile {
   school: string;
   languages: string[];
   gender?: Gender;
+  /** The part of town: where the room is, or where you would like to live. */
+  neighborhood: string;
+  /** About you, not about what you accept: the smoke-free and pet filters use these. */
+  smokes: boolean;
+  hasPets: boolean;
   bio: string;
   prompts: Prompt[];
   interests: string[];
