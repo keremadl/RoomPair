@@ -74,9 +74,12 @@
   display: none;
 }
 .main {
+  /* Full-height pages (Messages) subtract these from the screen. */
+  --main-pad-top: var(--space-6);
+  --main-pad-bottom: calc(var(--space-16) + var(--space-12));
   min-width: 0;
-  padding: var(--space-6) max(var(--space-4), env(safe-area-inset-right, 0px))
-    calc(var(--space-16) + var(--space-12))
+  padding: var(--main-pad-top)
+    max(var(--space-4), env(safe-area-inset-right, 0px)) var(--main-pad-bottom)
     max(var(--space-4), env(safe-area-inset-left, 0px));
   outline: none;
 }
@@ -172,7 +175,9 @@
     overflow-y: auto;
   }
   .main {
-    padding: var(--space-8) var(--space-8) var(--space-16);
+    --main-pad-top: var(--space-8);
+    --main-pad-bottom: var(--space-16);
+    padding: var(--main-pad-top) var(--space-8) var(--main-pad-bottom);
   }
 }
 .sideNav {
@@ -250,4 +255,14 @@
 /* The current page keeps its pressed look and still shows focus. */
 .sideItem[aria-current="page"]:focus-visible {
   box-shadow: var(--control-shadow), var(--focus-ring);
+}
+
+/* Phones, inside a conversation: no tab bar, the page runs to the bottom. */
+.tabbar[hidden] {
+  display: none;
+}
+@media (max-width: 979px) {
+  .app[data-focused] .main {
+    --main-pad-bottom: max(var(--space-4), env(safe-area-inset-bottom, 0px));
+  }
 }

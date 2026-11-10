@@ -110,6 +110,8 @@ export interface Message {
   /** A shared photo (data URL), shown above the text. */
   photo?: string;
   time: string;
+  /** The calendar day it was sent (YYYY-MM-DD); older saved messages have none. */
+  day?: string;
 }
 
 export interface Conversation {

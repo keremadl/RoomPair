@@ -34,6 +34,8 @@
 }
 .close {
   position: absolute;
+  /* Above content that starts at the very top, such as a photo. */
+  z-index: 1;
   top: var(--space-3);
   right: var(--space-3);
   display: grid;

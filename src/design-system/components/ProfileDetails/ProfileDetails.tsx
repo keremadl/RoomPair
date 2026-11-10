@@ -24,6 +24,8 @@ export type ProfileDetailsProps = {
   sections: Record<GroupId, ReactNode>;
   /** Language-specific classes; anything left out uses the core look. */
   classes?: DetailsClasses;
+  /** Leave a group out, e.g. Fit on your own profile. Order never changes. */
+  groups?: GroupId[];
 };
 
 /**
@@ -42,14 +44,17 @@ export function ProfileDetails({
   tabLabels,
   sections,
   classes = {},
+  groups = order,
 }: ProfileDetailsProps) {
+  const shown = order.filter((g) => groups.includes(g));
   const base = useId();
-  const [active, setActive] = useState<GroupId>("home");
+  const [picked, setActive] = useState<GroupId>("home");
+  const active = shown.includes(picked) ? picked : shown[0];
 
   if (layout === "blocks") {
     return (
       <div className={classes.blocks ?? styles.blocks}>
-        {order.map((g) => (
+        {shown.map((g) => (
           <section
             key={g}
             className={classes.block ?? styles.block}
@@ -70,7 +75,7 @@ export function ProfileDetails({
         label="Profile sections"
         idPrefix={`${base}-tab`}
         controls={`${base}-panel`}
-        items={order.map((g) => ({ id: g, label: tabLabels[g] }))}
+        items={shown.map((g) => ({ id: g, label: tabLabels[g] }))}
         value={active}
         onChange={setActive}
         className={classes.tabs ?? styles.tabs}

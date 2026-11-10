@@ -1,3 +1,4 @@
+import { localDay } from "./chat-time";
 import type { Conversation, Preferences, Profile } from "./types";
 
 const DAY = 86_400_000;
@@ -15,6 +16,9 @@ export function demoMoveMonth(now = new Date()): number {
 /** A move-in date, as days before or after the start of the demo's move month. */
 export const moveIn = (days: number) => iso(demoMoveMonth() + days * DAY);
 const daysAgo = (days: number) => iso(Date.now() - days * DAY);
+/** The reader's own calendar day, which is what a chat's "Today" means. */
+const sentDaysAgo = (days: number) =>
+  localDay(new Date(Date.now() - days * DAY));
 
 export const defaultPreferences: Preferences = {
   name: "Alex",
@@ -1287,18 +1291,21 @@ export const conversations: Conversation[] = [
         sender: "them",
         text: "Hey! Your idea of a good Sunday sounds a lot like mine ☕",
         time: "10:24",
+        day: sentDaysAgo(0),
       },
       {
         id: "maya-2",
         sender: "me",
         text: "Hi Maya! A film night and homemade bread is a pretty convincing combination.",
         time: "10:26",
+        day: sentDaysAgo(0),
       },
       {
         id: "maya-3",
         sender: "them",
         text: "The room gets lovely afternoon light. Want to have a look this weekend?",
         time: "10:28",
+        day: sentDaysAgo(0),
       },
     ],
   },
@@ -1312,19 +1319,22 @@ export const conversations: Conversation[] = [
         id: "elina-1",
         sender: "them",
         text: "Hey! The room is still free. What matters most to you in a shared flat?",
-        time: "Yesterday",
+        time: "18:12",
+        day: sentDaysAgo(1),
       },
       {
         id: "elina-2",
         sender: "me",
         text: "Definitely. I’d love somewhere with a proper shared kitchen.",
-        time: "Yesterday",
+        time: "18:20",
+        day: sentDaysAgo(1),
       },
       {
         id: "elina-3",
         sender: "them",
         text: "Then you’ll like ours: a big living room and a sunny balcony. Come and see it on Saturday?",
-        time: "Yesterday",
+        time: "18:41",
+        day: sentDaysAgo(1),
       },
     ],
   },

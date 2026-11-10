@@ -4,12 +4,11 @@ import {
   MoreHorizontal,
   Settings,
   SlidersHorizontal,
-  UserPen,
-  UserRound,
 } from "@/design-system/icons";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig } from "motion/react";
 import {
+  Avatar,
   IconButton,
   PageTransition,
   TextProvider,
@@ -19,6 +18,7 @@ import { getCompatibility, rankProfiles } from "@/lib/matching";
 import { matchingPreferences, missingRequired } from "@/lib/profile";
 import { useAppearance } from "@/lib/appearance";
 import { useAppData } from "@/lib/app-data";
+import { localDay } from "@/lib/chat-time";
 import { I18nProvider, useI18n } from "@/lib/i18n";
 import type { Preferences, Profile } from "@/lib/types";
 import type { DiscoverDeck } from "@/lib/discover/deck";
@@ -338,6 +338,7 @@ function RoomPairApp() {
                   text: body,
                   ...(photo ? { photo } : {}),
                   time: clock(),
+                  day: localDay(),
                 },
               ],
             }
@@ -390,6 +391,7 @@ function RoomPairApp() {
                     sender: "them",
                     text: answer,
                     time: clock(),
+                    day: localDay(),
                   },
                 ],
               }
@@ -531,6 +533,25 @@ function RoomPairApp() {
                 ? t("Settings")
                 : t(`nav.${view}`)
       }
+      focused={Boolean(chatPerson)}
+      person={
+        chatPerson
+          ? {
+              avatar: (
+                <Avatar
+                  name={chatPerson.name}
+                  src={chatPerson.photo}
+                  size="sm"
+                />
+              ),
+              subtitle: `${getCompatibility(chatPerson, matchPrefs, t).score}% ${t("fit")} · ${
+                chatPerson.intent === "have-room" ? t("Host") : t("Explorer")
+              } · ${chatPerson.neighborhood}`,
+              label: `${t("discover.viewProfile")}: ${chatPerson.name}`,
+              onOpen: () => openProfile(chatPerson),
+            }
+          : undefined
+      }
       onBack={
         likePerson
           ? closeLike
@@ -545,23 +566,15 @@ function RoomPairApp() {
       }
       actions={
         likePerson ? undefined : chatPerson ? (
-          <>
-            <IconButton
-              variant="outline"
-              label={`${t("discover.viewProfile")}: ${chatPerson.name}`}
-              icon={<UserRound />}
-              onClick={() => openProfile(chatPerson)}
-            />
-            <IconButton
-              variant="outline"
-              label={t("Conversation options")}
-              icon={<MoreHorizontal />}
-              onClick={() => {
-                setSelected(chatPerson);
-                setDialog("report");
-              }}
-            />
-          </>
+          <IconButton
+            variant="outline"
+            label={t("Conversation options")}
+            icon={<MoreHorizontal />}
+            onClick={() => {
+              setSelected(chatPerson);
+              setDialog("report");
+            }}
+          />
         ) : sub ? undefined : view === "discover" ? (
           <IconButton
             variant="outline"
@@ -582,12 +595,6 @@ function RoomPairApp() {
               label={t("Help")}
               icon={<CircleHelp />}
               onClick={() => setDialog("help")}
-            />
-            <IconButton
-              variant="outline"
-              label={t("Edit profile")}
-              icon={<UserPen />}
-              onClick={() => openSub("edit")}
             />
           </>
         ) : undefined
@@ -763,7 +770,6 @@ function RoomPairApp() {
               reports: state.reports.length,
             }}
             onEdit={() => openSub("edit")}
-            onHelp={() => setDialog("help")}
             onBlocked={() => setDialog("blocked")}
             onIntent={changeIntent}
             onVerify={() =>
@@ -805,6 +811,11 @@ function RoomPairApp() {
               (d) => d.id === detail.id && d.action === "like",
             )}
             hasChat={state.chats.some((c) => c.profileId === detail.id)}
+            inChat={
+              view === "messages" &&
+              (chatOpen || !narrow) &&
+              chat?.profileId === detail.id
+            }
             onClose={() => setDialog(null)}
             onLike={() => decide("like", detail)}
             onChat={() => openChat(detail)}

@@ -64,6 +64,7 @@ import { dateLabel, useDeck, you, type Mode } from "@/lib/discover/deck";
 import {
   ProfileDetails,
   type DetailsLayout,
+  type GroupId,
 } from "@/design-system/components/ProfileDetails/ProfileDetails";
 import {
   fitSection,
@@ -326,10 +327,13 @@ export function DiscoverDetails({
   layout = "blocks",
   onReport,
   viewer = you,
+  groups,
 }: {
   profile: Profile;
   match: MatchResult;
   layout?: DetailsLayout;
+  /** Leave a group out, e.g. Fit when you preview your own profile. */
+  groups?: GroupId[];
   /** Whose answers "you" means; the demo user by default. */
   viewer?: Preferences;
   /** Opens report/block options; without it the links are inert (demos). */
@@ -352,6 +356,7 @@ export function DiscoverDetails({
     <Reveal id={p.id} className={s.details}>
       <ProfileDetails
         layout={layout}
+        groups={groups}
         classes={{
           blocks: s.sections,
           block: s.section,
@@ -573,15 +578,18 @@ export function DiscoverDetails({
           ),
         }}
       />
-      <p className={s.report}>
-        <button type="button" onClick={onReport}>
-          {t("Report")}
-        </button>{" "}
-        ·{" "}
-        <button type="button" onClick={onReport}>
-          {t("Block")}
-        </button>
-      </p>
+      {/* Not on a preview of your own profile (some groups, nobody to report). */}
+      {(onReport || !groups) && (
+        <p className={s.report}>
+          <button type="button" onClick={onReport}>
+            {t("Report")}
+          </button>{" "}
+          ·{" "}
+          <button type="button" onClick={onReport}>
+            {t("Block")}
+          </button>
+        </p>
+      )}
     </Reveal>
   );
 }

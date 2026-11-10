@@ -1,5 +1,11 @@
 "use client";
-import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  type ComponentProps,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import {
   CircleHelp,
   Compass,
@@ -33,6 +39,8 @@ export function AppShell({
   title,
   actions,
   onBack,
+  person,
+  focused = false,
   palette,
   theme,
   children,
@@ -48,6 +56,10 @@ export function AppShell({
   actions?: ReactNode;
   /** Set on a sub-page: shows a back button before the title. */
   onBack?: () => void;
+  /** A page about one person (an open conversation); see TopBar. */
+  person?: ComponentProps<typeof TopBar>["person"];
+  /** Phones: hide the tab bar, so the page (a conversation) gets the room. */
+  focused?: boolean;
   /** Colour palette (Card palette id) and the theme in effect. */
   palette: string;
   theme: "light" | "dark";
@@ -88,6 +100,7 @@ export function AppShell({
       data-direction={defaultLanguage}
       data-palette={palette}
       data-theme={theme}
+      data-focused={focused ? "" : undefined}
       style={{ "--sticky-offset": "var(--shell-bar-height)" } as CSSProperties}
     >
       <a href="#main" className={s.skip}>
@@ -98,6 +111,7 @@ export function AppShell({
         actions={actions}
         onBack={onBack}
         backLabel={t("Back")}
+        person={person}
       />
 
       <div className={s.body}>
@@ -135,7 +149,11 @@ export function AppShell({
         </main>
       </div>
 
-      <nav aria-label={t("Mobile navigation")} className={s.tabbar}>
+      <nav
+        aria-label={t("Mobile navigation")}
+        className={s.tabbar}
+        hidden={focused || undefined}
+      >
         {nav.map(({ id, label, icon: Icon, count }) => (
           <button
             key={id}

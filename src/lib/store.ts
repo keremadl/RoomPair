@@ -227,6 +227,10 @@ export function sanitizeState(input: unknown): AppState | null {
           text: message.text.slice(0, 2000),
           ...(isPhoto(message.photo) ? { photo: message.photo } : {}),
           time: text(message.time, "", 20),
+          ...(typeof message.day === "string" &&
+          /^\d{4}-\d{2}-\d{2}$/.test(message.day)
+            ? { day: message.day }
+            : {}),
         });
     chats.push({
       id: chat.id,
