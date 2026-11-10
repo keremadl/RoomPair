@@ -59,4 +59,4 @@ export const hints = {
 };
 
 /** Files whose strings are demo content, never UI text. */
-export const contentFiles = ["src/lib/data.ts"];
+export const contentFiles = ["src/lib/data.ts", "src/lib/demo-people.ts"];
