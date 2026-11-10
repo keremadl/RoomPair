@@ -32,7 +32,7 @@ function LanguagePicker() {
 }
 ```
 
-`t("discover.left", { count: 12 })` substitutes named variables. Keep tokens such as `{count}` exactly the same in every translation. Unknown keys return the key itself; this also supports `t("Literal English copy")` when its matching catalog entry exists. Prefer named keys for copy that will change. User-written names, bios and conversations are not machine-translated.
+`t("ob.months", { count: 12 })` substitutes named variables. Keep tokens such as `{count}` exactly the same in every translation. Unknown keys return the key itself; this also supports `t("Literal English copy")` when its matching catalog entry exists. Prefer named keys for copy that will change. User-written names, bios and conversations are not machine-translated.
 
 English is the fallback for missing or malformed translations. Switching languages cancels older requests, so a slow download cannot overwrite the latest selection. External catalogs are same-origin static JSON files, never executable code. The runtime accepts only known English keys, bounded string lengths and matching interpolation tokens. A failed language download leaves the previous selection intact.
 
