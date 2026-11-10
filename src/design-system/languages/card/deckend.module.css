@@ -8,7 +8,8 @@
   /* Same footprint as the swipe card (.stage in swipe.module.css) */
   min-height: clamp(22rem, calc(100dvh - 14.75rem), 44rem);
   padding: var(--space-8) var(--space-6) var(--space-12);
-  border: var(--surface-border-width) dashed var(--color-border-strong);
+  border: var(--surface-border-width) dashed
+    var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-xl);
   background: var(--color-surface-sunken);
   color: var(--color-text);
@@ -54,7 +55,8 @@
 }
 /* No faces (nobody fits): one empty, dashed card */
 .blank {
-  border: var(--surface-border-width) dashed var(--color-border-strong);
+  border: var(--surface-border-width) dashed
+    var(--surface-border, var(--color-border-strong));
   background: var(--color-surface);
   box-shadow: none;
   transform: rotate(-6deg);
@@ -84,7 +86,8 @@
 }
 .stats li {
   padding: 0 var(--space-3);
-  border: var(--control-border-width) solid var(--color-border-strong);
+  border: var(--control-border-width) solid
+    var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-full);
   background: var(--color-surface-raised);
   font-size: var(--text-sm);

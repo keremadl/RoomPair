@@ -62,38 +62,54 @@
   /* The full-screen "Team up!" moment */
   --match-bg: #5b3fd6;
   --match-fg: #ffffff;
-  /* The ink of thick outlines' press shadows. Palettes set the colour;
-     the shadows below are built from it, so light and dark both follow. */
+  /* Soft 3D: outlines and the thick bottom edge of pressable things are a
+     quiet tone between the ink (--press-color, set by each palette) and the
+     page, so light and dark both follow and nothing looks black. */
   --press-color: #1d2240;
-  --press-depth: 4px;
-  --press-shadow: 0 var(--press-depth) 0 var(--press-color);
+  --soft-edge: color-mix(in srgb, var(--press-color) 24%, var(--color-bg));
+  --press-depth: 3px;
+  --press-shadow: 0 var(--press-depth) 0 var(--soft-edge);
 
   --font-heading: var(--font-rubik), "Rubik", system-ui, sans-serif;
   --font-body: var(--font-rubik), "Rubik", system-ui, sans-serif;
 
   --radius-sm: 8px;
-  --radius-md: 14px;
+  --radius-md: 16px;
   --radius-lg: 20px;
   --radius-xl: 28px;
 
-  --shadow-sm: 0 2px 0 var(--press-color);
-  --shadow-md: 0 4px 0 var(--press-color);
+  --shadow-sm: 0 2px 0 var(--soft-edge);
+  --shadow-md: 0 3px 0 var(--soft-edge);
   --shadow-lg: 0 18px 40px rgb(29 34 64 / 0.22);
   --focus-ring: 0 0 0 3px var(--color-bg), 0 0 0 6px var(--color-focus-ring);
 
   /* Component tokens: chunky, pressable game buttons. */
   --control-border-width: 2px;
-  --control-border: var(--color-border-strong);
+  --control-border: var(--soft-edge);
   /* Filled buttons sit on a darker tone of their own colour, not on ink. */
   --press-primary: color-mix(in srgb, var(--color-primary) 66%, black);
-  --control-primary-border: var(--press-primary);
+  --control-primary-border: var(--color-primary);
   --control-primary-shadow: 0 var(--press-depth) 0 var(--press-primary);
   --control-shadow: var(--press-shadow);
   --control-shadow-active: none;
   --control-press: translateY(var(--press-depth));
   --control-weight: 700;
   --heading-weight: 800;
-  --surface-border: var(--color-border-strong);
+  --surface-border: var(--soft-edge);
+  /* Inputs sit slightly into the page until they are being typed in. */
+  --field-bg: color-mix(
+    in srgb,
+    var(--color-surface-raised) 60%,
+    var(--color-bg)
+  );
+  --field-focus-shadow: none;
+  /* Chips: small soft keys; a chosen one is tinted, not filled. */
+  --chip-radius: 12px;
+  --chip-shadow: 0 2px 0 var(--soft-edge);
+  --chip-selected-bg: var(--color-primary-soft);
+  --chip-selected-fg: var(--color-text);
+  --chip-selected-shadow: 0 2px 0 var(--color-primary);
+  --control-selected-shadow: 0 var(--press-depth) 0 var(--color-primary);
   --surface-border-width: 2px;
   --icon-stroke: 2.5; /* matches the 2px outlines at 20–24px icons */
   /* Motion: playful, a small overshoot when a page lands. */
@@ -102,6 +118,6 @@
   /* Shell: the wordmark is a pressed badge. */
   --logo-bg: var(--color-surface-raised);
   --logo-fg: var(--color-primary);
-  --logo-border: 2px solid var(--color-border-strong);
+  --logo-border: 2px solid var(--soft-edge);
   --logo-shadow: var(--press-shadow);
 }

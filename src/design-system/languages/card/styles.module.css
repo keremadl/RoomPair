@@ -44,7 +44,7 @@
   place-items: center;
   width: var(--control-md);
   height: var(--control-md);
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-md);
   background: var(--color-surface-raised);
   color: var(--color-text);
@@ -63,7 +63,7 @@
 .mode {
   flex: 1;
   min-height: var(--control-md);
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-md);
   background: var(--color-surface-raised);
   color: var(--color-text);
@@ -109,7 +109,7 @@
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-3);
-  border: 3px solid var(--color-border-strong);
+  border: 3px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
 }
@@ -124,7 +124,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-1) var(--space-3);
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-md);
   background: var(--color-surface);
 }
@@ -152,7 +152,7 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-md);
 }
 .window img {
@@ -168,7 +168,7 @@
   right: var(--space-2);
   width: 4.5rem;
   height: 4.5rem;
-  border: 3px solid var(--color-border-strong);
+  border: 3px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-full);
   background: var(--color-surface);
 }
@@ -177,7 +177,7 @@
   right: var(--space-2);
   bottom: var(--space-2);
   padding: var(--space-1) var(--space-3);
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-full);
   background: var(--color-accent-soft);
   font-family: var(--font-heading);
@@ -196,7 +196,7 @@
   align-items: center;
   gap: var(--space-1);
   padding: var(--space-1) var(--space-3);
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-full);
   background: var(--color-surface);
   font-size: var(--text-sm);
@@ -263,7 +263,7 @@
   position: absolute;
   top: 40%;
   padding: var(--space-2) var(--space-5);
-  border: 3px solid var(--color-border-strong);
+  border: 3px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-md);
   font-family: var(--font-heading);
   font-size: var(--text-2xl);
@@ -297,7 +297,7 @@
   justify-content: center;
   gap: var(--space-2);
   min-height: var(--control-lg);
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-md);
   box-shadow: var(--press-shadow);
   font-family: var(--font-heading);
@@ -342,7 +342,7 @@
 }
 .box {
   padding: var(--space-4) var(--space-5);
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-lg);
   background: var(--color-surface);
 }
@@ -455,7 +455,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-lg);
   background: var(--color-accent-soft);
 }
@@ -463,7 +463,7 @@
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
-  border-bottom: 2px solid var(--color-border-strong);
+  border-bottom: 2px solid var(--surface-border, var(--color-border-strong));
 }
 /* More room photos under the main one: a row of square thumbnails. */
 .gallery {
@@ -474,14 +474,14 @@
   margin: 0;
   padding: var(--space-2);
   list-style: none;
-  border-bottom: 2px solid var(--color-border-strong);
+  border-bottom: 2px solid var(--surface-border, var(--color-border-strong));
 }
 .gallery img {
   display: block;
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-md);
 }
 .item > div {
@@ -523,7 +523,7 @@
   height: 20px;
   margin-top: var(--space-2);
   overflow: hidden;
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-full);
   background: var(--stat-off);
 }
@@ -531,7 +531,7 @@
   display: block;
   height: 100%;
   background: var(--xp);
-  border-right: 2px solid var(--color-border-strong);
+  border-right: 2px solid var(--surface-border, var(--color-border-strong));
 }
 .sheet {
   display: grid;
@@ -576,7 +576,7 @@
   gap: var(--space-1);
   padding: var(--space-2) var(--space-2)
     calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
-  border-top: 2px solid var(--color-border-strong);
+  border-top: 2px solid var(--surface-border, var(--color-border-strong));
   background: var(--color-surface);
 }
 .nav button {
@@ -633,7 +633,7 @@
   place-items: center;
   width: 40px;
   height: 40px;
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-md);
   box-shadow: var(--press-shadow);
 }
@@ -665,7 +665,7 @@
 }
 .tab {
   min-height: var(--control-md);
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-md);
   background: var(--color-surface-raised);
   color: var(--color-text);
@@ -698,7 +698,7 @@
 }
 .coins div {
   padding: var(--space-2) var(--space-3);
-  border: 2px solid var(--color-border-strong);
+  border: 2px solid var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-md);
   background: var(--color-surface);
   min-width: 0;

@@ -44,7 +44,8 @@
   width: 6rem;
   height: 6rem;
   margin: var(--space-2) 0 var(--space-4);
-  border: var(--control-border-width) solid var(--color-border-strong);
+  border: var(--control-border-width) solid
+    var(--surface-border, var(--color-border-strong));
   border-radius: var(--radius-lg);
   background: var(--color-accent);
   color: var(--color-on-accent, var(--color-text));
