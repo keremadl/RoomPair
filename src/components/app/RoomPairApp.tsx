@@ -433,7 +433,14 @@ function RoomPairApp() {
         <Brand />
       </div>
     );
-  if (account?.status === "signed-out") return <AuthScreen account={account} />;
+  if (account?.status === "signed-out")
+    return (
+      <AuthScreen
+        account={account}
+        palette={appearance.palette}
+        theme={resolvedTheme}
+      />
+    );
   // A new member answers the living-together questions first; until then
   // nobody else can see them. They may close it and look around.
   const mustOnboard =

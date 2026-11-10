@@ -81,7 +81,21 @@ jobs:
           cache: npm
       - run: npm ci
       # A full local Supabase stack: database, sign-in, Data API and storage.
-      - run: npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit,postgres-meta
+      # Its fixed ports (54321-54322) sit in the range the system hands out
+      # for outgoing connections, so one is occasionally taken for a moment
+      # and the start fails with "address already in use". Starting again
+      # after a short wait gets a free port.
+      - name: Start Supabase
+        run: |
+          for attempt in 1 2 3; do
+            if npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit,postgres-meta; then
+              exit 0
+            fi
+            echo "Supabase did not start (attempt $attempt of 3); retrying."
+            npx supabase stop --no-backup || true
+            sleep 10
+          done
+          exit 1
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test -c playwright.accounts.config.ts
       - uses: actions/upload-artifact@v4

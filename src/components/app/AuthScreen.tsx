@@ -1,6 +1,10 @@
 "use client";
 import { useState } from "react";
 import { Button, Heading, Input, Text } from "@/design-system";
+import {
+  defaultLanguage,
+  directionFontVariables,
+} from "@/design-system/languages";
 import type { Account } from "@/lib/app-data";
 import { useI18n } from "@/lib/i18n";
 import { Brand } from "./Brand";
@@ -8,8 +12,20 @@ import s from "./AuthScreen.module.css";
 
 const MIN_PASSWORD = 8;
 
-/** Sign in or create an account. Shown instead of the app while signed out. */
-export function AuthScreen({ account }: { account: Account }) {
+/**
+ * Sign in or create an account. Shown instead of the app while signed out,
+ * so it carries the design language, palette and theme itself: the app shell
+ * that normally sets them is not on screen.
+ */
+export function AuthScreen({
+  account,
+  palette,
+  theme,
+}: {
+  account: Account;
+  palette: string;
+  theme: "light" | "dark";
+}) {
   const { t } = useI18n();
   const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
   const [name, setName] = useState("");
@@ -59,7 +75,12 @@ export function AuthScreen({ account }: { account: Account }) {
   }
 
   return (
-    <main className={s.page}>
+    <main
+      className={`${s.page} ${directionFontVariables}`}
+      data-direction={defaultLanguage}
+      data-palette={palette}
+      data-theme={theme}
+    >
       <section className={s.card}>
         <Brand />
         <Heading level={1}>

@@ -5,6 +5,10 @@
   place-items: center;
   padding: var(--space-5);
   background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
 }
 .card {
   display: flex;
