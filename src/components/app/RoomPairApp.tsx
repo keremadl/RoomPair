@@ -35,6 +35,7 @@ import { MatchDialog } from "./dialogs/MatchDialog";
 import { HelpDialog } from "./dialogs/HelpDialog";
 import { ReportDialog } from "./dialogs/ReportDialog";
 import { BlockedDialog } from "./dialogs/BlockedDialog";
+import { DeleteAccountDialog } from "./dialogs/DeleteAccountDialog";
 import { Onboarding } from "./Onboarding";
 import { Brand } from "./Brand";
 import { AuthScreen } from "./AuthScreen";
@@ -48,6 +49,7 @@ type Dialog =
   | "settings"
   | "report"
   | "blocked"
+  | "delete-account"
   | null;
 
 /**
@@ -705,6 +707,7 @@ function RoomPairApp() {
             onAppearance={setAppearance}
             account={account}
             onSignOut={signOut}
+            onDeleteAccount={() => setDialog("delete-account")}
             onReset={() => {
               replyTimers.current.forEach(clearTimeout);
               replyTimers.current = [];
@@ -823,6 +826,17 @@ function RoomPairApp() {
             }}
           />
         )}
+        {dialog === "delete-account" && account && (
+          <DeleteAccountDialog
+            key="delete-account"
+            onClose={() => setDialog(null)}
+            onDelete={async () => {
+              const done = await account.deleteAccount();
+              if (done) signOut();
+              return done;
+            }}
+          />
+        )}
         {dialog === "blocked" && (
           <BlockedDialog
             key="blocked"
@@ -883,12 +897,18 @@ function RoomPairApp() {
             key="onboarding"
             startStep={onboarding === false ? 0 : onboarding}
             initial={state.preferences}
+            age={account && !state.onboarded ? null : state.me.age}
             onClose={() => {
               setOnboarding(false);
               setSetupSkipped(true);
             }}
-            onComplete={(preferences) => {
-              setState((st) => ({ ...st, preferences, onboarded: true }));
+            onComplete={(preferences, age) => {
+              setState((st) => ({
+                ...st,
+                preferences,
+                onboarded: true,
+                me: age ? { ...st.me, age } : st.me,
+              }));
               setOnboarding(false);
               // Setup can be opened from Edit profile; leave that sub-page,
               // or its title and back button would sit above Discover.

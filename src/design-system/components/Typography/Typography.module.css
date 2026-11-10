@@ -83,3 +83,18 @@
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
+
+.link {
+  color: var(--color-primary);
+  font-weight: var(--weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  border-radius: var(--radius-sm);
+}
+.link:hover {
+  color: var(--color-primary-hover);
+}
+.link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

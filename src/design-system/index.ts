@@ -42,6 +42,7 @@ export {
   Heading,
   Text,
   Eyebrow,
+  TextLink,
   type HeadingProps,
   type TextProps,
 } from "./components/Typography/Typography";

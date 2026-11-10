@@ -1,7 +1,7 @@
 "use client";
 import { Contrast, Moon, RotateCcw, Sun } from "@/design-system/icons";
 import type { Account } from "@/lib/app-data";
-import { Button, ChoiceCards, Select, Text } from "@/design-system";
+import { Button, ChoiceCards, Select, Text, TextLink } from "@/design-system";
 import {
   palettes,
   type PaletteId,
@@ -28,6 +28,7 @@ export function SettingsView({
   onReset,
   account,
   onSignOut,
+  onDeleteAccount,
 }: {
   appearance: Appearance;
   onAppearance: (next: Partial<Appearance>) => void;
@@ -35,6 +36,7 @@ export function SettingsView({
   /** Present when the app runs with accounts; then there is no demo to reset. */
   account: Account | null;
   onSignOut: () => void;
+  onDeleteAccount: () => void;
 }) {
   const { t, locale, setLocale, locales, isLoading, error } = useI18n();
   return (
@@ -93,6 +95,14 @@ export function SettingsView({
           >
             {t("Sign out")}
           </Button>
+          <Button
+            variant="danger"
+            onClick={onDeleteAccount}
+            fullWidth
+            className={v.spaced}
+          >
+            {t("Delete my account")}
+          </Button>
         </section>
       ) : (
         <section className={v.panel}>
@@ -112,6 +122,11 @@ export function SettingsView({
           </Button>
         </section>
       )}
+      <Text tone="muted" size="sm">
+        <TextLink href="/privacy" target="_blank" rel="noreferrer">
+          {t("Privacy notice")}
+        </TextLink>
+      </Text>
     </div>
   );
 }

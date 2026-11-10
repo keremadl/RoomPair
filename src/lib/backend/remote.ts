@@ -172,6 +172,61 @@ async function store(
   return stored;
 }
 
+/** The stored files in one folder, as full paths. */
+async function filesIn(client: SupabaseClient, bucket: string, folder: string) {
+  const { data, error } = await client.storage
+    .from(bucket)
+    .list(folder, { limit: 1000 });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((file) => `${folder}/${file.name}`);
+}
+
+/** Deletes the member's stored photos that no profile or listing uses any more. */
+async function removeUnused(
+  client: SupabaseClient,
+  userId: string,
+  inUse: string[],
+) {
+  try {
+    const unused = (await filesIn(client, PROFILE_PHOTOS, userId)).filter(
+      (path) => !inUse.includes(path),
+    );
+    if (unused.length) await client.storage.from(PROFILE_PHOTOS).remove(unused);
+  } catch {
+    // Tidying up must never fail a save; the next save tries again.
+  }
+}
+
+/**
+ * Deletes the signed-in member's account for good: first their photo files,
+ * then the account, which takes the profile, listing, likes, matches and
+ * messages with it.
+ */
+export async function deleteAccount(
+  client: SupabaseClient,
+  userId: string,
+  matchIds: string[],
+): Promise<void> {
+  const own = await filesIn(client, PROFILE_PHOTOS, userId);
+  if (own.length) {
+    const { error } = await client.storage.from(PROFILE_PHOTOS).remove(own);
+    if (error) throw new Error(error.message);
+  }
+  // Photos sent in chats: the database only lets a member remove their own.
+  await Promise.all(
+    matchIds.map(async (match) => {
+      try {
+        const sent = await filesIn(client, CHAT_PHOTOS, match);
+        if (sent.length) await client.storage.from(CHAT_PHOTOS).remove(sent);
+      } catch {
+        // Unreachable once the match is gone; not worth stopping for.
+      }
+    }),
+  );
+  const { error } = await client.rpc("delete_account");
+  if (error) throw new Error(error.message);
+}
+
 // ---------------------------------------------------------------------------
 // Writes
 // ---------------------------------------------------------------------------
@@ -236,16 +291,14 @@ export async function applyOperation(
           .update(profilePatch(preferences, me, onboarded, photos))
           .eq("id", userId),
       );
-      const room = roomPatch(
-        preferences,
-        me,
-        await store(client, userId, me.room.photos),
-      );
-      if (!room) return;
-      return updateOrInsert(
-        client.from("rooms").update(room).eq("owner_id", userId).select("id"),
-        () => client.from("rooms").insert({ ...room, owner_id: userId }),
-      );
+      const roomPhotos = await store(client, userId, me.room.photos);
+      const room = roomPatch(preferences, me, roomPhotos);
+      if (room)
+        await updateOrInsert(
+          client.from("rooms").update(room).eq("owner_id", userId).select("id"),
+          () => client.from("rooms").insert({ ...room, owner_id: userId }),
+        );
+      return removeUnused(client, userId, [...photos, ...roomPhotos]);
     }
     case "swipe":
       return updateOrInsert(

@@ -13,7 +13,12 @@ import { initialState, useAppState, type AppState } from "./store";
 import type { Profile } from "./types";
 import { getClient, isRemote } from "./backend/client";
 import { appDataFromSnapshot, type AppData } from "./backend/mapping";
-import { applyOperation, loadSnapshot, photoUrls } from "./backend/remote";
+import {
+  applyOperation,
+  deleteAccount,
+  loadSnapshot,
+  photoUrls,
+} from "./backend/remote";
 import { diffState, enqueue, type Operation } from "./backend/sync";
 
 export type SignUpResult = "signed-in" | "confirm-email" | "exists" | "failed";
@@ -28,6 +33,8 @@ export interface Account {
     password: string,
   ) => Promise<SignUpResult>;
   signOut: () => void;
+  /** Removes the account and everything in it. Resolves to false if it failed. */
+  deleteAccount: () => Promise<boolean>;
 }
 
 /** What the interface needs, whichever place the data lives in. */
@@ -66,7 +73,9 @@ const emptyData: AppData = {
   profiles: [],
   matchIds: {},
 };
-const POLL_INTERVAL = 6000;
+// Messages and matches are pushed live; this slower check catches the rest
+// (new likes) and anything missed while the connection was down.
+const POLL_INTERVAL = 15000;
 
 /**
  * Accounts and shared data. The interface keeps editing its state
@@ -182,19 +191,41 @@ function useRemoteData(): AppDataSource {
     return () => listener.subscription.unsubscribe();
   }, [client, refresh]);
 
-  // New likes, matches and messages arrive by polling while the tab is open.
+  // New messages and matches are pushed by the database the moment they
+  // happen; a slower check while the tab is open covers everything else.
   useEffect(() => {
     if (!user) return;
-    const timer = setInterval(() => {
-      if (
-        document.visibilityState === "visible" &&
-        !sending.current &&
-        !queue.current.length
+    const idle = () => !sending.current && !queue.current.length;
+    let wake: ReturnType<typeof setTimeout> | undefined;
+    const changed = () => {
+      clearTimeout(wake);
+      // A burst of changes (a match and its first message) is read once.
+      wake = setTimeout(() => {
+        if (idle()) void refresh();
+      }, 150);
+    };
+    const channel = client
+      .channel(`member-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages" },
+        changed,
       )
-        void refresh();
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "matches" },
+        changed,
+      )
+      .subscribe();
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible" && idle()) void refresh();
     }, POLL_INTERVAL);
-    return () => clearInterval(timer);
-  }, [user, refresh]);
+    return () => {
+      clearTimeout(wake);
+      clearInterval(timer);
+      void client.removeChannel(channel);
+    };
+  }, [client, user, refresh]);
 
   const account = useMemo<Account>(
     () => ({
@@ -220,6 +251,21 @@ function useRemoteData(): AppDataSource {
         return result.session ? "signed-in" : "confirm-email";
       },
       signOut: () => void client.auth.signOut(),
+      deleteAccount: async () => {
+        if (!user) return false;
+        try {
+          await deleteAccount(
+            client,
+            user.id,
+            Object.values(current.current.matchIds),
+          );
+        } catch {
+          return false;
+        }
+        // The account is gone, so only this device's session is left to clear.
+        await client.auth.signOut({ scope: "local" });
+        return true;
+      },
     }),
     [client, user],
   );

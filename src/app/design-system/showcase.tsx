@@ -32,6 +32,7 @@ import {
   Card,
   Chip,
   Eyebrow,
+  TextLink,
   Heading,
   IconButton,
   Input,
@@ -538,7 +539,7 @@ export function Showcase() {
               <Text>
                 Body text in DM Sans at 16px. A kitchen you can linger in.
                 Someone asking if you want tea. Plants that are mostly still
-                alive.
+                alive. <TextLink href="#typography">A link in text.</TextLink>
               </Text>
               <Text size="sm" tone="muted">
                 Muted secondary text for supporting details.

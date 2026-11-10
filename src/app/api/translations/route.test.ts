@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test, { afterEach, beforeEach } from "node:test";
-import english from "@/lib/locales/en.json";
+import { SOURCE_CATALOG as english } from "@/lib/locales/source";
 import { POST } from "./route";
 
 const TOKEN = "a".repeat(40);

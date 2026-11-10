@@ -12,6 +12,7 @@ import {
 } from "react";
 import english from "./locales/en.json";
 import turkish from "./locales/tr.json";
+import { SOURCE_CATALOG } from "./locales/source";
 
 export type Dictionary = Record<string, string>;
 export type LocaleOption = {
@@ -54,7 +55,7 @@ export function validateCatalog(input: unknown): Dictionary | null {
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;
   const candidate = input as Record<string, unknown>;
   const valid: Dictionary = Object.create(null) as Dictionary;
-  for (const [key, source] of Object.entries(english)) {
+  for (const [key, source] of Object.entries(SOURCE_CATALOG)) {
     const value = Object.hasOwn(candidate, key) ? candidate[key] : undefined;
     if (
       typeof value === "string" &&

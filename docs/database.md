@@ -6,15 +6,15 @@ The schema for accounts and shared data lives in `supabase/` and is applied to a
 
 The interface keeps editing its state optimistically, exactly as in the demo. In account mode each edit is turned into writes and followed by a fresh read:
 
-| File                                | Role                                                                              |
-| ----------------------------------- | --------------------------------------------------------------------------------- |
-| `src/lib/app-data.ts`               | One hook for both modes; queues writes, re-reads after them and every few seconds |
-| `src/lib/backend/sync.ts`           | Pure function: two states in, the writes that reconcile them out (unit-tested)    |
-| `src/lib/backend/mapping.ts`        | Rows to app types and back (unit-tested)                                          |
-| `src/lib/backend/remote.ts`         | The actual queries, photo uploads and signed photo links                          |
-| `src/components/app/AuthScreen.tsx` | Sign in and sign up                                                               |
+| File                                | Role                                                                            |
+| ----------------------------------- | ------------------------------------------------------------------------------- |
+| `src/lib/app-data.ts`               | One hook for both modes; queues writes, re-reads after them and on live updates |
+| `src/lib/backend/sync.ts`           | Pure function: two states in, the writes that reconcile them out (unit-tested)  |
+| `src/lib/backend/mapping.ts`        | Rows to app types and back (unit-tested)                                        |
+| `src/lib/backend/remote.ts`         | The actual queries, photo uploads and signed photo links                        |
+| `src/components/app/AuthScreen.tsx` | Sign in and sign up                                                             |
 
-New likes, matches and messages arrive by polling every six seconds while the tab is visible. A write the database rejects is dropped on the next read, so the screen always ends up showing what the server decided. Photos picked on the device are uploaded to the private buckets; other people's photos are shown through signed links that last an hour.
+New messages and matches are pushed live (Supabase Realtime, filtered by the same row level security); a check every fifteen seconds while the tab is visible covers new likes and anything missed. Likes are not pushed on purpose: a removed row is announced to every listener by its key, which for a like says who liked whom. A write the database rejects is dropped on the next read, so the screen always ends up showing what the server decided. Photos picked on the device are uploaded to the private buckets; other people's photos are shown through signed links that last an hour.
 
 `npm run test:accounts` runs the browser tests for this mode against a local Supabase stack (`npx supabase start`); CI does the same.
 
@@ -55,7 +55,7 @@ Photo files live in two private Storage buckets; the tables only keep paths. Not
 | `profile-photos` | `<member id>/<file>` | Members, except across a block | The member, own folder |
 | `chat-photos`    | `<match id>/<file>`  | The two people in the match    | The two people         |
 
-Both buckets accept JPEG, PNG and WebP up to 5 MB. Demo people still use the images bundled with the app (`/images/...`).
+Both buckets accept JPEG, PNG and WebP up to 5 MB. When a profile is saved, files in the member's folder that no profile or listing uses any more are deleted. A chat photo can be removed only by the member who sent it. Demo people still use the images bundled with the app (`/images/...`).
 
 ## How access is enforced
 
@@ -73,6 +73,7 @@ Helper and trigger functions live in the `private` schema, which the Data API do
 - **Two opposite likes** create one match. Clients cannot insert matches.
 - **Undoing a like** removes the match unless the two already exchanged messages.
 - **Blocking** removes the match, its conversation and both swipes.
+- **Deleting an account** (`public.delete_account()`, callable only for yourself) removes the sign-in; the profile, room, likes, matches, messages, blocks and reports cascade from it. The app deletes the member's photo files first.
 - **Demo behaviour** (second migration): eleven demo accounts like every member who finishes onboarding, so a first mutual match is one swipe away. It is isolated so it can be dropped as a unit.
 
 ## Demo accounts
