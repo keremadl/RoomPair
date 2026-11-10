@@ -33,7 +33,6 @@ import {
   Chip,
   ChoiceCards,
   Dialog,
-  Eyebrow,
   FactGrid,
   Heading,
   IconButton,
@@ -115,14 +114,11 @@ export type SetupProfile = Pick<
   | "room"
 >;
 
-type Section = "The basics" | "About you" | "At home";
 type Question = {
   id: SetupQuestion;
   icon: IconComponent;
   title: string;
   hint?: string;
-  /** The chapter shown above the question during the walk-through. */
-  section?: Section;
   /** Only people who look for a room, or only people who have one. */
   for?: "seeker" | "host";
   /** Can be skipped: the answer is not needed to find people. */
@@ -140,34 +136,29 @@ const walkthrough: Question[] = [
     icon: Smile,
     title: "What is your name and date of birth?",
     hint: "Your profile shows your name and age, never the date. RoomPair is for adults.",
-    section: "The basics",
   },
   {
     id: "intent",
     icon: Key,
     title: "What brings you here?",
-    section: "The basics",
   },
   {
     id: "gender",
     icon: UserRound,
     title: "Which describes you?",
     hint: "Only used when someone wants to live with women or men only.",
-    section: "The basics",
     optional: true,
   },
   {
     id: "city",
     icon: MapPin,
     title: "Where do you want to live?",
-    section: "The basics",
   },
   {
     id: "budget",
     icon: Wallet,
     title: "What is your monthly budget?",
     hint: "Per person, per month, before bills.",
-    section: "The basics",
     for: "seeker",
   },
   {
@@ -175,7 +166,6 @@ const walkthrough: Question[] = [
     icon: Tag,
     title: "Tell us about the room",
     hint: "The title and the rent are the first things people see.",
-    section: "The basics",
     for: "host",
   },
   {
@@ -183,70 +173,59 @@ const walkthrough: Question[] = [
     icon: ImagePlus,
     title: "Show the room",
     hint: "A listing needs at least one photo of the room.",
-    section: "The basics",
     for: "host",
   },
   {
     id: "moveDate",
     icon: CalendarDays,
     title: "When, and for how long?",
-    section: "The basics",
   },
   {
     id: "photos",
     icon: ImagePlus,
     title: "Add a photo of yourself",
     hint: "Others only see profiles with at least one photo.",
-    section: "About you",
   },
   {
     id: "work",
     icon: Backpack,
     title: "What do you do?",
     hint: "People like to know who they would be living with.",
-    section: "About you",
   },
   {
     id: "smoke",
     icon: Cigarette,
     title: "Do you smoke?",
-    section: "About you",
   },
   {
     id: "pets",
     icon: PawPrint,
     title: "Do you have a pet?",
-    section: "About you",
   },
   {
     id: "cleanliness",
     icon: Sparkles,
     title: "How tidy do you keep things?",
-    section: "At home",
   },
   {
     id: "sleep",
     icon: Moon,
     title: "When does your day start and end?",
-    section: "At home",
   },
   {
     id: "guests",
     icon: PartyPopper,
     title: "How often do you have guests over?",
-    section: "At home",
   },
   {
     id: "noise",
     icon: Volume2,
     title: "How much noise is fine?",
-    section: "At home",
   },
   {
     id: "livingWith",
     icon: Home,
     title: "Who would you like to live with?",
-    section: "At home",
   },
   { id: "done", icon: PartyPopper, title: "You are all set!" },
 ];
@@ -1055,9 +1034,6 @@ export function Onboarding({
                   setMissingArt((m) => ({ ...m, [question.id]: true }))
                 }
               />
-            )}
-            {!only && question.section && (
-              <Eyebrow>{t(question.section)}</Eyebrow>
             )}
             <Heading level={2} size="2xl">
               {title}
