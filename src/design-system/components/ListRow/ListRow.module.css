@@ -45,8 +45,10 @@
 button.row {
   cursor: pointer;
 }
-button.row:hover {
-  background: var(--color-surface-sunken);
+@media (hover: hover) {
+  button.row:hover {
+    background: var(--color-surface-sunken);
+  }
 }
 button.row:focus-visible {
   outline: none;

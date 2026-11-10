@@ -21,6 +21,9 @@ Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/d
 - The card front shows the person only: age, type, class, stats. Rent and dates are Home, on the `HomeItem`.
 - Frame colour encodes type: `--type-host` (has a room), `--type-explorer` (looking together).
 - Buttons press down by `--press-depth` and lose their `--press-shadow`; keep that on every pressable.
+- Filled buttons (primary, Like, Team up, the selected answer) are outlined and shadowed in a darker tone of their own colour (`--control-primary-border`, `--control-primary-shadow`), never in ink. Ink outlines and shadows are for light surfaces.
+- The focus ring is for the keyboard only: use `:focus-visible` (or `:has(:focus-visible)` on a wrapper), never `:focus` or `:focus-within`, so a click or a tap does not draw a ring.
+- Put every `:hover` rule inside `@media (hover: hover)`; on touch screens a hover style otherwise sticks after a tap.
 - Game words stay light (quests, abilities); numbers stay plain: "Age 23", "96% fit", "€420 per month". No levels or XP.
 - Profile details always follow the shared content model in the order Home → Person → Fit (`ProfileDetails`, `@/lib/discover/sections`). Nothing about the place appears under Person, nothing about the person under Home.
 

@@ -34,8 +34,10 @@
   width: 18px;
   height: 18px;
 }
-.option:hover {
-  color: var(--color-text);
+@media (hover: hover) {
+  .option:hover {
+    color: var(--color-text);
+  }
 }
 .option:focus-visible {
   outline: none;

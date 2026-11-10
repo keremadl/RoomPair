@@ -28,8 +28,10 @@
   outline: none;
   box-shadow: var(--focus-ring);
 }
-.chip:hover {
-  border-color: var(--color-primary);
+@media (hover: hover) {
+  .chip:hover {
+    border-color: var(--color-primary);
+  }
 }
 .selected {
   background: var(--color-primary);
@@ -43,6 +45,8 @@
   color: var(--color-on-image);
   backdrop-filter: blur(8px);
 }
-.onImage:hover {
-  border-color: var(--color-on-image-border-hover);
+@media (hover: hover) {
+  .onImage:hover {
+    border-color: var(--color-on-image-border-hover);
+  }
 }

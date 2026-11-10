@@ -324,8 +324,13 @@
   cursor: not-allowed;
 }
 .team {
+  border-color: var(--control-primary-border);
   background: var(--color-primary);
   color: var(--color-on-primary);
+  box-shadow: var(--control-primary-shadow);
+}
+.team:not(:disabled):active {
+  box-shadow: var(--control-shadow-active);
 }
 
 /* Details */

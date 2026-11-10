@@ -34,9 +34,10 @@
 .choice[data-checked="true"] {
   border-color: var(--color-primary);
   background: var(--color-primary-soft);
-  box-shadow: var(--control-shadow);
+  box-shadow: var(--control-primary-shadow);
 }
-.choice:focus-within {
+/* Keyboard only: a click or a tap must not draw a ring around the answer. */
+.choice:has(input:focus-visible) {
   box-shadow: var(--focus-ring);
 }
 .choice input {

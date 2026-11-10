@@ -225,6 +225,7 @@
   --control-border-width: 1px;
   --control-shadow: none; /* resting elevation of buttons */
   --control-shadow-active: none; /* while pressed */
+  --control-primary-shadow: var(--control-shadow); /* under filled buttons */
   --control-press: scale(0.98); /* transform while pressed */
   --control-weight: 500;
   --heading-weight: 700;

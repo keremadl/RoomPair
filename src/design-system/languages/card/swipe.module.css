@@ -200,8 +200,10 @@
   background: var(--color-on-image-surface);
   color: var(--color-on-image);
 }
-.info:hover {
-  border-color: var(--color-on-image-border-hover);
+@media (hover: hover) {
+  .info:hover {
+    border-color: var(--color-on-image-border-hover);
+  }
 }
 .info svg {
   width: 1.2rem;
@@ -255,8 +257,13 @@
   color: var(--color-danger);
 }
 .round[data-kind="like"] {
+  border-color: var(--control-primary-border);
   background: var(--color-primary);
   color: var(--color-on-primary);
+  box-shadow: var(--control-primary-shadow);
+}
+.round[data-kind="like"]:not(:disabled):active {
+  box-shadow: var(--control-shadow-active);
 }
 .round:focus-visible,
 .info:focus-visible {
