@@ -165,7 +165,9 @@ export function Onboarding({ initial, onComplete, onClose }: OnboardingProps) {
   const id = useId();
   const headings = ["ob.stepOne", "ob.stepTwo", "ob.stepThree", "ob.stepFour"];
   const descriptions = ["ob.subOne", "ob.subTwo", "ob.subThree", "ob.subFour"];
-  closeRef.current = onClose;
+  useEffect(() => {
+    closeRef.current = onClose;
+  });
 
   useEffect(() => {
     const previouslyFocused =

@@ -46,7 +46,7 @@ English is the fallback for missing or malformed translations. Switching languag
 6. Copy `.env.example` to `.env.local`, then set `N8N_TRANSLATION_WEBHOOK_URL` and `N8N_TRANSLATION_WEBHOOK_SECRET`. They are server/CLI secrets; never add a `NEXT_PUBLIC_` prefix.
 7. Generate a locale from the project folder:
 
-```powershell
+```bash
 npm run translate -- lv "Latviešu"
 npm run translate -- de "Deutsch"
 npm run translate -- ar "العربية" --rtl
@@ -62,7 +62,7 @@ The workflow does not write into your machine. The CLI is the publishing step. T
 
 Print the source catalog, translate its values, and import the reviewed result:
 
-```powershell
+```bash
 npm run translate -- --source
 npm run translate -- lv "Latviešu" --from ./reviewed-lv.json --dry-run
 npm run translate -- lv "Latviešu" --from ./reviewed-lv.json
@@ -82,7 +82,7 @@ The route uses constant-time token comparison, a bounded request body, a fixed e
 
 ## Validation and limits
 
-The catalog loader, the CLI, the n8n Code nodes and the API route each validate catalog parity and placeholder preservation at runtime. Automated tests do not cover localization yet: the unit tests exercise the matching rules and stored-state validation, and the six browser tests run the English interface only. Language switching, extra manifest languages, English fallback, failed downloads and the API route's authentication were checked manually and still need automated tests.
+The catalog loader, the CLI, the n8n Code nodes and the API route each validate catalog parity and placeholder preservation at runtime. Unit tests cover English/Turkish key and placeholder parity, unused and missing keys, the external-catalog validator, and the API route's authentication, input validation and response validation. A browser test covers switching to Turkish, persistence after reload, and translated fit explanations and replies. Extra manifest languages, failed downloads, the CLI and the n8n workflow itself are not covered by automated tests.
 
 The workflow accepts up to 600 entries and 150,000 source JSON characters, with a 30,000-token output ceiling. These are explicit batch limits, not a guarantee that every language or future catalog fits. Incomplete responses, missing keys, and changed placeholders fail before any local files are changed; the CLI does not silently retry a paid call. If a larger catalog reaches the limit, translate reviewed sections manually, combine them into a complete catalog, and use `--from`, or extend the workflow to process smaller batches before increasing the guards.
 

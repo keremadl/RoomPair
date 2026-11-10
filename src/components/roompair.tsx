@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import {
-  ArrowDown,
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
@@ -14,7 +13,6 @@ import {
   Check,
   CheckCheck,
   ChevronDown,
-  ChevronLeft,
   ChevronRight,
   CircleHelp,
   Coffee,
@@ -118,7 +116,8 @@ function RoomPairApp() {
   const [message, setMessage] = useState("");
   const [chatSearch, setChatSearch] = useState("");
   const [toast, setToast] = useState("");
-  const [photoIndex, setPhotoIndex] = useState(0);
+  // The photo position belongs to one card, so it resets when the card changes.
+  const [photo, setPhoto] = useState({ id: "", index: 0 });
   const [direction, setDirection] = useState(1);
   const [reportReason, setReportReason] = useState("Misleading profile");
   // Simulated replies still on their way, per chat, so the typing indicator
@@ -192,19 +191,9 @@ function RoomPairApp() {
     },
     [],
   );
-  useEffect(() => {
-    setPhotoIndex(0);
-  }, [current?.id]);
-  useEffect(() => {
-    if (storageFailed)
-      notify(
-        t(
-          "Changes can’t be saved in this browser. They will last until you close this tab.",
-        ),
-      );
-    // Only announce when saving starts failing, not on every re-render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storageFailed]);
+  const photoIndex = photo.id === current?.id ? photo.index : 0;
+  const setPhotoIndex = (index: number) =>
+    setPhoto({ id: current?.id ?? "", index });
   useEffect(() => {
     chatEnd.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [chat?.messages.length, pendingReplies]);
@@ -549,6 +538,13 @@ function RoomPairApp() {
             </button>
           </div>
         </header>
+        {storageFailed && (
+          <p className="storage-warning" role="status">
+            {t(
+              "Changes can’t be saved in this browser. They will last until you close this tab.",
+            )}
+          </p>
+        )}
         <main
           className={`main-content ${view === "messages" ? "main-messages" : ""}`}
         >

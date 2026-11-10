@@ -6,7 +6,7 @@
 
 Use Node.js 22 or newer. From this folder:
 
-```powershell
+```bash
 npm install
 npm run dev
 ```
@@ -15,7 +15,7 @@ Open **http://localhost:3000**. Editing a component or stylesheet updates the pr
 
 For a production build:
 
-```powershell
+```bash
 npm run build
 npm start
 ```
@@ -69,7 +69,7 @@ Eligible profiles receive a weighted comparison: budget 25%, tidiness 20%, sleep
 
 The application runs independently of automation. Import `n8n/translation-workflow.json` into your own n8n instance, configure credentials, and run a translation job only when adding a language:
 
-```powershell
+```bash
 npm run translate -- lv "Latviešu"
 ```
 
@@ -77,14 +77,17 @@ The CLI validates the result and adds a static language pack. Switching language
 
 ## Checks
 
-```powershell
+```bash
+npm run lint
 npm run typecheck
 npm test
 npm run test:e2e
 npm run build
 ```
 
-The E2E configuration uses installed Chrome/Edge on Windows. On another machine, install Playwright Chromium with `npx playwright install chromium` if needed. It starts the dev server automatically, or uses an existing server on port 3000.
+`npm test` runs the unit tests: matching rules, stored-state validation, translation catalogs and the translation endpoint. `npm run test:e2e` drives the app in a browser, including the Turkish interface. It uses installed Chrome/Edge on Windows; elsewhere run `npx playwright install chromium` once, or set `PLAYWRIGHT_CHROMIUM_PATH` to an existing Chromium binary. It starts the dev server automatically, or uses an existing server on port 3000.
+
+The same checks run on every pull request through GitHub Actions (`.github/workflows/ci.yml`).
 
 ## Research and honest demo limits
 

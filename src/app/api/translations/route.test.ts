@@ -125,7 +125,9 @@ test("incomplete, mislabelled or token-breaking translations are rejected", asyn
   const good = Object.fromEntries(
     Object.entries(english).map(([key, value]) => [key, `lv ${value}`]),
   );
-  const { "nav.discover": _dropped, ...missingKey } = good;
+  const missingKey = Object.fromEntries(
+    Object.entries(good).filter(([key]) => key !== "nav.discover"),
+  );
   const cases: [unknown, number?][] = [
     [{ locale: "de", catalog: good }],
     [{ locale: "lv", catalog: missingKey }],

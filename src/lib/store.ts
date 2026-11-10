@@ -178,6 +178,9 @@ export function useAppState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       const saved = raw ? sanitizeState(JSON.parse(raw)) : null;
+      // Loading after mount keeps the first client render identical to the
+      // server-rendered HTML, which has no access to localStorage.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (saved) setState(saved);
     } catch {
       /* Unreadable or corrupt storage: start from the original demo state. */
@@ -188,6 +191,8 @@ export function useAppState() {
     if (ready) {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        // Mirrors the outcome of an external write, which React cannot derive.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setStorageFailed(false);
       } catch {
         // Storage is full or disabled; the session keeps working in memory
