@@ -90,8 +90,5 @@ export const signatures: Record<
       purpose: "Game-style heading with a pressed icon badge.",
     },
     { name: "Stat", purpose: "Stat pips on the character card." },
-    { name: "Versus", purpose: "Their stat and yours as two pip rows." },
-    { name: "Trait", purpose: "A trait row, ticked when it works with you." },
-    { name: "HomeItem", purpose: "The room as an item card with fact coins." },
   ],
 };

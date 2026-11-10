@@ -519,8 +519,27 @@
   font-weight: 800;
   color: var(--color-primary);
 }
+/* The fit score, large, beside one line that sums it up. */
+.fitHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.fitHead strong {
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-primary);
+}
+.fitHead span {
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--color-text-muted);
+}
 .xp {
-  height: 20px;
+  margin-bottom: var(--space-4);
+  height: 14px;
   margin-top: var(--space-2);
   overflow: hidden;
   border: 2px solid var(--surface-border, var(--color-border-strong));
@@ -613,7 +632,7 @@
 .tabPanel {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 .tabPanel {
   padding-top: var(--space-4);

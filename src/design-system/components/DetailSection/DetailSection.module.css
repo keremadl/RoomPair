@@ -1,0 +1,120 @@
+/* Profile sections: one shape, repeated. Tokens only. */
+.section {
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-md);
+}
+.section > p:not(.quote) {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+}
+.label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-muted);
+}
+.label svg {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--color-primary);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  background: color-mix(
+    in srgb,
+    var(--color-surface-sunken) 45%,
+    var(--color-surface-raised)
+  );
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+}
+.chips svg {
+  flex-shrink: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--color-primary);
+}
+.chips li[data-tone="match"] {
+  background: var(--color-success-soft);
+}
+.chips li[data-tone="match"] svg {
+  color: var(--color-success);
+}
+.chips li[data-tone="differ"] {
+  background: var(--color-accent-soft);
+}
+.chips li[data-tone="differ"] svg {
+  color: var(--color-accent-strong);
+}
+.chips li[data-tone="interest"] {
+  padding-left: var(--space-4);
+  background: var(--color-primary-soft);
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rows li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  font-size: var(--text-md);
+  line-height: var(--leading-snug);
+}
+.rows li:first-child {
+  padding-top: 0;
+}
+.rows li:last-child {
+  padding-bottom: 0;
+}
+.rows li + li {
+  border-top: var(--border-width) solid var(--color-border);
+}
+.rows svg {
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.1em;
+  color: var(--color-primary);
+}
+
+.quote {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+}
+
+.photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}

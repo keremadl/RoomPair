@@ -106,6 +106,14 @@ export {
   type ChoiceCardOption,
 } from "./components/ChoiceCards/ChoiceCards";
 export { Toast } from "./components/Toast/Toast";
+export {
+  DetailSection,
+  DetailPhoto,
+  FactChips,
+  FactRows,
+  PullQuote,
+  type FactChip,
+} from "./components/DetailSection/DetailSection";
 export { TextProvider, useText, type Translate } from "./text/TextProvider";
 
 /* Icons (Card set). Namespaced so Icons.Text / Icons.Circle don't clash with

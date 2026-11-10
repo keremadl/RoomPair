@@ -1,24 +1,62 @@
 "use client";
 import type { DiscoverDeck, MatchResult, Profile } from "@/lib/discover/deck";
 import type { Preferences } from "@/lib/types";
-import { useRef, useState, type MouseEvent, type PointerEvent } from "react";
+import {
+  useRef,
+  useState,
+  type MouseEvent,
+  type PointerEvent,
+  type ReactNode,
+} from "react";
 import { AnimatePresence } from "motion/react";
 import {
+  Backpack,
   BadgeCheck,
+  Bath,
   Bell,
+  Building2,
+  Bus,
+  CalendarDays,
   ChevronDown,
   Check,
+  Cigarette,
   Circle,
+  Clock,
   Compass,
+  Handshake,
   Heart,
   Home,
+  Languages,
+  ListChecks,
+  MapPin,
   MessageCircle,
+  MessageSquareQuote,
+  Moon,
+  PartyPopper,
+  PawPrint,
+  PiggyBank,
+  Receipt,
   RotateCcw,
+  ScrollText,
   Smile,
+  Sofa,
   Sparkles,
   Star,
+  Sun,
+  Trophy,
+  UserRound,
+  Users,
+  Volume2,
+  Wallet,
   X,
 } from "../../icons";
+import {
+  DetailPhoto,
+  DetailSection,
+  FactChips,
+  FactRows,
+  PullQuote,
+} from "@/design-system/components/DetailSection/DetailSection";
 import { SwipeHero } from "@/design-system/components/SwipeCard/SwipeCard";
 import { Reveal } from "@/design-system/components/Motion/Motion";
 import { useText } from "@/design-system/text/TextProvider";
@@ -31,10 +69,11 @@ import {
   fitSection,
   homeSection,
   personSection,
+  type Chip,
 } from "@/lib/discover/sections";
 import s from "./styles.module.css";
 import w from "./swipe.module.css";
-import { Versus, Trait, Banner, HomeItem } from "./components";
+import { Banner } from "./components";
 
 /**
  * The swipeable card and its actions. Controlled: pass a deck.
@@ -258,6 +297,28 @@ export function DiscoverCard({
   );
 }
 
+/** The icon of each short fact, by the id the content model gives it. */
+const chipIcon: Record<string, ReactNode> = {
+  rent: <Wallet />,
+  bills: <Receipt />,
+  deposit: <PiggyBank />,
+  date: <CalendarDays />,
+  stay: <Clock />,
+  furniture: <Sofa />,
+  bathroom: <Bath />,
+  flatmates: <Users />,
+  area: <MapPin />,
+  tidiness: <Sparkles />,
+  social: <Users />,
+  sleep: <Moon />,
+  smoking: <Cigarette />,
+  pets: <PawPrint />,
+  guests: <PartyPopper />,
+  homeDays: <Sun />,
+  noise: <Volume2 />,
+  sharing: <Handshake />,
+};
+
 /** Home → Person → Fit for one profile, in blocks or tabs. */
 export function DiscoverDetails({
   profile: p,
@@ -281,6 +342,12 @@ export function DiscoverDetails({
   const checked = p.verified;
   const speaks = person.facts.find((f) => f.id === "speaks");
   const fit = fitSection(m, t);
+  // The first room photo is already on the card above.
+  const roomPhotos = (home.photos ?? []).slice(1);
+  const photoAlt = (n: number) =>
+    t("{title}, photo {n}", { title: home.title ?? t("Room"), n });
+  const withIcons = (chips: Chip[]) =>
+    chips.map((chip) => ({ text: chip.text, icon: chipIcon[chip.id] }));
   return (
     <Reveal id={p.id} className={s.details}>
       <ProfileDetails
@@ -292,24 +359,30 @@ export function DiscoverDetails({
           tab: s.tab,
           panel: s.tabPanel,
         }}
+        // In tabs the tab itself names the group; blocks keep their banners.
         headers={{
-          home: (
-            <Banner
-              group="home"
-              title={
-                home.kind === "listing"
-                  ? t("Item: the room")
-                  : t("Quest: find a home")
-              }
-            />
-          ),
-          person: (
-            <Banner
-              group="person"
-              title={t("{name}'s character", { name: p.name })}
-            />
-          ),
-          fit: <Banner group="fit" title={t("Team fit")} />,
+          home:
+            layout === "tabs" ? null : (
+              <Banner
+                group="home"
+                title={
+                  home.kind === "listing"
+                    ? t("Item: the room")
+                    : t("Quest: find a home")
+                }
+              />
+            ),
+          person:
+            layout === "tabs" ? null : (
+              <Banner
+                group="person"
+                title={t("{name}'s character", { name: p.name })}
+              />
+            ),
+          fit:
+            layout === "tabs" ? null : (
+              <Banner group="fit" title={t("Team fit")} />
+            ),
         }}
         tabLabels={{
           home: home.kind === "listing" ? t("Room") : t("Home"),
@@ -317,110 +390,186 @@ export function DiscoverDetails({
           fit: `${fit.score}% ${t("fit")}`,
         }}
         sections={{
-          home: <HomeItem home={home} />,
+          home: (
+            <>
+              <DetailSection icon={<Home />} label={home.heading}>
+                {home.title && <PullQuote>{home.title}</PullQuote>}
+                {!home.title && <p>{home.description}</p>}
+              </DetailSection>
+              <DetailSection icon={<Wallet />} label={t("Rent and dates")}>
+                <FactChips items={withIcons(home.money)} />
+              </DetailSection>
+              {home.title && home.description && (
+                <DetailSection
+                  icon={<ScrollText />}
+                  label={t("About the place")}
+                >
+                  <p>{home.description}</p>
+                </DetailSection>
+              )}
+              {roomPhotos[0] && (
+                <DetailPhoto src={roomPhotos[0]} alt={photoAlt(2)} />
+              )}
+              <DetailSection
+                icon={<Sofa />}
+                label={home.kind === "listing" ? t("The home") : t("Where")}
+              >
+                <FactChips items={withIcons(home.place)} />
+              </DetailSection>
+              {home.transport && (
+                <DetailSection icon={<Bus />} label={t("Getting there")}>
+                  <p>{home.transport}</p>
+                </DetailSection>
+              )}
+              {home.rules && (
+                <DetailSection icon={<ListChecks />} label={t("House rules")}>
+                  <p>{home.rules}</p>
+                </DetailSection>
+              )}
+              {roomPhotos.slice(1).map((src, i) => (
+                <DetailPhoto key={src} src={src} alt={photoAlt(i + 3)} />
+              ))}
+            </>
+          ),
           person: (
             <>
-              <section className={s.box}>
-                <p className={s.meta}>
-                  {work?.value} · {work?.note}
-                  {checked ? ` · ${t("email checked (demo)")}` : ""}
-                </p>
-                {speaks && (
-                  <p className={s.meta}>
-                    {speaks.label} {speaks.value}
-                  </p>
-                )}
-                <p>{person.bio}</p>
-                <h4 className={s.subTitle}>{t("Abilities")}</h4>
-                <ul className={s.abilities}>
-                  {person.interests.map((tag) => (
-                    <li key={tag}>
-                      <Sparkles aria-hidden="true" /> {tag}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-              {person.prompts.map((pr) => (
-                <section className={s.box} key={pr.question}>
-                  <h4 className={s.title}>{pr.question}</h4>
-                  <p className={s.quote}>{pr.answer}</p>
-                </section>
+              {person.bio && (
+                <DetailSection icon={<Smile />} label={person.heading}>
+                  <p>{person.bio}</p>
+                </DetailSection>
+              )}
+              <DetailSection icon={<UserRound />} label={t("Essentials")}>
+                <FactRows
+                  items={[
+                    ...(work?.value
+                      ? [{ icon: <Backpack />, text: work.value }]
+                      : []),
+                    ...(work?.note
+                      ? [{ icon: <Building2 />, text: work.note }]
+                      : []),
+                    ...(speaks
+                      ? [{ icon: <Languages />, text: speaks.value }]
+                      : []),
+                    ...(checked
+                      ? [
+                          {
+                            icon: <BadgeCheck />,
+                            text: t("Student email checked (demo)"),
+                          },
+                        ]
+                      : []),
+                  ]}
+                />
+              </DetailSection>
+              {person.prompts[0] && (
+                <DetailSection
+                  icon={<MessageSquareQuote />}
+                  label={person.prompts[0].question}
+                >
+                  <PullQuote>{person.prompts[0].answer}</PullQuote>
+                </DetailSection>
+              )}
+              {p.photos[1] && (
+                <DetailPhoto
+                  src={p.photos[1]}
+                  alt={t("{name}, photo {n}", { name: p.name, n: 2 })}
+                />
+              )}
+              {person.interests.length > 0 && (
+                <DetailSection icon={<Sparkles />} label={t("Interests")}>
+                  <FactChips
+                    items={person.interests.map((text) => ({
+                      text,
+                      tone: "interest" as const,
+                    }))}
+                  />
+                </DetailSection>
+              )}
+              <DetailSection
+                icon={<Sofa />}
+                label={t("At home, {name} is", { name: p.name })}
+              >
+                <FactChips
+                  items={person.habits.map((h) => ({
+                    icon: chipIcon[h.id],
+                    // "Sometimes" or "Flexible" alone would not say what about.
+                    text: ["social", "sleep", "guests"].includes(h.id)
+                      ? `${h.label}: ${h.them}`
+                      : h.them,
+                  }))}
+                />
+              </DetailSection>
+              {person.prompts.slice(1).map((pr) => (
+                <DetailSection
+                  key={pr.question}
+                  icon={<MessageSquareQuote />}
+                  label={pr.question}
+                >
+                  <PullQuote>{pr.answer}</PullQuote>
+                </DetailSection>
               ))}
-              <section className={s.box}>
-                <h4 className={s.title}>{t("Stats vs. you")}</h4>
-                <Versus
-                  label={t("Tidiness")}
-                  them={p.habits.cleanliness}
-                  mine={viewer.cleanliness}
-                  name={p.name}
-                />
-                <Versus
-                  label={t("Social energy")}
-                  them={p.habits.social}
-                  mine={viewer.social}
-                  name={p.name}
-                />
-                <ul className={s.traits}>
-                  {person.habits.slice(2).map((h) => (
-                    <Trait
-                      key={h.label}
-                      ok={h.same}
-                      text={t("{label}: {them} (you: {you})", {
-                        label: h.label,
-                        them: h.them,
-                        you: h.you,
-                      })}
-                    />
-                  ))}
-                </ul>
-              </section>
             </>
           ),
           fit: (
-            <section className={s.box}>
-              <div className={s.xpHead}>
-                <h4 className={s.title}>{t("Fit")}</h4>
-                <strong>{fit.score}%</strong>
-              </div>
-              <div
-                className={s.xp}
-                role="img"
-                aria-label={t("{score} out of 100", { score: fit.score })}
+            <>
+              <DetailSection icon={<Trophy />} label={t("How you fit")}>
+                <div className={s.fitHead}>
+                  <strong>{fit.score}%</strong>
+                  <span>{fit.summary}</span>
+                </div>
+                <div
+                  className={s.xp}
+                  role="img"
+                  aria-label={t("{score} out of 100", { score: fit.score })}
+                >
+                  <span style={{ width: `${fit.score}%` }} />
+                </div>
+                <FactChips
+                  items={[
+                    ...fit.breakdown.map((b) => ({
+                      text: b.label,
+                      same: b.score >= 90,
+                    })),
+                    // The habits the score does not already list by name.
+                    ...person.habits
+                      .filter(
+                        (h) => !["tidiness", "social", "sleep"].includes(h.id),
+                      )
+                      .map((h) => ({ text: h.label, same: h.same })),
+                  ].map(({ text, same }) => ({
+                    text,
+                    icon: same ? <Check /> : <Circle />,
+                    tone: same ? ("match" as const) : ("differ" as const),
+                  }))}
+                />
+              </DetailSection>
+              {fit.reasons.length > 0 && (
+                <DetailSection icon={<Check />} label={t("What lines up")}>
+                  <FactRows
+                    items={fit.reasons.map((text) => ({
+                      icon: <Check />,
+                      text,
+                    }))}
+                  />
+                </DetailSection>
+              )}
+              <DetailSection
+                icon={<MessageCircle />}
+                label={t("To talk about")}
               >
-                <span style={{ width: `${fit.score}%` }} />
-              </div>
-              <h4 className={s.subTitle}>{t("Quests")}</h4>
-              <ul className={s.quests}>
-                {fit.reasons.map((r) => (
-                  <li key={r} data-done="true">
-                    <Check aria-hidden="true" /> {r}
-                  </li>
-                ))}
-                {fit.discuss.map((c) => (
-                  <li key={c} data-done="false">
-                    <Circle aria-hidden="true" /> {t("Talk about:")} {c}
-                  </li>
-                ))}
-                <li data-done="false">
-                  <Circle aria-hidden="true" />{" "}
-                  {t("Agree on house rules together")}
-                </li>
-              </ul>
-              <h4 className={s.subTitle}>{t("Score sheet")}</h4>
-              <dl className={s.sheet}>
-                {fit.breakdown.map((b) => (
-                  <div key={b.label}>
-                    <dt>{b.label}</dt>
-                    <dd>{b.score}</dd>
-                  </div>
-                ))}
-              </dl>
+                <FactRows
+                  items={[
+                    ...fit.discuss,
+                    t("Agree on house rules together"),
+                  ].map((text) => ({ icon: <Circle />, text }))}
+                />
+              </DetailSection>
               <p className={s.note}>
                 {t(
                   "The score compares what you both said. It is not a prediction.",
                 )}
               </p>
-            </section>
+            </>
           ),
         }}
       />

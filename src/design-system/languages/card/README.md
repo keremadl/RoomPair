@@ -18,7 +18,9 @@ Live reference: `/design-system?lang=card`. Discover screen in both layouts: `/d
 
 - The Discover swipe card (`DiscoverCard`, `swipe.module.css`) is a photo that fills the card. With several photos, thin bars sit at the top and a tap on the right or left half steps through them (room photos first for room seekers, then the person's); a drag still swipes. The first photo is the room when the viewer is looking for a room (rent at the top, host's face, name, fit and move-in at the bottom), the person when the viewer has a room (name, age, fit, budget). Details sit under the card, reached by scrolling; round icon buttons overlap the card's bottom edge.
 
-- The card front shows the person only: age, type, class, stats. Rent and dates are Home, on the `HomeItem`.
+- The card front shows the person only: age, type, class, stats. Rent and dates are Home.
+- Under the card, each tab (Room, the person, Fit) is a column of `DetailSection`s from the design system, all the same shape: a small label with an icon, then one kind of content. Short facts are `FactChips`, who someone is goes in `FactRows`, an answer in their own words is a `PullQuote`, a description is plain text, and photos sit between sections as `DetailPhoto`. Do not nest boxes inside a section or invent a new shape for one tab.
+- "You vs them" lives in Fit only: matching things are green chips, differing ones amber.
 - Frame colour encodes type: `--type-host` (has a room), `--type-explorer` (looking together).
 - Soft 3D: outlines and the thick bottom edge of anything pressable use `--soft-edge`, a quiet tone mixed from the palette's ink and the page. Nothing is outlined in ink. In component and app styles write `var(--surface-border, …)` or `var(--control-border, …)`, never `--color-border-strong` directly.
 - Buttons press down by `--press-depth` and lose their `--press-shadow`; keep that on every pressable.
@@ -74,13 +76,10 @@ Icons come from the shared Card icon set (`@/design-system/icons`, see the desig
 
 ## Signature components
 
-| Component  | Purpose                                       |
-| ---------- | --------------------------------------------- |
-| `Banner`   | Game-style heading with a pressed icon badge. |
-| `Stat`     | Stat pips on the character card.              |
-| `Versus`   | Their stat and yours as two pip rows.         |
-| `Trait`    | A trait row, ticked when it works with you.   |
-| `HomeItem` | The room as an item card with fact coins.     |
+| Component | Purpose                                       |
+| --------- | --------------------------------------------- |
+| `Banner`  | Game-style heading with a pressed icon badge. |
+| `Stat`    | Stat pips on the character card.              |
 
 ## Usage
 
