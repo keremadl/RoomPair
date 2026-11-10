@@ -36,7 +36,13 @@ import { Button, ChoiceCards, Dialog, ListRow } from "@/design-system";
 
 import { dateLabel, sleepLabel } from "@/lib/discover/deck";
 import { useI18n } from "@/lib/i18n";
-import { MAX_PHOTOS, MAX_PROMPTS, languageOptions } from "@/lib/profile";
+import {
+  ageFrom,
+  birthDateRange,
+  MAX_PHOTOS,
+  MAX_PROMPTS,
+  languageOptions,
+} from "@/lib/profile";
 import type { Gender, MyProfile, Preferences, WorkStatus } from "@/lib/types";
 import { Pips } from "../PersonCard";
 import { PhotoGrid } from "../profile/PhotoGrid";
@@ -546,12 +552,12 @@ export function EditProfileView({
               required: true,
             },
             {
-              key: "age",
-              label: t("Age"),
-              type: "number",
-              value: me.age,
-              min: 18,
-              max: 99,
+              key: "birthDate",
+              label: t("Date of birth"),
+              type: "date",
+              value: me.birthDate,
+              hint: t("Others see your age, never the date."),
+              ...birthDateRange(),
             },
             {
               key: "status",
@@ -596,7 +602,8 @@ export function EditProfileView({
           ]}
           onSave={(v) => {
             onMe({
-              age: Math.min(99, Math.max(18, Number(v.age) || me.age)),
+              birthDate: String(v.birthDate),
+              age: ageFrom(String(v.birthDate)),
               status: v.status as WorkStatus,
               occupation: String(v.occupation).trim(),
               school: String(v.school).trim(),

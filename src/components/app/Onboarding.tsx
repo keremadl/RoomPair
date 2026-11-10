@@ -46,7 +46,15 @@ import {
 } from "@/design-system";
 import { dateLabel } from "@/lib/discover/deck";
 import { useI18n } from "@/lib/i18n";
-import { interestOptions, languageOptions, MAX_PHOTOS } from "@/lib/profile";
+import {
+  ageFrom,
+  interestOptions,
+  isAdultBirthDate,
+  languageOptions,
+  MAX_AGE,
+  MAX_PHOTOS,
+  MIN_AGE,
+} from "@/lib/profile";
 import type {
   Frequency,
   Gender,
@@ -91,6 +99,7 @@ export type SetupQuestion =
 /** The parts of the member's own profile that setup asks about. */
 export type SetupProfile = Pick<
   MyProfile,
+  | "birthDate"
   | "age"
   | "gender"
   | "status"
@@ -129,8 +138,8 @@ const walkthrough: Question[] = [
   {
     id: "name",
     icon: Smile,
-    title: "What is your name and age?",
-    hint: "Both are shown on your profile. RoomPair is for adults.",
+    title: "What is your name and date of birth?",
+    hint: "Your profile shows your name and age, never the date. RoomPair is for adults.",
     section: "The basics",
   },
   {
@@ -267,8 +276,6 @@ const extras: Question[] = [
   },
 ];
 
-const MIN_AGE = 18;
-const MAX_AGE = 99;
 const MAX_INTERESTS = 8;
 const MAX_BIO = 600;
 const stays = [3, 6, 12, 24];
@@ -324,10 +331,13 @@ export function Onboarding({
   const { t } = useI18n();
   const [values, setValues] = useState<Preferences>({ ...initial });
   const [profile, setProfile] = useState<SetupProfile>({ ...initialProfile });
-  const [ageText, setAgeText] = useState(
-    askAge ? "" : String(initialProfile.age),
+  // A member who has not said when they were born starts with an empty field.
+  const [birthDate, setBirthDate] = useState(
+    askAge ? "" : initialProfile.birthDate,
   );
   const [error, setError] = useState("");
+  // A question without its illustration falls back to the icon sticker.
+  const [missingArt, setMissingArt] = useState<Record<string, boolean>>({});
   const [direction, setDirection] = useState(1);
   const host = values.intent === "have-room";
   const flow = only
@@ -347,19 +357,20 @@ export function Onboarding({
   };
   const setRoom = (patch: Partial<SetupProfile["room"]>) =>
     setMe({ room: { ...profile.room, ...patch } });
-  const ageValue = Number(ageText);
-  const ageValid =
-    Number.isInteger(ageValue) && ageValue >= MIN_AGE && ageValue <= MAX_AGE;
 
   // Today in the user's time zone, as YYYY-MM-DD, to refuse dates in the past.
   const now = new Date();
   const today = new Date(now.getTime() - now.getTimezoneOffset() * 60_000)
     .toISOString()
     .slice(0, 10);
+  const yearsAgo = (years: number) =>
+    `${Number(today.slice(0, 4)) - years}${today.slice(4)}`;
   function validate(id: SetupQuestion): string {
     if (id === "name") {
       if (!values.name.trim()) return t("ob.nameError");
-      if (!ageValid) return t("You need to be 18 or older to use RoomPair.");
+      if (!ageFrom(birthDate)) return t("Enter your date of birth.");
+      if (!isAdultBirthDate(birthDate))
+        return t("You need to be 18 or older to use RoomPair.");
     }
     if (id === "city" && !values.city.trim()) return t("ob.cityError");
     if (
@@ -403,7 +414,9 @@ export function Onboarding({
       { ...values, name: values.name.trim(), city: values.city.trim() },
       {
         ...profile,
-        age: ageValid ? ageValue : initialProfile.age,
+        ...(isAdultBirthDate(birthDate)
+          ? { birthDate, age: ageFrom(birthDate) }
+          : { birthDate: initialProfile.birthDate, age: initialProfile.age }),
         occupation: profile.occupation.trim(),
         school: profile.school.trim(),
         neighborhood: profile.neighborhood.trim(),
@@ -482,14 +495,14 @@ export function Onboarding({
             maxLength={48}
           />
           <Input
-            label={t("Your age")}
-            type="number"
-            inputMode="numeric"
-            min={MIN_AGE}
-            max={MAX_AGE}
-            value={ageText}
+            label={t("Date of birth")}
+            type="date"
+            min={yearsAgo(MAX_AGE + 1)}
+            max={yearsAgo(MIN_AGE)}
+            autoComplete="bday"
+            value={birthDate}
             onChange={(e) => {
-              setAgeText(e.target.value);
+              setBirthDate(e.target.value);
               setError("");
             }}
           />
@@ -1026,9 +1039,23 @@ export function Onboarding({
           className={o.page}
         >
           <div key={question.id} className={o.question}>
-            <div className={o.sticker} aria-hidden="true">
-              <Icon />
-            </div>
+            {missingArt[question.id] ? (
+              <div className={o.sticker} aria-hidden="true">
+                <Icon />
+              </div>
+            ) : (
+              // Decorative: the heading below asks the question.
+              <img
+                className={o.art}
+                src={`/images/onboarding/${question.id}.webp`}
+                alt=""
+                width={360}
+                height={240}
+                onError={() =>
+                  setMissingArt((m) => ({ ...m, [question.id]: true }))
+                }
+              />
+            )}
             {!only && question.section && (
               <Eyebrow>{t(question.section)}</Eyebrow>
             )}

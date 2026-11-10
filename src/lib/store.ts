@@ -2,8 +2,10 @@
 import { useEffect, useState } from "react";
 import { defaultPreferences, conversations, profiles } from "./data";
 import {
+  ageFrom,
   defaultMe,
   hostPromptQuestions,
+  isAdultBirthDate,
   promptQuestions,
   MAX_INTERESTS,
   MAX_PHOTOS,
@@ -135,7 +137,13 @@ function readMe(input: unknown): MyProfile {
           )
           .slice(0, MAX_PHOTOS)
       : base.photos,
-    age: number(saved.age, base.age),
+    // The age follows from the date of birth; a state saved before the date
+    // was asked keeps its age and has no date yet.
+    ...(typeof saved.birthDate === "string" && isAdultBirthDate(saved.birthDate)
+      ? { birthDate: saved.birthDate, age: ageFrom(saved.birthDate) }
+      : "age" in saved
+        ? { birthDate: "", age: number(saved.age, base.age) }
+        : { birthDate: base.birthDate, age: base.age }),
     status: oneOf(saved.status, ["student", "working"], base.status),
     occupation: text(saved.occupation, base.occupation, 80),
     school: text(saved.school, base.school, 120),

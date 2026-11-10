@@ -37,13 +37,19 @@ async function join(page: Page, name: string) {
   await expect(
     setup.getByRole("textbox", { name: "Your first name" }),
   ).toHaveValue(name);
-  // A new member's age is asked, not assumed, and minors are refused.
+  // A new member's date of birth is asked, not assumed, and minors are refused.
+  const born = (years: number) => {
+    const day = new Date();
+    day.setFullYear(day.getFullYear() - years);
+    return day.toISOString().slice(0, 10);
+  };
+  await setup.getByRole("button", { name: "Continue" }).click();
+  await expect(setup.getByText("Enter your date of birth.")).toBeVisible();
+  await setup.getByLabel("Date of birth").fill(born(17));
   await setup.getByRole("button", { name: "Continue" }).click();
   await expect(setup.getByText(/18 or older to use RoomPair/)).toBeVisible();
-  await setup.getByLabel("Your age").fill("17");
-  await setup.getByRole("button", { name: "Continue" }).click();
-  await expect(setup.getByText(/18 or older to use RoomPair/)).toBeVisible();
-  await setup.getByLabel("Your age").fill("27");
+  // 27 years and a few months ago: the profile shows 27, never the date.
+  await setup.getByLabel("Date of birth").fill(`${born(27).slice(0, 4)}-01-01`);
 
   const question = setup.getByRole("heading", { level: 2 });
   const proceed = setup.getByRole("button", { name: "Continue" });
@@ -137,6 +143,10 @@ test("a new member sets up, uploads a photo, matches a demo member and keeps eve
   await page.getByRole("button", { name: "Edit profile", exact: true }).click();
   await expect(page.getByText("Main", { exact: true })).toBeVisible();
   await expect(page.getByText("Test engineer, RoomPair QA")).toBeVisible();
+  // The age came from the date of birth, worked out by the server.
+  await expect(
+    page.getByRole("button", { name: new RegExp(`^Ada${run}, 27`) }),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });
 

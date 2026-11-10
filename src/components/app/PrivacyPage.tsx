@@ -12,7 +12,7 @@ import s from "./PrivacyPage.module.css";
 const sections = [
   {
     title: "What we keep",
-    body: "Your email address, the profile you fill in (name, age, city, budget, habits and photos), your likes and passes, your matches, the messages and photos you send, and the people you block or report.",
+    body: "Your email address, your date of birth, the profile you fill in (name, city, budget, habits and photos), your likes and passes, your matches, the messages and photos you send, and the people you block or report.",
   },
   {
     title: "Why we keep it",
@@ -20,7 +20,7 @@ const sections = [
   },
   {
     title: "Who can see it",
-    body: "Signed-in members can see your profile and your listing. Only you and the person you matched with can read a conversation. People you block cannot see you at all.",
+    body: "Signed-in members can see your profile and your listing, with your age but never your date of birth. Only you and the person you matched with can read a conversation. People you block cannot see you at all.",
   },
   {
     title: "Where it is stored",

@@ -35,6 +35,9 @@ async function rows<T>(query: PromiseLike<Result>): Promise<T[]> {
   return (data ?? []) as T[];
 }
 
+// The date of birth the server has, so it is only sent again when it changes.
+let savedBirthDate: string | null = null;
+
 /** Loads everything the signed-in member may see. Row level security filters each query. */
 export async function loadSnapshot(
   client: SupabaseClient,
@@ -69,8 +72,13 @@ export async function loadSnapshot(
     ]);
   const me = people.find((person) => person.id === userId);
   if (!me) throw new Error("Your profile could not be loaded.");
+  // Read last: it also moves the shown age on after a birthday.
+  const { data: birthDate, error } = await client.rpc("my_birth_date");
+  if (error) throw new Error(error.message);
+  savedBirthDate = typeof birthDate === "string" ? birthDate : null;
   return {
     userId,
+    birthDate: savedBirthDate,
     me,
     others: people.filter((person) => person.id !== userId),
     rooms,
@@ -325,6 +333,11 @@ export async function applyOperation(
   switch (operation.type) {
     case "saveProfile": {
       const { preferences, me, onboarded } = operation;
+      if (me.birthDate && me.birthDate !== savedBirthDate) {
+        // Sets the age too; the server refuses anyone under 18.
+        await run(client.rpc("set_birth_date", { birth: me.birthDate }));
+        savedBirthDate = me.birthDate;
+      }
       const photos = await store(client, userId, me.photos);
       await run(
         client

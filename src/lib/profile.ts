@@ -75,9 +75,40 @@ export const interestOptions = [
   "Languages",
 ];
 
+/** Full years between a date of birth (YYYY-MM-DD) and today; NaN if it is not a date. */
+export function ageFrom(birthDate: string, now = new Date()): number {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(birthDate);
+  if (!match) return NaN;
+  const [year, month, day] = match.slice(1).map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.toISOString().slice(0, 10) !== birthDate) return NaN;
+  const hadBirthday =
+    now.getMonth() + 1 > month ||
+    (now.getMonth() + 1 === month && now.getDate() >= day);
+  return now.getFullYear() - year - (hadBirthday ? 0 : 1);
+}
+export const MIN_AGE = 18;
+export const MAX_AGE = 99;
+/** A date of birth that makes its owner an adult RoomPair can show. */
+export const isAdultBirthDate = (birthDate: string) => {
+  const age = ageFrom(birthDate);
+  return age >= MIN_AGE && age <= MAX_AGE;
+};
+
+/** The earliest and latest date of birth a date field should offer. */
+export function birthDateRange(now = new Date()) {
+  const day = (years: number) =>
+    new Date(Date.UTC(now.getFullYear() - years, now.getMonth(), now.getDate()))
+      .toISOString()
+      .slice(0, 10);
+  return { min: day(MAX_AGE + 1), max: day(MIN_AGE) };
+}
+
+const demoBirthDate = "2004-05-14";
 export const defaultMe: MyProfile = {
   photos: ["/images/alex-1.jpg"],
-  age: 22,
+  birthDate: demoBirthDate,
+  age: ageFrom(demoBirthDate),
   status: "student",
   occupation: "Computer science student",
   school: "Riga Technical University",

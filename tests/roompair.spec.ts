@@ -339,7 +339,7 @@ test("my profile: preview from the photo, then edit photos, questions and intere
   await expect(
     page
       .getByRole("dialog", { name: "Your card" })
-      .getByRole("heading", { name: /Alex, 22/ }),
+      .getByRole("heading", { name: /Alex, \d+/ }),
   ).toBeVisible();
   await page.keyboard.press("Escape");
   const before = await page

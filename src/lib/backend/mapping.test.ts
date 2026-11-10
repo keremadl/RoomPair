@@ -73,6 +73,7 @@ const room: RoomRow = {
 };
 
 const snapshot: Snapshot = {
+  birthDate: "1998-03-02",
   userId: ME,
   me: row(ME, { name: "Alex", photos: [`${ME}/me.jpg`] }),
   others: [
@@ -145,6 +146,7 @@ test("a snapshot becomes the state the interface already understands", () => {
   const { state, profiles, matchIds } = appDataFromSnapshot(snapshot, signed);
   assert.equal(state.preferences.name, "Alex");
   assert.equal(state.onboarded, true);
+  assert.equal(state.me.birthDate, "1998-03-02");
   assert.deepEqual(state.me.photos, [`https://files.example/${ME}/me.jpg`]);
   assert.deepEqual(state.decisions, [
     { id: ELLA, action: "like" },
@@ -225,6 +227,8 @@ test("what is written never includes the verified flag, and a room is published 
   assert.equal(patch.smokes, true);
   assert.equal(patch.has_pets, true);
   assert.equal(patch.neighborhood, "Centrs");
+  // The age is never written directly: it follows from the date of birth.
+  assert.equal("age" in patch, false);
   assert.equal("verified" in patch, false);
   assert.equal(patch.photo_url, "a/b.jpg");
   assert.equal(patch.university, defaultMe.school);

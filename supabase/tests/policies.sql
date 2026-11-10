@@ -317,6 +317,29 @@ begin
   assert (select count(*) from public.reports) = 0, 'a reported member cannot see the report';
 end $$;
 
+-- Date of birth: private, and the only way to an age.
+select pg_temp.must_fail(
+  $$update public.profiles set age = 40 where id = '22222222-2222-4222-8222-222222222222'$$,
+  'members cannot type in an age');
+select pg_temp.must_fail(
+  $$select public.set_birth_date((current_date - interval '17 years')::date)$$,
+  'a date of birth under 18 is refused');
+select pg_temp.must_fail('select 1 from private.birth_dates', 'members cannot read dates of birth');
+select public.set_birth_date((current_date - interval '25 years 3 months')::date);
+do $$
+begin
+  assert (select age from public.profiles where id = '22222222-2222-4222-8222-222222222222') = 25,
+    'the age follows from the date of birth';
+  assert public.my_birth_date() = (current_date - interval '25 years 3 months')::date,
+    'a member can read their own date of birth';
+end $$;
+select pg_temp.sign_in('ada');
+do $$
+begin
+  assert public.my_birth_date() is null, 'a member cannot read someone else''s date of birth';
+end $$;
+select pg_temp.sign_in('ben');
+
 -- Moderation: only listed moderators see the queue or close a report.
 do $$
 begin
