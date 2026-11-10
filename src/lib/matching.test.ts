@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { defaultPreferences, profiles } from "./data";
+import { conversations, defaultPreferences, profiles } from "./data";
 import { getCompatibility, rankProfiles } from "./matching";
 import type { Preferences, Profile } from "./types";
 
@@ -292,4 +292,16 @@ test("a room's stay is a minimum: staying longer is fine, shorter lowers the fit
     ).breakdown.at(-1)!.score;
   assert.equal(asHost(6, 12), 100);
   assert.equal(asHost(12, 3), 25);
+});
+
+test("every seeded conversation is with someone the default search would show", () => {
+  for (const chat of conversations) {
+    const person = profiles.find((profile) => profile.id === chat.profileId);
+    assert.ok(person, `unknown person in ${chat.id}`);
+    assert.deepEqual(
+      getCompatibility(person, defaultPreferences).dealbreakers,
+      [],
+      `${person.name} is filtered out but has a conversation`,
+    );
+  }
 });
