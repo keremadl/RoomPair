@@ -61,9 +61,8 @@ async function join(page: Page, name: string) {
     }
     const asked = (await question.textContent()) ?? "";
     if (asked === "Add a photo of yourself") {
-      // Others only see a profile with a photo, so setup insists on one.
-      await proceed.click();
-      await expect(setup.getByRole("alert")).toContainText("at least one");
+      // Others only see a profile with a photo, so Continue waits for one.
+      await expect(proceed).toBeDisabled();
       await setup
         .locator('input[type="file"]')
         .setInputFiles("public/images/alex-1.jpg");

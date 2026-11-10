@@ -23,8 +23,9 @@ export function PhotoGrid({
   label: string;
   onChange: (photos: string[]) => void;
   onError: (message: string) => void;
-  /** Text of the full-width add button under the grid. */
-  addLabel: string;
+  /** Text of a full-width add button under the grid. Without it, the empty
+   *  tiles are the only way to add, which is enough on a short screen. */
+  addLabel?: string;
 }) {
   const { t } = useI18n();
   const input = useRef<HTMLInputElement>(null);
@@ -114,16 +115,20 @@ export function PhotoGrid({
           e.target.value = "";
         }}
       />
-      <Button
-        className={p.addAll}
-        leadingIcon={<ImagePlus />}
-        onClick={() => input.current?.click()}
-        disabled={photos.length >= max}
-        fullWidth
-      >
-        {addLabel}
-      </Button>
-      <p className={p.hint}>{t("Tap a photo to make it the main one.")}</p>
+      {addLabel && (
+        <Button
+          className={p.addAll}
+          leadingIcon={<ImagePlus />}
+          onClick={() => input.current?.click()}
+          disabled={photos.length >= max}
+          fullWidth
+        >
+          {addLabel}
+        </Button>
+      )}
+      {(addLabel || photos.length > 1) && (
+        <p className={p.hint}>{t("Tap a photo to make it the main one.")}</p>
+      )}
     </div>
   );
 }

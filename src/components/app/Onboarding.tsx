@@ -181,12 +181,6 @@ const walkthrough: Question[] = [
     title: "When, and for how long?",
   },
   {
-    id: "photos",
-    icon: ImagePlus,
-    title: "Add a photo of yourself",
-    hint: "Others only see profiles with at least one photo.",
-  },
-  {
     id: "work",
     icon: Backpack,
     title: "What do you do?",
@@ -226,6 +220,12 @@ const walkthrough: Question[] = [
     id: "livingWith",
     icon: Home,
     title: "Who would you like to live with?",
+  },
+  {
+    id: "photos",
+    icon: ImagePlus,
+    title: "Add a photo of yourself",
+    hint: "Others only see profiles with at least one photo.",
   },
   { id: "done", icon: PartyPopper, title: "You are all set!" },
 ];
@@ -609,14 +609,15 @@ export function Onboarding({
     case "roomPhotos":
       body = (
         <>
-          <PhotoGrid
-            photos={profile.room.photos}
-            max={MAX_PHOTOS}
-            label={t("Room photos")}
-            addLabel={t("Add photos")}
-            onChange={(photos) => setRoom({ photos })}
-            onError={setError}
-          />
+          <div className={o.photos}>
+            <PhotoGrid
+              photos={profile.room.photos}
+              max={MAX_PHOTOS}
+              label={t("Room photos")}
+              onChange={(photos) => setRoom({ photos })}
+              onError={setError}
+            />
+          </div>
           {problem}
         </>
       );
@@ -657,14 +658,15 @@ export function Onboarding({
     case "photos":
       body = (
         <>
-          <PhotoGrid
-            photos={profile.photos}
-            max={MAX_PHOTOS}
-            label={t("My photos")}
-            addLabel={t("Add photos")}
-            onChange={(photos) => setMe({ photos })}
-            onError={setError}
-          />
+          <div className={o.photos}>
+            <PhotoGrid
+              photos={profile.photos}
+              max={MAX_PHOTOS}
+              label={t("My photos")}
+              onChange={(photos) => setMe({ photos })}
+              onError={setError}
+            />
+          </div>
           {problem}
         </>
       );
@@ -965,6 +967,10 @@ export function Onboarding({
       break;
   }
 
+  // A photo screen cannot be left without a photo, so its button waits for one.
+  const needsPhoto =
+    (question.id === "photos" && !profile.photos.length) ||
+    (question.id === "roomPhotos" && !profile.room.photos.length);
   const Icon = question.icon;
   return (
     <Dialog
@@ -1062,7 +1068,7 @@ export function Onboarding({
               {t("Skip")}
             </Button>
           )}
-          <Button type="submit" fullWidth>
+          <Button type="submit" fullWidth disabled={needsPhoto}>
             {only
               ? t("Save")
               : question.id === "done"
