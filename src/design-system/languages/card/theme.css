@@ -84,7 +84,10 @@
   /* Component tokens: chunky, pressable game buttons. */
   --control-border-width: 2px;
   --control-border: var(--color-border-strong);
-  --control-primary-border: var(--color-border-strong);
+  /* Filled buttons sit on a darker tone of their own colour, not on ink. */
+  --press-primary: color-mix(in srgb, var(--color-primary) 66%, black);
+  --control-primary-border: var(--press-primary);
+  --control-primary-shadow: 0 var(--press-depth) 0 var(--press-primary);
   --control-shadow: var(--press-shadow);
   --control-shadow-active: none;
   --control-press: translateY(var(--press-depth));

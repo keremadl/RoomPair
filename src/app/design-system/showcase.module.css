@@ -30,9 +30,11 @@
   font-size: var(--text-sm);
   text-decoration: none;
 }
-.nav a:hover {
-  background: var(--color-surface-sunken);
-  color: var(--color-text);
+@media (hover: hover) {
+  .nav a:hover {
+    background: var(--color-surface-sunken);
+    color: var(--color-text);
+  }
 }
 .main {
   max-width: 960px;
@@ -109,8 +111,10 @@
   font-size: var(--text-xs);
   color: transparent;
 }
-.rampStep:hover {
-  color: var(--color-text);
+@media (hover: hover) {
+  .rampStep:hover {
+    color: var(--color-text);
+  }
 }
 
 /* Type */
@@ -250,9 +254,11 @@
   text-align: left;
   cursor: pointer;
 }
-.lang:hover {
-  background: var(--color-surface-sunken);
-  color: var(--color-text);
+@media (hover: hover) {
+  .lang:hover {
+    background: var(--color-surface-sunken);
+    color: var(--color-text);
+  }
 }
 .lang[aria-checked="true"] {
   border-color: var(--color-border-strong);
@@ -342,8 +348,10 @@
   text-align: left;
   cursor: pointer;
 }
-.langCard:hover {
-  border-color: var(--color-border-strong);
+@media (hover: hover) {
+  .langCard:hover {
+    border-color: var(--color-border-strong);
+  }
 }
 .langCard:focus-visible {
   outline: none;

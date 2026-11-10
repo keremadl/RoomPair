@@ -63,8 +63,10 @@
   width: 1.75rem;
   height: 1.75rem;
 }
-.add:hover {
-  background: var(--color-primary-soft);
+@media (hover: hover) {
+  .add:hover {
+    background: var(--color-primary-soft);
+  }
 }
 .badge {
   position: absolute;

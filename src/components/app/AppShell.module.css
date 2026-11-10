@@ -203,9 +203,11 @@
 .sideItem span:first-of-type {
   flex: 1;
 }
-.sideItem:hover {
-  background: var(--color-surface-sunken);
-  color: var(--color-text);
+@media (hover: hover) {
+  .sideItem:hover {
+    background: var(--color-surface-sunken);
+    color: var(--color-text);
+  }
 }
 .sideItem[aria-current="page"] {
   border-color: var(--control-border, transparent);
@@ -240,8 +242,10 @@
   width: 1rem;
   height: 1rem;
 }
-.help:hover {
-  color: var(--color-text);
+@media (hover: hover) {
+  .help:hover {
+    color: var(--color-text);
+  }
 }
 /* The current page keeps its pressed look and still shows focus. */
 .sideItem[aria-current="page"]:focus-visible {

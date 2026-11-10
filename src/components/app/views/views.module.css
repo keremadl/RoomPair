@@ -143,8 +143,10 @@
   text-align: left;
   cursor: pointer;
 }
-.conversation:hover {
-  background: var(--color-surface-sunken);
+@media (hover: hover) {
+  .conversation:hover {
+    background: var(--color-surface-sunken);
+  }
 }
 .conversation[aria-current="true"] {
   border-color: var(--color-border-strong);
