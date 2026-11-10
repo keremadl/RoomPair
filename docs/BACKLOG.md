@@ -4,9 +4,23 @@ Kod incelemesinden çıkan ve henüz yapılmamış işlerin listesi. Uygulama ş
 bilinçli olarak sunucusuz bir demodur; kullanıcı hesapları ve gerçek veritabanı
 en son aşamada eklenecek. Bir madde tamamlandığında listeden silin.
 
-## 1. Son aşama: hesaplar ve gerçek veritabanı
+## 1. Hesaplar ve gerçek veritabanı
 
-Bunlar birbirine bağlı; tek bir geçiş olarak planlanmalı.
+**Yapıldı (bkz. `docs/database.md`):** Supabase projesinde şema, satır düzeyi
+yetkilendirme, sütun düzeyi izinler, eşleşme/engelleme tetikleyicileri ve on
+demo hesap kuruldu; yetkilendirme testleri yerelde ve gerçek projede geçti.
+
+**Sıradaki adım:** arayüzü veritabanına bağlamak. Uygulama hâlâ tarayıcıdaki
+demo verisiyle çalışıyor. Aşağıdaki maddelerin veritabanı tarafı hazır;
+kalan iş uygulama tarafında.
+
+- [ ] **Supabase istemcisi ve ortam değişkenleri** (`NEXT_PUBLIC_SUPABASE_URL`,
+      yayınlanabilir anahtar). CSP'de `connect-src` Supabase adresine izin vermeli.
+- [ ] **Şema değişiklikleri için kalıcı yol.** Bu oturumdaki Supabase
+      bağlantısı `delete` içeren SQL'de bozuk bir onay penceresine takılıyor;
+      migrasyonlar Supabase CLI ya da SQL Editor ile uygulanmalı.
+- [ ] **Supabase Auth ayarları:** sızdırılmış şifre koruması kapalı (güvenlik
+      denetiminin tek uyarısı); demo için e-posta onayı kapatılmalı.
 
 - [ ] **Kimlik doğrulama ve oturum.** Kayıt, giriş, çıkış, oturum süresi. Şu an
       hiçbiri yok; herkes aynı "Alex" demo kullanıcısıdır.
