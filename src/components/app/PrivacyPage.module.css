@@ -1,0 +1,23 @@
+/* Privacy notice: one readable column. Tokens only. */
+.page {
+  min-height: 100vh;
+  padding: var(--space-6) var(--space-4);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-5);
+  width: min(100%, 40rem);
+  margin: 0 auto;
+}
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}

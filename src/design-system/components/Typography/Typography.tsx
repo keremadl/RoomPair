@@ -70,6 +70,11 @@ export function Text({
   );
 }
 
+/** A link inside running text. Inherits the size of the text around it. */
+export function TextLink({ className, ...rest }: ComponentProps<"a">) {
+  return <a className={cx(styles.link, className)} {...rest} />;
+}
+
 /** Small uppercase label above a heading. */
 export function Eyebrow({ className, ...rest }: ComponentProps<"p">) {
   return <p className={cx(styles.eyebrow, className)} {...rest} />;

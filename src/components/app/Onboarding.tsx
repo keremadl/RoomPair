@@ -39,6 +39,9 @@ const subs = [
   "ob.subFour",
 ];
 const LAST = steps.length - 1;
+const MIN_AGE = 18;
+const MAX_AGE = 99;
+const AGE_ERROR = "You need to be 18 or older to use RoomPair.";
 
 /** One question with a few answers, shown as pills. */
 function Pills<T extends string>({
@@ -82,18 +85,25 @@ function Pills<T extends string>({
 /** Five short steps that set the preferences matching uses. */
 export function Onboarding({
   initial,
+  age,
   onComplete,
   onClose,
   startStep = 0,
 }: {
   initial: Preferences;
+  /** The member's age, or null when they have not given it yet. */
+  age: number | null;
   /** Open at a later step, e.g. from a profile row. */
   startStep?: number;
-  onComplete: (p: Preferences) => void;
+  onComplete: (p: Preferences, age?: number) => void;
   onClose: () => void;
 }) {
   const { t } = useI18n();
   const [values, setValues] = useState<Preferences>({ ...initial });
+  const [ageText, setAgeText] = useState(age ? String(age) : "");
+  const ageValue = Number(ageText);
+  const ageValid =
+    Number.isInteger(ageValue) && ageValue >= MIN_AGE && ageValue <= MAX_AGE;
   const [step, setStep] = useState(startStep);
   const [direction, setDirection] = useState(1);
   const [error, setError] = useState("");
@@ -109,6 +119,7 @@ export function Onboarding({
     .slice(0, 10);
   function validate() {
     if (step === 0 && !values.name.trim()) return "ob.nameError";
+    if (step === 0 && !ageValid) return AGE_ERROR;
     if (step === 1) {
       if (!values.city.trim()) return "ob.cityError";
       if (
@@ -140,11 +151,14 @@ export function Onboarding({
     const invalid = validate();
     if (invalid) return setError(invalid);
     if (step === LAST)
-      return onComplete({
-        ...values,
-        name: values.name.trim(),
-        city: values.city.trim(),
-      });
+      return onComplete(
+        {
+          ...values,
+          name: values.name.trim(),
+          city: values.city.trim(),
+        },
+        ageValid ? ageValue : undefined,
+      );
     setDirection(1);
     setStep((s) => s + 1);
   }
@@ -225,6 +239,19 @@ export function Onboarding({
                 onChange={(e) => set("name", e.target.value)}
                 error={error === "ob.nameError" ? t(error) : undefined}
                 autoComplete="given-name"
+              />
+              <Input
+                label={t("Your age")}
+                type="number"
+                inputMode="numeric"
+                min={MIN_AGE}
+                max={MAX_AGE}
+                value={ageText}
+                onChange={(e) => {
+                  setAgeText(e.target.value);
+                  setError("");
+                }}
+                error={error === AGE_ERROR ? t(AGE_ERROR) : undefined}
               />
               <ChoiceCards
                 label={t("onboarding.intent")}

@@ -1,5 +1,5 @@
 import { createHash, timingSafeEqual } from "node:crypto";
-import english from "@/lib/locales/en.json";
+import { SOURCE_CATALOG as english } from "@/lib/locales/source";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -122,7 +122,7 @@ export async function POST(request: Request): Promise<Response> {
         502,
       );
     const payload: unknown = JSON.parse(
-      await boundedText(upstream.body, 256_000),
+      await boundedText(upstream.body, 1_000_000),
     );
     if (
       !payload ||

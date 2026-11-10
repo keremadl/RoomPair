@@ -341,6 +341,39 @@ select pg_temp.must_fail(
   $$insert into public.swipes (target_id, action) values ('11111111-1111-4111-8111-111111111111', 'like')$$,
   'a blocked member cannot like the blocker again');
 
+-- Chat photos: only the sender can remove one. Leaving deletes everything.
+reset role;
+insert into public.swipes (swiper_id, target_id, action) values
+  ('33333333-3333-4333-8333-333333333333', '22222222-2222-4222-8222-222222222222', 'like'),
+  ('22222222-2222-4222-8222-222222222222', '33333333-3333-4333-8333-333333333333', 'like')
+  on conflict (swiper_id, target_id) do update set action = 'like';
+set local role authenticated;
+select pg_temp.sign_in('ben');
+insert into storage.objects (bucket_id, name)
+  select 'chat-photos', id || '/from-ben.jpg' from public.matches;
+select pg_temp.sign_in('cem');
+delete from storage.objects where name like '%/from-ben.jpg';
+do $$
+begin
+  assert (select count(*) from storage.objects where name like '%/from-ben.jpg') = 1,
+    'a member cannot remove a chat photo someone else sent';
+end $$;
+select public.delete_account();
+reset role;
+do $$
+begin
+  assert (select count(*) from auth.users where id = '33333333-3333-4333-8333-333333333333') = 0,
+    'deleting an account removes the sign-in';
+  assert (select count(*) from public.profiles where id = '33333333-3333-4333-8333-333333333333') = 0,
+    'deleting an account removes the profile';
+  assert (select count(*) from public.matches) = 0, 'deleting an account removes its matches';
+  assert (select count(*) from auth.users where id = '22222222-2222-4222-8222-222222222222') = 1,
+    'deleting an account leaves other members alone';
+end $$;
+set local role anon;
+select pg_temp.must_fail($$select public.delete_account()$$,
+  'visitors cannot call account deletion');
+
 reset role;
 rollback;
 

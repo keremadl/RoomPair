@@ -1,6 +1,13 @@
 "use client";
 import { useState } from "react";
-import { Button, Heading, Input, Text } from "@/design-system";
+import {
+  Button,
+  Heading,
+  Input,
+  Switch,
+  Text,
+  TextLink,
+} from "@/design-system";
 import {
   defaultLanguage,
   directionFontVariables,
@@ -31,6 +38,7 @@ export function AuthScreen({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -44,6 +52,12 @@ export function AuthScreen({
         t("Use a password with at least {count} characters.", {
           count: MIN_PASSWORD,
         }),
+      );
+      return;
+    }
+    if (signingUp && !agreed) {
+      setError(
+        t("Please confirm that you are 18 or older and accept the notice."),
       );
       return;
     }
@@ -124,6 +138,20 @@ export function AuthScreen({
             maxLength={72}
             required
           />
+          {signingUp && (
+            <>
+              <Switch
+                label={t("I am 18 or older and I accept the privacy notice")}
+                checked={agreed}
+                onChange={setAgreed}
+              />
+              <Text tone="muted" size="sm">
+                <TextLink href="/privacy" target="_blank" rel="noreferrer">
+                  {t("Read the privacy notice")}
+                </TextLink>
+              </Text>
+            </>
+          )}
           {error && (
             <Text tone="danger" role="alert">
               {error}

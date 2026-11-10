@@ -542,7 +542,7 @@ export function EditProfileView({
               label: t("Age"),
               type: "number",
               value: me.age,
-              min: 17,
+              min: 18,
               max: 99,
             },
             {
@@ -588,7 +588,7 @@ export function EditProfileView({
           ]}
           onSave={(v) => {
             onMe({
-              age: Math.min(99, Math.max(17, Number(v.age) || me.age)),
+              age: Math.min(99, Math.max(18, Number(v.age) || me.age)),
               status: v.status as WorkStatus,
               occupation: String(v.occupation).trim(),
               school: String(v.school).trim(),

@@ -23,6 +23,12 @@ async function join(page: Page, name: string) {
   await page.getByLabel("Your first name").fill(name);
   await page.getByLabel("Email").fill(emailOf(name));
   await page.getByLabel("Password").fill(password);
+  // Without the confirmation no account is created.
+  await page.getByRole("button", { name: "Create my account" }).click();
+  await expect(
+    page.getByText(/confirm that you are 18 or older/),
+  ).toBeVisible();
+  await page.getByRole("switch", { name: /I am 18 or older/ }).check();
   await page.getByRole("button", { name: "Create my account" }).click();
 
   // Setup opens by itself for a new member.
@@ -30,6 +36,13 @@ async function join(page: Page, name: string) {
   await expect(
     setup.getByRole("textbox", { name: "What should we call you?" }),
   ).toHaveValue(name);
+  // A new member's age is asked, not assumed, and minors are refused.
+  await setup.getByRole("button", { name: "Continue" }).click();
+  await expect(setup.getByText(/18 or older to use RoomPair/)).toBeVisible();
+  await setup.getByLabel("Your age").fill("17");
+  await setup.getByRole("button", { name: "Continue" }).click();
+  await expect(setup.getByText(/18 or older to use RoomPair/)).toBeVisible();
+  await setup.getByLabel("Your age").fill("27");
   for (let step = 0; step < 6; step++) {
     const finish = setup.getByRole("button", { name: /Save and show people/ });
     if (await finish.count()) {
@@ -50,7 +63,7 @@ async function join(page: Page, name: string) {
     .first()
     .setInputFiles("public/images/alex-1.jpg");
   await expect(page.getByText("Main", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: new RegExp(`^${name}, `) }).click();
+  await page.getByRole("button", { name: `${name}, 27` }).click();
   const basics = page.getByRole("dialog", { name: "Name and work" });
   await basics.getByLabel("What you study or do").fill("Test engineer");
   await basics.getByLabel("School or workplace").fill("RoomPair QA");
@@ -170,12 +183,13 @@ test("two members like each other, exchange messages, and a block ends it for bo
   await match.getByRole("textbox").fill("Hi Ben, want to see the room?");
   await match.getByRole("button", { name: "Send", exact: true }).click();
 
-  // Ben receives the real message without doing anything.
+  // Ben receives the real message without doing anything. It is pushed live,
+  // so it shows up well before the slower background check would find it.
   await nav(ben)
     .getByRole("button", { name: /Messages/ })
     .click();
   await expect(ben.getByText("want to see the room").last()).toBeVisible({
-    timeout: 20_000,
+    timeout: 5_000,
   });
 
   // Ben blocks Cem: the conversation disappears for both.
@@ -221,4 +235,34 @@ test("signing out returns to the sign-in screen and signing in restores the memb
   await expect(page.getByRole("dialog", { name: "Your profile" })).toHaveCount(
     0,
   );
+});
+
+test("a member can delete their account, and it is gone for good", async ({
+  page,
+}) => {
+  const name = `Eve${run}`;
+  await join(page, name);
+  await nav(page)
+    .getByRole("button", { name: /My profile/ })
+    .click();
+  await page.getByRole("button", { name: "Settings" }).first().click();
+  await page.getByRole("button", { name: "Delete my account" }).click();
+  const confirm = page.getByRole("dialog", { name: "Delete your account?" });
+  await confirm.getByRole("button", { name: "Delete my account" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Welcome back" }),
+  ).toBeVisible();
+
+  await page.getByLabel("Email").fill(emailOf(name));
+  await page.getByLabel("Password").fill(password);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page.getByText(/do not match an account/)).toBeVisible();
+});
+
+test("the privacy notice is readable without signing in", async ({ page }) => {
+  await page.goto("/privacy");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Privacy notice" }),
+  ).toBeVisible();
+  await expect(page.getByText(/removed for good/)).toBeVisible();
 });
