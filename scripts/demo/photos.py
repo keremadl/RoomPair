@@ -10,6 +10,7 @@ out). Needs `codex` signed in, and Pillow.
 """
 
 import argparse
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -59,6 +60,20 @@ FRAMING = [
     "camera with a half-laugh.",
 ]
 
+# The second photo copies the first one's face unless told otherwise.
+EXPRESSION = [
+    "not smiling: concentrating, eyes down on what the hands are doing, "
+    "lips slightly pressed together",
+    "caught mid-laugh, mouth open, eyes nearly closed, head tipped back",
+    "talking to someone out of frame, mouth half open mid-word, eyebrows "
+    "raised, looking away from the camera",
+    "calm and neutral, mouth closed, looking off to the side, seen in "
+    "three-quarter profile",
+    "a small closed-mouth smile, eyes lowered, a little shy",
+    "amused at being photographed, eyebrows up, glancing back over the "
+    "shoulder",
+]
+
 lock = threading.Lock()
 failures = 0
 stop = threading.Event()
@@ -66,6 +81,21 @@ stop = threading.Event()
 
 def brief(task):
     kind, p = task
+    if kind == "second":
+        # Only the second photo again, from the first one already saved.
+        mood = EXPRESSION[(sum(map(ord, p["id"])) * 7 + len(p["id"])) % len(EXPRESSION)]
+        return [f"{p['id']}-2"], (
+            f"The file reference.jpg in the current directory is a photo of a "
+            f"fictional person. Give it to the tool as the reference image, "
+            f"for who the person is only (face shape, hair, build): do not "
+            f"copy its expression, head angle, gaze, clothes or place.\n"
+            f"Prompt: {PHONE} Taken by a friend from three or four steps "
+            f"away, not a selfie: the person is small enough in the frame "
+            f"that the place shows, and is busy with what they are doing, "
+            f"not posing and not looking into the lens. Expression, clearly "
+            f"different from the reference photo: {mood}. The photo: the "
+            f"same person, {p['look']}; {p['shots'][1]}."
+        )
     if kind == "person":
         a, b = p["shots"]
         # Vary who holds the phone, or every first photo is the same selfie.
@@ -112,10 +142,15 @@ def save(png, name):
 def run(task):
     global failures
     names, text = brief(task)
-    if stop.is_set() or all((OUT / f"{n}.jpg").exists() for n in names):
+    redo = task[0] == "second"
+    if stop.is_set() or (
+        not redo and all((OUT / f"{n}.jpg").exists() for n in names)
+    ):
         return
     files = ", ".join(f"{n}.png" for n in names)
     with tempfile.TemporaryDirectory() as work:
+        if redo:
+            shutil.copy(OUT / f"{task[1]['id']}-1.jpg", Path(work) / "reference.jpg")
         prompt = (
             "Use the built-in image generation tool (not a script, no API "
             "key). Portrait orientation, 2:3. Pass each prompt below to the "
@@ -148,12 +183,19 @@ if __name__ == "__main__":
     args = argparse.ArgumentParser()
     args.add_argument("--jobs", type=int, default=3)
     args.add_argument("--only", default="")
+    args.add_argument(
+        "--second", action="store_true",
+        help="make every second photo again, with a different expression",
+    )
     opts = args.parse_args()
     only = set(filter(None, opts.only.split(",")))
     tasks = []
     # A person first, then their room, so whatever is finished is complete.
     for p in people():
         if only and p["id"] not in only:
+            continue
+        if opts.second:
+            tasks.append(("second", p))
             continue
         tasks.append(("person", p))
         if "room" in p:
