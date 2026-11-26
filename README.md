@@ -1,9 +1,13 @@
 # RoomPair
 
-**Good people. Better living.** A local, presentation-ready roommate matching app built with Next.js, React and TypeScript. Designed around students moving to Riga, with a responsive desktop workspace and a touch-friendly mobile experience.
+**Good people. Better living.** A roommate matching app built with Next.js, React, TypeScript, and Supabase. Designed around students moving to Riga, with a responsive desktop workspace and a touch-friendly mobile experience. Runs as a live multi-user app when Supabase is configured (as on the hosted site) or as a zero-setup local browser demo when run without environment variables.
 
-- **Live demo:** https://roompair.vercel.app
+> **Note on naming:** *"RoomPair"* is an early-stage working codename chosen to avoid spending pre-PMF time on branding. It has not been trademark-cleared and may overlap with existing products; the final commercial brand name will be decided before public launch.
+
+- **Live app:** https://roompair.vercel.app
 - **What RoomPair is and why:** [product concept](docs/product-concept.md)
+- **Engineering & roadmap rationale:** [architecture & product decisions](docs/architecture-decisions.md)
+- **Database, RLS & security:** [database & security](docs/database.md)
 
 ## Run it
 
@@ -42,7 +46,7 @@ The app opens directly in discovery for a strong first impression. The five-step
 - Two search intentions, chosen on My profile: looking for a room (see hosts, room first) or having a room (see room seekers only).
 - Explainable filtering and ranking, preferences, honest empty states.
 - Likes, matches and chat, profile setup.
-- Blocking and unblocking, report recording (kept in this browser only) and a resettable demo state.
+- Blocking and unblocking, report submission (persisted to the database & moderator queue in account mode; browser-local in demo mode) and a resettable demo state.
 - English/Turkish UI, persistent language selection and extensible locale catalogs.
 - Responsive layouts, focus-managed dialogs, accessible form labels, reduced-motion preference, local imagery and install metadata.
 
@@ -70,7 +74,9 @@ Eligible profiles receive a weighted comparison: budget 25%, tidiness 20%, sleep
 | `src/lib/locales/en.json` / `tr.json`            | Interface copy                                                                                  |
 | `public/images` / `public/fonts`                 | Local assets                                                                                    |
 
-## Languages and n8n
+## Languages & translation automation (n8n)
+
+### Adding a new language
 
 The application runs independently of automation. Import `n8n/translation-workflow.json` into your own n8n instance, configure credentials, and run a translation job only when adding a language:
 
@@ -80,7 +86,7 @@ npm run translate -- lv "Latviešu"
 
 The CLI validates the result and adds a static language pack. Switching languages never calls a paid service. Credentials remain server-side. The workflow is supplied inactive; it has not been connected to a live n8n account. See [the complete setup guide](docs/localization.md).
 
-## Translations (n8n)
+### Keeping `tr.json` in sync
 
 `tr.json` is kept complete by a small n8n workflow, `automation/n8n/i18n-sync.workflow.json`: extract the UI strings → if any are missing, translate them → check again → print a report (counts, added keys, anything still missing).
 
@@ -113,10 +119,10 @@ npm run build
 
 `npm test` runs the unit tests (matching rules, stored-state validation, the translation endpoint). `npm run test:db` builds the database schema on a throwaway PostgreSQL database and runs the authorization tests; it needs `psql` and a server (see docs/database.md). `npm run test:accounts` runs the sign-in and two-member tests against a local Supabase stack (`npx supabase start`). `npm run test:e2e` drives the demo in a browser: it uses installed Chrome/Edge on Windows, otherwise run `npx playwright install chromium` once. It starts the dev server automatically, or uses an existing server on port 3000. The same checks run on every pull request (`.github/workflows/ci.yml`).
 
-## Research and honest demo limits
+## Research and honest MVP limits
 
 The design study covers Tinder, Bumble, Hinge, Feeld, happn, RoomSync, Diggz and Badi using official pages and public app screenshots. See [research and design decisions](docs/interface-research.md) and [asset sources](docs/assets.md).
 
-All people, properties, chat replies and student verification statuses are fictional presentation data. Stock photos do not depict actual users or available Riga rentals. No authentication, real-time multi-user messaging, identity verification, property verification, moderation delivery or rental booking is connected to the interface. Reports, likes, messages and photos stay in this browser's local storage and do not synchronize between users. Accounts are built but switched off here: with the two `NEXT_PUBLIC_SUPABASE_*` variables set (see `.env.example` and `docs/database.md`), the same interface asks people to sign in and keeps profiles, likes, matches, messages and photos in a database with row level security.
-
-For a real pilot, the next steps are turning that mode on for the hosted site, live message delivery, and moderation and verification providers. The typed data model, matching engine and UI catalogs are separated so those services can replace the demo layer without redesigning the interface.
+- **Two runtime modes:** Running `npm run dev` without environment variables opens the self-contained browser demo (all data stays in `localStorage` and replies are simulated). When `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are configured — as on **https://roompair.vercel.app** — the same interface runs in live account mode with Supabase Auth, PostgreSQL Row Level Security, private Storage buckets, Realtime matches/messages, and database-backed reports/moderation (see [docs/database.md](docs/database.md)).
+- **Seeded presentation data:** The 72 seeded demo profiles, rooms, and stock photos are fictional presentation data and do not represent real Riga rentals or real people.
+- **Intentionally deferred for post-MVP:** Institutional student email / KYC identity verification, property ownership verification, rental booking/payments, email confirmation & leaked-password protection (Supabase Pro), and legal GDPR/KVKK data-controller details on `/privacy`. See [docs/architecture-decisions.md](docs/architecture-decisions.md) and [docs/BACKLOG.md](docs/BACKLOG.md) for the full rationale and production checklist.
