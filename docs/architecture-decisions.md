@@ -115,3 +115,14 @@ Advanced performance engineering has been **intentionally deferred** until core 
 - **Server-side discovery pagination & filtering:** Moving candidate ranking/filtering from client-side pool fetches to paginated SQL/RPC queries as city populations scale.
 - **Image delivery & transcoding:** Adding CDN-backed responsive image transforms (WebP/AVIF resizing) and progressive loading instead of serving full-resolution uploads directly.
 - **Rendering & bundle tuning:** Virtualizing long message/discovery lists, code-splitting non-critical dialogs, and profiling Postgres query plans (`EXPLAIN ANALYZE`) under realistic concurrent load.
+
+---
+
+## 11. Intentional MVP Scope Gaps (Known UI / Schema Differences)
+
+To avoid surprising reviewers during a code or database audit, the following UI-vs-schema differences are **deliberate MVP scoping choices**, not forgotten bugs:
+
+- **Filters dialog covers core deal-breakers only (`FiltersDialog.tsx`):** Profile and room cards display newer attributes (`furnished`, `privateBathroom`, `billsIncluded`, `flatmates`, `neighborhood`, `status` [student/working], `languages`, `tags/interests`, and everyday habits like `guests`/`noise`/`sharing`/`homeDays`), while `FiltersDialog` intentionally stays focused on the core deal-breakers (city, budget, move-in date, stay length, living-with preference, smoke-free, pets, student badge). Expanded attribute filters — along with intent-specific budget inputs for hosts (`have-room`) and updated non-demo student-badge copy — are scheduled alongside server-side discovery filtering.
+- **Pre-provisioned database tables (`public.saved_rooms`, `public.moving_plans`):** Both tables are already defined in `supabase/migrations/` with strict RLS policies and authorization test coverage (`supabase/tests/policies.sql`), but their UI screens (room bookmarking and shared move-in checklist) are intentionally deferred to the next feature sprint.
+- **15-second polling for Likes vs. Realtime for Matches & Messages:** `supabase_realtime` is intentionally limited to `INSERT`-only events on `public.matches` and `public.messages`; incoming likes are polled every 15 seconds rather than streamed via Realtime so swipe deletions/undos cannot leak signaling metadata.
+- **Public showcase routes (`/design-system`, `/swipe-variants`):** Left publicly reachable in the MVP so reviewers, professors, and juries can inspect the design tokens and card-swipe prototypes directly on the hosted URL. They contain zero user data and will be gated or stripped before public consumer launch.
