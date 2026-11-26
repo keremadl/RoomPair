@@ -98,3 +98,10 @@ Choosing a roommate is a high-trust, high-consequence decision — unlike casual
 ## 8. Working Codename ("RoomPair")
 
 *"RoomPair"* is an **early-stage working codename**, not the final brand name of the startup. Rather than spending pre-PMF time on naming, domain acquisition, and trademark clearance, the team adopted a descriptive internal codename to focus on user research, matching logic, UX, and security engineering. Because the name may overlap with existing registered trademarks or products, it should be treated strictly as a placeholder until final branding and legal clearance are completed before commercial launch.
+
+---
+
+## 9. Theme Exploration & Motion / Visual Polish Roadmap
+
+- **Multiple color palettes are temporary (design-selection tool):** The multiple color palettes currently available in **Settings** (9 palettes across light and dark modes, all contrast-verified by `npm run check:design`) are included intentionally so the team and reviewers can evaluate visual directions inside the live product. Once the final brand palette is locked in, the extra palettes will be removed so the production app ships with a single, cohesive visual identity (while keeping light/dark mode).
+- **Minimal, reliable animations today — Lottie/Rive & SwiftUI-grade motion next:** Our MVP priority has been rock-solid infrastructure, deterministic matching, accessibility (`prefers-reduced-motion`), and database security rather than visual effects. Current animations are intentionally simple and predictable. In the upcoming polish and React Native (Expo) phase, we plan to introduce **Lottie / Rive** interactive animations (onboarding, match moments, empty states) alongside a **SwiftUI-inspired, interruptible spring-physics motion system** built on native gesture and animation primitives (`react-native-reanimated` + `react-native-gesture-handler`).
