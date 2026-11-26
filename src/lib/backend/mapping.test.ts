@@ -239,7 +239,33 @@ test("what is written never includes the verified flag, and a room is published 
     ...defaultMe,
     room: { ...defaultMe.room, title: " Sunny room " },
   };
-  assert.equal(roomPatch(host, ready, ["a/r.jpg"])?.title, "Sunny room");
+  const published = roomPatch(host, ready, ["a/r.jpg"]);
+  assert.equal(published?.title, "Sunny room");
+  assert.equal(published?.available, true);
+  assert.equal(roomPatch(host, ready, [])?.available, false);
+});
+
+test("malformed database arrays or blocked rows never crash snapshot mapping", () => {
+  const broken = row("00000000-0000-4000-8000-000000000099", {
+    photos: [null as unknown as string, "https://evil.example/x.jpg", "/images/ella-1.jpg"],
+    languages: [null as unknown as string, "  English  ", ""],
+    tags: [null as unknown as string, "Cooking"],
+    prompts: [null as unknown as { question: string; answer: string }, { question: "Q?", answer: "A!" }],
+  });
+  const snap: Snapshot = {
+    ...snapshot,
+    others: [...snapshot.others, broken],
+    blocks: [{ blocked_id: LEO, blocked_name: "Leo" }],
+  };
+  const photos = privatePhotos(snap);
+  assert.equal(photos.profile.some((p) => p.includes("evil")), false);
+  const mapped = appDataFromSnapshot(snap, signed);
+  const recovered = mapped.profiles.find((p) => p.id === broken.id)!;
+  assert.deepEqual(recovered.photos, ["/images/ella-1.jpg"]);
+  assert.deepEqual(recovered.languages, ["English"]);
+  assert.deepEqual(recovered.tags, ["Cooking"]);
+  assert.equal(recovered.prompts.length, 1);
+  assert.deepEqual(mapped.blockedNames, { [LEO]: "Leo" });
 });
 
 test("mapped profiles work with the matching rules", () => {

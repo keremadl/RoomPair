@@ -4,8 +4,9 @@
 RoomPair helps students who are moving to a new city find a flatmate they will actually get along with, and then helps them plan the move together.
 
 - Live demo: https://roompair.vercel.app
-- Design languages side by side: https://roompair.vercel.app/directions
 - Design system: https://roompair.vercel.app/design-system
+- Swipe interaction variants: https://roompair.vercel.app/swipe-variants
+- Privacy notice: https://roompair.vercel.app/privacy
 
 This document is the single summary of what RoomPair is and why it works the way it does. Details live in the linked documents (see [Related documents](#related-documents)).
 
@@ -57,10 +58,10 @@ Based on the interface study in [interface-research.md](interface-research.md):
 
 ## 5. The experience
 
-| Screen                   | What happens                                                                                                                                                                                                                                                                                                                       |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Onboarding** (5 steps) | Name, city and intent; budget, move-in date and stay; living style (tidiness, social energy, sleep); everyday at home (guests, days at home, noise, sharing); must-haves (who you live with, smoke-free, pets)                                                                                                                     |
-| **Discover**             | One card at a time: photo, name, age, intent, rent or budget, move-in date. Below it, Home → Person → Fit as tabs; the arrow on the card scrolls down to them. Until the required profile fields are filled in, Discover shows what is missing instead, and nobody can be liked. Like, pass and undo. A second mode browses rooms. |
+| Screen                  | What happens                                                                                                                                                                                                                                                                                                      |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Onboarding**          | Guided one-question-per-screen setup with palette-adaptive illustrations: name, date of birth (18+) and intent; city, budget (or room listing & photos), move-in date and stay; work/study and profile photo; living style and everyday habits (smoking, pets, tidiness, sleep, guests, noise, living-with, etc.) |
+| **Discover**            | One card at a time: photo, name, age, intent, rent or budget, move-in date. Room seekers see the room photos first. Below the card, Home → Person → Fit sit as sticky tabs. Until the required profile fields are filled in, Discover shows what is missing instead, and nobody can be liked. Like, pass and undo. |
 | **Filters**              | City, budget, dates, intent, who you'd like to live with, smoke-free, pets, verified only. An honest empty state when nobody fits.                                                                                                                                                                                                 |
 | **Match**                | When both people like each other, a match screen leads straight into a conversation.                                                                                                                                                                                                                                               |
 | **Messages**             | Conversation list, starter prompts (for example "What's your ideal Sunday at home?") and clearly labelled simulated replies in the demo.                                                                                                                                                                                           |
@@ -113,27 +114,23 @@ The team chose this after comparing six design languages and two detail layouts;
 
 ## 9. Current status
 
-**Working demo** (Next.js, React, TypeScript), deployed on Vercel. Everything runs in the browser:
+**Dual-mode web application** (Next.js, React 19, TypeScript, Supabase), deployed on Vercel:
 
-- swipe, keyboard and button decisions with undo; likes, mutual matches, conversations with simulated replies
-- both search intents, explainable filtering and ranking, honest empty states
-- onboarding, likes (people who liked you), matches and chat
-- report and block; a resettable demo state
-- English and Turkish interface; more languages through an optional n8n translation workflow
-- the Card design language with tabbed profile details, phone and desktop layouts
-- automated checks: type checking, design-token and contrast guard, unit tests and end-to-end tests
+- **Self-contained browser demo** (when `NEXT_PUBLIC_SUPABASE_*` is unset): opens directly in discovery with 72 fictional Riga profiles and 32 rooms, swipe/keyboard/button decisions with undo, mutual matches, starter prompts with simulated replies, report/block, local storage validation and one-tap demo reset.
+- **Authenticated multi-user mode** (built in `supabase/` and `src/lib/backend/`, enabled when `NEXT_PUBLIC_SUPABASE_*` is configured): email/password sign-up and sign-in, adult date-of-birth verification stored privately (`private.birth_dates`), PostgreSQL 17 with Row-Level Security and column-level privileges, database triggers for mutual matches, blocks and full account deletion, live message and match delivery over Supabase Realtime, private photo storage with short-lived signed URLs, and an in-app moderation queue (`private.moderators`).
+- **Interface & localization:** the **F · Card** design language with 8 colour palettes, light/dark mode, tabbed profile details, responsive phone and desktop layouts, bundled English and Turkish catalogs, plus an optional n8n translation workflow.
+- **Automated quality gates:** ESLint, strict TypeScript checking, design-token and WCAG contrast checks across 18 theme combinations, AST-based EN/TR translation parity checks, 46 unit tests, ~50 PostgreSQL authorization policy tests, and Playwright E2E suites for both demo mode and two-member live accounts.
 
-**Not built yet:** accounts and authentication, a server database, real-time messaging between real users, identity or property verification, moderation, payments or bookings. All people, rooms, messages and badges are fictional; photos are stock images (see [assets.md](assets.md)). Data stays in the browser's local storage.
+**Not connected yet:** automated student-email verification links (requires transactional email delivery), email/push notifications outside open tabs, third-party identity or property verification, and payments or bookings. Demo profiles, rooms and badges are fictional presentation data (see [assets.md](assets.md)).
 
 ## 10. Next steps (product and technology)
 
-1. Authenticated accounts and server persistence.
-2. Real-time messaging and a shared space that synchronises between both people.
-3. Student-email verification, then moderation for reports.
-4. Choose one design language (or a combination) through user testing.
-5. Pilot with one university community and measure matches that turn into shared homes.
+1. Connect automated student-email verification (`.edu` / university domain confirmation links) and transactional email notifications.
+2. Server-side pagination and candidate filtering once the active member pool grows beyond a single university cohort (~1,000 profiles).
+3. Pilot with one university community in Riga and measure matches that turn into shared homes.
+4. Evaluate native mobile packaging (React Native / Expo or PWA push) once pilot retention and match-to-lease metrics are validated.
 
-The data model, matching engine and interface text are already separated, so these services can replace the demo layer without redesigning the interface.
+The data model, matching engine, backend sync layer and UI catalogs are cleanly separated so verification, notifications and native clients can build directly on the existing schema and domain rules.
 
 ## 11. Business model
 
@@ -149,7 +146,7 @@ Filled canvases (PNG and PDF): [Business Model Canvas](business-model/RoomPair-B
 | **Customer relationships** | Self-service and automated, but personal (every fit score shows your own reasons); real people answer safety reports. Get: orientation-week stands, invite links, free start. Keep: useful after the match (chat, shared space, reminders). Grow: Move-in pack, seekers become hosts next semester, referrals.                                                                                                                                          |
 | **Revenue streams**        | Core matching is free for everyone. **Primary:** residence licence, about €400 per residence per semester. **Secondary:** Move-in pack, €4.99 once per household (bill splitter, flat agreement template, reminders — no ranking boost); partner referrals, about 5–10% per order (moving, insurance, furniture). First pilot semester free for all. **Money never buys ranking or visibility.**                                                        |
 | **Key resources**          | Human: developer, designer, business lead; later support and moderation. Intellectual: matching rules, prototype, design system, brand. Digital: cloud hosting and database. Financial: team time first; student startup grants to check. Most important: the community — enough seekers and hosts in one city.                                                                                                                                         |
-| **Key activities**         | Build accounts, a server and live chat; grow both sides before each semester; trust and safety (student-email checks, reports, moderation); test the matching rules with real users; sell to student residences.                                                                                                                                                                                                                                        |
+| **Key activities**         | Operate accounts, database and live chat; connect student-email verification and active moderation; grow both sides before each semester; test the matching rules with real users; sell to student residences.                                                                                                                                                                                                                                   |
 | **Key partnerships**       | University international offices and student unions (reach new students; they get fewer housing questions — partners, not paying customers); student organisations such as ESN sections; verification and hosting providers; moving, insurance and furniture companies (pay referral fees); a legal / GDPR advisor.                                                                                                                                     |
 | **Cost structure**         | Product development (fixed, team time); hosting and database, verification and moderation (grow with users); marketing every semester (CAC = the cost to get one new user); sales to residences; legal and payment fees. Lean pilot: most early costs are team time; the budget is still to estimate.                                                                                                                                                   |
 
@@ -161,7 +158,7 @@ Filled canvases (PNG and PDF): [Business Model Canvas](business-model/RoomPair-B
 | **Pains:** 1. fear of scams and fake rooms (very intense, every search); 2. conflicts with the wrong flatmate (very intense, daily); 3. searching from abroad without a viewing; 4. chats that fail on budget or dates.                   | **Pain relievers:** 1. badges that say exactly what was checked, report and block; 2. living-style fit and a checklist on cleaning, guests, quiet hours; 3. neighbourhood, room photos and a viewing plan; 4. budget, dates (≤ 45 days), smoking and pets checked first. |
 | **Gains:** 1. a flatmate with similar habits (essential, every day); 2. a room in budget and on time; 3. less time searching; 4. a plan for the move together (nice surprise).                                                            | **Gain creators:** 1. fit on tidiness, sleep and social energy; 2. budget and move-in date always fit; 3. fewer, better matches; 4. a five-step move-in checklist done together.                                                                                         |
 
-Rankings are the team's first guess. Real verification and live chat between users are not built yet.
+Rankings are the team's first guess. Automated university-email verification and residence pilot features are still to be connected.
 
 ### Key assumptions to test
 
@@ -172,14 +169,15 @@ Rankings are the team's first guess. Real verification and live chat between use
 | Matches turn into shared homes                           | Ask matched pairs after 30 days              | 1 in 5 matches move in together          |
 | Residences and students will pay                         | 3 residence talks; show the pack price       | 1 paid residence pilot; 5% buy the pack  |
 
-Pilot plan: interviews (Nov–Dec 2026) → accounts, live chat and student-email check (Dec 2026–Jan 2027) → free pilot semester in Riga (Feb–Jun 2027) → decide prices (summer 2027).
+Pilot plan: interviews (Nov–Dec 2026) → student-email verification & pilot onboarding (Dec 2026–Jan 2027) → free pilot semester in Riga (Feb–Jun 2027) → decide prices (summer 2027).
 
 ## Related documents
 
 | Document                                                      | Contents                                                                                                    |
 | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | [README.md](../README.md)                                     | How to run the app, a three-minute jury walkthrough, matching rules, editing guide                          |
+| [database.md](database.md)                                    | Supabase PostgreSQL schema, Row-Level Security, triggers, photo storage and moderation                      |
 | [interface-research.md](interface-research.md)                | Study of Tinder, Bumble, Hinge, Feeld, happn, RoomSync, Diggz and Badi, and the product decisions it led to |
 | [localization.md](localization.md)                            | Interface languages and the n8n translation workflow                                                        |
-| [assets.md](assets.md)                                        | Sources of the photos; all people and homes are fictional                                                   |
+| [assets.md](assets.md)                                        | Sources of photos, illustrations, fonts and icons; all demo people and homes are fictional                  |
 | [src/design-system/README.md](../src/design-system/README.md) | Design system, the Card design language, rules                                                              |

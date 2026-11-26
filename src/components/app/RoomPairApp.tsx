@@ -99,13 +99,15 @@ function RoomPairApp() {
     reset,
     saveFailed,
     profiles,
+    blockedNames,
     account,
     moderation,
     simulatesReplies,
   } = useAppData();
+  const profileMap = new Map(profiles.map((p) => [p.id, p]));
   // Conversations only ever point at people the member can see: saved demo
   // state is validated on load, and the server hides everyone else.
-  const profileById = (id: string) => profiles.find((p) => p.id === id)!;
+  const profileById = (id: string) => profileMap.get(id)!;
   const {
     appearance,
     theme: resolvedTheme,
@@ -138,22 +140,23 @@ function RoomPairApp() {
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const replyTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   /** The page on screen and how it arrived (push, pop or a tab fade). */
-  const shown = useRef<{ page: string; motion: PageMotion }>({
+  const [shown, setShown] = useState<{ page: string; motion: PageMotion }>({
     page: "discover",
     motion: "fade",
   });
 
   const matchPrefs = matchingPreferences(state.me, state.preferences);
+  const blockedSet = new Set(state.blocked);
+  const decisionMap = new Map(state.decisions.map((d) => [d.id, d.action]));
+  const chatProfileIds = new Set(state.chats.map((c) => c.profileId));
   const ranked = rankProfiles(profiles, matchPrefs, t).filter(
-    ({ profile }) => !state.blocked.includes(profile.id),
+    ({ profile }) => !blockedSet.has(profile.id),
   );
-  const decided = (id: string) => state.decisions.some((d) => d.id === id);
+  const decided = (id: string) => decisionMap.has(id);
   // Someone you already have a conversation with is not a stranger to
   // swipe on: keep them out of the deck (unless you decided on them here).
   const pool = ranked.filter(
-    ({ profile }) =>
-      decided(profile.id) ||
-      !state.chats.some((c) => c.profileId === profile.id),
+    ({ profile }) => decided(profile.id) || !chatProfileIds.has(profile.id),
   );
   const queue = pool.filter(({ profile }) => !decided(profile.id));
   const current = queue[0];
@@ -163,8 +166,8 @@ function RoomPairApp() {
   const received = ranked.filter(
     ({ profile }) =>
       profile.likesYou &&
-      !state.decisions.some((d) => d.id === profile.id) &&
-      !state.chats.some((c) => c.profileId === profile.id),
+      !decisionMap.has(profile.id) &&
+      !chatProfileIds.has(profile.id),
   );
   const unread = state.chats.reduce((n, c) => n + c.unread, 0);
   const chat = state.chats.find((c) => c.id === activeChat) ?? state.chats[0];
@@ -345,12 +348,12 @@ function RoomPairApp() {
           : c,
       ),
     }));
+    // Real members answer for themselves; only demo people get canned replies.
+    if (!simulatesReplies) return;
     setPendingReplies((pending) => ({
       ...pending,
       [id]: (pending[id] ?? 0) + 1,
     }));
-    // Real members answer for themselves; only demo people get canned replies.
-    if (!simulatesReplies) return;
     const timer = setTimeout(() => {
       // Canned answers, in the app's language. The cue words cover both
       // bundled languages; anything else gets the general answer.
@@ -490,10 +493,10 @@ function RoomPairApp() {
       : sub
         ? `profile/${sub}`
         : view;
-  if (shown.current.page !== page) {
+  if (shown.page !== page) {
     const [root, child] = page.split("/");
-    const [prevRoot, prevChild] = shown.current.page.split("/");
-    shown.current = {
+    const [prevRoot, prevChild] = shown.page.split("/");
+    setShown({
       page,
       motion:
         root !== prevRoot || Boolean(child) === Boolean(prevChild)
@@ -501,7 +504,7 @@ function RoomPairApp() {
           : child
             ? "push"
             : "pop",
-    };
+    });
   }
 
   return (
@@ -600,7 +603,7 @@ function RoomPairApp() {
         ) : undefined
       }
     >
-      <PageTransition transitionKey={page} motion={shown.current.motion}>
+      <PageTransition transitionKey={page} motion={shown.motion}>
         {view === "discover" && missing.length > 0 && (
           <ProfileGate
             missing={missing}
@@ -635,7 +638,10 @@ function RoomPairApp() {
               faces: state.decisions
                 .slice(-3)
                 .reverse()
-                .map((d) => profileById(d.id).photo),
+                .flatMap((d) => {
+                  const p = profileMap.get(d.id);
+                  return p ? [p.photo] : [];
+                }),
             }}
             onFilters={() => setDialog("filters")}
             onBrowseAgain={browseAgain}
@@ -749,6 +755,14 @@ function RoomPairApp() {
               setState((st) => ({ ...st, me: { ...st.me, ...next } }))
             }
             onEditBasics={(question) => setOnboarding(question)}
+            onVerify={() =>
+              account
+                ? notify(t("Student verification is not connected yet."))
+                : setState((st) => ({
+                    ...st,
+                    me: { ...st.me, verified: !st.me.verified },
+                  }))
+            }
             onError={notify}
             onName={(name) =>
               setState((st) => ({
@@ -807,17 +821,12 @@ function RoomPairApp() {
             profile={detail}
             match={getCompatibility(detail, matchPrefs, t)}
             viewer={state.preferences}
-            liked={state.decisions.some(
-              (d) => d.id === detail.id && d.action === "like",
-            )}
-            hasChat={state.chats.some((c) => c.profileId === detail.id)}
             inChat={
               view === "messages" &&
               (chatOpen || !narrow) &&
               chat?.profileId === detail.id
             }
             onClose={() => setDialog(null)}
-            onLike={() => decide("like", detail)}
             onChat={() => openChat(detail)}
             onReport={() => setDialog("report")}
           />
@@ -870,7 +879,14 @@ function RoomPairApp() {
         {dialog === "blocked" && (
           <BlockedDialog
             key="blocked"
-            people={profiles.filter((p) => state.blocked.includes(p.id))}
+            people={state.blocked.map((id) => {
+              const found = profileMap.get(id);
+              return {
+                id,
+                name: found?.name ?? blockedNames[id] ?? t("Member"),
+                photo: found?.photo,
+              };
+            })}
             onClose={() => setDialog(null)}
             onUnblock={(person) => {
               setState((st) => ({

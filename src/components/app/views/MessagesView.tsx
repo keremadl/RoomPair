@@ -77,7 +77,11 @@ export function MessagesView({
   const started = chats.filter((c) => c.messages.length > 0);
   const open = (id: string) => onSelect(id);
   // A draft belongs to one conversation: don't carry it into the next.
-  useEffect(() => setMessage(""), [chat?.id]);
+  const [draftChatId, setDraftChatId] = useState(chat?.id);
+  if (draftChatId !== chat?.id) {
+    setDraftChatId(chat?.id);
+    setMessage("");
+  }
   useEffect(() => {
     end.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [chat?.messages.length, typing]);

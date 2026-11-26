@@ -2,12 +2,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   isBundledPhoto,
   isLocalPhoto,
+  isPrivatePhotoPath,
   privatePhotos,
   profilePatch,
   reportReasonToDatabase,
   roomPatch,
   type MatchRow,
   type MessageRow,
+  type PhotoBucket,
   type PhotoUrl,
   type ProfileRow,
   type RoomRow,
@@ -16,12 +18,14 @@ import {
 } from "./mapping";
 import type { Operation } from "./sync";
 
-const PROFILE_COLUMNS =
-  "id,name,age,status,occupation,university,languages,gender,city,neighborhood,bio,photos,tags,prompts,intent,budget_min,budget_max,move_date,stay_months,cleanliness,social,sleep,guests,home_days,noise,sharing,smokes,has_pets,wants_smoke_free,accepts_pets,wants_verified_only,living_with,onboarded,active,verified";
+const PUBLIC_PROFILE_COLUMNS =
+  "id,name,age,status,occupation,university,languages,gender,city,neighborhood,bio,photos,tags,prompts,intent,budget_min,budget_max,move_date,stay_months,cleanliness,social,sleep,guests,home_days,noise,sharing,smokes,has_pets,onboarded,active,verified";
 const ROOM_COLUMNS =
   "id,owner_id,title,description,price,photos,bills_included,deposit,private_bathroom,furnished,flatmates,transport,house_rules";
 const PROFILE_PHOTOS = "profile-photos";
 const CHAT_PHOTOS = "chat-photos";
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type Result = {
   data: unknown;
@@ -38,40 +42,64 @@ async function rows<T>(query: PromiseLike<Result>): Promise<T[]> {
 // The date of birth the server has, so it is only sent again when it changes.
 let savedBirthDate: string | null = null;
 
+type FilterRow = {
+  wants_smoke_free: boolean;
+  accepts_pets: boolean;
+  wants_verified_only: boolean;
+  living_with: ProfileRow["living_with"];
+};
+
 /** Loads everything the signed-in member may see. Row level security filters each query. */
 export async function loadSnapshot(
   client: SupabaseClient,
   userId: string,
 ): Promise<Snapshot> {
-  const [people, rooms, swipes, matches, messages, reads, blocks, reports] =
-    await Promise.all([
-      rows<ProfileRow>(client.from("profiles").select(PROFILE_COLUMNS)),
-      rows<RoomRow>(
-        client.from("rooms").select(ROOM_COLUMNS).order("created_at"),
-      ),
-      rows<SwipeRow>(
-        client.from("swipes").select("swiper_id,target_id,action,created_at"),
-      ),
-      rows<MatchRow>(
-        client.from("matches").select("id,user_a,user_b,created_at"),
-      ),
-      rows<MessageRow>(
-        client
-          .from("messages")
-          .select("id,match_id,sender_id,body,photo_path,created_at")
-          .order("created_at", { ascending: false })
-          .limit(1000),
-      ),
-      rows<{ match_id: string; last_read_at: string }>(
-        client.from("conversation_reads").select("match_id,last_read_at"),
-      ),
-      rows<{ blocked_id: string }>(client.from("blocks").select("blocked_id")),
-      rows<{ reported_id: string; reason: string }>(
-        client.from("reports").select("reported_id,reason").order("created_at"),
-      ),
-    ]);
-  const me = people.find((person) => person.id === userId);
-  if (!me) throw new Error("Your profile could not be loaded.");
+  const [
+    meRows,
+    filterRows,
+    others,
+    rooms,
+    swipes,
+    matches,
+    messages,
+    reads,
+    blocks,
+    reports,
+  ] = await Promise.all([
+    rows<ProfileRow>(
+      client.from("profiles").select(PUBLIC_PROFILE_COLUMNS).eq("id", userId),
+    ),
+    rows<FilterRow>(client.rpc("my_filter_preferences")),
+    rows<ProfileRow>(
+      client.from("profiles").select(PUBLIC_PROFILE_COLUMNS).neq("id", userId),
+    ),
+    rows<RoomRow>(client.from("rooms").select(ROOM_COLUMNS).order("created_at")),
+    rows<SwipeRow>(
+      client.from("swipes").select("swiper_id,target_id,action,created_at"),
+    ),
+    rows<MatchRow>(
+      client.from("matches").select("id,user_a,user_b,created_at"),
+    ),
+    rows<MessageRow>(
+      client
+        .from("messages")
+        .select("id,match_id,sender_id,body,photo_path,created_at")
+        .order("created_at", { ascending: false })
+        .limit(1000),
+    ),
+    rows<{ match_id: string; last_read_at: string }>(
+      client.from("conversation_reads").select("match_id,last_read_at"),
+    ),
+    rows<{ blocked_id: string; blocked_name?: string }>(
+      client.rpc("my_blocks"),
+    ),
+    rows<{ reported_id: string; reason: string }>(
+      client.from("reports").select("reported_id,reason").order("created_at"),
+    ),
+  ]);
+  const rawMe = meRows[0];
+  if (!rawMe) throw new Error("Your profile could not be loaded.");
+  const me: ProfileRow = { ...rawMe, ...(filterRows[0] ?? {}) };
   // Read last: it also moves the shown age on after a birthday.
   const { data: birthDate, error } = await client.rpc("my_birth_date");
   if (error) throw new Error(error.message);
@@ -80,7 +108,7 @@ export async function loadSnapshot(
     userId,
     birthDate: savedBirthDate,
     me,
-    others: people.filter((person) => person.id !== userId),
+    others,
     rooms,
     swipes,
     matches,
@@ -92,22 +120,54 @@ export async function loadSnapshot(
 }
 
 // ---------------------------------------------------------------------------
-// Photos. Files are private; the app shows them through signed links that it
-// keeps for a while, and remembers which stored file each link belongs to.
+// Photos. Files are private; the app shows them through short-lived signed
+// links keyed by bucket + path, and remembers which stored file each link
+// belongs to so saving a profile preserves existing stored paths.
 // ---------------------------------------------------------------------------
 
-const LINK_SECONDS = 60 * 60;
-const KEEP_MS = 50 * 60 * 1000;
+const LINK_SECONDS = 15 * 60;
+const KEEP_MS = 12 * 60 * 1000;
+const MAX_CACHED_LINKS = 2000;
 const links = new Map<string, { url: string; until: number }>();
 const references = new Map<string, string>();
-const remember = (reference: string, url: string) => {
-  links.set(reference, { url, until: Date.now() + KEEP_MS });
-  references.set(url, reference);
+
+const cacheKey = (bucket: string, reference: string) =>
+  `${bucket}:${reference}`;
+
+const pruneCache = () => {
+  if (links.size <= MAX_CACHED_LINKS) return;
+  const now = Date.now();
+  for (const [key, entry] of links) {
+    if (entry.until < now) {
+      references.delete(entry.url);
+      links.delete(key);
+    }
+  }
+  while (links.size > MAX_CACHED_LINKS) {
+    const oldest = links.keys().next().value;
+    if (!oldest) break;
+    const entry = links.get(oldest);
+    if (entry) references.delete(entry.url);
+    links.delete(oldest);
+  }
 };
+
+const remember = (bucket: string, reference: string, url: string) => {
+  links.set(cacheKey(bucket, reference), { url, until: Date.now() + KEEP_MS });
+  references.set(url, reference);
+  pruneCache();
+};
+
+/** Clears per-session signed URLs and cached birth date on sign-out. */
+export function clearSessionCache() {
+  savedBirthDate = null;
+  links.clear();
+  references.clear();
+}
 
 async function sign(client: SupabaseClient, bucket: string, paths: string[]) {
   const wanted = paths.filter((path) => {
-    const known = links.get(path);
+    const known = links.get(cacheKey(bucket, path));
     return !known || known.until < Date.now();
   });
   if (!wanted.length) return;
@@ -116,8 +176,11 @@ async function sign(client: SupabaseClient, bucket: string, paths: string[]) {
     .createSignedUrls(wanted, LINK_SECONDS);
   if (error) throw new Error(error.message);
   for (const item of data ?? [])
-    if (item.path && item.signedUrl) remember(item.path, item.signedUrl);
+    if (item.path && item.signedUrl) remember(bucket, item.path, item.signedUrl);
 }
+
+const bucketName = (kind: PhotoBucket = "profile") =>
+  kind === "chat" ? CHAT_PHOTOS : PROFILE_PHOTOS;
 
 /** Prepares links for every private photo in a snapshot. */
 export async function photoUrls(
@@ -130,8 +193,10 @@ export async function photoUrls(
     sign(client, CHAT_PHOTOS, wanted.chat),
   ]);
   // A photo whose link could not be made is left out rather than shown broken.
-  return (reference) =>
-    isBundledPhoto(reference) ? reference : (links.get(reference)?.url ?? "");
+  return (reference, kind = "profile") =>
+    isBundledPhoto(reference)
+      ? reference
+      : (links.get(cacheKey(bucketName(kind), reference))?.url ?? "");
 }
 
 function blobFromDataUrl(dataUrl: string): Blob {
@@ -157,7 +222,7 @@ async function upload(
     .upload(path, blobFromDataUrl(dataUrl), { contentType: "image/jpeg" });
   if (error) throw new Error(error.message);
   // Keep showing the local copy; no need to download what was just sent.
-  remember(path, dataUrl);
+  remember(bucket, path, dataUrl);
   return path;
 }
 
@@ -170,6 +235,7 @@ async function store(
   const stored: string[] = [];
   for (const photo of photos) {
     if (isBundledPhoto(photo)) stored.push(photo);
+    else if (isPrivatePhotoPath(photo)) stored.push(photo);
     else if (isLocalPhoto(photo) && !references.has(photo))
       stored.push(await upload(client, PROFILE_PHOTOS, folder, photo));
     else {
@@ -180,13 +246,20 @@ async function store(
   return stored;
 }
 
-/** The stored files in one folder, as full paths. */
+/** All stored files in one folder, paged in batches of 100. */
 async function filesIn(client: SupabaseClient, bucket: string, folder: string) {
-  const { data, error } = await client.storage
-    .from(bucket)
-    .list(folder, { limit: 1000 });
-  if (error) throw new Error(error.message);
-  return (data ?? []).map((file) => `${folder}/${file.name}`);
+  const all: string[] = [];
+  const pageSize = 100;
+  for (let offset = 0; offset < 5000; offset += pageSize) {
+    const { data, error } = await client.storage
+      .from(bucket)
+      .list(folder, { limit: pageSize, offset });
+    if (error) throw new Error(error.message);
+    const items = data ?? [];
+    for (const file of items) if (file.name) all.push(`${folder}/${file.name}`);
+    if (items.length < pageSize) break;
+  }
+  return all;
 }
 
 /** Deletes the member's stored photos that no profile or listing uses any more. */
@@ -205,33 +278,54 @@ async function removeUnused(
   }
 }
 
+async function assertSameSession(
+  client: SupabaseClient,
+  expectedUserId: string,
+) {
+  const {
+    data: { session },
+  } = await client.auth.getSession();
+  if (!session || session.user.id !== expectedUserId)
+    throw new Error("Active account changed.");
+}
+
 /**
- * Deletes the signed-in member's account for good: first their photo files,
- * then the account, which takes the profile, listing, likes, matches and
- * messages with it.
+ * Deletes the signed-in member's account for good: verifies the active session
+ * still matches `userId`, removes their profile and chat photos (including any
+ * from ended matches), and invokes the session-pinned `delete_account` RPC.
  */
 export async function deleteAccount(
   client: SupabaseClient,
   userId: string,
   matchIds: string[],
 ): Promise<void> {
+  await assertSameSession(client, userId);
   const own = await filesIn(client, PROFILE_PHOTOS, userId);
   if (own.length) {
     const { error } = await client.storage.from(PROFILE_PHOTOS).remove(own);
     if (error) throw new Error(error.message);
   }
-  // Photos sent in chats: the database only lets a member remove their own.
-  await Promise.all(
-    matchIds.map(async (match) => {
+  // Collect all chat photos owned by this member, including from past matches.
+  const chatPaths = new Set<string>();
+  try {
+    const owned = await rows<{ path: string }>(client.rpc("my_chat_photo_paths"));
+    for (const row of owned) if (row.path) chatPaths.add(row.path);
+  } catch {
+    // Fall back to listing known match folders if the RPC is unavailable.
+    for (const match of matchIds) {
       try {
-        const sent = await filesIn(client, CHAT_PHOTOS, match);
-        if (sent.length) await client.storage.from(CHAT_PHOTOS).remove(sent);
-      } catch {
-        // Unreachable once the match is gone; not worth stopping for.
-      }
-    }),
-  );
-  const { error } = await client.rpc("delete_account");
+        for (const path of await filesIn(client, CHAT_PHOTOS, match))
+          chatPaths.add(path);
+      } catch {}
+    }
+  }
+  if (chatPaths.size) {
+    await client.storage.from(CHAT_PHOTOS).remove([...chatPaths]);
+  }
+  await assertSameSession(client, userId);
+  const { error } = await client.rpc("delete_account", {
+    expected_user: userId,
+  });
   if (error) throw new Error(error.message);
 }
 
@@ -286,12 +380,12 @@ export async function reviewReport(
  */
 async function updateOrInsert(
   update: PromiseLike<Result>,
-  insert: () => PromiseLike<{ error: { message: string } | null }>,
+  insert: () => PromiseLike<{ error: { message: string; code?: string } | null }>,
 ) {
   const updated = await rows<unknown>(update);
   if (updated.length) return;
   const { error } = await insert();
-  if (error) throw new Error(error.message);
+  if (error && error.code !== "23505") throw new Error(error.message);
 }
 
 async function matchIdFor(
@@ -352,6 +446,13 @@ export async function applyOperation(
           client.from("rooms").update(room).eq("owner_id", userId).select("id"),
           () => client.from("rooms").insert({ ...room, owner_id: userId }),
         );
+      else
+        await run(
+          client
+            .from("rooms")
+            .update({ available: false })
+            .eq("owner_id", userId),
+        );
       return removeUnused(client, userId, [...photos, ...roomPhotos]);
     }
     case "swipe":
@@ -394,6 +495,7 @@ export async function applyOperation(
           reported_id: operation.target,
           reason: reportReasonToDatabase(operation.reason),
         }),
+        true,
       );
     case "sendMessage": {
       const match = await matchIdFor(
@@ -406,12 +508,17 @@ export async function applyOperation(
         operation.photo && isLocalPhoto(operation.photo)
           ? await upload(client, CHAT_PHOTOS, match, operation.photo)
           : null;
+      const clientUuid = UUID_PATTERN.test(operation.localId)
+        ? operation.localId
+        : undefined;
       return run(
         client.from("messages").insert({
+          ...(clientUuid ? { id: clientUuid } : {}),
           match_id: match,
           body: operation.body,
           ...(photo ? { photo_path: photo } : {}),
         }),
+        Boolean(clientUuid),
       );
     }
     case "markRead": {
@@ -421,19 +528,7 @@ export async function applyOperation(
         operation.profileId,
         matchIds,
       );
-      const now = new Date().toISOString();
-      return updateOrInsert(
-        client
-          .from("conversation_reads")
-          .update({ last_read_at: now })
-          .eq("user_id", userId)
-          .eq("match_id", match)
-          .select("match_id"),
-        () =>
-          client
-            .from("conversation_reads")
-            .insert({ match_id: match, last_read_at: now }),
-      );
+      return run(client.rpc("mark_conversation_read", { p_match: match }));
     }
   }
 }

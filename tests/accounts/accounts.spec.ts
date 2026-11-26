@@ -1,13 +1,30 @@
 import { execFileSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { test, expect, type Browser, type Page } from "@playwright/test";
 
 /**
- * Accounts and shared data, against a real Supabase stack (see
+ * Accounts and shared data, against a local Supabase stack (see
  * playwright.accounts.config.ts). Every run creates its own members.
  */
 const run = Date.now().toString(36);
-const password = "correct horse battery";
+const password = `Rp!${randomBytes(12).toString("base64url")}`;
 const emailOf = (name: string) => `${name.toLowerCase()}@e2e.roompair.example`;
+
+function localDbUrl(): string {
+  const target =
+    process.env.SUPABASE_DB_URL ??
+    "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+  const parsed = new URL(target);
+  const isLocal = ["127.0.0.1", "localhost", "::1", "[::1]"].includes(
+    parsed.hostname,
+  );
+  if (!isLocal && process.env.ALLOW_REMOTE_SUPABASE_TESTS !== "1") {
+    throw new Error(
+      `Refusing to run privileged account E2E SQL against non-local host: ${parsed.hostname}`,
+    );
+  }
+  return target;
+}
 const nav = (page: Page) =>
   page.getByRole("navigation", { name: "Main navigation" });
 const card = (page: Page) =>
@@ -312,32 +329,49 @@ test("a report reaches a moderator, who can hide the reported member", async ({
   await expect(reporter.getByRole("status")).toContainText("Report sent");
 
   // Moderators are listed by hand in the database; nobody can add themselves.
+  const dbUrl = localDbUrl();
+  const moderatorEmail = emailOf(`Fay${run}`);
   execFileSync("psql", [
-    process.env.SUPABASE_DB_URL ??
-      "postgresql://postgres:postgres@127.0.0.1:54322/postgres",
+    dbUrl,
     "-X",
     "-q",
+    "-v",
+    `mod_email=${moderatorEmail}`,
     "-c",
-    `insert into private.moderators (user_id) select id from auth.users where email = '${emailOf(`Fay${run}`)}'`,
+    "insert into private.moderators (user_id) select id from auth.users where email = :'mod_email'",
   ]);
-  await moderator.reload();
-  await nav(moderator)
-    .getByRole("button", { name: /My profile/ })
-    .click();
-  await moderator.getByRole("button", { name: "Settings" }).first().click();
-  await moderator
-    .getByRole("button", { name: "Review reports (1 open)" })
-    .click();
-  const queue = moderator.getByRole("dialog", { name: "Reports to review" });
-  await expect(queue.getByText(`Gus${run} reported ${reported}`)).toBeVisible();
-  await queue.getByRole("button", { name: "Hide this member" }).click();
-  await expect(queue.getByText("Hidden from other members.")).toBeVisible();
-  await expect(queue.getByText("Reviewed", { exact: true })).toBeVisible();
+  try {
+    await moderator.reload();
+    await nav(moderator)
+      .getByRole("button", { name: /My profile/ })
+      .click();
+    await moderator.getByRole("button", { name: "Settings" }).first().click();
+    await moderator
+      .getByRole("button", { name: "Review reports (1 open)" })
+      .click();
+    const queue = moderator.getByRole("dialog", { name: "Reports to review" });
+    await expect(queue.getByText(`Gus${run} reported ${reported}`)).toBeVisible();
+    await queue.getByRole("button", { name: "Hide this member" }).click();
+    await expect(queue.getByText("Hidden from other members.")).toBeVisible();
+    await expect(queue.getByText("Reviewed", { exact: true })).toBeVisible();
 
-  // The hidden member is gone for everyone else.
-  await reporter.reload();
-  await expect(card(reporter)).toBeVisible();
-  await expect(card(reporter)).not.toHaveText(new RegExp(`^${reported},`));
-  await moderator.context().close();
-  await reporter.context().close();
+    // The hidden member is gone for everyone else.
+    await reporter.reload();
+    await expect(card(reporter)).toBeVisible();
+    await expect(card(reporter)).not.toHaveText(new RegExp(`^${reported},`));
+  } finally {
+    try {
+      execFileSync("psql", [
+        dbUrl,
+        "-X",
+        "-q",
+        "-v",
+        `mod_email=${moderatorEmail}`,
+        "-c",
+        "delete from private.moderators where user_id in (select id from auth.users where email = :'mod_email')",
+      ]);
+    } catch {}
+    await moderator.context().close();
+    await reporter.context().close();
+  }
 });

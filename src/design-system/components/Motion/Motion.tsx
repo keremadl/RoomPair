@@ -55,7 +55,9 @@ export function PageTransition({
   const ref = useRef<HTMLDivElement>(null);
   const first = useRef(true);
   const kind = useRef(motion);
-  kind.current = motion;
+  useLayoutEffect(() => {
+    kind.current = motion;
+  });
   useLayoutEffect(() => {
     if (first.current) {
       first.current = false;

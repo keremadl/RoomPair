@@ -4,8 +4,16 @@ import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const source = JSON.parse(
+const english = JSON.parse(
   await readFile(join(root, "src/lib/locales/en.json"), "utf8"),
+);
+const turkish = JSON.parse(
+  await readFile(join(root, "src/lib/locales/tr.json"), "utf8"),
+);
+const source = Object.fromEntries(
+  [...new Set([...Object.keys(english), ...Object.keys(turkish)])].map(
+    (key) => [key, english[key] ?? key],
+  ),
 );
 const args = process.argv.slice(2);
 const help = `RoomPair locale generator

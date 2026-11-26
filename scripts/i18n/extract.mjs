@@ -54,10 +54,12 @@ if (args.has("--check")) {
   const failed =
     missing.length ||
     placeholderMismatch.length ||
+    unknownIds.length ||
     (args.has("--strict") && unresolved.length);
   if (failed) {
     warn(
       `check failed: ${missing.length} missing, ${placeholderMismatch.length} placeholder mismatch(es)` +
+        (unknownIds.length ? `, ${unknownIds.length} unknown id(s)` : "") +
         (args.has("--strict") ? `, ${unresolved.length} unresolved` : "") +
         "." +
         (missing.length

@@ -1,9 +1,9 @@
 "use client";
 import {
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
@@ -326,6 +326,11 @@ function StaggerSpecimen() {
   );
 }
 
+function subscribeUrl(onChange: () => void) {
+  window.addEventListener("popstate", onChange);
+  return () => window.removeEventListener("popstate", onChange);
+}
+
 export function Showcase() {
   const [mode, setMode] = useState<"people" | "rooms">("people");
   const [looking, setLooking] = useState<"find-room" | "have-room">(
@@ -338,20 +343,32 @@ export function Showcase() {
         ? current.filter((h) => h !== habit)
         : [...current, habit],
     );
-  const [lang, setLang] = useState<LangId>("card");
-  const [palette, setPalette] = useState<string | undefined>(undefined);
   const [detailTab, setDetailTab] = useState<"home" | "person" | "fit">("home");
 
-  // ?lang=collage&palette=night opens a language directly.
-  useEffect(() => {
-    const q = new URLSearchParams(window.location.search);
-    const l = q.get("lang");
-    if (l && directions.some((d) => d.id === l)) setLang(l as DirectionId);
-    if (q.get("palette")) setPalette(q.get("palette") ?? undefined);
-  }, []);
+  // ?lang=card&palette=volt opens a language/palette directly after hydration.
+  const search = useSyncExternalStore(
+    subscribeUrl,
+    () => window.location.search,
+    () => "",
+  );
+  const query = new URLSearchParams(search);
+  const queryLang = query.get("lang");
+  const urlLang: LangId =
+    queryLang === "base"
+      ? "base"
+      : queryLang && directions.some((d) => d.id === queryLang)
+        ? (queryLang as DirectionId)
+        : "card";
+  const urlPalette = query.get("palette") ?? undefined;
+  const [selected, setSelected] = useState<{
+    lang: LangId;
+    palette?: string;
+  } | null>(null);
+  const lang = selected ? selected.lang : urlLang;
+  const palette = selected ? selected.palette : urlPalette;
+
   const choose = (next: LangId, nextPalette?: string) => {
-    setLang(next);
-    setPalette(nextPalette);
+    setSelected({ lang: next, palette: nextPalette });
     const q = new URLSearchParams();
     if (next !== "base") q.set("lang", next);
     if (nextPalette) q.set("palette", nextPalette);

@@ -47,10 +47,10 @@ export interface ProfileRow {
   sharing: Sharing | null;
   smokes: boolean;
   has_pets: boolean;
-  wants_smoke_free: boolean;
-  accepts_pets: boolean;
-  wants_verified_only: boolean;
-  living_with: Preferences["livingWith"];
+  wants_smoke_free?: boolean;
+  accepts_pets?: boolean;
+  wants_verified_only?: boolean;
+  living_with?: Preferences["livingWith"];
   onboarded: boolean;
   active: boolean;
   verified: boolean;
@@ -100,7 +100,7 @@ export interface Snapshot {
   matches: MatchRow[];
   messages: MessageRow[];
   reads: { match_id: string; last_read_at: string }[];
-  blocks: { blocked_id: string }[];
+  blocks: { blocked_id: string; blocked_name?: string }[];
   reports: { reported_id: string; reason: string }[];
   /** The member's own date of birth; nobody else's is ever sent. */
   birthDate: string | null;
@@ -111,11 +111,65 @@ export interface Snapshot {
  * people use images bundled with the app; members' photos are private files
  * that need a signed link.
  */
-export type PhotoUrl = (reference: string) => string;
+export type PhotoBucket = "profile" | "chat";
+export type PhotoUrl = (reference: string, bucket?: PhotoBucket) => string;
 /** A photo that still has to be uploaded: picked on this device, not stored yet. */
-export const isLocalPhoto = (photo: string) => photo.startsWith("data:");
-/** A photo that ships with the app. */
-export const isBundledPhoto = (photo: string) => photo.startsWith("/");
+export const isLocalPhoto = (photo: unknown): photo is string =>
+  typeof photo === "string" &&
+  /^data:image\/(?:jpeg|png|webp);base64,/i.test(photo);
+/** A photo that ships with the app under /images/. */
+export const isBundledPhoto = (photo: unknown): photo is string =>
+  typeof photo === "string" &&
+  /^\/images\/[a-z0-9._/-]+\.(?:jpg|jpeg|png|webp)$/i.test(photo) &&
+  !photo.includes("..");
+/** A private Storage object path (<folder>/<file>). */
+export const isPrivatePhotoPath = (photo: unknown): photo is string =>
+  typeof photo === "string" &&
+  !photo.startsWith("/") &&
+  !photo.includes("..") &&
+  /^[a-z0-9_-]{1,64}\/[a-z0-9._-]{1,160}\.(?:jpg|jpeg|png|webp)$/i.test(
+    photo,
+  );
+
+const cleanPhotos = (input: unknown, max = 6): string[] =>
+  Array.isArray(input)
+    ? input
+        .filter(
+          (item): item is string =>
+            isBundledPhoto(item) || isPrivatePhotoPath(item),
+        )
+        .slice(0, max)
+    : [];
+
+const cleanStrings = (input: unknown, max: number, maxLen = 80): string[] =>
+  Array.isArray(input)
+    ? input
+        .filter(
+          (item): item is string =>
+            typeof item === "string" && item.trim().length > 0,
+        )
+        .map((item) => item.trim().slice(0, maxLen))
+        .slice(0, max)
+    : [];
+
+const cleanPrompts = (input: unknown): Prompt[] =>
+  Array.isArray(input)
+    ? input
+        .filter(
+          (item): item is Prompt =>
+            Boolean(item) &&
+            typeof item === "object" &&
+            typeof (item as Prompt).question === "string" &&
+            typeof (item as Prompt).answer === "string" &&
+            (item as Prompt).question.trim().length > 0 &&
+            (item as Prompt).answer.trim().length > 0,
+        )
+        .map((item) => ({
+          question: item.question.trim().slice(0, 160),
+          answer: item.answer.trim().slice(0, 400),
+        }))
+        .slice(0, 3)
+    : [];
 
 const REPORT_REASONS: Record<string, string> = {
   "Misleading profile": "misleading-profile",
@@ -149,10 +203,13 @@ export function preferencesFromRow(row: ProfileRow): Preferences {
     homeDays: row.home_days ?? base.homeDays,
     noise: row.noise ?? base.noise,
     sharing: row.sharing ?? base.sharing,
-    smokeFree: row.wants_smoke_free,
-    petsOkay: row.accepts_pets,
-    verifiedOnly: row.wants_verified_only,
-    livingWith: row.living_with,
+    smokeFree: row.wants_smoke_free ?? base.smokeFree,
+    petsOkay: row.accepts_pets ?? base.petsOkay,
+    verifiedOnly: row.wants_verified_only ?? base.verifiedOnly,
+    livingWith:
+      row.living_with === "women" || row.living_with === "men"
+        ? row.living_with
+        : base.livingWith,
   };
 }
 
@@ -164,33 +221,41 @@ export function meFromRow(
   birthDate: string | null = null,
 ): MyProfile {
   const base = defaultMe;
+  const photos = cleanPhotos(row.photos)
+    .map((ref) => url(ref, "profile"))
+    .filter(Boolean);
+  const roomPhotos = room
+    ? cleanPhotos(room.photos)
+        .map((ref) => url(ref, "profile"))
+        .filter(Boolean)
+    : [];
   return {
-    photos: row.photos.map(url),
+    photos,
     birthDate: birthDate ?? "",
     age: row.age ?? base.age,
     status: row.status ?? base.status,
     occupation: row.occupation ?? "",
     school: row.university ?? "",
-    languages: row.languages,
+    languages: cleanStrings(row.languages, 12, 40),
     ...(row.gender ? { gender: row.gender } : {}),
     // Until a member names their area, the column holds nothing of theirs.
     neighborhood: row.neighborhood ?? "",
-    smokes: row.smokes,
-    hasPets: row.has_pets,
+    smokes: Boolean(row.smokes),
+    hasPets: Boolean(row.has_pets),
     bio: row.bio ?? "",
-    prompts: row.prompts,
-    interests: row.tags,
-    verified: row.verified,
+    prompts: cleanPrompts(row.prompts),
+    interests: cleanStrings(row.tags, 8, 40),
+    verified: Boolean(row.verified),
     room: room
       ? {
-          photos: room.photos.map(url),
+          photos: roomPhotos,
           title: room.title,
           price: room.price,
-          billsIncluded: room.bills_included,
+          billsIncluded: Boolean(room.bills_included),
           description: room.description ?? "",
           deposit: room.deposit,
-          privateBathroom: room.private_bathroom,
-          furnished: room.furnished,
+          privateBathroom: Boolean(room.private_bathroom),
+          furnished: Boolean(room.furnished),
           flatmates: room.flatmates,
           transport: room.transport ?? "",
           houseRules: room.house_rules ?? "",
@@ -262,6 +327,7 @@ export function roomPatch(
     city: preferences.city,
     photos,
     photo_url: photos[0] ?? null,
+    available: photos.length > 0,
     bills_included: room.billsIncluded,
     deposit: room.deposit,
     private_bathroom: room.privateBathroom,
@@ -278,16 +344,24 @@ export function profileFromRow(
   room: RoomRow | undefined,
   url: PhotoUrl,
 ): Profile {
-  const photos = row.photos.map(url);
-  const roomPhotos = room?.photos.map(url) ?? [];
+  const photos = cleanPhotos(row.photos)
+    .map((ref) => url(ref, "profile"))
+    .filter(Boolean);
+  const roomPhotos =
+    room
+      ? cleanPhotos(room.photos)
+          .map((ref) => url(ref, "profile"))
+          .filter(Boolean)
+      : [];
+  const listedRoom = room && roomPhotos.length > 0 ? room : undefined;
   return {
     id: row.id,
-    name: row.name,
+    name: typeof row.name === "string" && row.name.trim() ? row.name : "Member",
     age: row.age ?? 0,
     status: row.status ?? "student",
     occupation: row.occupation ?? "",
     university: row.university ?? "",
-    languages: row.languages,
+    languages: cleanStrings(row.languages, 12, 40),
     ...(row.gender ? { gender: row.gender } : {}),
     city: row.city ?? "",
     neighborhood: row.neighborhood ?? row.city ?? "",
@@ -298,36 +372,37 @@ export function profileFromRow(
     moveDate: row.move_date ?? "",
     stayMonths: row.stay_months ?? 0,
     // Someone with a published room is a host; everyone else is searching.
-    intent: row.intent === "have-room" && room ? "have-room" : "find-room",
-    tags: row.tags,
-    prompts: row.prompts,
+    intent:
+      row.intent === "have-room" && listedRoom ? "have-room" : "find-room",
+    tags: cleanStrings(row.tags, 8, 40),
+    prompts: cleanPrompts(row.prompts),
     habits: {
       cleanliness: level(row.cleanliness, 3),
       social: level(row.social, 3),
       sleep: row.sleep ?? "flexible",
-      smoking: row.smokes,
-      pets: row.has_pets,
+      smoking: Boolean(row.smokes),
+      pets: Boolean(row.has_pets),
       guests: row.guests ?? "sometimes",
       homeDays: row.home_days ?? "sometimes",
       noise: row.noise ?? "medium",
       sharing: row.sharing ?? "some",
     },
-    verified: row.verified,
-    active: row.active,
+    verified: Boolean(row.verified),
+    active: Boolean(row.active),
     likesYou,
-    room: room && {
-      title: room.title,
-      price: room.price,
+    room: listedRoom && {
+      title: listedRoom.title,
+      price: listedRoom.price,
       photo: roomPhotos[0] ?? "",
       photos: roomPhotos,
-      description: room.description ?? "",
-      billsIncluded: room.bills_included,
-      deposit: room.deposit,
-      privateBathroom: room.private_bathroom,
-      furnished: room.furnished,
-      flatmates: room.flatmates,
-      transport: room.transport ?? "",
-      houseRules: room.house_rules ?? "",
+      description: listedRoom.description ?? "",
+      billsIncluded: Boolean(listedRoom.bills_included),
+      deposit: listedRoom.deposit,
+      privateBathroom: Boolean(listedRoom.private_bathroom),
+      furnished: Boolean(listedRoom.furnished),
+      flatmates: listedRoom.flatmates,
+      transport: listedRoom.transport ?? "",
+      houseRules: listedRoom.house_rules ?? "",
     },
   };
 }
@@ -346,6 +421,8 @@ export interface AppData {
   profiles: Profile[];
   /** Other member's id → match id, needed to send messages. */
   matchIds: Record<string, string>;
+  /** Blocked member id → display name so BlockedDialog works when RLS hides their profile. */
+  blockedNames: Record<string, string>;
 }
 
 export function appDataFromSnapshot(
@@ -365,14 +442,23 @@ export function appDataFromSnapshot(
   // without one: a card needs a picture.
   const listed = (ownerId: string) => {
     const room = roomByOwner.get(ownerId);
-    return room?.photos.length ? room : undefined;
+    return room && cleanPhotos(room.photos).length ? room : undefined;
   };
   const profiles = snapshot.others
-    .filter((row) => row.photos.length > 0)
     .map((row) =>
       profileFromRow(row, likedBy.has(row.id), listed(row.id), url),
-    );
+    )
+    .filter((profile) => profile.photos.length > 0);
   const known = new Set(profiles.map((profile) => profile.id));
+
+  const messagesByMatch = new Map<string, MessageRow[]>();
+  for (const message of snapshot.messages) {
+    const bucket = messagesByMatch.get(message.match_id);
+    if (bucket) bucket.push(message);
+    else messagesByMatch.set(message.match_id, [message]);
+  }
+  for (const list of messagesByMatch.values())
+    list.sort((a, b) => a.created_at.localeCompare(b.created_at));
 
   const matchIds: Record<string, string> = {};
   const readAt = new Map(
@@ -383,9 +469,7 @@ export function appDataFromSnapshot(
     const other = match.user_a === userId ? match.user_b : match.user_a;
     if (!known.has(other)) continue;
     matchIds[other] = match.id;
-    const messages = snapshot.messages
-      .filter((message) => message.match_id === match.id)
-      .sort((a, b) => a.created_at.localeCompare(b.created_at));
+    const messages = messagesByMatch.get(match.id) ?? [];
     const lastRead = readAt.get(match.id);
     chats.push({
       id: chatId(other),
@@ -396,21 +480,34 @@ export function appDataFromSnapshot(
           message.sender_id !== userId &&
           (!lastRead || message.created_at > lastRead),
       ).length,
-      messages: messages.map((message) => ({
-        id: message.id,
-        sender: message.sender_id === userId ? "me" : "them",
-        text: message.body,
-        ...(message.photo_path ? { photo: url(message.photo_path) } : {}),
-        time: clock(message.created_at),
-        day: localDay(new Date(message.created_at)),
-      })),
+      messages: messages.map((message) => {
+        const signedPhoto =
+          message.photo_path && isPrivatePhotoPath(message.photo_path)
+            ? url(message.photo_path, "chat")
+            : isBundledPhoto(message.photo_path)
+              ? message.photo_path
+              : "";
+        return {
+          id: message.id,
+          sender: message.sender_id === userId ? "me" : "them",
+          text: typeof message.body === "string" ? message.body : "",
+          ...(signedPhoto ? { photo: signedPhoto } : {}),
+          time: clock(message.created_at),
+          day: localDay(new Date(message.created_at)),
+        };
+      }),
     });
   }
   chats.sort((a, b) => a.matchedAt.localeCompare(b.matchedAt));
 
+  const blockedNames: Record<string, string> = {};
+  for (const block of snapshot.blocks)
+    if (block.blocked_name) blockedNames[block.blocked_id] = block.blocked_name;
+
   return {
     profiles,
     matchIds,
+    blockedNames,
     state: {
       preferences: preferencesFromRow(snapshot.me),
       me: meFromRow(
@@ -442,12 +539,12 @@ export function privatePhotos(snapshot: Snapshot): {
   chat: string[];
 } {
   const profile = [
-    ...snapshot.me.photos,
-    ...snapshot.others.flatMap((row) => row.photos),
-    ...snapshot.rooms.flatMap((room) => room.photos),
-  ].filter((photo) => !isBundledPhoto(photo));
+    ...cleanPhotos(snapshot.me.photos),
+    ...snapshot.others.flatMap((row) => cleanPhotos(row.photos)),
+    ...snapshot.rooms.flatMap((room) => cleanPhotos(room.photos)),
+  ].filter(isPrivatePhotoPath);
   const chat = snapshot.messages.flatMap((message) =>
-    message.photo_path ? [message.photo_path] : [],
+    isPrivatePhotoPath(message.photo_path) ? [message.photo_path] : [],
   );
   return { profile: [...new Set(profile)], chat: [...new Set(chat)] };
 }

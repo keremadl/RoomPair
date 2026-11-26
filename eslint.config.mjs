@@ -10,11 +10,6 @@ export default defineConfig([
       // Photos are local demo assets or data URLs picked by the user, which
       // next/image cannot optimise.
       "@next/next/no-img-element": "off",
-      // The redesign predates this linter. These two rules flag 13 places
-      // (refs written during render, state set inside effects) that work
-      // today; they stay visible as warnings until each is reviewed.
-      "react-hooks/refs": "warn",
-      "react-hooks/set-state-in-effect": "warn",
     },
   },
   globalIgnores([

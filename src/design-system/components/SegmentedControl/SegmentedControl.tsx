@@ -1,5 +1,5 @@
 "use client";
-import type { ReactNode } from "react";
+import { useRef, type KeyboardEvent, type ReactNode } from "react";
 import { cx } from "../../cx";
 import styles from "./SegmentedControl.module.css";
 
@@ -28,13 +28,38 @@ export function SegmentedControl<T extends string>({
   fullWidth = false,
   className,
 }: SegmentedControlProps<T>) {
+  const groupRef = useRef<HTMLDivElement>(null);
+  const activeIndex = Math.max(
+    0,
+    options.findIndex((o) => o.value === value),
+  );
+
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (!options.length) return;
+    let next = -1;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown")
+      next = (activeIndex + 1) % options.length;
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp")
+      next = (activeIndex - 1 + options.length) % options.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = options.length - 1;
+    if (next < 0) return;
+    e.preventDefault();
+    onChange(options[next].value);
+    groupRef.current
+      ?.querySelectorAll<HTMLButtonElement>('[role="radio"]')
+      [next]?.focus();
+  };
+
   return (
     <div
+      ref={groupRef}
       role="radiogroup"
       aria-label={label}
+      onKeyDown={onKeyDown}
       className={cx(styles.group, fullWidth && styles.fullWidth, className)}
     >
-      {options.map((option) => {
+      {options.map((option, index) => {
         const selected = option.value === value;
         return (
           <button
@@ -42,6 +67,7 @@ export function SegmentedControl<T extends string>({
             type="button"
             role="radio"
             aria-checked={selected}
+            tabIndex={index === activeIndex ? 0 : -1}
             className={cx(styles.option, selected && styles.selected)}
             onClick={() => onChange(option.value)}
           >

@@ -15,14 +15,18 @@ import styles from "./Dialog.module.css";
  */
 let openDialogs = 0;
 let overflowBeforeLock = "";
-function lockPageScroll() {
+const dialogStack: symbol[] = [];
+function lockPageScroll(token: symbol) {
   if (openDialogs === 0) {
     overflowBeforeLock = document.body.style.overflow;
     document.body.style.overflow = "hidden";
   }
   openDialogs += 1;
+  dialogStack.push(token);
 }
-function unlockPageScroll() {
+function unlockPageScroll(token: symbol) {
+  const idx = dialogStack.lastIndexOf(token);
+  if (idx >= 0) dialogStack.splice(idx, 1);
   openDialogs = Math.max(0, openDialogs - 1);
   if (openDialogs === 0) document.body.style.overflow = overflowBeforeLock;
 }
@@ -57,18 +61,33 @@ export function Dialog({
   const t = useText();
   const ref = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
-  close.current = onClose;
   useEffect(() => {
+    close.current = onClose;
+  });
+  useEffect(() => {
+    const token = Symbol("dialog");
     const previous = document.activeElement as HTMLElement | null;
-    lockPageScroll();
+    lockPageScroll(token);
     ref.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close.current();
+      if (dialogStack.at(-1) !== token) return;
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        close.current();
+        return;
+      }
       if (e.key !== "Tab") return;
-      const nodes = ref.current?.querySelectorAll<HTMLElement>(
-        'button:not([disabled]),a[href],input:not([disabled]),select,textarea,[tabindex="0"],summary',
+      const candidates = ref.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]):not([hidden]),a[href]:not([hidden]),input:not([disabled]):not([hidden]):not([type="hidden"]),select:not([disabled]):not([hidden]),textarea:not([disabled]):not([hidden]),[tabindex="0"]:not([hidden]),summary:not([hidden])',
       );
-      if (!nodes?.length) return;
+      const nodes = candidates
+        ? [...candidates].filter(
+            (el) =>
+              !el.closest("[hidden],[aria-hidden='true']") &&
+              el.getClientRects().length > 0,
+          )
+        : [];
+      if (!nodes.length) return;
       const first = nodes[0];
       const last = nodes[nodes.length - 1];
       if (
@@ -85,7 +104,7 @@ export function Dialog({
     };
     document.addEventListener("keydown", onKey);
     return () => {
-      unlockPageScroll();
+      unlockPageScroll(token);
       document.removeEventListener("keydown", onKey);
       previous?.focus();
     };

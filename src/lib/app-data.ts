@@ -15,6 +15,7 @@ import { getClient, isRemote } from "./backend/client";
 import { appDataFromSnapshot, type AppData } from "./backend/mapping";
 import {
   applyOperation,
+  clearSessionCache,
   deleteAccount,
   loadModeration,
   loadSnapshot,
@@ -61,6 +62,8 @@ export interface AppDataSource {
   /** The last save did not reach its destination. */
   saveFailed: boolean;
   profiles: Profile[];
+  /** Blocked member id → display name for account-mode unblocking. */
+  blockedNames: Record<string, string>;
   /** Null in the browser-only demo, which has no accounts. */
   account: Account | null;
   /** Present only for signed-in moderators. */
@@ -79,6 +82,7 @@ function useLocalData(): AppDataSource {
     ready,
     saveFailed,
     profiles: demoProfiles,
+    blockedNames: {},
     account: null,
     moderation: null,
     simulatesReplies: true,
@@ -90,6 +94,7 @@ const emptyData: AppData = {
   state: initialState,
   profiles: [],
   matchIds: {},
+  blockedNames: {},
 };
 // Messages and matches are pushed live; this slower check catches the rest
 // (new likes) and anything missed while the connection was down.
@@ -117,11 +122,14 @@ function useRemoteData(): AppDataSource {
   const sending = useRef(false);
   // Counts local edits, so a read that started before an edit is discarded.
   const edits = useRef(0);
+  // Monotonic read sequence so a slower overlapping read never overwrites a newer one.
+  const readSeq = useRef(0);
 
   const refresh = useCallback(async () => {
     const id = userId.current;
     if (!id) return;
     const startedAt = edits.current;
+    const seq = ++readSeq.current;
     try {
       const snapshot = await loadSnapshot(client, id);
       const next = appDataFromSnapshot(
@@ -134,6 +142,7 @@ function useRemoteData(): AppDataSource {
         next.state.me.room = current.current.state.me.room;
       if (
         userId.current !== id ||
+        readSeq.current !== seq ||
         edits.current !== startedAt ||
         sending.current ||
         queue.current.length
@@ -143,7 +152,7 @@ function useRemoteData(): AppDataSource {
       setData(next);
       setLoaded(true);
     } catch {
-      setSaveFailed(true);
+      if (userId.current === id) setSaveFailed(true);
     }
   }, [client]);
 
@@ -185,6 +194,18 @@ function useRemoteData(): AppDataSource {
     [send],
   );
 
+  // Moderators get the review queue once after signing in, and after each review.
+  const loadReports = useCallback(async () => {
+    const targetUser = userId.current;
+    if (!targetUser) return;
+    try {
+      const loadedReports = await loadModeration(client);
+      if (userId.current === targetUser) setReports(loadedReports);
+    } catch {
+      if (userId.current === targetUser) setReports(null);
+    }
+  }, [client]);
+
   useEffect(() => {
     const apply = (sessionUser: { id: string; email?: string } | null) => {
       const next = sessionUser
@@ -192,14 +213,20 @@ function useRemoteData(): AppDataSource {
         : null;
       if (userId.current === (next?.id ?? null) && userId.current) return;
       userId.current = next?.id ?? null;
+      clearSessionCache();
       queue.current = [];
       current.current = emptyData;
       setData(emptyData);
       setLoaded(false);
       setSaveFailed(false);
+      setReports(null);
       setUser(next);
       // The auth client must not be called from inside its own callback.
-      if (next) setTimeout(() => void refresh(), 0);
+      if (next)
+        setTimeout(() => {
+          void refresh();
+          void loadReports();
+        }, 0);
     };
     void client.auth
       .getSession()
@@ -208,7 +235,7 @@ function useRemoteData(): AppDataSource {
       (_event, session) => apply(session?.user ?? null),
     );
     return () => listener.subscription.unsubscribe();
-  }, [client, refresh]);
+  }, [client, refresh, loadReports]);
 
   // New messages and matches are pushed by the database the moment they
   // happen; a slower check while the tab is open covers everything else.
@@ -227,12 +254,12 @@ function useRemoteData(): AppDataSource {
       .channel(`member-${user.id}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "messages" },
+        { event: "INSERT", schema: "public", table: "messages" },
         changed,
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "matches" },
+        { event: "INSERT", schema: "public", table: "matches" },
         changed,
       )
       .subscribe();
@@ -246,18 +273,6 @@ function useRemoteData(): AppDataSource {
     };
   }, [client, user, refresh]);
 
-  // Moderators get the review queue once after signing in, and after each review.
-  const loadReports = useCallback(async () => {
-    try {
-      setReports(await loadModeration(client));
-    } catch {
-      setReports(null);
-    }
-  }, [client]);
-  useEffect(() => {
-    if (user) void loadReports();
-    else setReports(null);
-  }, [user, loadReports]);
   const moderation = useMemo<Moderation | null>(
     () =>
       reports && {
@@ -302,11 +317,12 @@ function useRemoteData(): AppDataSource {
       },
       signOut: () => void client.auth.signOut(),
       deleteAccount: async () => {
-        if (!user) return false;
+        const targetId = user?.id;
+        if (!targetId || userId.current !== targetId) return false;
         try {
           await deleteAccount(
             client,
-            user.id,
+            targetId,
             Object.values(current.current.matchIds),
           );
         } catch {
@@ -326,6 +342,7 @@ function useRemoteData(): AppDataSource {
     ready: user === null || (user !== undefined && loaded),
     saveFailed,
     profiles: data.profiles,
+    blockedNames: data.blockedNames,
     account,
     moderation,
     simulatesReplies: false,

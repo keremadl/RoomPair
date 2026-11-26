@@ -77,11 +77,40 @@ begin
     'members always see their own profile';
 end $$;
 
+select pg_temp.must_fail(
+  $$update public.profiles set
+      city = 'Riga', intent = 'find-room', budget_min = 350, budget_max = 650,
+      move_date = current_date + 30, stay_months = 12, cleanliness = 4, social = 4,
+      sleep = 'flexible', photos = array['11111111-1111-4111-8111-111111111111/ada.jpg'],
+      onboarded = true
+    where id = '11111111-1111-4111-8111-111111111111'$$,
+  'onboarding requires a verified adult date of birth');
+
+select public.set_birth_date((current_date - interval '23 years')::date);
+select pg_temp.must_fail(
+  $$update public.profiles set
+      city = 'Riga', intent = 'find-room', budget_min = 350, budget_max = 650,
+      move_date = current_date + 30, stay_months = 12, cleanliness = 4, social = 4,
+      sleep = 'flexible', photos = '{}', onboarded = true
+    where id = '11111111-1111-4111-8111-111111111111'$$,
+  'onboarding requires at least one profile photo');
+
+insert into storage.objects (bucket_id, name)
+values ('profile-photos', '11111111-1111-4111-8111-111111111111/ada.jpg');
+
 update public.profiles set
   city = 'Riga', intent = 'find-room', budget_min = 350, budget_max = 650,
   move_date = current_date + 30, stay_months = 12, cleanliness = 4, social = 4,
-  sleep = 'flexible', onboarded = true
+  sleep = 'flexible', photos = array['11111111-1111-4111-8111-111111111111/ada.jpg'],
+  onboarded = true
 where id = '11111111-1111-4111-8111-111111111111';
+
+select pg_temp.must_fail(
+  $$update public.profiles set photos = array[null]::text[] where id = '11111111-1111-4111-8111-111111111111'$$,
+  'null elements inside photo arrays are rejected');
+select pg_temp.must_fail(
+  $$update public.profiles set prompts = '[null]' where id = '11111111-1111-4111-8111-111111111111'$$,
+  'malformed prompt items are rejected');
 
 select pg_temp.must_fail(
   $$update public.profiles set verified = true where id = '11111111-1111-4111-8111-111111111111'$$,
@@ -106,15 +135,32 @@ select pg_temp.sign_in('ben');
 select pg_temp.must_fail(
   $$update public.profiles set onboarded = true where id = '22222222-2222-4222-8222-222222222222'$$,
   'onboarding cannot be completed with missing answers');
+do $$
+begin
+  assert (select count(*) from public.profiles where name = 'Ada') = 0,
+    'a member who has not finished onboarding cannot browse other profiles yet';
+end $$;
+select public.set_birth_date((current_date - interval '24 years')::date);
 update public.profiles set
   city = 'Riga', intent = 'have-room', budget_min = 300, budget_max = 600,
   move_date = current_date + 35, stay_months = 12, cleanliness = 4, social = 3,
-  sleep = 'early', onboarded = true
+  sleep = 'early', photos = array['22222222-2222-4222-8222-222222222222/me.jpg'],
+  onboarded = true
 where id = '22222222-2222-4222-8222-222222222222';
 do $$
 begin
   assert (select count(*) from public.profiles where name = 'Ada') = 1,
     'onboarded, active profiles are visible to other members';
+end $$;
+select pg_temp.must_fail(
+  $$select living_with from public.profiles where id = '11111111-1111-4111-8111-111111111111'$$,
+  'private filter preferences are not readable from profiles');
+update public.profiles set living_with = 'anyone', wants_smoke_free = true
+  where id = '22222222-2222-4222-8222-222222222222';
+do $$
+begin
+  assert (select count(*) from public.my_filter_preferences()) = 1,
+    'members read their own filter preferences via RPC';
 end $$;
 
 -- ---------------------------------------------------------------------------
@@ -144,9 +190,10 @@ select pg_temp.must_fail(
     where id = '22222222-2222-4222-8222-222222222222'$$,
   'living-with preference comes from a fixed list');
 
--- Profile photos: only inside your own folder.
-insert into storage.objects (bucket_id, name)
-values ('profile-photos', '22222222-2222-4222-8222-222222222222/me.jpg');
+-- Profile photos: only inside your own folder, and only published photos are visible to others.
+insert into storage.objects (bucket_id, name) values
+  ('profile-photos', '22222222-2222-4222-8222-222222222222/me.jpg'),
+  ('profile-photos', '22222222-2222-4222-8222-222222222222/draft.jpg');
 select pg_temp.must_fail(
   $$insert into storage.objects (bucket_id, name)
     values ('profile-photos', '11111111-1111-4111-8111-111111111111/fake.jpg')$$,
@@ -159,7 +206,7 @@ select pg_temp.sign_in('ada');
 do $$
 begin
   assert (select count(*) from storage.objects where name like '22222222%') = 1,
-    'members can view another member''s profile photos';
+    'members can view another member''s published profile photos, never unpublished drafts';
 end $$;
 select pg_temp.must_fail(
   $$delete from storage.objects where name like '22222222%'$$,
@@ -271,7 +318,11 @@ select id, '', id || '/balcony.jpg' from public.matches;
 insert into public.conversation_reads (match_id) select id from public.matches;
 
 reset role;
-select set_config('test.match_id', (select id::text from public.matches), true);
+select set_config('test.match_id', (
+  select id::text from public.matches
+  where user_a = '11111111-1111-4111-8111-111111111111'
+    and user_b = '22222222-2222-4222-8222-222222222222'
+), true);
 set local role authenticated;
 select pg_temp.sign_in('cem');
 do $$
@@ -381,13 +432,20 @@ begin
     'a suspended member is hidden, even from a match';
   assert (select count(*) from public.rooms where title = 'Ben''s spare room') = 0,
     'a suspended member''s room is hidden';
+  assert (select count(*) from storage.objects where name like '22222222%') = 0,
+    'a suspended member''s profile photos are hidden';
 end $$;
 select pg_temp.sign_in('ben');
 do $$
 begin
   assert (select count(*) from public.profiles where name = 'Ben') = 1,
     'a suspended member still sees their own profile';
+  assert (select count(*) from public.profiles where name = 'Ada') = 0,
+    'a suspended member cannot browse other profiles';
 end $$;
+select pg_temp.must_fail(
+  $$insert into public.messages (match_id, body) values (current_setting('test.match_id')::uuid, 'Still here')$$,
+  'a suspended member cannot send messages');
 reset role;
 delete from private.suspended_members where true;
 set local role authenticated;
@@ -403,6 +461,8 @@ begin
     'a blocked member''s room is hidden';
   assert (select count(*) from storage.objects where name like '22222222%') = 0,
     'a blocked member''s photos are hidden';
+  assert (select blocked_name from public.my_blocks()) = 'Ben',
+    'a blocker still sees the blocked member''s name in their block list to unblock them';
 end $$;
 
 select pg_temp.sign_in('ben');
@@ -433,7 +493,14 @@ begin
   assert (select count(*) from storage.objects where name like '%/from-ben.jpg') = 1,
     'a member cannot remove a chat photo someone else sent';
 end $$;
-select public.delete_account();
+do $$
+begin
+  perform public.delete_account('22222222-2222-4222-8222-222222222222');
+  raise exception 'RULE BROKEN: delete_account accepted mismatched user';
+exception when insufficient_privilege then
+  null;
+end $$;
+select public.delete_account('33333333-3333-4333-8333-333333333333');
 reset role;
 do $$
 begin
@@ -441,7 +508,9 @@ begin
     'deleting an account removes the sign-in';
   assert (select count(*) from public.profiles where id = '33333333-3333-4333-8333-333333333333') = 0,
     'deleting an account removes the profile';
-  assert (select count(*) from public.matches) = 0, 'deleting an account removes its matches';
+  assert (select count(*) from public.matches
+          where '33333333-3333-4333-8333-333333333333' in (user_a, user_b)) = 0,
+    'deleting an account removes its matches';
   assert (select count(*) from auth.users where id = '22222222-2222-4222-8222-222222222222') = 1,
     'deleting an account leaves other members alone';
 end $$;

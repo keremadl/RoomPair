@@ -43,6 +43,35 @@ const BUNDLED: Record<string, Dictionary> = { en: english, tr: turkish };
 const STORAGE_KEY = "roompair.locale";
 const LOCALE_PATTERN = /^[a-z]{2,3}(?:-[a-z0-9]{2,8}){0,3}$/;
 
+async function readBoundedResponse(
+  response: Response,
+  maxBytes: number,
+): Promise<string> {
+  if (!response.body) {
+    const text = await response.text();
+    if (text.length > maxBytes) throw new Error("Response too large");
+    return text;
+  }
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let total = 0;
+  let out = "";
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > maxBytes) throw new Error("Response too large");
+      out += decoder.decode(value, { stream: true });
+    }
+    out += decoder.decode();
+    return out;
+  } finally {
+    await reader.cancel().catch(() => {});
+    reader.releaseLock();
+  }
+}
+
 function placeholders(value: string): string {
   return [...value.matchAll(/\{([a-zA-Z][a-zA-Z0-9_]*)\}/g)]
     .map((match) => match[1])
@@ -144,8 +173,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
             },
           );
           if (!response.ok) throw new Error("Locale unavailable");
-          const text = await response.text();
-          if (text.length > 256_000) throw new Error("Locale too large");
+          const text = await readBoundedResponse(response, 256_000);
           const parsed = validateCatalog(JSON.parse(text));
           if (!parsed) throw new Error("Invalid locale");
           catalog = parsed;
@@ -194,8 +222,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
           cache: "no-cache",
         });
         if (!response.ok) return;
-        const text = await response.text();
-        if (text.length > 32_000 || !mounted) return;
+        const text = await readBoundedResponse(response, 32_000);
+        if (!mounted) return;
         const options = readManifest(JSON.parse(text));
         localeOptions.current = options;
         updateLocales(options);

@@ -28,11 +28,15 @@ function placeholders(value: string): string {
 async function boundedText(
   stream: ReadableStream<Uint8Array> | null,
   maxBytes: number,
+  timeoutMs = 15_000,
 ): Promise<string> {
   if (!stream) throw new Error("Empty body");
   const reader = stream.getReader();
   const parts: Uint8Array[] = [];
   let length = 0;
+  const timer = setTimeout(() => {
+    void reader.cancel(new Error("Read timeout"));
+  }, timeoutMs);
   try {
     while (true) {
       const { done, value } = await reader.read();
@@ -42,11 +46,14 @@ async function boundedText(
       parts.push(value);
     }
   } finally {
+    clearTimeout(timer);
     await reader.cancel().catch(() => {});
     reader.releaseLock();
   }
   return Buffer.concat(parts).toString("utf8");
 }
+
+let activeTranslationJob = false;
 
 /** Optional maintenance endpoint. The application never calls this from a browser. */
 export async function POST(request: Request): Promise<Response> {
@@ -63,15 +70,22 @@ export async function POST(request: Request): Promise<Response> {
   if (supplied.length > 256 || !secureEqual(supplied, token)) {
     return response({ error: "Unauthorized." }, 401);
   }
-  if (!request.headers.get("content-type")?.startsWith("application/json")) {
+  const mediaType = request.headers
+    .get("content-type")
+    ?.split(";")[0]
+    ?.trim()
+    .toLowerCase();
+  if (mediaType !== "application/json") {
     return response({ error: "Use application/json." }, 415);
+  }
+  if (activeTranslationJob) {
+    return response({ error: "A translation job is already running." }, 429);
   }
   let locale: string;
   try {
-    const body = JSON.parse(await boundedText(request.body, 2048)) as Record<
-      string,
-      unknown
-    >;
+    const body = JSON.parse(
+      await boundedText(request.body, 2048, 10_000),
+    ) as Record<string, unknown>;
     if (!body || typeof body !== "object" || typeof body.locale !== "string")
       throw new Error();
     locale = body.locale.toLowerCase();
@@ -100,6 +114,7 @@ export async function POST(request: Request): Promise<Response> {
   } catch {
     return response({ error: "Invalid server webhook configuration." }, 503);
   }
+  activeTranslationJob = true;
   try {
     const upstream = await fetch(destination, {
       method: "POST",
@@ -122,7 +137,7 @@ export async function POST(request: Request): Promise<Response> {
         502,
       );
     const payload: unknown = JSON.parse(
-      await boundedText(upstream.body, 1_000_000),
+      await boundedText(upstream.body, 1_000_000, 90_000),
     );
     if (
       !payload ||
@@ -159,5 +174,7 @@ export async function POST(request: Request): Promise<Response> {
       },
       502,
     );
+  } finally {
+    activeTranslationJob = false;
   }
 }

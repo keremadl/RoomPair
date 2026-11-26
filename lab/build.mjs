@@ -8,20 +8,59 @@
  *   node lab/build.mjs [out.html]
  */
 import { build } from "esbuild";
-import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
-import { dirname, join, extname } from "node:path";
+import {
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  readdirSync,
+  realpathSync,
+} from "node:fs";
+import { dirname, join, extname, relative, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
+const publicRoot = realpathSync(join(root, "public"));
 const out = process.argv[2] ?? join(root, ".lab/RoomPair-Lab.html");
 const mime = {
   ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
   ".png": "image/png",
   ".svg": "image/svg+xml",
+  ".webp": "image/webp",
   ".ttf": "font/ttf",
   ".woff2": "font/woff2",
 };
+const ALLOWED_PUBLIC_EXT = new Set(Object.keys(mime));
 const dataUri = (file) =>
-  `data:${mime[extname(file)]};base64,${readFileSync(file).toString("base64")}`;
+  `data:${mime[extname(file).toLowerCase()]};base64,${readFileSync(file).toString("base64")}`;
+
+function resolvePublicAsset(urlPath) {
+  const candidate = realpathSync(join(publicRoot, urlPath));
+  const rel = relative(publicRoot, candidate);
+  if (
+    rel.startsWith("..") ||
+    rel.includes(`..${sep}`) ||
+    !ALLOWED_PUBLIC_EXT.has(extname(candidate).toLowerCase())
+  ) {
+    throw new Error(`Refusing asset outside public/: ${urlPath}`);
+  }
+  return candidate;
+}
+
+function walkImages(dir, prefix = "/images") {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = join(dir, entry.name);
+    const webPath = `${prefix}/${entry.name}`;
+    if (entry.isDirectory()) return walkImages(full, webPath);
+    if (
+      entry.isFile() &&
+      ALLOWED_PUBLIC_EXT.has(extname(entry.name).toLowerCase())
+    ) {
+      return [{ webPath, full }];
+    }
+    return [];
+  });
+}
 
 const result = await build({
   entryPoints: [join(root, "lab/entry.tsx")],
@@ -33,7 +72,11 @@ const result = await build({
   jsx: "automatic",
   target: "es2020",
   tsconfig: join(root, "tsconfig.json"),
-  define: { "process.env.NODE_ENV": '"production"' },
+  define: {
+    "process.env.NODE_ENV": '"production"',
+    "process.env.NEXT_PUBLIC_SUPABASE_URL": '""',
+    "process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": '""',
+  },
   logLevel: "warning",
   plugins: [
     {
@@ -42,9 +85,9 @@ const result = await build({
         b.onResolve({ filter: /^next\/font\/google$/ }, () => ({
           path: join(root, "lab/next-font-shim.ts"),
         }));
-        // url("/fonts/..") and url("/images/..") in CSS: inline them.
+        // url("/fonts/..") and url("/images/..") in CSS: inline them safely.
         b.onResolve({ filter: /^\/(fonts|images)\// }, (a) => ({
-          path: join(root, "public", a.path),
+          path: resolvePublicAsset(a.path),
           namespace: "public-file",
         }));
         b.onLoad({ filter: /.*/, namespace: "public-file" }, (a) => ({
@@ -54,7 +97,7 @@ const result = await build({
       },
     },
   ],
-  loader: { ".ttf": "dataurl", ".jpg": "dataurl" },
+  loader: { ".ttf": "dataurl", ".jpg": "dataurl", ".webp": "dataurl" },
 });
 
 let js = "",
@@ -63,12 +106,9 @@ for (const f of result.outputFiles)
   if (f.path.endsWith(".js")) js = f.text;
   else if (f.path.endsWith(".css")) css = f.text;
 
-// Image paths written as strings in data and components ("/images/x.jpg").
-const images = readdirSync(join(root, "public/images"));
-for (const name of images)
-  js = js
-    .split(`/images/${name}`)
-    .join(dataUri(join(root, "public/images", name)));
+// Image paths written as strings in data and components ("/images/x.jpg", "/images/onboarding/x.webp").
+for (const { webPath, full } of walkImages(join(publicRoot, "images")))
+  js = js.split(webPath).join(dataUri(full));
 const app = { js, css };
 
 const shell = readFileSync(join(root, "lab/shell.html"), "utf8");

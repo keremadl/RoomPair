@@ -1,8 +1,13 @@
 "use client";
 import { Avatar, Button, Dialog, Text } from "@/design-system";
 import { useI18n } from "@/lib/i18n";
-import type { Profile } from "@/lib/types";
 import d from "./dialogs.module.css";
+
+export type BlockedPerson = {
+  id: string;
+  name: string;
+  photo?: string;
+};
 
 /** The people you blocked, each with a way to let them back in. */
 export function BlockedDialog({
@@ -10,8 +15,8 @@ export function BlockedDialog({
   onUnblock,
   onClose,
 }: {
-  people: Profile[];
-  onUnblock: (person: Profile) => void;
+  people: BlockedPerson[];
+  onUnblock: (person: BlockedPerson) => void;
   onClose: () => void;
 }) {
   const { t } = useI18n();

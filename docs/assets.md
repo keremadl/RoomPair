@@ -1,28 +1,32 @@
 # Asset sources
 
-Images are downloaded locally so the presentation does not rely on external image requests. People, names, biographies and property descriptions are fictional; photographs are visual placeholders, not real RoomPair users or verified Riga properties.
+All images, illustrations, fonts and icons are bundled locally so the application runs offline without third-party asset requests. All demo people, names, biographies, student badges and Riga room listings are fictional presentation data and do not depict actual RoomPair members or available properties.
 
-| Local asset | Source                                                       |
-| ----------- | ------------------------------------------------------------ |
-| ella.jpg    | https://www.pexels.com/photo/774909/                         |
-| leo.jpg     | https://www.pexels.com/photo/220453/                         |
-| sofia.jpg   | https://www.pexels.com/photo/1239291/                        |
-| noah.jpg    | https://www.pexels.com/photo/614810/                         |
-| maya.jpg    | https://www.pexels.com/photo/1181686/                        |
-| lucas.jpg   | https://www.pexels.com/photo/2379004/                        |
-| ines.jpg    | https://www.pexels.com/photo/1065084/                        |
-| oliver.jpg  | https://www.pexels.com/photo/1043474/                        |
-| anna.jpg    | https://www.pexels.com/photo/733872/                         |
-| felix.jpg   | https://www.pexels.com/photo/1681010/                        |
-| room-1.jpg  | https://images.unsplash.com/photo-1600210492486-724fe5c67fb0 |
-| room-2.jpg  | https://images.unsplash.com/photo-1616486338812-3dadae4b4ace |
-| room-3.jpg  | https://images.unsplash.com/photo-1618221195710-dd6b41faaea6 |
-| alex.jpg    | https://www.pexels.com/photo/2379005/                        |
-| room-4.jpg  | https://www.pexels.com/photo/1743229/                        |
+## Demo portraits and rooms (`public/images/`)
 
-DM Sans and Manrope are self-hosted Google Fonts. Their source families use the SIL Open Font License; license texts are included in `public/fonts/`. Icons are from the ISC-licensed `lucide-react` package. The paired-arch RoomPair mark and domestic SVG illustrations were created in code for this project. Competitor screenshots were studied as references and are not embedded in the product.
+- **72 fictional people** (`<name>-1.jpg`, `<name>-2.jpg`, plus `<name>-1.jpg` for the demo viewer profile `alex-1.jpg`) and **32 shared-flat room sets** (`<name>-room-1.jpg` … `<name>-room-3.jpg`), built from curated royalty-free stock photography (Pexels / Unsplash) and synthetic demo imagery generated specifically for the presentation (`scripts/demo/`).
+- In authenticated account mode (`NEXT_PUBLIC_SUPABASE_*`), member-uploaded profile and chat photos are stored privately in Supabase Storage buckets (`profile-photos`, `chat-photos`) and served only via short-lived signed URLs.
 
-Pexels photo licensing: https://www.pexels.com/license/  
-Unsplash licensing: https://unsplash.com/license/  
-DM Sans source: https://github.com/google/fonts/tree/main/ofl/dmsans  
-Manrope source: https://github.com/google/fonts/tree/main/ofl/manrope
+## Setup illustrations (`public/images/onboarding/`)
+
+- **25 custom sticker illustrations** (`<question>.{base,ink,primary,accent}.webp`) created for the RoomPair setup flow (`docs/onboarding-illustrations/`).
+- Each source illustration (`docs/onboarding-illustrations/source/*.webp`) is split into four WebP layers by `scripts/illustrations/split.py` so outlines and primary/accent fills dynamically adapt to all 8 colour palettes in both light and dark modes.
+
+## Typography
+
+- **Rubik** (`src/design-system/languages/fonts.ts`, loaded via `next/font/google` and shimmed in `lab/next-font-shim.ts`) is the primary typeface of the **F · Card** design language (SIL Open Font License).
+- **DM Sans** and **Manrope** (`public/fonts/`) are self-hosted fallback/base fonts under the SIL Open Font License; full license texts are included in `public/fonts/DM-Sans-LICENSE.txt` and `public/fonts/Manrope-LICENSE.txt`.
+
+## Icons and brand
+
+- **Icons** (`src/design-system/icons/`): RoomPair's own custom hand-drawn 24×24 SVG icon set, built specifically for the Card design language with zero external icon-library dependencies.
+- **Brand mark** (`src/components/app/Brand.tsx`, `public/icon.svg`): created in code for RoomPair.
+- Competitor screenshots studied in `docs/interface-research.md` and `docs/onboarding-illustrations/reference/` were used strictly for UX pattern research and are never embedded in the product.
+
+## Licenses
+
+- Pexels license: https://www.pexels.com/license/
+- Unsplash license: https://unsplash.com/license/
+- Rubik (SIL OFL): https://github.com/googlefonts/rubik
+- DM Sans (SIL OFL): https://github.com/google/fonts/tree/main/ofl/dmsans
+- Manrope (SIL OFL): https://github.com/google/fonts/tree/main/ofl/manrope

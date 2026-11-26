@@ -2,7 +2,6 @@
 import type { CSSProperties } from "react";
 import {
   BadgeCheck,
-  Heart,
   MessageCircle,
   MoreHorizontal,
 } from "@/design-system/icons";
@@ -21,11 +20,8 @@ export function ProfileDialog({
   profile: p,
   match,
   viewer,
-  liked,
-  hasChat,
   inChat = false,
   onClose,
-  onLike,
   onChat,
   onReport,
 }: {
@@ -33,12 +29,9 @@ export function ProfileDialog({
   match: MatchResult;
   /** Your own answers, compared with theirs. */
   viewer: Preferences;
-  liked: boolean;
-  hasChat: boolean;
   /** Their conversation is the page behind this dialog: no Message button. */
   inChat?: boolean;
   onClose: () => void;
-  onLike: () => void;
   onChat: () => void;
   onReport: () => void;
 }) {
@@ -91,20 +84,9 @@ export function ProfileDialog({
       {/* Opened from their conversation: you are already talking. */}
       {!inChat && (
         <div className={d.footer}>
-          {hasChat || p.likesYou ? (
-            <Button leadingIcon={<MessageCircle />} onClick={onChat} fullWidth>
-              {t("Message")}
-            </Button>
-          ) : (
-            <Button
-              leadingIcon={<Heart />}
-              onClick={onLike}
-              disabled={liked}
-              fullWidth
-            >
-              {liked ? t("Waiting for them") : t("Team up")}
-            </Button>
-          )}
+          <Button leadingIcon={<MessageCircle />} onClick={onChat} fullWidth>
+            {t("Message")}
+          </Button>
         </div>
       )}
     </Dialog>

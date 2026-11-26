@@ -69,25 +69,17 @@ test("budget ranges support exact boundaries and reject disjoint ranges", () => 
 });
 
 test("move dates are inclusive at 45 days, strict beyond it, and calendar-valid", () => {
+  const fixedPrefs = withPrefs({ moveDate: "2027-02-01" });
+  const fixedHost = withProfile({ moveDate: "2027-03-18" });
+  assert.equal(getCompatibility(fixedHost, fixedPrefs).eligible, true);
   assert.equal(
-    getCompatibility(
-      withProfile({ moveDate: "2027-03-18" }),
-      defaultPreferences,
-    ).eligible,
-    true,
-  );
-  assert.equal(
-    getCompatibility(
-      withProfile({ moveDate: "2027-03-19" }),
-      defaultPreferences,
-    ).eligible,
+    getCompatibility(withProfile({ moveDate: "2027-03-19" }), fixedPrefs)
+      .eligible,
     false,
   );
   assert.equal(
-    getCompatibility(
-      withProfile({ moveDate: "2027-02-30" }),
-      defaultPreferences,
-    ).eligible,
+    getCompatibility(withProfile({ moveDate: "2027-02-30" }), fixedPrefs)
+      .eligible,
     false,
   );
 });
@@ -266,6 +258,33 @@ test("a host is matched on the rent they ask, not on a budget of their own", () 
   assert.ok(host(900).dealbreakers.some((reason) => reason.includes("€900")));
   assert.equal(host(600).eligible, true);
   assert.equal(host(601).eligible, false);
+
+  // Symmetric check: when a seeker views a host whose room is €750 (above the
+  // host's unasked default [350, 650] profile budget), both see each other.
+  const hostProfile = withProfile({
+    intent: "have-room",
+    budget: [350, 650],
+    room: { ...baseProfile.room!, price: 750 },
+  });
+  const seekerPrefs = withPrefs({
+    intent: "find-room",
+    budgetMin: 700,
+    budgetMax: 900,
+  });
+  const seekerProfile = withProfile({
+    intent: "find-room",
+    room: undefined,
+    budget: [700, 900],
+  });
+  const hostPrefs = {
+    ...defaultPreferences,
+    intent: "have-room" as const,
+    budgetMin: 350,
+    budgetMax: 650,
+    hostRoomPrice: 750,
+  };
+  assert.equal(getCompatibility(hostProfile, seekerPrefs).eligible, true);
+  assert.equal(getCompatibility(seekerProfile, hostPrefs).eligible, true);
 });
 
 test("a room's stay is a minimum: staying longer is fine, shorter lowers the fit", () => {

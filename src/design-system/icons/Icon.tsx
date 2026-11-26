@@ -29,7 +29,7 @@ export type IconComponent = ((props: IconProps) => ReactNode) & {
 export function Icon({
   size = 24,
   strokeWidth,
-  absoluteStrokeWidth: _absolute,
+  absoluteStrokeWidth,
   className,
   style,
   children,
@@ -37,6 +37,7 @@ export function Icon({
   "aria-hidden": ariaHidden,
   ...rest
 }: IconProps & { children: ReactNode }) {
+  void absoluteStrokeWidth;
   const labelled = ariaLabel !== undefined && ariaLabel !== "";
   return (
     <svg

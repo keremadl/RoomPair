@@ -51,19 +51,25 @@ export function getCompatibility(
       : undefined;
   const budgetMin = hostPrice ?? prefs.budgetMin;
   const budgetMax = hostPrice ?? prefs.budgetMax;
-  const validBudget =
+  const roomPrice =
+    profile.intent === "have-room" ? profile.room?.price : undefined;
+  const validViewerBudget =
     Number.isFinite(budgetMin) &&
     Number.isFinite(budgetMax) &&
     budgetMin >= 0 &&
-    budgetMax >= budgetMin &&
+    budgetMax >= budgetMin;
+  const validProfileBudget =
     profile.budget.every(Number.isFinite) &&
     profile.budget[0] >= 0 &&
     profile.budget[1] >= profile.budget[0];
+  // When the other person is a host with a priced room, their unasked personal
+  // budget range does not decide the match — only the room's rent does.
+  const validBudget =
+    validViewerBudget && (roomPrice !== undefined || validProfileBudget);
   const overlapMin = Math.max(budgetMin, profile.budget[0]);
   const overlapMax = Math.min(budgetMax, profile.budget[1]);
-  const budgetOverlap = validBudget && overlapMax >= overlapMin;
-  const roomPrice =
-    profile.intent === "have-room" ? profile.room?.price : undefined;
+  const budgetOverlap =
+    validBudget && (roomPrice !== undefined || overlapMax >= overlapMin);
   const roomInBudget =
     roomPrice === undefined ||
     (Number.isFinite(roomPrice) &&

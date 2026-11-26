@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { defaultPreferences, conversations, profiles } from "./data";
 import {
   ageFrom,
@@ -38,7 +38,7 @@ export const initialState: AppState = {
 };
 export const STORAGE_KEY = "roompair-demo-v1";
 /** A copy of a save that could not be read, kept so it is not lost. */
-const BACKUP_KEY = `${STORAGE_KEY}.unreadable`;
+export const BACKUP_KEY = `${STORAGE_KEY}.unreadable`;
 
 type Json = Record<string, unknown>;
 const isObject = (value: unknown): value is Json =>
@@ -47,6 +47,26 @@ const text = (value: unknown, fallback: string, max: number) =>
   typeof value === "string" ? value.slice(0, max) : fallback;
 const number = (value: unknown, fallback: number) =>
   typeof value === "number" && Number.isFinite(value) ? value : fallback;
+const boundedInt = (
+  value: unknown,
+  min: number,
+  max: number,
+  fallback: number,
+) => {
+  const n = number(value, NaN);
+  return Number.isFinite(n) && n >= min && n <= max ? Math.round(n) : fallback;
+};
+const validFutureDate = (value: unknown, fallback: string): string => {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value))
+    return fallback;
+  const parsed = Date.parse(`${value}T00:00:00Z`);
+  if (
+    !Number.isFinite(parsed) ||
+    new Date(parsed).toISOString().slice(0, 10) !== value
+  )
+    return fallback;
+  return value >= new Date().toISOString().slice(0, 10) ? value : fallback;
+};
 const flag = (value: unknown, fallback: boolean) =>
   typeof value === "boolean" ? value : fallback;
 const oneOf = <T extends string>(
@@ -60,32 +80,34 @@ const strings = (value: unknown, max: number, length = 200) =>
   list(value, max)
     .filter((item): item is string => typeof item === "string")
     .map((item) => item.slice(0, length));
-/** Photos are bundled images or pictures the user picked (data URLs). */
+/** Photos are bundled images or raster pictures the user picked (data URLs). */
 const isPhoto = (value: unknown): value is string =>
   typeof value === "string" &&
-  (value.startsWith("/images/") || value.startsWith("data:image/"));
+  ((value.startsWith("/images/") && !value.includes("..")) ||
+    (/^data:image\/(?:jpeg|png|webp);base64,/i.test(value) &&
+      value.length <= 4_000_000));
 
 const frequency = ["rarely", "sometimes", "often"] as const;
 
 function readPreferences(input: unknown): Preferences {
   const saved = isObject(input) ? input : {};
   const base = defaultPreferences;
+  const rawMin = boundedInt(saved.budgetMin, 100, 4999, base.budgetMin);
+  const rawMax = boundedInt(saved.budgetMax, 101, 5000, base.budgetMax);
+  const [budgetMin, budgetMax] =
+    rawMax > rawMin ? [rawMin, rawMax] : [base.budgetMin, base.budgetMax];
   return {
     name: text(saved.name, base.name, 48),
     city: text(saved.city, base.city, 70),
-    budgetMin: number(saved.budgetMin, base.budgetMin),
-    budgetMax: number(saved.budgetMax, base.budgetMax),
-    // A saved date that has passed would hide everyone; start from the default.
-    moveDate:
-      typeof saved.moveDate === "string" &&
-      saved.moveDate >= new Date().toISOString().slice(0, 10)
-        ? saved.moveDate.slice(0, 10)
-        : base.moveDate,
-    stayMonths: number(saved.stayMonths, base.stayMonths),
+    budgetMin,
+    budgetMax,
+    // A saved date that has passed or is invalid would hide everyone; start from the default.
+    moveDate: validFutureDate(saved.moveDate, base.moveDate),
+    stayMonths: boundedInt(saved.stayMonths, 1, 24, base.stayMonths),
     // "Either" is no longer offered; treat it as looking for a room.
     intent: saved.intent === "have-room" ? "have-room" : "find-room",
-    cleanliness: number(saved.cleanliness, base.cleanliness),
-    social: number(saved.social, base.social),
+    cleanliness: boundedInt(saved.cleanliness, 1, 5, base.cleanliness),
+    social: boundedInt(saved.social, 1, 5, base.social),
     sleep: oneOf(saved.sleep, ["early", "flexible", "late"], base.sleep),
     guests: oneOf(saved.guests, frequency, base.guests),
     homeDays: oneOf(saved.homeDays, frequency, base.homeDays),
@@ -267,38 +289,63 @@ export function sanitizeState(input: unknown): AppState | null {
   };
 }
 
-export function useAppState() {
-  const [state, setState] = useState<AppState>(initialState);
-  const [ready, setReady] = useState(false);
-  /** The last save did not fit or was refused; changes live only in memory. */
-  const [saveFailed, setSaveFailed] = useState(false);
-  useEffect(() => {
-    let raw: string | null = null;
+const noopSubscribe = () => () => {};
+let lastSaveFailed = false;
+const saveListeners = new Set<() => void>();
+function reportSaveFailed(failed: boolean) {
+  if (lastSaveFailed === failed) return;
+  lastSaveFailed = failed;
+  saveListeners.forEach((notify) => notify());
+}
+function subscribeSaveFailed(onChange: () => void) {
+  saveListeners.add(onChange);
+  return () => {
+    saveListeners.delete(onChange);
+  };
+}
+
+function loadInitialState(): AppState {
+  if (typeof window === "undefined") return initialState;
+  let raw: string | null = null;
+  try {
+    raw = localStorage.getItem(STORAGE_KEY);
+    const saved = raw ? sanitizeState(JSON.parse(raw)) : null;
+    if (saved) return saved;
+    if (raw) throw new Error("Unreadable saved state");
+  } catch {
+    // Start from the demo defaults, but keep the unreadable save aside
+    // rather than overwriting it for good.
     try {
-      raw = localStorage.getItem(STORAGE_KEY);
-      const saved = raw ? sanitizeState(JSON.parse(raw)) : null;
-      if (saved) setState(saved);
-      else if (raw) throw new Error("Unreadable saved state");
+      if (raw) localStorage.setItem(BACKUP_KEY, raw);
     } catch {
-      // Start from the demo defaults, but keep the unreadable save aside
-      // rather than overwriting it for good.
-      try {
-        if (raw) localStorage.setItem(BACKUP_KEY, raw);
-      } catch {
-        /* Nothing more can be done if storage itself is unavailable. */
-      }
+      /* Nothing more can be done if storage itself is unavailable. */
     }
-    setReady(true);
-  }, []);
+  }
+  return initialState;
+}
+
+export function useAppState() {
+  const [state, setState] = useState<AppState>(loadInitialState);
+  const ready = useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  );
+  /** The last save did not fit or was refused; changes live only in memory. */
+  const saveFailed = useSyncExternalStore(
+    subscribeSaveFailed,
+    () => lastSaveFailed,
+    () => false,
+  );
   useEffect(() => {
     if (!ready) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      setSaveFailed(false);
+      reportSaveFailed(false);
     } catch {
       // Usually the storage quota: photos are kept as data URLs. The session
       // keeps working in memory and the interface says so.
-      setSaveFailed(true);
+      reportSaveFailed(true);
     }
   }, [state, ready]);
   return {
@@ -306,6 +353,11 @@ export function useAppState() {
     setState,
     ready,
     saveFailed,
-    reset: () => setState(structuredClone(initialState)),
+    reset: () => {
+      try {
+        localStorage.removeItem(BACKUP_KEY);
+      } catch {}
+      setState(structuredClone(initialState));
+    },
   };
 }

@@ -1,19 +1,20 @@
 # RoomPair — ele alınacaklar
 
-Henüz yapılmamış işler. Bir madde tamamlandığında listeden silin. Canlı site
-hesaplarla çalışır (Supabase); ortam değişkenleri yoksa uygulama tarayıcıda
-duran demo olarak açılır.
+Henüz yapılmamış işler ve bilinçli mimari tercihler. Canlı site hesaplarla
+çalışır (Supabase); ortam değişkenleri yoksa uygulama tarayıcıda duran kendi
+kendine yeten demo olarak açılır.
 
-## 1. Sizin yapmanız gerekenler
+## 1. Sunum ve canlı ortam hazırlığı
 
 - [ ] **Sızdırılmış şifre koruması** kapalı. Supabase'de yalnızca Pro planda
       açılabiliyor; ücretsiz planda kaldığımız sürece sonraya bırakıldı.
-- [ ] **Sunumda iki gerçek hesap gerekir:** demo üyeler cevap vermez.
+- [ ] **Sunumda iki gerçek hesap gerekir:** hesap modunda demo üyeler mesajlara
+      otomatik cevap vermez (tarayıcı demosunda simüle cevaplar açıktır).
 - [ ] **Gizlilik bildirimi hukukçu metni değildir.** `/privacy` sayfası
-      uygulamanın gerçekte ne sakladığını anlatır; KVKK/GDPR için veri
-      sorumlusu ve iletişim adresi eklenmelidir.
+      uygulamanın gerçekte ne sakladığını açıkça anlatır; gerçek yayına çıkarken
+      KVKK/GDPR kapsamında veri sorumlusu ve iletişim adresi eklenmelidir.
 
-## 2. Bilinen eksikler
+## 2. Bilinen sınırlar ve bilinçli tercihler
 
 - [ ] **Veritabanındaki demo tarihleri tohum çalıştığı güne göre yazılır.**
       Tarayıcı demosunda tarihler her gün bugüne göre hesaplanır; veritabanında
@@ -30,20 +31,13 @@ duran demo olarak açılır.
       `private.moderators` tablosuna satır eklenir (bkz. `docs/database.md`).
       Gizlenen üyeyi geri açmak da şimdilik SQL ile.
 
-## 3. Temizlik
-
-- [ ] **`ProfileDialog`'daki "Team up / Waiting" dalı ulaşılamaz.**
-- [ ] **ESLint uyarıları:** iki React kanca kuralı uyarı düzeyinde (15 yer).
-      İncelemede hiçbiri gerçek hata çıkmadı.
-- [ ] **`Conversation.matchedAt` yazılıyor ama okunmuyor.**
-
-## 4. Güvenlik (küçük, bilerek bırakıldı)
+## 3. Güvenlik ve ortam notları (küçük, bilerek bırakıldı)
 
 - [ ] **CSP'de `'unsafe-inline'`:** sayfa statik üretildiği için gerekli;
       dinamik sayfalarda nonce'a geçilebilir.
 - [ ] **`/design-system` ve `/swipe-variants`** production'da herkese açık
-      (ekip canlı sayfayı kullanıyor; gizli veri içermez).
-- [ ] **`/api/translations` için hız sınırı yok;** 32+ karakterlik anahtar
-      olmadan hiçbir şey yapmaz.
-- [ ] **`--hostname 0.0.0.0`:** geliştirme sunucusunu aynı ağdaki herkese
-      açıyor; telefonda demo için gerekmiyorsa kaldırın.
+      (ekip ve jüri canlı sayfayı incelemek için kullanıyor; gizli veri içermez).
+- [ ] **`/api/translations` için hız sınırı yok;** 32+ karakterlik yönetici
+      anahtarı olmadan hiçbir şey yapmaz (varsayılan olarak kapalıdır, `503`).
+- [ ] **`--hostname 0.0.0.0`:** geliştirme sunucusunu aynı ağdaki telefonlardan
+      test edebilmek için açık bırakıldı.

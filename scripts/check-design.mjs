@@ -19,8 +19,10 @@ import {
   existsSync,
 } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
+const toPosix = (p) => p.replaceAll("\\", "/");
 const tokensFile = "src/design-system/tokens.css";
 /** Theme files override semantic tokens; they are token files too. */
 const themesDir = "src/design-system/themes";
@@ -53,7 +55,7 @@ function walk(dir) {
 
 const counts = {};
 for (const file of walk(join(root, "src"))) {
-  const rel = relative(root, file);
+  const rel = toPosix(relative(root, file));
   if (isTokenFile(rel)) continue;
   const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
   const entry = {};
@@ -115,7 +117,7 @@ const parseVars = (css) =>
 const base = parseVars(readFileSync(join(root, tokensFile), "utf8"));
 const themes = [["tokens.css", base]];
 const themeFiles = walk(join(root, "src/design-system"))
-  .map((f) => relative(root, f))
+  .map((f) => toPosix(relative(root, f)))
   .filter((rel) => rel !== tokensFile && isTokenFile(rel))
   .sort();
 /** Rule blocks of a CSS file, split by whether they are a dark-mode block. */

@@ -1,7 +1,7 @@
 "use client"; // Error boundaries must be Client Components
 
 import { useEffect } from "react";
-import { STORAGE_KEY } from "@/lib/store";
+import { BACKUP_KEY, STORAGE_KEY } from "@/lib/store";
 
 /**
  * Last-resort fallback when a page throws while rendering. It sits outside
@@ -54,6 +54,7 @@ export default function ErrorPage({
         onClick={() => {
           try {
             localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(BACKUP_KEY);
           } catch {
             /* Storage is unavailable; reloading is still the best option. */
           }

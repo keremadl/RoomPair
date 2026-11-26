@@ -133,14 +133,12 @@ export function DiscoverCard({
     });
   // A drag that ends over a tap zone must not count as a tap.
   const downX = useRef(0);
-  const tap = (by: number) => ({
-    onPointerDown: (e: PointerEvent) => {
-      downX.current = e.clientX;
-    },
-    onClick: (e: MouseEvent) => {
-      if (Math.abs(e.clientX - downX.current) < 10 || e.detail === 0) step(by);
-    },
-  });
+  const rememberPointerDown = (e: PointerEvent) => {
+    downX.current = e.clientX;
+  };
+  const stepOnTap = (e: MouseEvent, by: number) => {
+    if (Math.abs(e.clientX - downX.current) < 10 || e.detail === 0) step(by);
+  };
   return (
     <div className={w.wrap}>
       <div className={w.stage}>
@@ -191,14 +189,16 @@ export function DiscoverCard({
                     className={w.tapPrev}
                     aria-label={t("Previous photo")}
                     disabled={shot === 0}
-                    {...tap(-1)}
+                    onPointerDown={rememberPointerDown}
+                    onClick={(e) => stepOnTap(e, -1)}
                   />
                   <button
                     type="button"
                     className={w.tapNext}
                     aria-label={t("Next photo")}
                     disabled={shot === shots.length - 1}
-                    {...tap(1)}
+                    onPointerDown={rememberPointerDown}
+                    onClick={(e) => stepOnTap(e, 1)}
                   />
                 </>
               )}

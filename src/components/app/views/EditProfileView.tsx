@@ -116,6 +116,7 @@ export function EditProfileView({
   onMe,
   onEditBasics,
   onIntent,
+  onVerify,
   onError,
   onName,
 }: {
@@ -125,6 +126,7 @@ export function EditProfileView({
   /** Opens the setup steps (0 = name, 1 = budget and dates, 2 = habits, 3 = everyday at home, 4 = must-haves). */
   onEditBasics: (question: SetupQuestion) => void;
   onIntent: (intent: "find-room" | "have-room") => void;
+  onVerify?: () => void;
   onError: (message: string) => void;
   onName: (name: string) => void;
 }) {
@@ -537,7 +539,7 @@ export function EditProfileView({
               <Button
                 className={p.sectionButton}
                 leadingIcon={<ShieldCheck />}
-                onClick={() => onMe({ verified: true })}
+                onClick={() => (onVerify ? onVerify() : onMe({ verified: true }))}
                 fullWidth
               >
                 {t("Verify student email")}
