@@ -99,7 +99,7 @@ export function ProfileView({
         </button>
         <div className={h.who}>
           <h2 className={h.name}>
-            {prefs.name}, {me.age}
+            {me.age > 0 ? `${prefs.name}, ${me.age}` : prefs.name}
             {me.verified && <BadgeCheck aria-label={t("discover.verified")} />}
           </h2>
           <button
@@ -174,6 +174,7 @@ export function ProfileView({
           label={t("Student email")}
           value={me.verified ? t("Verified (demo)") : undefined}
           onClick={onVerify}
+          link
         />
         <ListRow
           icon={<ShieldBan />}

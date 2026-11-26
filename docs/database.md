@@ -14,7 +14,7 @@ The interface keeps editing its state optimistically, exactly as in the demo. In
 | `src/lib/backend/remote.ts`         | The actual queries, photo uploads and signed photo links                        |
 | `src/components/app/AuthScreen.tsx` | Sign in and sign up                                                             |
 
-New messages and matches are pushed live (Supabase Realtime, filtered by the same row level security); a check every fifteen seconds while the tab is visible covers new likes and anything missed. Likes are not pushed on purpose: a removed row is announced to every listener by its key, which for a like says who liked whom. A write the database rejects is dropped on the next read, so the screen always ends up showing what the server decided. Photos picked on the device are uploaded to the private buckets; other people's photos are shown through signed links that last an hour.
+New messages and matches are pushed live (Supabase Realtime, filtered by the same row level security); a check every fifteen seconds while the tab is visible covers new likes and anything missed. Likes are not pushed on purpose: a removed row is announced to every listener by its key, which for a like says who liked whom. A write the database rejects is dropped on the next read, so the screen always ends up showing what the server decided. Photos picked on the device are uploaded to the private buckets; other people's photos are shown through signed links that last 15 minutes.
 
 `npm run test:accounts` runs the browser tests for this mode against a local Supabase stack (`npx supabase start`); CI does the same.
 

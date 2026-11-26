@@ -18,6 +18,10 @@ export default function ErrorPage({
   useEffect(() => {
     console.error(error);
   }, [error]);
+  const isRemote = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  );
   const button = {
     font: "inherit",
     padding: "var(--space-3, 12px) var(--space-5, 20px)",
@@ -43,8 +47,9 @@ export default function ErrorPage({
     >
       <h1 style={{ margin: 0 }}>Something went wrong.</h1>
       <p style={{ margin: 0, maxWidth: "36ch" }}>
-        RoomPair hit an unexpected problem. Try again, or reset the demo data
-        saved in this browser.
+        {isRemote
+          ? "RoomPair hit an unexpected problem. Try again or reload the page."
+          : "RoomPair hit an unexpected problem. Try again, or reset the demo data saved in this browser."}
       </p>
       <button style={button} onClick={() => retry()}>
         Try again
@@ -52,16 +57,18 @@ export default function ErrorPage({
       <button
         style={button}
         onClick={() => {
-          try {
-            localStorage.removeItem(STORAGE_KEY);
-            localStorage.removeItem(BACKUP_KEY);
-          } catch {
-            /* Storage is unavailable; reloading is still the best option. */
+          if (!isRemote) {
+            try {
+              localStorage.removeItem(STORAGE_KEY);
+              localStorage.removeItem(BACKUP_KEY);
+            } catch {
+              /* Storage is unavailable; reloading is still the best option. */
+            }
           }
           window.location.reload();
         }}
       >
-        Reset demo data
+        {isRemote ? "Reload page" : "Reset demo data"}
       </button>
     </main>
   );

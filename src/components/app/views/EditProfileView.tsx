@@ -164,7 +164,7 @@ export function EditProfileView({
             items={[
               {
                 icon: <Smile />,
-                text: `${prefs.name}, ${me.age}`,
+                text: me.age > 0 ? `${prefs.name}, ${me.age}` : prefs.name,
                 onClick: () => setEditing("basics"),
               },
               {
@@ -584,6 +584,7 @@ export function EditProfileView({
               label: t("Name"),
               type: "text",
               value: prefs.name,
+              maxLength: 48,
               required: true,
             },
             {
@@ -609,6 +610,7 @@ export function EditProfileView({
               label: t("What you study or do"),
               type: "text",
               required: true,
+              maxLength: 80,
               value: me.occupation,
               hint: t("For example: Design student"),
             },
@@ -616,6 +618,7 @@ export function EditProfileView({
               key: "school",
               label: t("School or workplace"),
               type: "text",
+              maxLength: 120,
               value: me.school,
               hint: t("For example: Riga Technical University"),
             },
@@ -660,6 +663,8 @@ export function EditProfileView({
               label: t("Title"),
               type: "text",
               value: me.room.title,
+              maxLength: 120,
+              required: true,
               hint: t("For example: Bright room near the park"),
             },
             {
@@ -668,7 +673,8 @@ export function EditProfileView({
               type: "number",
               value: me.room.price,
               prefix: "€",
-              min: 0,
+              min: 100,
+              max: 5000,
             },
             {
               key: "deposit",
@@ -677,6 +683,7 @@ export function EditProfileView({
               value: me.room.deposit,
               prefix: "€",
               min: 0,
+              max: 20000,
             },
             {
               key: "flatmates",
@@ -692,6 +699,7 @@ export function EditProfileView({
               label: t("Getting there"),
               type: "text",
               value: me.room.transport,
+              maxLength: 120,
               hint: t("For example: Tram 1 · 10 min to RTU"),
             },
             {
@@ -718,8 +726,8 @@ export function EditProfileView({
               room: {
                 ...me.room,
                 title: String(v.title).trim(),
-                price: Math.max(0, Number(v.price) || 0),
-                deposit: Math.max(0, Number(v.deposit) || 0),
+                price: Math.min(5000, Math.max(100, Number(v.price) || 100)),
+                deposit: Math.min(20000, Math.max(0, Number(v.deposit) || 0)),
                 flatmates: Math.min(10, Math.max(0, Number(v.flatmates) || 0)),
                 transport: String(v.transport).trim(),
                 billsIncluded: Boolean(v.billsIncluded),
@@ -740,6 +748,7 @@ export function EditProfileView({
               key: "text",
               label: editing === "bio" ? t("About me") : t("About the room"),
               type: "textarea",
+              maxLength: editing === "bio" ? 600 : 1200,
               value: editing === "bio" ? me.bio : me.room.description,
               hint:
                 editing === "bio"
@@ -767,6 +776,7 @@ export function EditProfileView({
               key: "text",
               label: t("House rules"),
               type: "textarea",
+              maxLength: 400,
               value: me.room.houseRules,
               hint: t("Quiet hours, guests, cleaning, smoking…"),
             },

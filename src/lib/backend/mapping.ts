@@ -232,7 +232,7 @@ export function meFromRow(
   return {
     photos,
     birthDate: birthDate ?? "",
-    age: row.age ?? base.age,
+    age: row.age ?? 0,
     status: row.status ?? base.status,
     occupation: row.occupation ?? "",
     school: row.university ?? "",

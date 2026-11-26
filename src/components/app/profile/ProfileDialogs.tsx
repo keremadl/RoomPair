@@ -27,6 +27,8 @@ type Field =
       /** Number fields: the allowed range, checked before saving. */
       min?: number;
       max?: number;
+      /** Text fields: character cap matching database limits. */
+      maxLength?: number;
       /** Must not be left empty. */
       required?: boolean;
     }
@@ -47,6 +49,7 @@ type Field =
       type: "textarea";
       value: string;
       hint?: string;
+      maxLength?: number;
     }
   | {
       key: string;
@@ -126,7 +129,7 @@ export function FieldsDialog({
               label={f.label}
               hint={f.hint}
               rows={4}
-              maxLength={500}
+              maxLength={f.maxLength ?? 500}
               value={String(values[f.key])}
               onChange={(e) => set(f.key, e.target.value)}
             />
@@ -156,6 +159,7 @@ export function FieldsDialog({
               type={f.type}
               min={"min" in f ? f.min : undefined}
               max={"max" in f ? f.max : undefined}
+              maxLength={"maxLength" in f ? f.maxLength : undefined}
               inputMode={f.type === "number" ? "numeric" : undefined}
               error={submitted ? errorOf(f) || undefined : undefined}
               value={String(values[f.key])}

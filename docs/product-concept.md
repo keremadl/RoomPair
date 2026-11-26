@@ -108,7 +108,7 @@ Guests, days at home, noise and sharing do not change the score; a big gap becom
 
 ## 8. Design
 
-The interface is built from one design system in the **F · Card** design language: each person is shown as a character card (level, stat pips, a "you vs them" comparison, the room as an item card), with Rubik type, thick outlines and pressable buttons. Profile details are **tabs**: Room, Person and Fit (shown as XP), one at a time.
+The interface is built from one design system in the **F · Card** design language: each person (or host's room) is shown as a crisp card with Rubik headings, thick outlines, and pressable buttons. Profile details are **tabs**: Room, Person and Fit, one at a time.
 
 The team chose this after comparing six design languages and two detail layouts; the others are archived in [archive/design-languages.md](archive/design-languages.md). See [`src/design-system/README.md`](../src/design-system/README.md).
 
@@ -119,7 +119,7 @@ The team chose this after comparing six design languages and two detail layouts;
 - **Self-contained browser demo** (when `NEXT_PUBLIC_SUPABASE_*` is unset): opens directly in discovery with 72 fictional Riga profiles and 32 rooms, swipe/keyboard/button decisions with undo, mutual matches, starter prompts with simulated replies, report/block, local storage validation and one-tap demo reset.
 - **Authenticated multi-user mode** (built in `supabase/` and `src/lib/backend/`, enabled when `NEXT_PUBLIC_SUPABASE_*` is configured): email/password sign-up and sign-in, adult date-of-birth verification stored privately (`private.birth_dates`), PostgreSQL 17 with Row-Level Security and column-level privileges, database triggers for mutual matches, blocks and full account deletion, live message and match delivery over Supabase Realtime, private photo storage with short-lived signed URLs, and an in-app moderation queue (`private.moderators`).
 - **Interface & localization:** the **F · Card** design language with 8 colour palettes, light/dark mode, tabbed profile details, responsive phone and desktop layouts, bundled English and Turkish catalogs, plus an optional n8n translation workflow.
-- **Automated quality gates:** ESLint, strict TypeScript checking, design-token and WCAG contrast checks across 18 theme combinations, AST-based EN/TR translation parity checks, 46 unit tests, ~50 PostgreSQL authorization policy tests, and Playwright E2E suites for both demo mode and two-member live accounts.
+- **Automated quality gates:** ESLint, strict TypeScript checking, design-token and WCAG contrast checks across 18 theme combinations, AST-based EN/TR translation parity checks, 47 unit tests, PostgreSQL authorization policy tests, and Playwright E2E suites for both demo mode and two-member live accounts.
 
 **Not connected yet:** automated student-email verification links (requires transactional email delivery), email/push notifications outside open tabs, third-party identity or property verification, and payments or bookings. Demo profiles, rooms and badges are fictional presentation data (see [assets.md](assets.md)).
 

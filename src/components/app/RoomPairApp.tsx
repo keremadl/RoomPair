@@ -851,6 +851,7 @@ function RoomPairApp() {
         {dialog === "help" && (
           <HelpDialog
             key="help"
+            demo={!account}
             onClose={() => setDialog(null)}
             onStart={() => {
               setDialog(null);

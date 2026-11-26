@@ -198,6 +198,12 @@ export function profileSteps(me: MyProfile, prefs: Preferences): Step[] {
   if (prefs.intent === "have-room")
     steps.push(
       {
+        id: "roomTitle",
+        label: "Name your room",
+        done: me.room.title.trim().length > 0,
+        required: true,
+      },
+      {
         id: "roomPhoto",
         label: "Add a photo of the room",
         done: me.room.photos.length >= 1,

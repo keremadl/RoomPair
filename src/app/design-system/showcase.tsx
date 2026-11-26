@@ -460,12 +460,12 @@ export function Showcase() {
               : "Design system · base tokens"}
           </Eyebrow>
           <Heading level={1} size="4xl">
-            {direction ? direction.idea : "One system, six languages."}
+            {direction ? direction.idea : "One system, Card language."}
           </Heading>
           <Text size="lg" tone="muted" className={styles.lead}>
             {direction
-              ? "Every token and component below is rendered in this language. The core components are the same code in all six; the language's theme tokens give them their character."
-              : "Tokens and components every screen is built from. Pick a design language on the left to see the whole library in it."}
+              ? "Every token and component below is rendered in this language. The core components share the same code across palettes; theme tokens give them their character."
+              : "Tokens and components every screen is built from. Pick the Card language on the left to see the whole library in it."}
           </Text>
           {direction && (
             <dl className={styles.principles}>
@@ -527,7 +527,7 @@ export function Showcase() {
           title="Typography"
           intro={
             direction
-              ? `${direction.principles.find((pr) => pr.label === "Tipografi")?.value ?? ""} Eight sizes; 12px is the floor.`
+              ? `${direction.principles.find((pr) => pr.label === "Type")?.value ?? ""} Eight sizes; 12px is the floor.`
               : "Manrope for headings, DM Sans for everything else. Eight sizes; 12px is the floor."
           }
         >
@@ -561,7 +561,7 @@ export function Showcase() {
               <Text>
                 Body text in DM Sans at 16px. A kitchen you can linger in.
                 Someone asking if you want tea. Plants that are mostly still
-                alive. <TextLink href="#typography">A link in text.</TextLink>
+                alive. <TextLink href="#type">A link in text.</TextLink>
               </Text>
               <Text size="sm" tone="muted">
                 Muted secondary text for supporting details.

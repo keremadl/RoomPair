@@ -5,9 +5,11 @@ import { useI18n } from "@/lib/i18n";
 import d from "./dialogs.module.css";
 
 export function HelpDialog({
+  demo = true,
   onClose,
   onStart,
 }: {
+  demo?: boolean;
   onClose: () => void;
   onStart: () => void;
 }) {
@@ -43,10 +45,12 @@ export function HelpDialog({
         ))}
       </ul>
       <div className={d.notice}>
-        <strong>{t("This is a demo")}</strong>
+        <strong>{t(demo ? "This is a demo" : "About this pilot")}</strong>
         <p>
           {t(
-            "RoomPair is a school project. All people, rooms, student badges and chat replies are made up. Nothing is sent anywhere: your changes stay in this browser.",
+            demo
+              ? "RoomPair is a school project. All people, rooms, student badges and chat replies are made up. Nothing is sent anywhere: your changes stay in this browser."
+              : "RoomPair is an early-stage school project. Your profile, likes, matches and messages are saved to your account. Demo profiles in Riga are fictional presentation data.",
           )}
         </p>
       </div>

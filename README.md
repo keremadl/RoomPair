@@ -37,7 +37,7 @@ npm start
 6. **My profile:** answer **What are you looking for?** — _I'm looking for a room_ shows hosts with their room first; _I have a room, I need a flatmate_ shows only people looking for a room. Edit your living style, or switch to Turkish.
 7. **My profile → Settings → Reset demo data:** return to the original presentation state. Settings also holds the colour palette and light/dark mode.
 
-The app opens directly in discovery for a strong first impression. The five-step setup opens from **Help → Set up my profile** and from the rows under **Edit profile**. A completed profile remains on this browser after refresh.
+The app opens directly in discovery for a strong first impression. The guided setup opens from **Help → Set up my profile** and from the rows under **Edit profile**. A completed profile remains on this browser after refresh.
 
 ## What works
 
@@ -63,7 +63,7 @@ Eligible profiles receive a weighted comparison: budget 25%, tidiness 20%, sleep
 | `src/components/app/RoomPairApp.tsx`             | App state, navigation, discovery logic, dialogs                                                 |
 | `src/components/app/AppShell.tsx`                | Top bar and navigation                                                                          |
 | `src/components/app/views/`                      | Discover, Likes, Messages and Profile screens                                                   |
-| `src/components/app/dialogs/` / `Onboarding.tsx` | Filters, profile, match, help, report and blocked-people dialogs; five-step setup               |
+| `src/components/app/dialogs/` / `Onboarding.tsx` | Filters, profile, match, help, report and blocked-people dialogs; guided setup                  |
 | `src/design-system/`                             | Tokens, core components and the Card design language — see its README; live at `/design-system` |
 | `src/lib/discover/`                              | Home / Person / Fit content model behind the profile tabs                                       |
 | `src/lib/data.ts` / `types.ts`                   | Fictional people, homes, messages and data types                                                |
