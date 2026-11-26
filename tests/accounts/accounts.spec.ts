@@ -331,15 +331,22 @@ test("a report reaches a moderator, who can hide the reported member", async ({
   // Moderators are listed by hand in the database; nobody can add themselves.
   const dbUrl = localDbUrl();
   const moderatorEmail = emailOf(`Fay${run}`);
-  execFileSync("psql", [
-    dbUrl,
-    "-X",
-    "-q",
-    "-v",
-    `mod_email=${moderatorEmail}`,
-    "-c",
-    "insert into private.moderators (user_id) select id from auth.users where email = :'mod_email'",
-  ]);
+  execFileSync(
+    "psql",
+    [
+      dbUrl,
+      "-X",
+      "-q",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-v",
+      `mod_email=${moderatorEmail}`,
+    ],
+    {
+      input:
+        "insert into private.moderators (user_id) select id from auth.users where email = :'mod_email';\n",
+    },
+  );
   try {
     await moderator.reload();
     await nav(moderator)
@@ -361,15 +368,22 @@ test("a report reaches a moderator, who can hide the reported member", async ({
     await expect(card(reporter)).not.toHaveText(new RegExp(`^${reported},`));
   } finally {
     try {
-      execFileSync("psql", [
-        dbUrl,
-        "-X",
-        "-q",
-        "-v",
-        `mod_email=${moderatorEmail}`,
-        "-c",
-        "delete from private.moderators where user_id in (select id from auth.users where email = :'mod_email')",
-      ]);
+      execFileSync(
+        "psql",
+        [
+          dbUrl,
+          "-X",
+          "-q",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-v",
+          `mod_email=${moderatorEmail}`,
+        ],
+        {
+          input:
+            "delete from private.moderators where user_id in (select id from auth.users where email = :'mod_email');\n",
+        },
+      );
     } catch {}
     await moderator.context().close();
     await reporter.context().close();

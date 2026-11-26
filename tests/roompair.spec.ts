@@ -305,6 +305,7 @@ test("what you are looking for decides who Discover shows", async ({
   await expect(
     page.getByRole("heading", { name: "Finish your profile to start" }),
   ).toBeVisible();
+  await expect(page.getByText("Name your room")).toBeVisible();
   await expect(page.getByText("Add a photo of the room")).toBeVisible();
   await page.getByRole("button", { name: "Complete my profile" }).click();
   await expect(
@@ -319,6 +320,11 @@ test("what you are looking for decides who Discover shows", async ({
       .getByRole("list", { name: "Room photos" })
       .getByRole("button", { name: "Main photo" }),
   ).toBeVisible();
+  await page.getByRole("button", { name: "Title: Add" }).click();
+  const roomDialog = page.getByRole("dialog", { name: "My room" });
+  await roomDialog.getByLabel("Title").fill("Sunny room in Centrs");
+  await roomDialog.getByRole("button", { name: "Save" }).click();
+  await expect(roomDialog).toBeHidden();
   await nav.getByRole("button", { name: "Discover" }).click();
   // Having a room: only people looking for one. Leo is
   // looking too, but you already have a conversation with him.
