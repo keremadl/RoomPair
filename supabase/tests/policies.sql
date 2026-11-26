@@ -208,9 +208,11 @@ begin
   assert (select count(*) from storage.objects where name like '22222222%') = 1,
     'members can view another member''s published profile photos, never unpublished drafts';
 end $$;
+select set_config('storage.allow_delete_query', 'true', true);
 select pg_temp.must_fail(
   $$delete from storage.objects where name like '22222222%'$$,
   'members cannot delete someone else''s photos');
+select set_config('storage.allow_delete_query', 'false', true);
 do $$
 begin
   assert (select count(*) from public.rooms where title = 'Ben''s spare room') = 1,
@@ -315,6 +317,10 @@ insert into storage.objects (bucket_id, name)
 select 'chat-photos', id || '/balcony.jpg' from public.matches;
 insert into public.messages (match_id, body, photo_path)
 select id, '', id || '/balcony.jpg' from public.matches;
+select pg_temp.must_fail(
+  $$insert into public.messages (match_id, body, photo_path)
+    select id, '', '00000000-0000-4000-8000-000000000000/wrong.jpg' from public.matches$$,
+  'a message photo_path must belong to its match folder');
 insert into public.conversation_reads (match_id) select id from public.matches;
 
 reset role;
@@ -361,6 +367,9 @@ select pg_temp.must_fail(
 select pg_temp.must_fail(
   $$insert into public.reports (reported_id, reason) values ('22222222-2222-4222-8222-222222222222', 'made-up')$$,
   'report reasons come from a fixed list');
+select pg_temp.must_fail(
+  $$select reviewed_by from public.reports$$,
+  'members cannot read moderator audit columns on reports');
 
 select pg_temp.sign_in('ben');
 do $$
@@ -387,7 +396,13 @@ end $$;
 select pg_temp.sign_in('ada');
 do $$
 begin
-  assert public.my_birth_date() is null, 'a member cannot read someone else''s date of birth';
+  assert public.my_birth_date() = (current_date - interval '23 years')::date,
+    'a member sees only their own date of birth, never someone else''s';
+end $$;
+select pg_temp.sign_in('cem');
+do $$
+begin
+  assert public.my_birth_date() is null, 'a member without a date of birth cannot read someone else''s';
 end $$;
 select pg_temp.sign_in('ben');
 
@@ -415,15 +430,18 @@ declare
   queued record;
 begin
   assert public.is_moderator(), 'a listed moderator is recognised';
-  select * into queued from public.moderation_queue();
+  select * into queued from public.moderation_queue()
+    where reported_id = '22222222-2222-4222-8222-222222222222';
   assert queued.reported_name = 'Ben' and queued.status = 'open' and queued.reports_against = 1,
     'a moderator sees who was reported and how often';
   perform public.review_report(queued.id, 'reviewed', true);
-  assert (select status from public.moderation_queue()) = 'reviewed', 'a moderator can close a report';
-  assert (select suspended from public.moderation_queue()), 'closing a report can suspend the member';
+  assert (select status from public.moderation_queue()
+          where reported_id = '22222222-2222-4222-8222-222222222222') = 'reviewed', 'a moderator can close a report';
+  assert (select suspended from public.moderation_queue()
+          where reported_id = '22222222-2222-4222-8222-222222222222'), 'closing a report can suspend the member';
 end $$;
 select pg_temp.must_fail(
-  $$select public.review_report((select id from public.moderation_queue() limit 1), 'approved')$$,
+  $$select public.review_report((select id from public.moderation_queue() where reported_id = '22222222-2222-4222-8222-222222222222' limit 1), 'approved')$$,
   'report outcomes come from a fixed list');
 select pg_temp.sign_in('ada');
 do $$
@@ -446,8 +464,11 @@ end $$;
 select pg_temp.must_fail(
   $$insert into public.messages (match_id, body) values (current_setting('test.match_id')::uuid, 'Still here')$$,
   'a suspended member cannot send messages');
+select pg_temp.must_fail(
+  $$insert into public.reports (reported_id, reason) values ('11111111-1111-4111-8111-111111111111', 'spam')$$,
+  'a suspended member cannot open new reports');
 reset role;
-delete from private.suspended_members where true;
+delete from private.suspended_members where user_id = '22222222-2222-4222-8222-222222222222';
 set local role authenticated;
 
 select pg_temp.sign_in('ada');
@@ -487,7 +508,9 @@ select pg_temp.sign_in('ben');
 insert into storage.objects (bucket_id, name)
   select 'chat-photos', id || '/from-ben.jpg' from public.matches;
 select pg_temp.sign_in('cem');
+select set_config('storage.allow_delete_query', 'true', true);
 delete from storage.objects where name like '%/from-ben.jpg';
+select set_config('storage.allow_delete_query', 'false', true);
 do $$
 begin
   assert (select count(*) from storage.objects where name like '%/from-ben.jpg') = 1,

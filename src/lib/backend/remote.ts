@@ -201,13 +201,18 @@ export async function photoUrls(
 
 function blobFromDataUrl(dataUrl: string): Blob {
   const [head, body] = dataUrl.split(",", 2);
-  const type = /^data:([^;]+)/.exec(head)?.[1] ?? "image/jpeg";
+  const rawType = /^data:([^;]+)/.exec(head)?.[1]?.toLowerCase() ?? "image/jpeg";
+  const type =
+    rawType === "image/png" || rawType === "image/webp" ? rawType : "image/jpeg";
   const bytes = Uint8Array.from(atob(body ?? ""), (char) => char.charCodeAt(0));
   return new Blob([bytes], { type });
 }
 
-const fileName = () =>
-  `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}.jpg`;
+const extensionFor = (mime: string) =>
+  mime === "image/png" ? "png" : mime === "image/webp" ? "webp" : "jpg";
+
+const fileName = (mime: string) =>
+  `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}.${extensionFor(mime)}`;
 
 /** Uploads a photo picked on this device and returns its stored reference. */
 async function upload(
@@ -216,10 +221,11 @@ async function upload(
   folder: string,
   dataUrl: string,
 ): Promise<string> {
-  const path = `${folder}/${fileName()}`;
+  const blob = blobFromDataUrl(dataUrl);
+  const path = `${folder}/${fileName(blob.type)}`;
   const { error } = await client.storage
     .from(bucket)
-    .upload(path, blobFromDataUrl(dataUrl), { contentType: "image/jpeg" });
+    .upload(path, blob, { contentType: blob.type });
   if (error) throw new Error(error.message);
   // Keep showing the local copy; no need to download what was just sent.
   remember(bucket, path, dataUrl);
